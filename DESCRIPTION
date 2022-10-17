@@ -1,0 +1,15 @@
+Package: methylTFR
+Title: Identification of Methylation Pattern in TFBS 
+Version: 0.0.0.9000
+Authors@R: 
+    person("Sarath Kumar", "Murugan", , "sarath.murugan@outlook.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: methylTFR is a tool to identify of the methylation patterns in 
+            transcription factor binding sites(TFBS).
+License: `use_mit_license()`
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Imports:
+  GenomicRanges
+  data.table
