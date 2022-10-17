@@ -15,6 +15,9 @@ plot_footprint(motifs, tf_bindsites, msites, fname = "TF_footprint.png")
 
 \item{fname}{- output plot png filename}
 }
+\value{
+image will be generated in the specified path
+}
 \description{
 Creates a footprint plot for given motifs and methylation 
 site. It will create png files in the specified location.

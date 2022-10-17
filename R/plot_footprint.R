@@ -4,10 +4,10 @@
 #'  Compute footprint returns a data.table required to create a transcription
 #' factor footprint with label.
 #'
-#' @param motif_name  - motif_name eg GATA  
-#' @param tf_bindsites - Transcription Factor binding sites as GenomicRange List object
-#' @param msites  - Imported methylation data 
-#' @param enhancer - - GenomicRange object containes specific regions like distal motif
+#' @param motif_name     
+#' @param tfbs   character vector specifying the preferred order of samples
+#' @param msites distance metric to be used for clusteing. must be either "cor" or a valid distance method for \code{dist()}
+#' @param enhancer linkage method (see \code{hclust} for details)
 #' @return tf footprint plot data (\code{data.table} object)
 #' @export 
 compute_fp <- function(motif_name, tf_bindsites, msites,
@@ -46,7 +46,7 @@ compute_fp <- function(motif_name, tf_bindsites, msites,
 #' @param tf_bindsites - Transcript Factor binbing sites from (\code{methylTFRann})   
 #' @param msites - Import methylation data 
 #' @param fname - output plot png filename
-#' @return 
+#' @return image will be generated in the specified path
 #' @export 
 plot_footprint <- function(motifs, tf_bindsites, msites, 
                            fname="TF_footprint.png"){
