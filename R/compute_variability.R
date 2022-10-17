@@ -62,7 +62,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 #'  footprint base.
 #' @param motif - motif name 
 #' @param msites - imported methylation sites
-#' @param tf_bindsites - GC bin frequency table (matrix) from (\code{methylTFRann})
+#' @param tf_bindsites - TFBS as GenomicRangeLise object from (\code{methylTFRann})
 #' @param gcfreqs - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
 #' @param gcdist - Genome wide GC distribution from (\code{methylTFRann})
 #' @param enhancer - GenomicRange object containes specific regions like distal motif
