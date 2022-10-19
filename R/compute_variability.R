@@ -6,8 +6,12 @@
 #' @param bedfilename which contains methylation data EPP format 
 #' @return \code{GenomicRange} object with methylation, coverage information
 #' @export 
+#' @importFrom GenomicRanges GRanges
+#' @importFrom IRanges IRanges
+#' @importFrom data.table fread
+#' @importFrom stringr str_split str_replace
 read_methylome <- function(filename){
-    if (!file.exists(data)) {
+    if (!file.exists(filename)) {
         stop(paste(filename, " doesn't exist or path is incorrect !!"))
     }
 
@@ -38,6 +42,9 @@ read_methylome <- function(filename){
 #' @param gcfreq - GC bin frequency table (matrix) from (\code{methylTFRann})
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @export 
+#' @importFrom GenomicRanges GRanges findOverlaps
+#' @importFrom data.table data.table
+#' @importFrom dplyr %>%
 calculate_expmeth <- function(msites, gcdist, gcfreq){
     hits <- findOverlaps(msites, gcdist, type = "within")
     gcmap <- data.table(mscore = msites[hits@from]$score, 
@@ -68,6 +75,9 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 #' @param enhancer - GenomicRange object containes specific regions like distal motif
 #' @return deviation score for a given motif
 #' @export 
+#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom data.table data.table
+#' @importFrom dplyr %>%
 compute_variability <- function(motif, msites, tf_bindsites, gcfreqs,
                                 gcdist, enhancer = NULL){
     tfbs <- tf_bindsites[[motif]]
