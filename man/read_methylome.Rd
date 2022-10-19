@@ -7,7 +7,7 @@
 read_methylome(filename)
 }
 \arguments{
-\item{bedfilename}{which contains methylation data EPP format}
+\item{-}{bedfilename which contains methylation data EPP format}
 }
 \value{
 \code{GenomicRange} object with methylation, coverage information

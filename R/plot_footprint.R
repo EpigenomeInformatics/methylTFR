@@ -4,12 +4,15 @@
 #'  Compute footprint returns a data.table required to create a transcription
 #' factor footprint with label.
 #'
-#' @param motif_name     
-#' @param tfbs   character vector specifying the preferred order of samples
-#' @param msites distance metric to be used for clusteing. must be either "cor" or a valid distance method for \code{dist()}
-#' @param enhancer linkage method (see \code{hclust} for details)
-#' @return tf footprint plot data (\code{data.table} object)
+#' @param motif_name   - motif name eg: GATA string   
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+#' @param msites       - methylation data processed from \code{RnBeads}
+#' @param enhancer     - Specific regions such as distal motif, proximal motif
+#' @return a \code{data.table} object to plot tf footprint
 #' @export 
+#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom data.table data.table
+#' @importFrom dplyr %>% mutate
 compute_fp <- function(motif_name, tf_bindsites, msites,
                                 enhancer = NULL){
     tfbs <- tf_bindsites[[motif_name]]
@@ -42,12 +45,15 @@ compute_fp <- function(motif_name, tf_bindsites, msites,
 #' 
 #'     Creates a footprint plot for given motifs and methylation 
 #' site. It will create png files in the specified location.
-#' @param motifs -   motif names as character vector
-#' @param tf_bindsites - Transcript Factor binbing sites from (\code{methylTFRann})   
-#' @param msites - Import methylation data 
-#' @param fname - output plot png filename
+#' 
+#' @param motifs       - motif names as character vector
+#' @param tf_bindsites - Transcript Factor binbing sites from (\code{methylTFRann})
+#' @param msites       - Import methylation data 
+#' @param fname        - output plot png filename
 #' @return image will be generated in the specified path
 #' @export 
+#' @importFrom dplyr %>%
+#' @importFrom ggplot2 ggplot ggsave 
 plot_footprint <- function(motifs, tf_bindsites, msites, 
                            fname="TF_footprint.png"){
     plot.data <- do.call("rbind", lapply(motifs, compute_fp, tf_bindsites, msites))

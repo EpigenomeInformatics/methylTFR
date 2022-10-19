@@ -7,16 +7,16 @@
 compute_fp(motif_name, tf_bindsites, msites, enhancer = NULL)
 }
 \arguments{
-\item{motif_name}{}
+\item{motif_name}{- motif name eg: GATA string}
 
-\item{msites}{distance metric to be used for clusteing. must be either "cor" or a valid distance method for \code{dist()}}
+\item{tf_bindsites}{- a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})}
 
-\item{enhancer}{linkage method (see \code{hclust} for details)}
+\item{msites}{- methylation data processed from \code{RnBeads}}
 
-\item{tfbs}{character vector specifying the preferred order of samples}
+\item{enhancer}{- Specific regions such as distal motif, proximal motif}
 }
 \value{
-tf footprint plot data (\code{data.table} object)
+a \code{data.table} object to plot tf footprint
 }
 \description{
 Compute footprint returns a data.table required to create a transcription

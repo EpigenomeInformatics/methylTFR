@@ -24,7 +24,7 @@ compute_variability(
 
 \item{gcdist}{- Genome wide GC distribution from (\code{methylTFRann})}
 
-\item{enhancer}{- GenomicRange object containes specific regions like distal motif}
+\item{enhancer}{- Specific regions like distal motif}
 }
 \value{
 deviation score for a given motif

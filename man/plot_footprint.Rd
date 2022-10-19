@@ -7,7 +7,7 @@
 plot_footprint(motifs, tf_bindsites, msites, fname = "TF_footprint.png")
 }
 \arguments{
-\item{motifs}{-   motif names as character vector}
+\item{motifs}{- motif names as character vector}
 
 \item{tf_bindsites}{- Transcript Factor binbing sites from (\code{methylTFRann})}
 
