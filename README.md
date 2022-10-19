@@ -2,7 +2,7 @@
 
 `methylTFR` is an R-package to analyze the methylation data from Infinium 450K microarray and bisulfite sequencing protocols. This tool aims to indentify the methylation patterns or variation on transcription factor binding sites in each individual cells or samples. This tool is still under development and testing stage.
 
-# Requirements
+## Requirements
 
 - R (>= 3.5.0)
 - GenomicRanges
@@ -20,7 +20,7 @@ install.packages(c("data.table", "dplyr", "stringr"))
 
 ```
 
-# Installation
+## Installation
 
 ```sh
 
@@ -30,7 +30,7 @@ Rscript -e "library(devtools); devtools::install('.')"
 
 ```
 
-# QuickStart
+## QuickStart
 
 ```R
 
