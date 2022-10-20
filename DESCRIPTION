@@ -6,7 +6,7 @@ Author: Fabian Müller & Sarath Kumar Murugan
 Maintainer: Sarath Kumar Murugan <sarath.murugan@outlook.com>
 Description: methylTFR is a tool to identify of the methylation patterns in 
             transcription factor binding sites(TFBS).
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
   GenomicRanges
