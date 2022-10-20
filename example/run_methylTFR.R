@@ -21,7 +21,7 @@ for (fname in files_list) {
     if (! prefix %in% colnames(deviation_distal)){
         print(paste0(fname, " Processing ..."))
         msites <- read_methylome(fname)
-        assign(prefix, mclapply(motif_list, compute_variability, msites = msites, tf_bindsites = tf_bindsites, gcfreqs = motif_gcfreq, gcdist = gc_dist, mc.cores = 16))
+        assign(prefix, mclapply(motif_list, compute_deviation, msites = msites, tf_bindsites = tf_bindsites, gcfreqs = motif_gcfreq, gcdist = gc_dist, mc.cores = 16))
         deviation_distal[prefix] = unlist(get(prefix))
         print("Done")
         save(deviation_distal, file = "/data/gc_corrected_distal_deviation_all.Rds")

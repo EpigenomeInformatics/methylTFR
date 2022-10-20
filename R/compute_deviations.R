@@ -64,14 +64,14 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 }
 
 
-#' compute_variability
+#' compute_deviation
 #' 
 #'      This function is used to calculate the deviation in transcript factor
 #'  footprint base.
 #'
 #' @param motif        - motif name 
 #' @param msites       - imported methylation sites
-#' @param tf_bindsites - GC bin frequency table (matrix) from (\code{methylTFRann})
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
 #' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
 #' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
 #' @param enhancer     - Specific regions like distal motif
@@ -80,7 +80,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom dplyr %>%
-compute_variability <- function(motif, msites, tf_bindsites, gcfreqs,
+compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                                 gcdist, enhancer = NULL){
     tfbs <- tf_bindsites[[motif]]
     gcfreq <- gcfreqs[[motif]]
