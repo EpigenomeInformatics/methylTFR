@@ -13,3 +13,4 @@ Imports:
 Depends: 
     R (>= 3.5.0)
 RoxygenNote: 7.2.1
+LazyData: true
