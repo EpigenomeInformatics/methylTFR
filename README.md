@@ -1,6 +1,6 @@
 # methylTFR
 
-`methylTFR` is an R-package to analyze the methylation data from Infinium 450K microarray and bisulfite sequencing protocols. This tool aims to indentify the methylation patterns or variation on transcription factor binding sites in each individual cells or samples. This tool is still under development and testing stage.
+`methylTFR` is an R-package to analyze the methylation data from whole genome bisulfite sequencing. It takes inputs from RnBeads processed bed file - EPP format. This tool aims to indentify the methylation patterns on transcription factor binding sites in each individual cells or samples. This tool is still under development and testing stage.
 
 ## Requirements
 

@@ -64,23 +64,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 }
 
 
-#' compute_deviation
-#' 
-#'      This function is used to calculate the deviation in transcript factor
-#'  footprint base.
-#'
-#' @param motif        - motif name 
-#' @param msites       - imported methylation sites
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
-#' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
-#' @param enhancer     - Specific regions like distal motif
-#' @return deviation score for a given motif
-#' @export 
-#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
-#' @importFrom data.table data.table
-#' @importFrom dplyr %>%
-compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
+compute_deviation_ <- function(motif, msites, tf_bindsites, gcfreqs,
                                 gcdist, enhancer = NULL){
     tfbs <- tf_bindsites[[motif]]
     gcfreq <- gcfreqs[[motif]]
@@ -116,4 +100,34 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
     
     var <- interval_mean$mean[3]/((interval_mean$mean[1] + interval_mean$mean[5])/2)
     return(var)  
+}
+
+
+#' compute_deviation
+#' 
+#'      This function is a wrapper function to calculate the deviation in transcription factor
+#'  footprint base for all given motifs using parallel package
+#'
+#' @param motifs        - list of motifs 
+#' @param msites       - imported methylation sites
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+#' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
+#' @param enhancer     - Specific regions like distal motif
+#' @return deviation score for a given motif
+#' @export 
+#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom data.table data.table
+#' @importFrom dplyr %>%
+#' @importFrom parallel mclapply
+compute_deviation <- function(motifs, msites, tf_bindsites, gcfreqs,
+                                gcdist, sample_name, threads = 4, enhancer = NULL){
+    
+    
+    assign(sample_name, mclapply(motifs, compute_deviation_, 
+                            msites = msites, 
+                            tf_bindsites = tf_bindsites, 
+                            gcfreqs = gcfreqs, 
+                            gcdist = gcdist, mc.cores = threads))
+    return(data.table(sample_name = unlist(get(sample_name))))
 }

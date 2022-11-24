@@ -1,0 +1,55 @@
+---
+output: rmarkdown::html_vignette
+author: Sarath Kumar Murugan
+title: A computational method to identify DNA methylation signatures in transcription factor binding sites (TFBS)
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteIndexEntry{overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+`methylTFR` is an R-package to analyze the methylation data from whole genome bisulfite sequencing. It takes inputs from RnBeads processed bed file - EPP format and this tool aims to identify the methylation patterns on transcription factor binding sites (TFBS) in each individual cells or samples. Transcription Factors (TF) are important proteins that can bind to specific DNA sequences (motifs or TFBS) to regulate the gene expressions. we know that highly methylated DNA sequences are negatively correlated to TF-DNA interaction. Here, we are trying to model the methylation signals for each TF binding profiles.
+
+![Overview of methylation data analysis in `methylTFR`](figures/overview_methylTFR.png)
+
+# Dependencies
+
+The following packages are required to run this tool.
+
+-   R (\>= 3.5.0)
+-   devtools
+-   GenomicRanges
+-   data.table
+-   dplyr
+-   stringr
+
+# Installation
+
+Required dependencies (R packages) will be installed while installing the `methylTFR`.
+
+```{bash}
+# install devtools if not previously installed
+Rscript -e "if (!is.element('devtools', installed.packages()[,'Package'])) install.packages('devtools')"
+#  clone the GitHub repo
+git clone git@github.com:EpigenomeInformatics/methylTFR.git
+cd methylTFR
+Rscript -e "library(devtools); devtools::install('.')"
+```
+
+# Loading the annotation files
+
+```{r}
+library(methylTFRann)
+library(methylTFR)
+# for parallel processing
+library(parallel)
+
+# load annotation files from methylTFRann
+tf_bindsites <- getTFbindsites()
+gc_dist <- getGenomeGC()
+motif_gcfreq <- getGCfreq()
+motif_list <- names(motif_gcfreq)
+```
