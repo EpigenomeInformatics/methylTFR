@@ -64,7 +64,23 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 }
 
 
-compute_deviation_ <- function(motif, msites, tf_bindsites, gcfreqs,
+#' compute_deviation
+#' 
+#'      This function is function to calculate the deviation in transcription factor
+#'  footprint base for a given motif
+#'
+#' @param motifs        - list of motifs 
+#' @param msites       - imported methylation sites
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+#' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
+#' @param enhancer     - Specific regions like distal motif
+#' @return deviation score for a given motif
+#' @export 
+#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom data.table data.table
+#' @importFrom dplyr %>%
+compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                                 gcdist, enhancer = NULL){
     tfbs <- tf_bindsites[[motif]]
     gcfreq <- gcfreqs[[motif]]
@@ -90,7 +106,7 @@ compute_deviation_ <- function(motif, msites, tf_bindsites, gcfreqs,
     plot.data <- plot.data %>% group_by(x) %>% 
                     summarise(n=n(), avg_methyl=mean(y1), avg_cov = mean(y2),  
                               motif=motif)
-    
+    # GC bias correcton 
     dt_join <- left_join(plot.data, exp_meth, by='x')
     dt_join$diff <- abs(dt_join$avg_methyl - dt_join$exp_avg_methyl)
 
@@ -103,31 +119,58 @@ compute_deviation_ <- function(motif, msites, tf_bindsites, gcfreqs,
 }
 
 
-#' compute_deviation
+#' run_methyltfr
 #' 
 #'      This function is a wrapper function to calculate the deviation in transcription factor
 #'  footprint base for all given motifs using parallel package
 #'
-#' @param motifs        - list of motifs 
-#' @param msites       - imported methylation sites
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
-#' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
+#' @param sample_ann   - a tab seperated file contains sample annotations
+#' @param sample_dir   - directory where all bed file and annotation file stored
+#' @param genome       - human genome version default: hg38
+#' @param threads      - thread count for parallel processing
 #' @param enhancer     - Specific regions like distal motif
-#' @return deviation score for a given motif
+#' @return deviation score matrix for all samples 
 #' @export 
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom dplyr %>%
 #' @importFrom parallel mclapply
-compute_deviation <- function(motifs, msites, tf_bindsites, gcfreqs,
-                                gcdist, sample_name, threads = 4, enhancer = NULL){
+#' @importFrom logger log_info log_error
+run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
+                            threads = 4, enhancer = NULL){
     
+    if (!require("methylTFRann")) {
+        log_error("methylTFRann package is not installed in your environment !!")
+    }
+
+    annfile = file.path(sample_dir, sample_ann)
+    if (!file.exists(annfile)){
+        log_error(" %s does not exist, please check the file path !!", annfile)
+    }
+
+    samples <- read.table(annfile, sep = "\t", header=TRUE)
+
+    log_info("Loading the samples and annotation package ")
+    files_list <- file.path(sample_dir, samples[, "bedfilename"])
+    tf_bindsites <- getTFbindsites()
+    gc_dist <- getGenomeGC()
+    gcfreqs <- getGCfreq()
     
-    assign(sample_name, mclapply(motifs, compute_deviation_, 
-                            msites = msites, 
-                            tf_bindsites = tf_bindsites, 
-                            gcfreqs = gcfreqs, 
-                            gcdist = gcdist, mc.cores = threads))
-    return(data.table(sample_name = unlist(get(sample_name))))
+    motifs <- names(gcfreqs)
+    deviation <- data.table()
+    for ( bedfile in files_list) {
+        sample_name = basename(bedfile)
+        log_info("Processing %s ", bedfile)
+        msites <- read_methylome(bedfile)
+        assign(sample_name, mclapply(motifs, compute_deviation, 
+                                        msites = msites, 
+                                        tf_bindsites = tf_bindsites, 
+                                        gcfreqs = gcfreqs, 
+                                        gcdist = gc_dist, mc.cores = threads))
+        log_info('Done %s ', bedfile)
+        deviation[sample_name] <- unlist(get(sample_name))
+    }
+    rownames(deviation) <- motifs
+    
+    return(deviation)
 }

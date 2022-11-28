@@ -14,8 +14,6 @@ compute_deviation(
 )
 }
 \arguments{
-\item{motif}{- motif name}
-
 \item{msites}{- imported methylation sites}
 
 \item{tf_bindsites}{- a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})}
@@ -25,11 +23,13 @@ compute_deviation(
 \item{gcdist}{- Genome wide GC distribution from (\code{methylTFRann})}
 
 \item{enhancer}{- Specific regions like distal motif}
+
+\item{motifs}{- list of motifs}
 }
 \value{
 deviation score for a given motif
 }
 \description{
-This function is used to calculate the deviation in transcript factor
- footprint base.
+This function is function to calculate the deviation in transcription factor
+ footprint base for a given motif
 }
