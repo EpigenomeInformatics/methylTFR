@@ -151,7 +151,7 @@ run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
     samples <- read.table(annfile, sep = "\t", header=TRUE)
 
     log_info("Loading the samples and annotation package ")
-    files_list <- file.path(sample_dir, samples[, "bedfilename"])
+    files_list <- file.path(sample_dir, samples[, "bedFile"])
     tf_bindsites <- getTFbindsites()
     gc_dist <- getGenomeGC()
     gcfreqs <- getGCfreq()
