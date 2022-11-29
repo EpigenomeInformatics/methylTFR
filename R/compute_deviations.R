@@ -77,9 +77,9 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 #' @param enhancer     - Specific regions like distal motif
 #' @return deviation score for a given motif
 #' @export 
-#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom GenomicRanges GRanges findOverlaps width resize start end mcols
 #' @importFrom data.table data.table
-#' @importFrom dplyr %>%
+#' @importFrom dplyr %>% summarise group_by
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                                 gcdist, enhancer = NULL){
     tfbs <- tf_bindsites[[motif]]
@@ -167,8 +167,9 @@ run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
                                         tf_bindsites = tf_bindsites, 
                                         gcfreqs = gcfreqs, 
                                         gcdist = gc_dist, mc.cores = threads))
+        print(unlist(get(sample_name)))
         log_info('Done %s ', bedfile)
-        deviation[sample_name] <- unlist(get(sample_name))
+        deviation[, ':='(sample_name = unlist(get(sample_name)))]
     }
     rownames(deviation) <- motifs
     
