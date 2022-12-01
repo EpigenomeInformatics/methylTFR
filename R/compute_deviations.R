@@ -79,7 +79,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
 #' @export 
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end mcols
 #' @importFrom data.table data.table
-#' @importFrom dplyr %>% summarise group_by
+#' @importFrom dplyr %>% summarise group_by n
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                                 gcdist, enhancer = NULL){
     tfbs <- tf_bindsites[[motif]]
@@ -162,14 +162,13 @@ run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
         sample_name = basename(bedfile)
         log_info("Processing %s ", bedfile)
         msites <- read_methylome(bedfile)
-        assign(sample_name, mclapply(motifs, compute_deviation, 
+        process_deviation <-  mclapply(motifs, compute_deviation, 
                                         msites = msites, 
                                         tf_bindsites = tf_bindsites, 
                                         gcfreqs = gcfreqs, 
-                                        gcdist = gc_dist, mc.cores = threads))
-        print(unlist(get(sample_name)))
+                                        gcdist = gc_dist, mc.cores = threads)
         log_info('Done %s ', bedfile)
-        deviation[, ':='(sample_name = unlist(get(sample_name)))]
+        deviation[, ':='(sample_name = unlist(process_deviation))]
     }
     rownames(deviation) <- motifs
     

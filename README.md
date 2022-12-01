@@ -9,6 +9,8 @@
 - data.table
 - dplyr
 - stringr
+- parallel
+- logger
 
 ```R
 
@@ -32,36 +34,21 @@ Rscript -e "library(devtools); devtools::install('.')"
 
 ## QuickStart
 
+The samples directory should contain methylation bed files and a tab delimited sample annotation file. The bedFile column in the sample annotation file should be used to hold bedfile names. 
+
 ```R
 
+library(GenomicRanges)
+library(dplyr)
 library(methylTFRann)
 library(methylTFR)
 
-library(parallel)
-library(data.table)
+sample_dir <- file.path("samples_dir")
+sample_ann <- "samples.tsv" # should contain column name bedFile
 
-# load annotation files from methylTFRann
-tf_bindsites <- getTFbindsites()
-gc_dist <- getGenomeGC()
-motif_gcfreq <- getGCfreq()
-
-motif_list <- names(motif_gcfreq)
-
-# read files to be processed
-files_list <- list.files(path="/data/blueprint/bed", pattern='*.bed', full.names=T)
-deviation_distal <- data.frame(motifs = names(motif_gcfreq))
-# process each file and calculate variability score for each samples or cells
-for (fname in files_list) {
-    basename = unlist(str_split(fname, "/"))[10]
-    prefix = str_replace(basename, ".bed", "")
-    if (! prefix %in% colnames(deviation_distal)){
-        print(paste0(fname, " Processing ..."))
-        msites <- read_methylome(fname)
-        assign(prefix, mclapply(motif_list, compute_variability, msites = msites, tf_bindsites = tf_bindsites, gcfreqs = motif_gcfreq, gcdist = gc_dist, mc.cores = 16))
-        deviation_distal[prefix] = unlist(get(prefix))
-        print("Done")
-        save(deviation_distal, file = "/data/gc_corrected_distal_deviation_all.Rds")
-    }
-}
+# deviation score matrix
+deviations <- run_methyltfr(sample_ann,
+                            sample_dir,
+                            threads = 8)
 
 ```

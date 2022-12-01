@@ -50,6 +50,6 @@ differential_deviation_test <- function(deviations,
     
     return(data.frame(motifs = motifs,
                       p_value = p_val, 
-                      p_value_adjusted = p_adj))
+                      adj.pvalue = p_adj))
 
 }

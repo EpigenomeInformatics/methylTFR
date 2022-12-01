@@ -11,7 +11,9 @@ vignette: >
 
 # Introduction
 
-`methylTFR` is an R-package to analyze the methylation data from whole genome bisulfite sequencing. It takes inputs from RnBeads processed bed file - EPP format and this tool aims to identify the methylation patterns on transcription factor binding sites (TFBS) in each individual cells or samples. Transcription Factors (TF) are important proteins that can bind to specific DNA sequences (motifs or TFBS) to regulate the gene expressions. we know that highly methylated DNA sequences are negatively correlated to TF-DNA interaction. Here, we are trying to model the methylation signals for each TF binding profiles.
+`methylTFR` is an R-package to analyze the methylation data from whole genome bisulfite sequencing (WGBS). It takes inputs as bedfiles from RnBeads pipeline (bed - EPP format) and this tool aims to identify the methylation patterns on transcription factor binding sites (TFBS) in each individual cells or samples. Transcription Factors (TF) are important proteins that can bind to specific DNA sequences (motifs or TFBS) to regulate the gene expressions. we know that highly methylated DNA sequences are negatively affects the TF-DNA interaction. Here, we are trying to model the methylation signals for each TF binding profiles. 
+
+`methylTFann` is a data package that includes TF motif annotation informations to process methylation data. `methylTFR` provides a simple function to process large number of data-sets. In this vignette, we will handle WGBS data of human haematopoietic cells from the blueprint epigenome project. Bedfiles and sample annotation files will be included in the example data set to run this programme, and a deviation score matrix will be constructed for this example dataset. This deviation matrix can be used for other downstream analysis such as exploratory analysis (dimentionality reduction, clustering), differential analysis.
 
 ![Overview of methylation data analysis in `methylTFR`](figures/overview_methylTFR.png)
 
@@ -25,10 +27,22 @@ The following packages are required to run this tool.
 -   data.table
 -   dplyr
 -   stringr
+-   logger
+
+If you haven't installed these packages, you can install using the following code.
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("GenomicRanges")
+install.packages(c("data.table", "stringr", "dplyr", "logger"))
+
+```
 
 # Installation
 
-Required dependencies (R packages) will be installed while installing the `methylTFR`.
+Required dependencies (R packages) should be installed before installing the `methylTFR`.
 
 ```{bash}
 # install devtools if not previously installed
@@ -41,10 +55,10 @@ Rscript -e "library(devtools); devtools::install('.')"
 
 # Loading the annotation files
 
+Load the required annotation files from `methylTFRann` package.
+
 ```{r}
 library(methylTFRann)
-library(methylTFR)
-# for parallel processing
 library(parallel)
 
 # load annotation files from methylTFRann
@@ -52,4 +66,115 @@ tf_bindsites <- getTFbindsites()
 gc_dist <- getGenomeGC()
 motif_gcfreq <- getGCfreq()
 motif_list <- names(motif_gcfreq)
+```
+
+# Example dataset
+
+We present an example data-set of methylation profiles from the BLUEPRINT epigenome database of 26 human bcell samples (only chromosome 21) for the sake of simplicity in this tutorial. This dataset includes RnBeads processed bed files as well as an example sample annotation file. You can download this dataset using following command
+
+```{bash}
+wget #link should be updated later
+untar -xvzf bcells_blueprint.tar.gz
+```
+
+# Running methylTFR
+
+We just need a few R commands to apply methylTFR on a large number of samples.The majority of the information is saved in GenomicRanges objects in the annotation package to speed up processing. And it requires more CPU memory (\> 10 GB RAM).
+
+```{r}
+# loading libraries 
+library(GenomicRanges)
+library(dplyr)
+library(methylTFRann)
+library(methylTFR)
+
+sample_dir <- file.path("bcells")
+sample_ann <- "samples.tsv"
+
+# deviation score matrix
+deviations <- run_methyltfr(sample_ann,
+                            sample_dir,
+                            threads = 8)
+```
+
+# Exploratory Analysis
+
+
+## Dimentionality Reduction - PCA
+
+```{r}
+# load example deviation matrix from methylTFR
+data(example_deviations, package = "methylTFR")
+
+# loading libraries for PCA
+library(factoextra)
+library(ggfortify)
+
+# helper function to parse the sample name
+get_groupname <- function(x) {
+  return(unlist(strsplit(x, split = "_"))[1])
+}
+
+tdf <- as.data.frame(t(example_deviations))
+groups <- unlist(lapply(FUN = get_groupname, X = colnames(example_deviations)))
+tdf$cell_type <- groups
+
+# skip cell_type column 
+pca <- prcomp(tdf[, -633])
+
+autoplot(pca, data = tdf,
+         colour = 'cell_type', 
+         main = "PCA - Bcell vs Tcell") 
+
+```
+
+![PCA on Bcell vs Tcell](figures/exploratory_pca_analysis.png)
+## UMAP
+
+```{r}
+
+library(umap)
+
+umap_fit <- as.data.frame(t(example_deviations)) %>% 
+  select(where(is.numeric)) %>%
+  scale() %>% 
+  umap()
+
+umap_df <- umap_fit$layout %>%
+  as.data.frame()%>%
+  rename(UMAP1="V1",
+         UMAP2="V2")
+
+
+ggplot(data = umap_df, 
+       aes(x = UMAP1, 
+           y = UMAP2, 
+           color = group)) +
+  geom_point() +
+  labs(x = "UMAP1",
+       y = "UMAP2",
+       subtitle = "UMAP plot -  motifs") 
+```
+
+# Differential Analysis
+
+```{r}
+# merging TCD4 and TCD8 into single group
+match <- which(groups %in% c("TCD4", "TCD8"))
+groups[match] <- "Tcell"
+groups <- as.factor(groups)
+
+diff <- differential_deviation_test(example_deviations, groups = groups)
+
+dim(diff[diff$p_value_adjusted < 0.05, ])
+# [1] 173   3
+
+head(diff[diff$p_value_adjusted < 0.05, ])
+#                 motifs      p_value      adj.p_value
+#FOXD1             FOXD1 8.152009e-03     0.0330260877
+#PPARG             PPARG 4.139074e-05     0.0005231789
+#RORA(var.2) RORA(var.2) 8.377320e-06     0.0001707892
+#RXRA::VDR     RXRA::VDR 1.229088e-03     0.0075415914
+#REST               REST 1.034783e-02     0.0393965505
+#RARA::RXRA   RARA::RXRA 4.782239e-04     0.0036414154
 ```
