@@ -4,16 +4,16 @@
 \alias{plot_footprint}
 \title{plot_footprint}
 \usage{
-plot_footprint(motifs, tf_bindsites, msites, fname = "TF_footprint.png")
+plot_footprint(motifs, tf_bindsites, samples, img = "TF_footprint.png")
 }
 \arguments{
 \item{motifs}{- motif names as character vector}
 
 \item{tf_bindsites}{- Transcript Factor binbing sites from (\code{methylTFRann})}
 
-\item{msites}{- Import methylation data}
+\item{samples}{- Import methylation data}
 
-\item{fname}{- output plot png filename}
+\item{img}{- output plot png filename}
 }
 \value{
 image will be generated in the specified path

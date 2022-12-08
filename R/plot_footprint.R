@@ -48,19 +48,34 @@ compute_fp <- function(motif_name, tf_bindsites, msites,
 #' 
 #' @param motifs       - motif names as character vector
 #' @param tf_bindsites - Transcript Factor binbing sites from (\code{methylTFRann})
-#' @param msites       - Import methylation data 
-#' @param fname        - output plot png filename
+#' @param samples       - Import methylation data 
+#' @param img        - output plot png filename
 #' @return image will be generated in the specified path
 #' @export 
 #' @importFrom dplyr %>%
-#' @importFrom ggplot2 ggplot ggsave 
-plot_footprint <- function(motifs, tf_bindsites, msites, 
-                           fname="TF_footprint.png"){
-    plot.data <- do.call("rbind", lapply(motifs, compute_fp, tf_bindsites, msites))
+#' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
+#' @importFrom ggrepel geom_label_repel
+plot_footprint <- function(motifs, tf_bindsites, samples, 
+                           img ="TF_footprint.png"){
+    
+    msites_list <- GRangesList()
+    msites_list <- lapply(samples, read_methylome)
+    sample_names <- unlist(lapply(samples, basename))
+    names(msites_list) <- sample_names    
+
+    plot_data <- data.table()
+    
+    for (i in 1:length(msites_list)){
+        msites = msites_list[[i]]
+        current_plot <- do.call("rbind", lapply(motifs, compute_fp, tf_bindsites, msites))
+        current_plot$sample_name <- sample_names[i]
+        plot_data <- rbind(plot_data, current_plot)
+    }
+    
     p1 <- plot_data %>%
-        ggplot(aes(x = x, y = avg_methyl, group=motif)) +
-                geom_line(aes(color=motif)) +
-                geom_point(aes(color=motif)) +
+        ggplot(aes(x = x, y = avg_methyl, group=interaction(motif, sample_name))) +
+                geom_line(aes(color=sample_name)) +
+                geom_point(aes(color=sample_name)) +
                 geom_label_repel(aes(label = label),
                     nudge_x = 1,
                     na.rm = TRUE) +
@@ -68,7 +83,7 @@ plot_footprint <- function(motifs, tf_bindsites, msites,
                 ylab("Methylation level") +
                 ggtitle("TF footprint")
 
-    ggsave(filename = fname,
+    ggsave(filename = img,
             plot = p1,
             width = 11, height = 8.5)
 }
