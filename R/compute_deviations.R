@@ -10,25 +10,33 @@
 #' @importFrom IRanges IRanges
 #' @importFrom data.table fread
 #' @importFrom stringr str_split str_replace
-read_methylome <- function(filename){
+read_methylome <- function(filename, type = c("EPP", "BisSNP") ){
     if (!file.exists(filename)) {
         stop(paste(filename, " doesn't exist or path is incorrect !!"))
     }
-
-    msites <- fread(filename, header = FALSE)
-    mcov <- unlist(str_split(msites$V4, "/"))
-    mcov <- as.numeric(str_replace(mcov, "'", ""))
-
-    row_odd <- seq_len(length(mcov)) %% 2 
+    type = match.arg(type)
+    if (type == "EPP") {
+        # Parse EPP file format
+        msites <- fread(filename, header = FALSE)
+        mcov <- unlist(str_split(msites$V4, "/"))
+        mcov <- as.numeric(str_replace(mcov, "'", ""))
+        row_odd <- seq_len(length(mcov)) %% 2 
+        cov  <- mcov[row_odd == 0]
+        mscore <- round(msites$V5/1000, 3)
+    } else {
+        # Parse BisSNP Tab-Separated file format 
+        msites <- fread(filename, header = FALSE, skip = 1)
+        mscore <- round(msites$V4/100, 3)
+        cov <- msites$V5
+    }
 
     msites <- GRanges(seqnames = msites$V1, 
-                    ranges = IRanges(start = msites$V2, width = 3), 
-                    strand = msites$V6,
-                    T = mcov[row_odd == 0],
-                    M = mcov[row_odd == 1],
-                    score = msites$V5,
-                    methylation = msites$V4,
-                    coverage = mcov[row_odd == 0])
+                        ranges = IRanges(start = msites$V2, width = 3), 
+                        strand = msites$V6,
+                        score = mscore,
+                        methylation = msites$V4,
+                        coverage = cov)
+
     return(msites)
 }
 
@@ -55,7 +63,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq){
                 summarise(avg_mscore = mean(mscore))
     exp_meth <- as.matrix(exp_meth %>% 
                           group_by(gcbin) %>% 
-                          summarise(mscore = mean(avg_mscore)/1000))
+                          summarise(mscore = mean(avg_mscore)))
     exp.data <- t(gcfreq) %*% exp_meth[, 2]
     mpos <- seq(-floor(length(exp.data)/2), floor(length(exp.data)/2))
     exp.methyl <-  data.table(x = mpos, avg_methyl = exp.data)
@@ -100,7 +108,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
     mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs))/2))
     x = start(msites[hits@from]) - tfbs[hits@to]$mid_point
     plot.data <- data.table(x = x, 
-                            y1 = (msites[hits@from]$score/1000), 
+                            y1 = (msites[hits@from]$score), 
                             y2 = msites[hits@from]$coverage)
 
     plot.data <- plot.data %>% group_by(x) %>% 
@@ -137,7 +145,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom parallel mclapply
 #' @importFrom logger log_info log_error
 run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
-                            threads = 4, enhancer = NULL){
+                            threads = 4, enhancer = NULL, filetype = c('EPP', 'BisSNP')){
     
     if (!require("methylTFRann")) {
         log_error("methylTFRann package is not installed in your environment !!")
@@ -149,6 +157,7 @@ run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
     }
 
     samples <- read.table(annfile, sep = "\t", header=TRUE)
+    filetype  <- match.arg(filetype)
 
     log_info("Loading the samples and annotation package ")
     files_list <- file.path(sample_dir, samples[, "bedFile"])
@@ -156,18 +165,19 @@ run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
     gc_dist <- getGenomeGC()
     gcfreqs <- getGCfreq()
     
+
     motifs <- names(gcfreqs)
     deviation <- data.table()
     for ( bedfile in files_list) {
         sample_name = basename(bedfile)
-        log_info("Processing %s ", bedfile)
-        msites <- read_methylome(bedfile)
+        log_info("Processing ", bedfile)
+        msites <- read_methylome(bedfile, type = filetype)
         process_deviation <-  mclapply(motifs, compute_deviation, 
                                         msites = msites, 
                                         tf_bindsites = tf_bindsites, 
                                         gcfreqs = gcfreqs, 
                                         gcdist = gc_dist, mc.cores = threads)
-        log_info('Done %s ', bedfile)
+        log_info('Done ', bedfile)
         deviation[, ':='(sample_name = unlist(process_deviation))]
     }
     rownames(deviation) <- motifs

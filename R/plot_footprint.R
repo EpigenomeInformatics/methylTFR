@@ -29,7 +29,7 @@ compute_fp <- function(motif_name, tf_bindsites, msites,
     mcols(tfbs)$mid_point <- round(end(tfbs) + (start(tfbs) - end(tfbs))/2)
     x = start(msites[hits@from]) - tfbs[hits@to]$mid_point
     plot.data <- data.table(x = x, 
-                            y1 = msites[hits@from]$score/1000, 
+                            y1 = msites[hits@from]$score, 
                             y2 = msites[hits@from]$coverage)
 
     plot.data <- plot.data %>% group_by(x) %>% 
