@@ -145,7 +145,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom parallel mclapply
 #' @importFrom logger log_info log_error
 run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
-                            threads = 4, enhancer = NULL, filetype = c('EPP', 'BisSNP')){
+                            threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")){
     
     if (!require("methylTFRann")) {
         log_error("methylTFRann package is not installed in your environment !!")
@@ -167,20 +167,24 @@ run_methyltfr <- function(sample_ann, sample_dir, genome="hg38",
     
 
     motifs <- names(gcfreqs)
-    deviation <- data.table()
+    deviation <- data.frame(motifs = motifs)
     for ( bedfile in files_list) {
         sample_name = basename(bedfile)
         log_info("Processing ", bedfile)
         msites <- read_methylome(bedfile, type = filetype)
-        process_deviation <-  mclapply(motifs, compute_deviation, 
-                                        msites = msites, 
-                                        tf_bindsites = tf_bindsites, 
-                                        gcfreqs = gcfreqs, 
-                                        gcdist = gc_dist, mc.cores = threads)
+        assign(sample_name, mclapply(motifs, compute_deviation, 
+                                    msites = msites, 
+                                    tf_bindsites = tf_bindsites, 
+                                    gcfreqs = gcfreqs, 
+                                    gcdist = gc_dist,
+                                    enhancer = enhancer ,
+                                    mc.cores = threads))  
         log_info('Done ', bedfile)
-        deviation[, ':='(sample_name = unlist(process_deviation))]
+        #deviation[, ':='(sample_name = unlist(process_deviation))]
+        deviation[sample_name] = unlist(get(sample_name))
     }
-    rownames(deviation) <- motifs
+
+    #rownames(deviation) <- motifs
     
     return(deviation)
 }
