@@ -12,5 +12,5 @@ Imports:
   GenomicRanges
 Depends: 
     R (>= 3.5.0)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 LazyData: true

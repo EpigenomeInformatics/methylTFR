@@ -4,7 +4,7 @@
 \alias{read_methylome}
 \title{read_methylome}
 \usage{
-read_methylome(filename)
+read_methylome(filename, type = c("EPP", "BisSNP"))
 }
 \arguments{
 \item{-}{bedfilename which contains methylation data EPP format}
@@ -13,7 +13,7 @@ read_methylome(filename)
 \code{GenomicRange} object with methylation, coverage information
 }
 \description{
-read_methylome is a function to import methylation data into R Genomic 
- Range object. Bed file should be processed in the pipeline developed by 
+read_methylome is a function to import methylation data into R Genomic
+ Range object. Bed file should be processed in the pipeline developed by
  Fabian Müller and Christoph Bock. (EPP format)
 }

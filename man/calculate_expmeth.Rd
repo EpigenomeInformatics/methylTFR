@@ -17,6 +17,6 @@ calculate_expmeth(msites, gcdist, gcfreq)
 a \code{data.table} object with GC bin with corresponding avg methylation
 }
 \description{
-This function is used to calculate genome-wide expected methylation 
+This function is used to calculate genome-wide expected methylation
  for each motif.
 }

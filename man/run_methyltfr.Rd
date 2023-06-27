@@ -9,7 +9,8 @@ run_methyltfr(
   sample_dir,
   genome = "hg38",
   threads = 4,
-  enhancer = NULL
+  enhancer = NULL,
+  filetype = c("EPP", "BisSNP")
 )
 }
 \arguments{

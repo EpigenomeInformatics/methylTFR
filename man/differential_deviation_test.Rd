@@ -7,7 +7,10 @@
 differential_deviation_test(
   deviations,
   groups = NULL,
-  motifs = rownames(deviations)
+  motifs = rownames(deviations),
+  alternative = c("two.sided", "less", "greater"),
+  parametric = TRUE,
+  padjMethod = "BH"
 )
 }
 \arguments{
@@ -23,5 +26,5 @@ a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
 \description{
 Differential analysis is to test which motifs are having significant
 deviations among different cell-types.
-Inspired from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
+Adapted from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
 }
