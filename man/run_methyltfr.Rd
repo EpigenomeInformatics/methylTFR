@@ -8,6 +8,9 @@ run_methyltfr(
   sample_ann,
   sample_dir,
   genome = "hg38",
+  tf_bindsites = NULL,
+  gcfreqs = NULL,
+  gc_dist = NULL,
   threads = 4,
   enhancer = NULL,
   filetype = c("EPP", "BisSNP")
@@ -19,6 +22,12 @@ run_methyltfr(
 \item{sample_dir}{- directory where all bed file and annotation file stored}
 
 \item{genome}{- human genome version default: hg38}
+
+\item{tf_bindsites}{- a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})}
+
+\item{gcfreqs}{- GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})}
+
+\item{gc_dist}{- Genome wide GC distribution from (\code{methylTFRann})}
 
 \item{threads}{- thread count for parallel processing}
 

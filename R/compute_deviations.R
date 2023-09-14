@@ -134,6 +134,9 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param genome       - human genome version default: hg38
 #' @param threads      - thread count for parallel processing
 #' @param enhancer     - Specific regions like distal motif
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+#' @param gc_dist       - Genome wide GC distribution from (\code{methylTFRann})
 #' @return deviation score matrix for all samples
 #' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
@@ -141,7 +144,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom dplyr %>%
 #' @importFrom parallel mclapply
 #' @importFrom logger log_info log_error log_appender appender_file
-run_methyltfr <- function(sample_ann, sample_dir, genome = "hg38",
+run_methyltfr <- function(sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL, gcfreqs = NULL, gc_dist = NULL,
                           threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
   # Set the log file name with current date
   log_file <- file.path(sample_dir, paste0("methyltfr_run_", format(Sys.Date(), "%Y%m%d"), ".log"))
@@ -154,8 +157,22 @@ run_methyltfr <- function(sample_ann, sample_dir, genome = "hg38",
   # Initialize the logger
   logger::log_appender(logger::appender_file(log_file))
 
-  if (!require("methylTFRann")) {
-    logger::log_error("methylTFRann package is not installed in your environment !!")
+  if (is.null(genome)) {
+    logger::log_error("Please provide the genome version !!")
+  }
+  if (genome != "hg38" && any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
+    logger::log_error("Error: Please provide the tf_bindsites, gcfreqs and gc_dist for the provided genome!")
+  }
+  if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
+    if (genome == "hg38") {
+      logger::log_info("Loading the hg38 package")
+      if (!require("methylTFRann")) {
+        logger::log_error("methylTFRann package is not installed in your environment !!")
+      }
+      tf_bindsites <- getTFbindsites()
+      gc_dist <- getGenomeGC()
+      gcfreqs <- getGCfreq()
+    }
   }
 
   annfile <- file.path(sample_dir, sample_ann)
@@ -168,9 +185,6 @@ run_methyltfr <- function(sample_ann, sample_dir, genome = "hg38",
 
   logger::log_info("Loading the samples and annotation package ")
   files_list <- file.path(sample_dir, samples[, "bedFile"])
-  tf_bindsites <- getTFbindsites()
-  gc_dist <- getGenomeGC()
-  gcfreqs <- getGCfreq()
 
   motifs <- names(gcfreqs)
   deviation <- data.frame(motifs = motifs)
