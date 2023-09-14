@@ -1,3 +1,4 @@
 LICENSE.md
 vignettes/*.html
 .DS_Store
+/example/

@@ -144,8 +144,10 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom dplyr %>%
 #' @importFrom parallel mclapply
 #' @importFrom logger log_info log_error log_appender appender_file
-run_methyltfr <- function(sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL, gcfreqs = NULL, gc_dist = NULL,
-                          threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
+run_methyltfr <- function(
+    sample_ann, sample_dir, genome = "hg38", tf_bindsites = getTFbindsites(),
+    gcfreqs = getGCfreq(), gc_dist = getGenomeGC(),
+    threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
   # Set the log file name with current date
   log_file <- file.path(sample_dir, paste0("methyltfr_run_", format(Sys.Date(), "%Y%m%d"), ".log"))
 
