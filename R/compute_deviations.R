@@ -22,13 +22,13 @@ read_methylome <- function(filename, type = c("EPP", "BisSNP")) {
     mcov <- as.numeric(str_replace(mcov, "'", ""))
     cov <- mcov[seq_along(mcov) %% 2 == 0]
     mscore <- round(msites$V5 / 1000, 3)
-  } else {
+  }
+  if (type == "BisSNP") {
     # Parse BisSNP Tab-Separated file format
     msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
   }
-
   msites <- GRanges(
     seqnames = msites$V1,
     ranges = IRanges(start = msites$V2, end = msites$V2 + 2),
@@ -37,7 +37,6 @@ read_methylome <- function(filename, type = c("EPP", "BisSNP")) {
     methylation = msites$V4,
     coverage = cov
   )
-
   return(msites)
 }
 
@@ -110,15 +109,32 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
     y2 = msites[hits@from]$coverage
   )
 
-  plot.data <- plot.data[, .(n = .N, avg_methyl = mean(y1), avg_cov = mean(y2), motif = motif), by = x]
-  dt_join <- dplyr::left_join(plot.data, exp_meth, by = "x")
-  data.table::setDT(dt_join)
+  # Convert plot.data and exp_meth to data.tables
+  setDT(plot.data)
+  setDT(exp_meth)
+
+  # Group by 'x' and summarize in plot.data
+  plot.data <- plot.data[, .(n = .N, avg_methyl = mean(y1), avg_cov = mean(y2)), by = x]
+
+  # GC bias correction
+  dt_join <- exp_meth[plot.data, on = "x"]
+
+  # Calculate 'diff'
   dt_join[, diff := abs(avg_methyl - exp_avg_methyl)]
 
+  # Create intervals and calculate mean
   dt_join[, cuts := cut(x, c(-200, -100, -10, 10, 100, 200))]
   interval_mean <- dt_join[, .(n = .N, mean = mean(diff)), by = cuts]
+  # interval_mean$mean <- round(interval_mean$mean,6)
+  interval_mean <- na.omit(interval_mean[order(cuts)])
 
-  var <- interval_mean$mean[3] / ((interval_mean$mean[1] + interval_mean$mean[5]) / 2)
+  num_intervals <- nrow(interval_mean)
+  if (num_intervals > 0) {
+    avg_first_last <- ((interval_mean$mean[1] + interval_mean$mean[num_intervals]) / 2)
+    var <- interval_mean$mean[(num_intervals + 1) %/% 2] / avg_first_last
+  } else {
+    var <- NA
+  }
   return(var)
 }
 
@@ -146,7 +162,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom logger log_info log_error log_appender appender_file
 run_methyltfr <- function(
     sample_ann, sample_dir, genome = "hg38", tf_bindsites = getTFbindsites(),
-    gcfreqs = getGCfreq(), gc_dist = getGenomeGC(),
+    gcfreqs = getGCfreq(), gc_dist = getGenomeGC(), sampleColName = "bedFile",
     threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
   # Set the log file name with current date
   log_file <- file.path(sample_dir, paste0("methyltfr_run_", format(Sys.Date(), "%Y%m%d"), ".log"))
@@ -163,7 +179,7 @@ run_methyltfr <- function(
     logger::log_error("Please provide the genome version !!")
   }
   if (genome != "hg38" && any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
-    logger::log_error("Error: Please provide the tf_bindsites, gcfreqs and gc_dist for the provided genome!")
+    logger::log_error("Please provide the tf_bindsites, gcfreqs and gc_dist for the provided genome!")
   }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
     if (genome == "hg38") {
@@ -178,15 +194,20 @@ run_methyltfr <- function(
   }
 
   annfile <- file.path(sample_dir, sample_ann)
+  filetype <- match.arg(filetype)
   if (!file.exists(annfile)) {
     log_error(" %s does not exist, please check the file path !!", annfile)
   }
-
-  samples <- read.table(annfile, sep = "\t", header = TRUE)
-  filetype <- match.arg(filetype)
-
-  logger::log_info("Loading the samples and annotation package ")
-  files_list <- file.path(sample_dir, samples[, "bedFile"])
+  if (endsWith(annfile, ".csv")) {
+    samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+  } else {
+    samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+  }
+  files_list <- file.path(sample_dir, samples[, sampleColName])
+  if (!all(file.exists(files_list))) {
+    logger::log_error("Some of the bed files are not exist, please check the file path !!")
+  }
+  logger::log_info("The samples and annotation package are loaded successfully !!")
 
   motifs <- names(gcfreqs)
   deviation <- data.frame(motifs = motifs)
@@ -202,7 +223,7 @@ run_methyltfr <- function(
       enhancer = enhancer,
       mc.cores = threads
     ))
-    log_info("Finished processing ", bedfile)
+    logger::log_info("Finished processing ", bedfile)
     # deviation[, ':='(sample_name = unlist(process_deviation))]
     deviation[sample_name] <- unlist(get(sample_name))
   }

@@ -8,9 +8,10 @@ run_methyltfr(
   sample_ann,
   sample_dir,
   genome = "hg38",
-  tf_bindsites = NULL,
-  gcfreqs = NULL,
-  gc_dist = NULL,
+  tf_bindsites = getTFbindsites(),
+  gcfreqs = getGCfreq(),
+  gc_dist = getGenomeGC(),
+  sampleColName = "bedFile",
   threads = 4,
   enhancer = NULL,
   filetype = c("EPP", "BisSNP")
