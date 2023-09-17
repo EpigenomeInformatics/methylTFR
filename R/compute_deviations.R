@@ -117,7 +117,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
   plot.data <- plot.data[, .(n = .N, avg_methyl = mean(y1), avg_cov = mean(y2)), by = x]
 
   # GC bias correction
-  dt_join <- exp_meth[plot.data, on = "x"]
+  dt_join <- merge(plot.data, exp_meth, by = "x")
 
   # Calculate 'diff'
   dt_join[, diff := abs(avg_methyl - exp_avg_methyl)]
@@ -161,19 +161,9 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom parallel mclapply
 #' @importFrom logger log_info log_error log_appender appender_file
 run_methyltfr <- function(
-    sample_ann, sample_dir, genome = "hg38", tf_bindsites = getTFbindsites(),
-    gcfreqs = getGCfreq(), gc_dist = getGenomeGC(), sampleColName = "bedFile",
+    sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL,
+    gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile",
     threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
-  # Set the log file name with current date
-  log_file <- file.path(sample_dir, paste0("methyltfr_run_", format(Sys.Date(), "%Y%m%d"), ".log"))
-
-  # Create the log file if it doesn't exist
-  if (!file.exists(log_file)) {
-    file.create(log_file)
-  }
-
-  # Initialize the logger
-  logger::log_appender(logger::appender_file(log_file))
 
   if (is.null(genome)) {
     logger::log_error("Please provide the genome version !!")
