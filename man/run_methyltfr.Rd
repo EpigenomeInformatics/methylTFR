@@ -12,6 +12,7 @@ run_methyltfr(
   gcfreqs = NULL,
   gc_dist = NULL,
   sampleColName = "bedFile",
+  chunkSize = 20,
   threads = 4,
   enhancer = NULL,
   filetype = c("EPP", "BisSNP")
@@ -29,6 +30,10 @@ run_methyltfr(
 \item{gcfreqs}{- GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})}
 
 \item{gc_dist}{- Genome wide GC distribution from (\code{methylTFRann})}
+
+\item{sampleColName}{- column name of the sample bed file in the annotation file}
+
+\item{chunkSize}{- chunk size for parallel processing of motifs}
 
 \item{threads}{- thread count for parallel processing}
 
