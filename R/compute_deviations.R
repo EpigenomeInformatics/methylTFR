@@ -18,8 +18,8 @@ read_methylome <- function(filename, type = c("EPP", "BisSNP")) {
   if (type == "EPP") {
     # Parse EPP file format
     msites <- fread(filename, header = FALSE, showProgress = FALSE)
-    mcov <- unlist(str_split(msites$V4, "/"))
-    mcov <- as.numeric(str_replace(mcov, "'", ""))
+    mcov <- unlist(stringr::str_split(msites$V4, "/"))
+    mcov <- as.numeric(stringr::str_replace(mcov, "'", ""))
     cov <- mcov[seq_along(mcov) %% 2 == 0]
     mscore <- round(msites$V5 / 1000, 3)
   }
@@ -29,9 +29,9 @@ read_methylome <- function(filename, type = c("EPP", "BisSNP")) {
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
   }
-  msites <- GRanges(
+  msites <- GenomicRanges::GRanges(
     seqnames = msites$V1,
-    ranges = IRanges(start = msites$V2, end = msites$V2 + 2),
+    ranges = IRanges::IRanges(start = msites$V2, end = msites$V2 + 2),
     strand = msites$V6,
     score = mscore,
     methylation = msites$V4,
@@ -253,7 +253,7 @@ run_methyltfr <- function(
       # deviation[row_indices, i]  <- unlist(sample_deviations)
       rm(sample_deviations);cleanMem()
     }
-    rm(sample_deviations,msites);cleanMem()
+    rm(msites);cleanMem()
     logger::log_info("Finished processing ", sample_name)
   }
 
