@@ -165,9 +165,8 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom logger log_info log_error log_appender appender_file
 run_methyltfr <- function(
     sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL,
-    gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile",chunkSize=20,
+    gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
-
   if (is.null(genome)) {
     logger::log_error("Please provide the genome version !!")
   }
@@ -185,9 +184,8 @@ run_methyltfr <- function(
       gcfreqs <- getGCfreq()
     }
   }
-
+  # TODO add type checker for sample_ann
   annfile <- file.path(sample_dir, sample_ann)
-  filetype <- match.arg(filetype)
   if (!file.exists(annfile)) {
     log_error(" %s does not exist, please check the file path !!", annfile)
   }
@@ -203,12 +201,28 @@ run_methyltfr <- function(
   logger::log_info("The samples and annotation package are loaded successfully !!")
 
   motifs <- names(gcfreqs)
-  deviation <- matrix(NA, nrow = length(motifs), ncol = length(files_list))
-  
+  # deviation <- matrix(NA, nrow = length(motifs), ncol = length(files_list))
+
   # Split the motifs into chunks
-  size <- max(1, length(motifs) / ceiling(chunkSize))
-  motif_chunks <- unname(split(motifs, sort(rep_len(1:ceiling(size), length(motifs)))))
-  
+  numChunks <- ceiling(length(motifs) / chunkSize)
+  motif_chunks <- split(motifs, rep(1:numChunks, each = chunkSize, length.out = length(motifs)))
+
+  logger::log_info("Initializing the deviation matrix...")
+  # Create a sink for each region type
+  sink <- HDF5Array::HDF5RealizationSink(
+    dim = c(length(files_list), length(motifs)),
+    dimnames = list(basename(files_list), motifs),
+    type = "double",
+    filepath = paste0(tempdir(),"/methylTFR_deviations.h5"),
+    name = "methylTFRmat", level = 6
+  )
+
+  # set the grid
+  grid <- DelayedArray::ArbitraryArrayGrid(list(
+    cumsum(lengths(files_list)),
+    cumsum(lengths(motif_chunks))
+  ))
+
   for (i in seq_along(files_list)) {
     bedfile <- files_list[i]
     sample_name <- basename(bedfile)
@@ -217,22 +231,50 @@ run_methyltfr <- function(
 
     # Process motifs in chunks
     for (j in seq_along(motif_chunks)) {
-    chunk_motifs <- motif_chunks[[j]]
-    sample_deviations <- mclapply(chunk_motifs, compute_deviation,
-      msites = msites,
-      tf_bindsites = tf_bindsites,
-      gcfreqs = gcfreqs,
-      gcdist = gc_dist,
-      enhancer = enhancer,
-      mc.cores = threads
-    )
-    row_indices <- match(chunk_motifs, motifs)
-    # Store deviations for the current chunk in the matrix
-    deviation[row_indices, i]  <- unlist(sample_deviations)
-  }
+      # Get the current chunk
+      chunk_motifs <- motif_chunks[[j]]
+
+      sample_deviations <- mclapply(chunk_motifs, compute_deviation,
+        msites = msites,
+        tf_bindsites = tf_bindsites,
+        gcfreqs = gcfreqs,
+        gcdist = gc_dist,
+        enhancer = enhancer,
+        mc.cores = threads
+      )
+      #row_indices <- match(chunk_motifs, motifs)
+
+      # Write the block to the sink
+      DelayedArray::write_block(
+        block = as.matrix(t(unlist(sample_deviations))),
+        viewport = grid[[as.integer(i),as.integer(j)]], sink = sink
+      )
+      # Store deviations for the current chunk in the matrix
+      # deviation[row_indices, i]  <- unlist(sample_deviations)
+      rm(sample_deviations);cleanMem()
+    }
+    rm(sample_deviations,msites);cleanMem()
     logger::log_info("Finished processing ", sample_name)
   }
-   rownames(deviation) <- motifs
-   colnames(deviation) <- basename(files_list)
+
+  # Close the sink
+  DelayedArray::close(sink)
+  deviation <- t(as(sink, "DelayedArray"))
+  deviation <- as.matrix(deviation)
+  # rownames(deviation) <- motifs
+  # colnames(deviation) <- basename(files_list)
   return(deviation)
+}
+
+#' @title cleanMem 
+#' @description cleanMem is a function to clean the memory
+#' @param iter.gc - number of times to run the garbage collector
+#' @return NULL
+#' @export
+#'
+cleanMem <- function (iter.gc = 1L) {
+        for (i in 1:iter.gc) {
+            gc()
+        }
+    invisible(NULL)
 }
