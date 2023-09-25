@@ -13,7 +13,9 @@ run_methyltfr(
   gc_dist = NULL,
   sampleColName = "bedFile",
   chunkSize = 20,
-  threads = 4,
+  full_path = FALSE,
+  annfile = NULL,
+  threads = 1,
   enhancer = NULL,
   filetype = c("EPP", "BisSNP")
 )
@@ -34,6 +36,10 @@ run_methyltfr(
 \item{sampleColName}{- column name of the sample bed file in the annotation file}
 
 \item{chunkSize}{- chunk size for parallel processing of motifs}
+
+\item{full_path}{- if TRUE, the bed file path in the annotation file is full path}
+
+\item{annfile}{- if provided, the sample annotation file is not read from the sample_dir}
 
 \item{threads}{- thread count for parallel processing}
 

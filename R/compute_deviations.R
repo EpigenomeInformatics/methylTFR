@@ -156,6 +156,8 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param gc_dist       - Genome wide GC distribution from (\code{methylTFRann})
 #' @param sampleColName - column name of the sample bed file in the annotation file
 #' @param chunkSize     - chunk size for parallel processing of motifs
+#' @param full_path     - if TRUE, the bed file path in the annotation file is full path
+#' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
 #' @return deviation score matrix for all samples
 #' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
@@ -166,7 +168,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 run_methyltfr <- function(
     sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    threads = 4, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
+    full_path = FALSE,annfile= NULL,threads = 1, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
   if (is.null(genome)) {
     logger::log_error("Please provide the genome version !!")
   }
@@ -185,7 +187,11 @@ run_methyltfr <- function(
     }
   }
   # TODO add type checker for sample_ann
-  annfile <- file.path(sample_dir, sample_ann)
+  if(!is.null(annfile) & is.character(annfile)){
+    sample_ann <- annfile
+  }else{
+    annfile <- file.path(sample_dir, sample_ann)
+  }
   if (!file.exists(annfile)) {
     log_error(" %s does not exist, please check the file path !!", annfile)
   }
@@ -194,8 +200,11 @@ run_methyltfr <- function(
   } else {
     samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   }
-  #TODO change this
-  files_list <- file.path(sample_dir, samples[, sampleColName])
+  if(full_path){
+    files_list <- samples[, sampleColName]
+  }else{
+    files_list <- file.path(sample_dir, samples[, sampleColName])
+  }
   if (!all(file.exists(files_list))) {
     logger::log_error("Some of the bed files are not exist, please check the file path !!")
   }
