@@ -194,6 +194,7 @@ run_methyltfr <- function(
   } else {
     samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   }
+  #TODO change this
   files_list <- file.path(sample_dir, samples[, sampleColName])
   if (!all(file.exists(files_list))) {
     logger::log_error("Some of the bed files are not exist, please check the file path !!")
@@ -206,17 +207,17 @@ run_methyltfr <- function(
   # Split the motifs into chunks
   numChunks <- ceiling(length(motifs) / chunkSize)
   motif_chunks <- split(motifs, rep(1:numChunks, each = chunkSize, length.out = length(motifs)))
-
-  logger::log_info("Initializing the deviation matrix...")
+  
+  tempfile <- tempfile(pattern = "methylTFR", tmpdir = tempdir(), fileext = ".h5")
   # Create a sink for each region type
   sink <- HDF5Array::HDF5RealizationSink(
     dim = c(length(files_list), length(motifs)),
     dimnames = list(basename(files_list), motifs),
     type = "double",
-    filepath = paste0(tempdir(),"/methylTFR_deviations.h5"),
-    name = "methylTFRmat", level = 6
+    filepath = tempfile,
+    name = paste0("methylTFRmat"), level = 6
   )
-
+  logger::log_info(paste0("Initializing the sink file in temp: ", tempfile))
   # set the grid
   grid <- DelayedArray::ArbitraryArrayGrid(list(
     cumsum(lengths(files_list)),
@@ -261,6 +262,7 @@ run_methyltfr <- function(
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
   deviation <- as.matrix(deviation)
+  file.remove(tempfile) #TODO find a better solution for this
   # rownames(deviation) <- motifs
   # colnames(deviation) <- basename(files_list)
   return(deviation)
