@@ -7,7 +7,9 @@
 cleanMem(iter.gc = 1L)
 }
 \arguments{
-\item{iter.gc}{- number of times to run the garbage collector}
+\item{iter.gc}{\itemize{
+\item number of times to run the garbage collector
+}}
 }
 \description{
 cleanMem is a function to clean the memory

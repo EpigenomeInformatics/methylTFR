@@ -7,9 +7,13 @@
 kw_helper(x, groups)
 }
 \arguments{
-\item{x}{- a numeric vector of deviations}
+\item{x}{\itemize{
+\item a numeric vector of deviations
+}}
 
-\item{groups}{- a character vector of group names or colnames(deviations)}
+\item{groups}{\itemize{
+\item a character vector of group names or colnames(deviations)
+}}
 }
 \value{
 a numeric vector of p-values

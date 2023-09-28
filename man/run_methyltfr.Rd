@@ -21,34 +21,58 @@ run_methyltfr(
 )
 }
 \arguments{
-\item{sample_ann}{- a tab seperated file contains sample annotations}
+\item{sample_ann}{\itemize{
+\item a tab seperated file contains sample annotations
+}}
 
-\item{sample_dir}{- directory where all bed file and annotation file stored}
+\item{sample_dir}{\itemize{
+\item directory where all bed file and annotation file stored
+}}
 
-\item{genome}{- human genome version default: hg38}
+\item{genome}{\itemize{
+\item human genome version default: hg38
+}}
 
-\item{tf_bindsites}{- a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})}
+\item{tf_bindsites}{\itemize{
+\item a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+}}
 
-\item{gcfreqs}{- GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})}
+\item{gcfreqs}{\itemize{
+\item GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+}}
 
-\item{gc_dist}{- Genome wide GC distribution from (\code{methylTFRann})}
+\item{gc_dist}{\itemize{
+\item Genome wide GC distribution from (\code{methylTFRann})
+}}
 
-\item{sampleColName}{- column name of the sample bed file in the annotation file}
+\item{sampleColName}{\itemize{
+\item column name of the sample bed file in the annotation file
+}}
 
-\item{chunkSize}{- chunk size for parallel processing of motifs}
+\item{chunkSize}{\itemize{
+\item chunk size for parallel processing of motifs
+}}
 
-\item{full_path}{- if TRUE, the bed file path in the annotation file is full path}
+\item{full_path}{\itemize{
+\item if TRUE, the bed file path in the annotation file is full path
+}}
 
-\item{annfile}{- if provided, the sample annotation file is not read from the sample_dir}
+\item{annfile}{\itemize{
+\item if provided, the sample annotation file is not read from the sample_dir
+}}
 
-\item{threads}{- thread count for parallel processing}
+\item{threads}{\itemize{
+\item thread count for parallel processing
+}}
 
-\item{enhancer}{- Specific regions like distal motif}
+\item{enhancer}{\itemize{
+\item Specific regions like distal motif
+}}
 }
 \value{
 deviation score matrix for all samples
 }
 \description{
 This function is a wrapper function to calculate the deviation in transcription factor
- footprint base for all given motifs using parallel package
+footprint base for all given motifs using parallel package
 }
