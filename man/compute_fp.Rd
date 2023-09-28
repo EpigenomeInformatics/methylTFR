@@ -7,13 +7,21 @@
 compute_fp(motif_name, tf_bindsites, msites, enhancer = NULL)
 }
 \arguments{
-\item{motif_name}{- motif name eg: GATA string}
+\item{motif_name}{\itemize{
+\item motif name eg: GATA string
+}}
 
-\item{tf_bindsites}{- a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})}
+\item{tf_bindsites}{\itemize{
+\item a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+}}
 
-\item{msites}{- methylation data processed from \code{RnBeads}}
+\item{msites}{\itemize{
+\item methylation data processed from \code{RnBeads}
+}}
 
-\item{enhancer}{- Specific regions such as distal motif, proximal motif}
+\item{enhancer}{\itemize{
+\item Specific regions such as distal motif, proximal motif
+}}
 }
 \value{
 a \code{data.table} object to plot tf footprint

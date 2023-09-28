@@ -1,17 +1,16 @@
 Package: methylTFR
-Type: Package
-Title: Identification of Methylation Pattern in TFBS 
-Version: 0.1.0
-Author: Fabian Müller & Sarath Kumar Murugan
-Maintainer: Sarath Kumar Murugan <sarath.murugan@outlook.com>
-Description: methylTFR is a tool to identify of the methylation patterns in 
+Title: Identification of Methylation Patterns in TFBS 
+Version: 0.99.0
+Date: 2023-09-28
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: methylTFR is an R package to identify of the methylation patterns in 
             transcription factor binding sites(TFBS).
-License: MIT + file LICENSE
+License: Artistic-2.0
+URL: https://github.com/EpigenomeInformatics/methylTFR
+BugReports: https://support.bioconductor.org/t/methylTFR
+biocViews: Software
 Encoding: UTF-8
-Imports:
-  GenomicRanges
-Depends: 
-    R (>= 3.5.0)
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-LazyData: true
-URL: https://github.com/epigenomeinformatics/methylTFR

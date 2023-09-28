@@ -7,12 +7,18 @@
 t_helper(x, groups, alternative)
 }
 \arguments{
-\item{x}{- a numeric vector of deviations}
+\item{x}{\itemize{
+\item a numeric vector of deviations
+}}
 
-\item{groups}{- a character vector of group names or colnames(deviations)}
+\item{groups}{\itemize{
+\item a character vector of group names or colnames(deviations)
+}}
 
-\item{alternative}{- a character string specifying the alternative hypothesis,
-must be one of "two.sided" (default), "greater" or "less".}
+\item{alternative}{\itemize{
+\item a character string specifying the alternative hypothesis,
+must be one of "two.sided" (default), "greater" or "less".
+}}
 }
 \value{
 a numeric vector of p-values

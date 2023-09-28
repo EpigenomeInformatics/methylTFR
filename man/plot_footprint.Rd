@@ -7,13 +7,21 @@
 plot_footprint(motifs, tf_bindsites, samples, img = "TF_footprint.png")
 }
 \arguments{
-\item{motifs}{- motif names as character vector}
+\item{motifs}{\itemize{
+\item motif names as character vector
+}}
 
-\item{tf_bindsites}{- Transcript Factor binbing sites from (\code{methylTFRann})}
+\item{tf_bindsites}{\itemize{
+\item Transcript Factor binbing sites from (\code{methylTFRann})
+}}
 
-\item{samples}{- Import methylation data}
+\item{samples}{\itemize{
+\item Import methylation data
+}}
 
-\item{img}{- output plot png filename}
+\item{img}{\itemize{
+\item output plot png filename
+}}
 }
 \value{
 image will be generated in the specified path

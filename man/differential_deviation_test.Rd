@@ -14,18 +14,30 @@ differential_deviation_test(
 )
 }
 \arguments{
-\item{deviations}{- motif name}
+\item{deviations}{\itemize{
+\item motif name
+}}
 
-\item{groups}{- a character vector of group names or colnames(deviations)}
+\item{groups}{\itemize{
+\item a character vector of group names or colnames(deviations)
+}}
 
-\item{motifs}{- a character vector of motif names used in analysis or rownames(deviations)}
+\item{motifs}{\itemize{
+\item a character vector of motif names used in analysis or rownames(deviations)
+}}
 
-\item{alternative}{- a character string specifying the alternative hypothesis,
-must be one of "two.sided" (default), "greater" or "less".}
+\item{alternative}{\itemize{
+\item a character string specifying the alternative hypothesis,
+must be one of "two.sided" (default), "greater" or "less".
+}}
 
-\item{parametric}{- logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.}
+\item{parametric}{\itemize{
+\item logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.
+}}
 
-\item{padjMethod}{- method for p-value adjustment, default is "BH"}
+\item{padjMethod}{\itemize{
+\item method for p-value adjustment, default is "BH"
+}}
 }
 \value{
 a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
