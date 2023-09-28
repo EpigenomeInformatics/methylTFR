@@ -30,6 +30,5 @@ compute_deviation(
 deviation score for a given motif
 }
 \description{
-This function is function to calculate the deviation in transcription factor
- footprint base for a given motif
+compute_deviation is a function to calculate the deviation in transcription factor
 }

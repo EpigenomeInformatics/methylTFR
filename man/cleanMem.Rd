@@ -12,3 +12,4 @@ cleanMem(iter.gc = 1L)
 \description{
 cleanMem is a function to clean the memory
 }
+\keyword{internal}
