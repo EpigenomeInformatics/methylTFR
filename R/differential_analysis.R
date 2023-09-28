@@ -1,4 +1,9 @@
-# anova test for multiple groups
+#' @title  anova test for multiple groups
+#' @description anova test for multiple groups
+#' @param x - a numeric vector of deviations
+#' @param groups - a character vector of group names or colnames(deviations)
+#' @return a numeric vector of p-values
+#' @keywords internal
 anova_helper <- function(x, groups) {
   tmpdf <- data.frame(groups = groups, devs = x)
   res <- aov(devs ~ groups, tmpdf)
@@ -6,7 +11,15 @@ anova_helper <- function(x, groups) {
   return(p_value)
 }
 
-# t-test
+#' @title  t-test for two groups
+#' @description t-test for two groups
+#' @param x - a numeric vector of deviations
+#' @param groups - a character vector of group names or colnames(deviations)
+#' @param alternative - a character string specifying the alternative hypothesis,
+#' must be one of "two.sided" (default), "greater" or "less".
+#' @return a numeric vector of p-values
+#' @keywords internal
+#'
 t_helper <- function(x, groups, alternative) {
   splitx <- split(x, groups)
   return(t.test(splitx[[1]], splitx[[2]],
@@ -17,7 +30,14 @@ t_helper <- function(x, groups, alternative) {
   )$p.value)
 }
 
-# wilcoxon test for two groups
+#' @title wilcoxon test for two groups
+#' @description wilcoxon test for two groups
+#' @param x - a numeric vector of deviations
+#' @param groups - a character vector of group names or colnames(deviations)
+#' @param alternative - a character string specifying the alternative hypothesis,
+#' must be one of "two.sided" (default), "greater" or "less".
+#' @return a numeric vector of p-values
+#' @keywords internal
 wilcoxon_helper <- function(x, groups, alternative) {
   splitx <- split(x, groups)
   return(wilcox.test(splitx[[1]], splitx[[2]],
@@ -26,22 +46,30 @@ wilcoxon_helper <- function(x, groups, alternative) {
   )$p.value)
 }
 
-# Kruskal-Wallis Rank Sum Test for multiple groups
+#' @title Kruskal-Wallis Rank Sum Test for multiple groups
+#' @description Kruskal-Wallis Rank Sum Test for multiple groups
+#' @param x - a numeric vector of deviations
+#' @param groups - a character vector of group names or colnames(deviations)
+#' @return a numeric vector of p-values
+#' @keywords internal
+#'
 kw_helper <- function(x, groups) {
   tmpdf <- data.frame(groups = groups, devs = x)
   res <- kruskal.test(devs ~ groups, tmpdf)
   return(res$p.value)
 }
 
-#' differential_deviation_test
-#'
-#'      Differential analysis is to test which motifs are having significant
+#' @title  differential_deviation_test
+#' @description Differential analysis is to test which motifs are having significant
 #' deviations among different cell-types.
 #' Adapted from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
-#'
 #' @param deviations - motif name
 #' @param groups     - a character vector of group names or colnames(deviations)
 #' @param motifs     - a character vector of motif names used in analysis or rownames(deviations)
+#' @param alternative - a character string specifying the alternative hypothesis,
+#' must be one of "two.sided" (default), "greater" or "less".
+#' @param parametric - logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.
+#' @param padjMethod - method for p-value adjustment, default is "BH"
 #' @return a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
 #' @export
 #' @importFrom stats aggregate

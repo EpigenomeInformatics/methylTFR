@@ -1,6 +1,5 @@
-#' read_methylome
-#'
-#'  read_methylome is a function to import methylation data into R Genomic
+#' @title read_methylome
+#' @description read_methylome is a function to import methylation data into R Genomic
 #'  Range object. Bed file should be processed in the pipeline developed by
 #'  Fabian Müller and Christoph Bock. (EPP format)
 #' @param  - bedfilename which contains methylation data EPP format
@@ -71,11 +70,8 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 }
 
 
-#' compute_deviation
-#'
-#'      This function is function to calculate the deviation in transcription factor
-#'  footprint base for a given motif
-#'
+#' @title compute_deviation
+#' @description compute_deviation is a function to calculate the deviation in transcription factor
 #' @param motifs        - list of motifs
 #' @param msites       - imported methylation sites
 #' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
@@ -141,11 +137,9 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 
 
 
-#' run_methyltfr
-#'
-#'      This function is a wrapper function to calculate the deviation in transcription factor
+#' @title run_methyltfr
+#' @description This function is a wrapper function to calculate the deviation in transcription factor
 #'  footprint base for all given motifs using parallel package
-#'
 #' @param sample_ann   - a tab seperated file contains sample annotations
 #' @param sample_dir   - directory where all bed file and annotation file stored
 #' @param genome       - human genome version default: hg38
@@ -168,7 +162,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 run_methyltfr <- function(
     sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    full_path = FALSE,annfile= NULL,threads = 1, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
+    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
   if (is.null(genome)) {
     logger::log_error("Please provide the genome version !!")
   }
@@ -187,22 +181,22 @@ run_methyltfr <- function(
     }
   }
   # TODO add type checker for sample_ann
-  if(!is.null(annfile) & is.character(annfile)){
+  if (!is.null(annfile) & is.character(annfile)) {
     sample_ann <- annfile
-  }else{
+  } else {
     annfile <- file.path(sample_dir, sample_ann)
   }
   if (!file.exists(annfile)) {
-    log_error(" %s does not exist, please check the file path !!", annfile)
+    logger::log_error(" %s does not exist, please check the file path !!", annfile)
   }
   if (endsWith(annfile, ".csv")) {
     samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
   } else {
     samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   }
-  if(full_path){
+  if (full_path) {
     files_list <- samples[, sampleColName]
-  }else{
+  } else {
     files_list <- file.path(sample_dir, samples[, sampleColName])
   }
   if (!all(file.exists(files_list))) {
@@ -216,7 +210,7 @@ run_methyltfr <- function(
   # Split the motifs into chunks
   numChunks <- ceiling(length(motifs) / chunkSize)
   motif_chunks <- split(motifs, rep(1:numChunks, each = chunkSize, length.out = length(motifs)))
-  
+
   tempfile <- tempfile(pattern = "methylTFR", tmpdir = tempdir(), fileext = ".h5")
   # Create a sink for each region type
   sink <- HDF5Array::HDF5RealizationSink(
@@ -244,7 +238,8 @@ run_methyltfr <- function(
       # Get the current chunk
       chunk_motifs <- motif_chunks[[j]]
 
-      sample_deviations <- mclapply(chunk_motifs, compute_deviation,
+      sample_deviations <- mclapply(chunk_motifs,
+        compute_deviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
@@ -252,18 +247,19 @@ run_methyltfr <- function(
         enhancer = enhancer,
         mc.cores = threads
       )
-      #row_indices <- match(chunk_motifs, motifs)
+      # row_indices <- match(chunk_motifs, motifs)
 
       # Write the block to the sink
       DelayedArray::write_block(
         block = as.matrix(t(unlist(sample_deviations))),
-        viewport = grid[[as.integer(i),as.integer(j)]], sink = sink
+        viewport = grid[[as.integer(i), as.integer(j)]], sink = sink
       )
-      # Store deviations for the current chunk in the matrix
       # deviation[row_indices, i]  <- unlist(sample_deviations)
-      rm(sample_deviations);cleanMem()
+      rm(sample_deviations)
+      methylTFR:::cleanMem()
     }
-    rm(msites);cleanMem()
+    rm(msites)
+    methylTFR:::cleanMem()
     logger::log_info("Finished processing ", sample_name)
   }
 
@@ -271,21 +267,21 @@ run_methyltfr <- function(
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
   deviation <- as.matrix(deviation)
-  file.remove(tempfile) #TODO find a better solution for this
+  file.remove(tempfile) # TODO find a better solution for this
   # rownames(deviation) <- motifs
   # colnames(deviation) <- basename(files_list)
   return(deviation)
 }
 
-#' @title cleanMem 
+#' @title cleanMem
 #' @description cleanMem is a function to clean the memory
 #' @param iter.gc - number of times to run the garbage collector
 #' @return NULL
-#' @export
+#' @keywords internal
 #'
-cleanMem <- function (iter.gc = 1L) {
-        for (i in 1:iter.gc) {
-            gc()
-        }
-    invisible(NULL)
+cleanMem <- function(iter.gc = 1L) {
+  for (i in 1:iter.gc) {
+    gc()
+  }
+  invisible(NULL)
 }

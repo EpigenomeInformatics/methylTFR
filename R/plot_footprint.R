@@ -1,8 +1,6 @@
-#' compute_fp
-#'
-#'  Compute footprint returns a data.table required to create a transcription
+#' @title compute_fp
+#' @description Compute footprint returns a data.table required to create a transcription
 #' factor footprint with label.
-#'
 #' @param motif_name   - motif name eg: GATA string
 #' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
 #' @param msites       - methylation data processed from \code{RnBeads}
@@ -45,11 +43,9 @@ compute_fp <- function(motif_name, tf_bindsites, msites,
 }
 
 
-#' plot_footprint
-#'
-#'     Creates a footprint plot for given motifs and methylation
+#' @title plot_footprint
+#' @description Creates a footprint plot for given motifs and methylation
 #' site. It will create png files in the specified location.
-#'
 #' @param motifs       - motif names as character vector
 #' @param tf_bindsites - Transcript Factor binbing sites from (\code{methylTFRann})
 #' @param samples       - Import methylation data
