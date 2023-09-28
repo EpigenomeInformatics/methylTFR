@@ -14,4 +14,4 @@ Depends:
     R (>= 3.5.0)
 RoxygenNote: 7.2.3
 LazyData: true
-url : https://github.com/epigenomeinformatics/methylTFR
+URL: https://github.com/epigenomeinformatics/methylTFR
