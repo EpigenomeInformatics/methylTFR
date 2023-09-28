@@ -1,4 +1,4 @@
-#' @title compute_fp
+#' @title computeFootprint
 #' @description Compute footprint returns a data.table required to create a transcription
 #' factor footprint with label.
 #' @param motif_name   - motif name eg: GATA string
@@ -10,7 +10,7 @@
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom dplyr %>% mutate
-compute_fp <- function(motif_name, tf_bindsites, msites,
+computeFootprint <- function(motif_name, tf_bindsites, msites,
                        enhancer = NULL) {
   tfbs <- tf_bindsites[[motif_name]]
   w <- width(tfbs)[1]
@@ -55,7 +55,7 @@ compute_fp <- function(motif_name, tf_bindsites, msites,
 #' @importFrom dplyr %>%
 #' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
 #' @importFrom ggrepel geom_label_repel
-plot_footprint <- function(motifs, tf_bindsites, samples,
+plotFootprint <- function(motifs, tf_bindsites, samples,
                            img = "TF_footprint.png") {
   msites_list <- GRangesList()
   msites_list <- lapply(samples, read_methylome)

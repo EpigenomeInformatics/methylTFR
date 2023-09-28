@@ -1,47 +1,57 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 # methylTFR
 
-`methylTFR` is an R-package to analyze the methylation data from whole genome bisulfite sequencing. It takes inputs from RnBeads processed bed file - EPP format. This tool aims to indentify the methylation patterns on transcription factor binding sites in each individual cells or samples. This tool is still under development and testing stage.
+<!-- badges: start -->
 
-## Requirements
+[![R-CMD-check-bioc](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml)
+[![R-CMD-check](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml)
+[![GitHub
+issues](https://img.shields.io/github/issues/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/issues)
+[![GitHub
+pulls](https://img.shields.io/github/issues-pr/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/pulls)
+<!-- badges: end -->
 
-- R (>= 3.5.0)
-- GenomicRanges
-- data.table
-- dplyr
-- stringr
-- parallel
-- logger
+# methylTFR
 
-```R
+`methylTFR` is an R-package to analyze DNA methylation patterns on
+transcription factor binding sites in each individual cells or samples.
+It takes inputs from `RnBeads` processed bed file, *EPP* format.
 
-# To install dependencies 
-if (!require("BiocManager", quietly = TRUE))
+## Installation instructions
+
+Get the latest release `methylTFR` from
+[Bioconductor](http://bioconductor.org/) using the following code:
+
+``` r
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
-BiocManager::install("GenomicRanges")
-install.packages(c("data.table", "dplyr", "stringr"))
+}
 
+BiocManager::install("methylTFR")
 ```
 
-## Installation
+And the development version from
+[GitHub](https://github.com/EpigenomeInformatics/methylTFR) with:
 
-```sh
-
-git clone git@github.com:EpigenomeInformatics/methylTFR.git
-cd methylTFR
-Rscript -e "library(devtools); devtools::install('.')"
-
+``` r
+BiocManager::install("EpigenomeInformatics/methylTFR")
 ```
 
-## QuickStart
+## Example
 
-The samples directory should contain methylation bed files and a tab delimited sample annotation file. The bedFile column in the sample annotation file should be used to hold bedfile names. 
+This is a basic example which shows you how to run `methylTFR` :
 
-```R
-
+``` r
 library(GenomicRanges)
 library(dplyr)
 library(methylTFRann)
 library(methylTFR)
+
+gcfreqs <-  getGCfreq()
+gc_dist <- getGenomeGC()
+tf_bindsites <- getTFbindsites()
 
 sample_dir <- file.path("samples_dir")
 sample_ann <- "samples.tsv" # should contain column name bedFile
@@ -49,6 +59,40 @@ sample_ann <- "samples.tsv" # should contain column name bedFile
 # deviation score matrix
 deviations <- run_methyltfr(sample_ann,
                             sample_dir,
-                            threads = 8)
+                            threads = 8,
+                            threads = 30,
+                            chunkSize = 10,
+                            sampleColName = "bedFile",
+                            genome = "hg38",
+                            tf_bindsites = tf_bindsites,
+                            gcfreqs = gcfreqs,
+                            gc_dist = gc_dist,
+                            filetype = "EPP")
+```
 
+## Citation
+
+Below is the citation output from using `citation('methylTFR')` in R.
+Please run this yourself to check for any updates on how to cite
+**methylTFR**.
+
+``` r
+print(citation('methylTFR'), bibtex = TRUE)
+#> 
+#> To cite package 'methylTFR' in publications use:
+#> 
+#>   Sarath Kumar first.last@example.com Murugan and Fabian
+#>   fabian.mueller@uni-saarland.de Muller (2023). methylTFR:
+#>   Identification of Methylation Patterns in TFBS. R package version
+#>   0.99.0. https://github.com/EpigenomeInformatics/methylTFR
+#> 
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Manual{,
+#>     title = {methylTFR: Identification of Methylation Patterns in TFBS},
+#>     author = {Sarath Kumar first.last@example.com Murugan and Fabian fabian.mueller@uni-saarland.de Muller},
+#>     year = {2023},
+#>     note = {R package version 0.99.0},
+#>     url = {https://github.com/EpigenomeInformatics/methylTFR},
+#>   }
 ```

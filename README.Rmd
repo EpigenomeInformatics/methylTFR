@@ -1,0 +1,87 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%"
+)
+```
+
+# methylTFR
+
+<!-- badges: start -->
+[![R-CMD-check-bioc](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml)
+[![R-CMD-check](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml)
+[![GitHub issues](https://img.shields.io/github/issues/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/issues)
+[![GitHub pulls](https://img.shields.io/github/issues-pr/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/pulls)
+<!-- badges: end -->
+
+# methylTFR
+
+`methylTFR` is an R-package to analyze DNA methylation patterns on transcription factor binding sites in each individual cells or samples.
+It takes inputs from `RnBeads` processed bed file, *EPP* format. 
+
+## Installation instructions
+
+Get the latest release `methylTFR` from [Bioconductor](http://bioconductor.org/) using the following code:
+
+```{r 'install', eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+
+BiocManager::install("methylTFR")
+```
+
+And the development version from [GitHub](https://github.com/EpigenomeInformatics/methylTFR) with:
+
+```{r 'install_dev', eval = FALSE}
+BiocManager::install("EpigenomeInformatics/methylTFR")
+```
+## Example
+
+This is a basic example which shows you how to run `methylTFR` :
+
+```{r example, eval = FALSE}
+library(GenomicRanges)
+library(dplyr)
+library(methylTFRann)
+library(methylTFR)
+
+gcfreqs <-  getGCfreq()
+gc_dist <- getGenomeGC()
+tf_bindsites <- getTFbindsites()
+
+sample_dir <- file.path("samples_dir")
+sample_ann <- "samples.tsv" # should contain column name bedFile
+
+# deviation score matrix
+deviations <- run_methyltfr(sample_ann,
+                            sample_dir,
+                            threads = 8,
+                            threads = 30,
+                            chunkSize = 10,
+                            sampleColName = "bedFile",
+                            genome = "hg38",
+                            tf_bindsites = tf_bindsites,
+                            gcfreqs = gcfreqs,
+                            gc_dist = gc_dist,
+                            filetype = "EPP")
+
+```
+
+## Citation
+
+Below is the citation output from using `citation('methylTFR')` in R. Please
+run this yourself to check for any updates on how to cite __methylTFR__.
+
+```{r 'citation', eval = requireNamespace('methylTFR')}
+print(citation('methylTFR'), bibtex = TRUE)
+```
+

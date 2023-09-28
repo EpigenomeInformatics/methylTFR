@@ -273,15 +273,3 @@ run_methyltfr <- function(
   return(deviation)
 }
 
-#' @title cleanMem
-#' @description cleanMem is a function to clean the memory
-#' @param iter.gc - number of times to run the garbage collector
-#' @return NULL
-#' @keywords internal
-#'
-cleanMem <- function(iter.gc = 1L) {
-  for (i in 1:iter.gc) {
-    gc()
-  }
-  invisible(NULL)
-}
