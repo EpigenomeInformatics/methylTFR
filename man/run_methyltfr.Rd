@@ -17,7 +17,7 @@ run_methyltfr(
   annfile = NULL,
   threads = 1,
   enhancer = NULL,
-  filetype = c("EPP", "BisSNP")
+  filetype = NULL
 )
 }
 \arguments{

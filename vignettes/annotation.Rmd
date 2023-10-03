@@ -1,0 +1,135 @@
+---
+title: "Build methylTFR annotations"
+author: 
+  - name: Irem B. Gunduz
+    affiliation:
+    - Saarland University
+    email: irembgunduz@gmail.com
+output: 
+  BiocStyle::html_document:
+    self_contained: yes
+    toc: true
+    toc_float: true
+    toc_depth: 2
+    code_folding: show
+date: "`r doc_date()`"
+package: "`r pkg_ver('methylTFR')`"
+vignette: >
+  %\VignetteIndexEntry{build methylTFR annotations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+)
+```
+
+
+```{r vignetteSetup, echo=FALSE, message=FALSE, warning = FALSE}
+## Track time spent on making the vignette
+startTime <- Sys.time()
+
+## Bib setup
+library("RefManageR")
+
+## Write bibliography information
+bib <- c(
+    R = citation(),
+    BiocStyle = citation("BiocStyle")[1],
+    knitr = citation("knitr")[1],
+    RefManageR = citation("RefManageR")[1],
+    rmarkdown = citation("rmarkdown")[1],
+    sessioninfo = citation("sessioninfo")[1],
+    testthat = citation("testthat")[1],
+    methylTFR = citation("methylTFR")[1]
+)
+```
+
+## Install `methylTFR`
+
+`r Biocpkg("methylTFR")` is available from Bioconductor. To install it, please follow the instructions in the [Bioconductor landing page](https://bioconductor.org/packages/methylTFR/). In particular, you will need to install the latest version of `R` and `BiocManager` and then run the following commands:
+
+```{r "install", eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+      install.packages("BiocManager")
+  }
+
+BiocManager::install("methylTFR")
+```
+
+## What is `methylTFR` annotations?
+
+`methylTFR` computes expected methylation values using GC content of the genome. Annotation builder functions are part of the `methylTFR` package.
+In nuthsell, you will need a two component to build your own annotation:
+
+- A genome object, such as `BSgenome.Hsapiens.UCSC.hg19` from the `BSgenome` package.
+- A desired motif annotations, such as `JASPAR2020`
+
+### Quick start to build your own annotations using `methylTFR`
+Below we illustrate how to build your own annotation using `BSgenome.Hsapiens.UCSC.hg38` as a genome for `JASPAR2020` motifs. 
+
+```{r "quickstart", message=FALSE, eval=FALSE}
+suppressPackageStartupMessages({
+  library("BSgenome.Hsapiens.UCSC.hg38")
+  library("methylTFR")
+  library("JASPAR2020")
+  library("TFBSTools")
+  library("logger")
+})
+
+#compute genome wise GC bias and save it as a GRanges object
+genomewideGC <- computeGenomeWideGC(BSgenome.Hsapiens.UCSC.hg38,
+  onlyMain = TRUE, includeSexChr = TRUE, num_cores = 1)
+
+
+#Get Jaspar2020 motif PFM matrix list
+motifPFMatrixList <- getMatrixSet(
+  x = JASPAR2020,
+  opts = list(species = 9606, all_versions = FALSE)
+)
+
+#TODO add a function to convert motif PFM matrix list to GRanges object
+
+log_start("Calculating GC distribution ...")
+gc_dist <- calculate_gcdist(genome = BSgenome.Hsapiens.UCSC.hg38, threads = 1)
+log_info("Applying quantile ...")
+gc_bin <- quantile(gc_dist, probs = seq(0, 1, 1 / 5))
+log_success("GC distribution calculated.")
+
+motif_list <- names(tf_bindsites)
+logger.info(paste0('Number of motifs within the annotation: ',length(motif_list)))
+
+logger_start("Generating GC matrix for each motif ...")
+motif_gcfreq <- mclapply(chunk_motifs, processMotifs2GCMatrix,
+        gc_bin = gc_bin, genome = BSgenome.Hsapiens.UCSC.hg38,
+        mc.cores = 1
+      )
+logger_success("Motifs processed.")
+```
+After you succesfully build your annotation, you can use it with `methylTFR` functions.
+
+## Asking for help
+
+As package developers, we try to explain clearly how to use our packages and in which order to use the functions. But `R` and `Bioconductor` have a steep learning curve so it is critical to learn where to ask for help. The blog post quoted above mentions some but we would like to highlight the [Bioconductor support site](https://support.bioconductor.org/) as the main resource for getting help: remember to use the `methylTFR` tag and check [the older posts](https://support.bioconductor.org/tag/methylTFR/). Other alternatives are available such as creating GitHub issues and tweeting. However, please note that if you want to receive help you should adhere to the [posting guidelines](http://www.bioconductor.org/help/support/posting-guide/). It is particularly critical that you provide a small reproducible example and your session information so package developers can track down the source of the error.
+
+## Citing `methylTFR`
+
+We hope that `r Biocpkg("methylTFR")` will be useful for your research. Please use the following information to cite the package and the overall approach. Thank you!
+
+```{r "citation"}
+## Citation info
+citation("methylTFR")
+```
+
+`R` session information.
+
+```{r reproduce3, echo=FALSE}
+## Session info
+library("sessioninfo")
+options(width = 120)
+session_info()
+```

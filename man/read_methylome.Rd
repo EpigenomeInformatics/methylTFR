@@ -4,7 +4,7 @@
 \alias{read_methylome}
 \title{read_methylome}
 \usage{
-read_methylome(filename, type = c("EPP", "BisSNP"))
+read_methylome(filename, type)
 }
 \arguments{
 \item{-}{bedfilename which contains methylation data EPP format}
