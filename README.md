@@ -47,12 +47,12 @@ This is a basic example which shows you how to run `methylTFR` :
 ```r
 library(GenomicRanges)
 library(dplyr)
-library(methylTFRAnnotationHg38)
+library(methylTFRAnnotationHg38) # annotation package for hg38
 library(methylTFR)
 
-gcfreqs <-  getGCfreq()
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
 gc_dist <- getGenomeGC()
-tf_bindsites <- getTFbindsites()
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020",)
 
 sample_dir <- file.path("samples_dir")
 sample_ann <- "samples.tsv" # should contain column name bedFile
