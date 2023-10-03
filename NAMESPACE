@@ -42,4 +42,4 @@ importFrom(logger,log_info)
 importFrom(parallel,mclapply)
 importFrom(stats,aggregate)
 importFrom(stringr,str_replace)
-importFrom(stringr,str_split
+importFrom(stringr,str_split)

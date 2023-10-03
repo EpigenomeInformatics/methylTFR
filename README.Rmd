@@ -51,7 +51,7 @@ This is a basic example which shows you how to run `methylTFR` :
 ```{r example, eval = FALSE}
 library(GenomicRanges)
 library(dplyr)
-library(methylTFRann)
+library(methylTFRAnnotationHg38)
 library(methylTFR)
 
 gcfreqs <-  getGCfreq()
