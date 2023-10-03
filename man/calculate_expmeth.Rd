@@ -7,16 +7,24 @@
 calculate_expmeth(msites, gcdist, gcfreq)
 }
 \arguments{
-\item{msites}{- imported methylation sites}
+\item{msites}{\itemize{
+\item imported methylation sites
+}}
 
-\item{gcdist}{- Genome wide GC distribution from (\code{methylTFRann})}
+\item{gcdist}{\itemize{
+\item Genome wide GC distribution from (\code{methylTFRann})
+}}
 
-\item{gcfreq}{- GC bin frequency table (matrix) from (\code{methylTFRann})}
+\item{gcfreq}{\itemize{
+\item GC bin frequency table (matrix) from (\code{methylTFRann})
+}}
 }
 \value{
 a \code{data.table} object with GC bin with corresponding avg methylation
 }
 \description{
-This function is used to calculate genome-wide expected methylation 
- for each motif.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ This function is used to calculate genome-wide expected methylation
+}\if{html}{\out{</div>}}
+
+for each motif.
 }
