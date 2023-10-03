@@ -1,12 +1,8 @@
----
-output: github_document
----
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 
 
-# methylTFR
+# *methylTFR* : Identification of Methylation Patterns in TFBS
 
 <!-- badges: start -->
 [![R-CMD-check-bioc](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml)
@@ -14,8 +10,6 @@ output: github_document
 [![GitHub issues](https://img.shields.io/github/issues/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/issues)
 [![GitHub pulls](https://img.shields.io/github/issues-pr/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/pulls)
 <!-- badges: end -->
-
-# methylTFR
 
 `methylTFR` is an R-package to analyze DNA methylation patterns on transcription factor binding sites in each individual cells or samples.
 It takes inputs from `RnBeads` processed bed file, *EPP* format. 
@@ -39,7 +33,7 @@ And the development version from [GitHub](https://github.com/EpigenomeInformatic
 ```r
 BiocManager::install("EpigenomeInformatics/methylTFR")
 ```
-## Example
+## Quick Start
 
 This is a basic example which shows you how to run `methylTFR` :
 
@@ -52,23 +46,23 @@ library(methylTFR)
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
 gc_dist <- getGenomeGC()
-tf_bindsites <- getTFbindsites(motifSet = "jaspar2020",)
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 sample_dir <- file.path("samples_dir")
 sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
-deviations <- run_methyltfr(sample_ann,
-                            sample_dir,
-                            threads = 8,
-                            threads = 30,
-                            chunkSize = 10,
-                            sampleColName = "bedFile",
-                            genome = "hg38",
-                            tf_bindsites = tf_bindsites,
-                            gcfreqs = gcfreqs,
-                            gc_dist = gc_dist,
-                            filetype = "EPP")
+deviations <- run_methyltfr(sample_ann, # sample annotation file
+                            sample_dir, #where the EPP files are
+                            threads = 8, # number of threads
+                            chunkSize = 10, # number of chunks to process
+                            sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+                            genome = "hg38", # genome version
+                            tf_bindsites = tf_bindsites, # TF binding sites
+                            gcfreqs = gcfreqs, # GC frequency
+                            gc_dist = gc_dist, # GC distribution
+                            filetype = "EPP" # file type
+                            )
 
 ```
 
