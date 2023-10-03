@@ -11,7 +11,7 @@
 #' @importFrom data.table data.table
 #' @importFrom dplyr %>% mutate
 computeFootprint <- function(motif_name, tf_bindsites, msites,
-                       enhancer = NULL) {
+                             enhancer = NULL) {
   tfbs <- tf_bindsites[[motif_name]]
   w <- width(tfbs)[1]
   tfbs <- resize(tfbs, w + 101, fix = "center")
@@ -56,7 +56,7 @@ computeFootprint <- function(motif_name, tf_bindsites, msites,
 #' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
 #' @importFrom ggrepel geom_label_repel
 plotFootprint <- function(motifs, tf_bindsites, samples,
-                           img = "TF_footprint.png") {
+                          img = "TF_footprint.png") {
   msites_list <- GRangesList()
   msites_list <- lapply(samples, read_methylome)
   sample_names <- unlist(lapply(samples, basename))

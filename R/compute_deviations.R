@@ -9,12 +9,12 @@
 #' @importFrom IRanges IRanges
 #' @importFrom data.table fread
 #' @importFrom stringr str_split str_replace
-read_methylome <- function(filename, type = c("EPP", "BisSNP")) {
+read_methylome <- function(filename, type) {
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect !!"))
   }
   type <- match.arg(type)
-  if (type == "EPP") {
+  if (type == "epp") {
     # Parse EPP file format
     msites <- fread(filename, header = FALSE, showProgress = FALSE)
     mcov <- unlist(stringr::str_split(msites$V4, "/"))
@@ -22,7 +22,7 @@ read_methylome <- function(filename, type = c("EPP", "BisSNP")) {
     cov <- mcov[seq_along(mcov) %% 2 == 0]
     mscore <- round(msites$V5 / 1000, 3)
   }
-  if (type == "BisSNP") {
+  if (type == "bissnp") {
     # Parse BisSNP Tab-Separated file format
     msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
@@ -156,29 +156,22 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
-#' @importFrom dplyr %>%
 #' @importFrom parallel mclapply
-#' @importFrom logger log_info log_error log_appender appender_file
+#' @importFrom DelayedArray write_block close ArbitraryArrayGrid
+#' @importFrom HDF5Array HDF5RealizationSink
+#' @importFrom logger log_info log_error
 run_methyltfr <- function(
     sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = c("EPP", "BisSNP")) {
-  if (is.null(genome)) {
-    logger::log_error("Please provide the genome version !!")
+    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
+  if (is.null(genome) || !is.character(genome)) {
+    logger::log_error("Please provide a valid genome version")
   }
-  if (genome != "hg38" && any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
-    logger::log_error("Please provide the tf_bindsites, gcfreqs and gc_dist for the provided genome!")
+  if (tolower(filetype) %in% c("bissnp", "epp")) {
+    logger::log_error("Please provide a valid file type")
   }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
-    if (genome == "hg38") {
-      logger::log_info("Loading the hg38 package")
-      if (!require("methylTFRann")) {
-        logger::log_error("methylTFRann package is not installed in your environment !!")
-      }
-      tf_bindsites <- getTFbindsites()
-      gc_dist <- getGenomeGC()
-      gcfreqs <- getGCfreq()
-    }
+    logger::log_error("Please load the annotation objects for given genome.")
   }
   # TODO add type checker for sample_ann
   if (!is.null(annfile) & is.character(annfile)) {
@@ -200,13 +193,11 @@ run_methyltfr <- function(
     files_list <- file.path(sample_dir, samples[, sampleColName])
   }
   if (!all(file.exists(files_list))) {
-    logger::log_error("Some of the bed files are not exist, please check the file path !!")
+    logger::log_error("Some of the files does not exist, please check the file path!")
   }
-  logger::log_info("The samples and annotation package are loaded successfully !!")
+  logger::log_success("The samples and annotation package are loaded successfully")
 
   motifs <- names(gcfreqs)
-  # deviation <- matrix(NA, nrow = length(motifs), ncol = length(files_list))
-
   # Split the motifs into chunks
   numChunks <- ceiling(length(motifs) / chunkSize)
   motif_chunks <- split(motifs, rep(1:numChunks, each = chunkSize, length.out = length(motifs)))
@@ -220,7 +211,7 @@ run_methyltfr <- function(
     filepath = tempfile,
     name = paste0("methylTFRmat"), level = 6
   )
-  logger::log_info(paste0("Initializing the sink file in temp: ", tempfile))
+  logger::log_info(paste0("Initializing the temp sink: ", tempfile))
   # set the grid
   grid <- DelayedArray::ArbitraryArrayGrid(list(
     cumsum(lengths(files_list)),
@@ -247,14 +238,12 @@ run_methyltfr <- function(
         enhancer = enhancer,
         mc.cores = threads
       )
-      # row_indices <- match(chunk_motifs, motifs)
 
       # Write the block to the sink
       DelayedArray::write_block(
         block = as.matrix(t(unlist(sample_deviations))),
         viewport = grid[[as.integer(i), as.integer(j)]], sink = sink
       )
-      # deviation[row_indices, i]  <- unlist(sample_deviations)
       rm(sample_deviations)
       methylTFR:::cleanMem()
     }
@@ -268,8 +257,5 @@ run_methyltfr <- function(
   deviation <- t(as(sink, "DelayedArray"))
   deviation <- as.matrix(deviation)
   file.remove(tempfile) # TODO find a better solution for this
-  # rownames(deviation) <- motifs
-  # colnames(deviation) <- basename(files_list)
   return(deviation)
 }
-

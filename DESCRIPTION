@@ -3,9 +3,21 @@ Title: Identification of Methylation Patterns in TFBS
 Version: 0.99.0
 Date: 2023-09-28
 Authors@R: c(
-    person(c("Sarath Kumar", "first.last@example.com"), "Murugan", role = c("aut", "cre")),
-    person(c("Fabian", "fabian.mueller@uni-saarland.de"), "Muller", , c(ORCID = "0000-0001-5809-2321"), role = "aut")
-  )
+    person(given = "Irem B.",
+           family = "Gündüz",
+           role = c("aut", "cre"),
+           email = "irembgunduz@gmail.com",
+           comment = c(ORCID = "0000-0003-2641-0916")),
+      person(given = "Sarath Kumar",
+           family = "Murugan",
+           role = c("aut", "cre"),
+           email = "sarath.murugan@outlook.com"),
+      person(given = "Fabian",
+           family = "Muller",
+           role = c("aut"),
+           email = "fabian.mueller@uni-saarland.de",
+           comment = c(ORCID = "0000-0001-5809-2321"))
+           )
 Description: methylTFR is an R package to identify of the methylation
     patterns in transcription factor binding sites(TFBS).
 License: Artistic-2.0
@@ -21,16 +33,20 @@ Imports:
     HDF5Array,
     IRanges,
     logger,
-    methylTFRann,
     parallel,
     stats,
     stringr
 Suggests: 
+    BiocStyle,
     covr,
     knitr,
     pkgdown,
-    rmarkdown
+    RefManageR,
+    rmarkdown,
+    sessioninfo,
+    testthat
 biocViews: Software
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+VignetteBuilder: knitr

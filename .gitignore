@@ -3,3 +3,4 @@ vignettes/*.html
 .DS_Store
 /example/
 docs
+inst/doc
