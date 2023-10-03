@@ -31,7 +31,10 @@ And the development version from [GitHub](https://github.com/EpigenomeInformatic
 
 
 ```r
-BiocManager::install("EpigenomeInformatics/methylTFR")
+if (!requireNamespace("remotes", quietly = TRUE)) {
+    install.packages("remotes")
+}
+remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
 ## Quick Start
 
