@@ -4,7 +4,14 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%"
+)
+```
 
 # methylTFR
 
@@ -24,8 +31,7 @@ It takes inputs from `RnBeads` processed bed file, *EPP* format.
 
 Get the latest release `methylTFR` from [Bioconductor](http://bioconductor.org/) using the following code:
 
-
-```r
+```{r 'install', eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
@@ -35,16 +41,14 @@ BiocManager::install("methylTFR")
 
 And the development version from [GitHub](https://github.com/EpigenomeInformatics/methylTFR) with:
 
-
-```r
+```{r 'install_dev', eval = FALSE}
 BiocManager::install("EpigenomeInformatics/methylTFR")
 ```
 ## Example
 
 This is a basic example which shows you how to run `methylTFR` :
 
-
-```r
+```{r example, eval = FALSE}
 library(GenomicRanges)
 library(dplyr)
 library(methylTFRAnnotationHg38) # annotation package for hg38
@@ -77,23 +81,7 @@ deviations <- run_methyltfr(sample_ann,
 Below is the citation output from using `citation('methylTFR')` in R. Please
 run this yourself to check for any updates on how to cite __methylTFR__.
 
-
-```r
+```{r 'citation', eval = requireNamespace('methylTFR')}
 print(citation('methylTFR'), bibtex = TRUE)
-#> To cite package 'methylTFR' in publications use:
-#> 
-#>   Gündüz I, Murugan S, Muller F (2023). _methylTFR: Identification of
-#>   Methylation Patterns in TFBS_. R package version 0.99.0,
-#>   <https://github.com/EpigenomeInformatics/methylTFR>.
-#> 
-#> A BibTeX entry for LaTeX users is
-#> 
-#>   @Manual{,
-#>     title = {methylTFR: Identification of Methylation Patterns in TFBS},
-#>     author = {Irem B. Gündüz and Sarath Kumar Murugan and Fabian Muller},
-#>     year = {2023},
-#>     note = {R package version 0.99.0},
-#>     url = {https://github.com/EpigenomeInformatics/methylTFR},
-#>   }
 ```
 

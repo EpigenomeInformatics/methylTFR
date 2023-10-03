@@ -14,22 +14,33 @@ compute_deviation(
 )
 }
 \arguments{
-\item{msites}{- imported methylation sites}
+\item{msites}{\itemize{
+\item imported methylation sites
+}}
 
-\item{tf_bindsites}{- a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})}
+\item{tf_bindsites}{\itemize{
+\item a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+}}
 
-\item{gcfreqs}{- GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})}
+\item{gcfreqs}{\itemize{
+\item GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+}}
 
-\item{gcdist}{- Genome wide GC distribution from (\code{methylTFRann})}
+\item{gcdist}{\itemize{
+\item Genome wide GC distribution from (\code{methylTFRann})
+}}
 
-\item{enhancer}{- Specific regions like distal motif}
+\item{enhancer}{\itemize{
+\item Specific regions like distal motif
+}}
 
-\item{motifs}{- list of motifs}
+\item{motifs}{\itemize{
+\item list of motifs
+}}
 }
 \value{
 deviation score for a given motif
 }
 \description{
-This function is function to calculate the deviation in transcription factor
- footprint base for a given motif
+compute_deviation is a function to calculate the deviation in transcription factor
 }

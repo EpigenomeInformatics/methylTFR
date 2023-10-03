@@ -8,25 +8,71 @@ run_methyltfr(
   sample_ann,
   sample_dir,
   genome = "hg38",
-  threads = 4,
-  enhancer = NULL
+  tf_bindsites = NULL,
+  gcfreqs = NULL,
+  gc_dist = NULL,
+  sampleColName = "bedFile",
+  chunkSize = 20,
+  full_path = FALSE,
+  annfile = NULL,
+  threads = 1,
+  enhancer = NULL,
+  filetype = NULL
 )
 }
 \arguments{
-\item{sample_ann}{- a tab seperated file contains sample annotations}
+\item{sample_ann}{\itemize{
+\item a tab seperated file contains sample annotations
+}}
 
-\item{sample_dir}{- directory where all bed file and annotation file stored}
+\item{sample_dir}{\itemize{
+\item directory where all bed file and annotation file stored
+}}
 
-\item{genome}{- human genome version default: hg38}
+\item{genome}{\itemize{
+\item human genome version default: hg38
+}}
 
-\item{threads}{- thread count for parallel processing}
+\item{tf_bindsites}{\itemize{
+\item a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+}}
 
-\item{enhancer}{- Specific regions like distal motif}
+\item{gcfreqs}{\itemize{
+\item GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+}}
+
+\item{gc_dist}{\itemize{
+\item Genome wide GC distribution from (\code{methylTFRann})
+}}
+
+\item{sampleColName}{\itemize{
+\item column name of the sample bed file in the annotation file
+}}
+
+\item{chunkSize}{\itemize{
+\item chunk size for parallel processing of motifs
+}}
+
+\item{full_path}{\itemize{
+\item if TRUE, the bed file path in the annotation file is full path
+}}
+
+\item{annfile}{\itemize{
+\item if provided, the sample annotation file is not read from the sample_dir
+}}
+
+\item{threads}{\itemize{
+\item thread count for parallel processing
+}}
+
+\item{enhancer}{\itemize{
+\item Specific regions like distal motif
+}}
 }
 \value{
 deviation score matrix for all samples
 }
 \description{
 This function is a wrapper function to calculate the deviation in transcription factor
- footprint base for all given motifs using parallel package
+footprint base for all given motifs using parallel package
 }

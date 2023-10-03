@@ -1,55 +1,60 @@
-
-
-# wilcoxon test for two groups
-wilcoxon_helper <- function(x, groups) {
-    splitx <- split(t(x), groups)
-    return(wilcox.test(splitx[[1]], splitx[[2]],
-                        paired = FALSE)$p.value)
-}
-
-# Kruskal-Wallis Rank Sum Test for multiple groups
-kw_helper <- function(x, groups) {
-  tmpdf <- data.frame(groups = groups, devs = x)
-  res <- kruskal.test(devs ~ groups, tmpdf)
-  return(res$p.value)
-}
-
-#' differential_deviation_test
-#' 
-#'      Differential analysis is to test which motifs are having significant
+#' @title  differential_deviation_test
+#' @description Differential analysis is to test which motifs are having significant
 #' deviations among different cell-types.
-#' Inspired from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
-#' 
-#' @param deviations - motif name 
+#' Adapted from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
+#' @param deviations - motif name
 #' @param groups     - a character vector of group names or colnames(deviations)
 #' @param motifs     - a character vector of motif names used in analysis or rownames(deviations)
+#' @param alternative - a character string specifying the alternative hypothesis,
+#' must be one of "two.sided" (default), "greater" or "less".
+#' @param parametric - logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.
+#' @param padjMethod - method for p-value adjustment, default is "BH"
 #' @return a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
-#' @export 
+#' @export
 #' @importFrom stats aggregate
 differential_deviation_test <- function(deviations,
                                         groups = NULL,
-                                        motifs = rownames(deviations)){
-    if (is.null(groups)) {
-        groups <- colnames(groups)
-    } else if (length(groups) != ncol(deviations)) {
-        stop("invalid groups input, must be vector of lench ncol(variantion) or column",
-            " name from variations dataframe")
-    }
+                                        motifs = rownames(deviations),
+                                        alternative = c("two.sided", "less", "greater"),
+                                        parametric = TRUE,
+                                        padjMethod = "BH") {
+  if (is.null(groups)) {
+    groups <- colnames(groups)
+  } else if (length(groups) != ncol(deviations)) {
+    stop(
+      "invalid groups input, must be vector of lench ncol(variantion) or column",
+      " name from variations dataframe"
+    )
+  }
 
-    groups <- as.factor(groups)
-
+  groups <- as.factor(groups)
+  if (length(alternative) > 1) {
+    stop(
+      "Please indicate one of the alternatives only."
+    )
+  }
+  if (parametric) {
     if (nlevels(groups) == 2) {
-
-      p_val <- apply(deviations, 1, wilcoxon_helper, groups)
+      # t-test
+      p_val <- apply(deviations, 1, t_helper, groups, alternative)
+    } else {
+      # anova
+      p_val <- apply(deviations, 1, anova_helper, groups)
+    }
+  } else {
+    if (nlevels(groups) == 2) {
+      # wilcoxon
+      p_val <- apply(deviations, 1, wilcoxon_helper, groups, alternative)
     } else {
       # kruskal-wallis
       p_val <- apply(deviations, 1, kw_helper, groups)
     }
+  }
+  p_adj <- p.adjust(p_val, method = padjMethod)
 
-    p_adj <- p.adjust(p_val, method = "BH")
-    
-    return(data.frame(motifs = motifs,
-                      p_value = p_val, 
-                      adj.pvalue = p_adj))
-
+  return(data.frame(
+    motifs = motifs,
+    p_value = p_val,
+    adj.pvalue = p_adj
+  ))
 }

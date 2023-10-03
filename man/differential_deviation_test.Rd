@@ -7,15 +7,37 @@
 differential_deviation_test(
   deviations,
   groups = NULL,
-  motifs = rownames(deviations)
+  motifs = rownames(deviations),
+  alternative = c("two.sided", "less", "greater"),
+  parametric = TRUE,
+  padjMethod = "BH"
 )
 }
 \arguments{
-\item{deviations}{- motif name}
+\item{deviations}{\itemize{
+\item motif name
+}}
 
-\item{groups}{- a character vector of group names or colnames(deviations)}
+\item{groups}{\itemize{
+\item a character vector of group names or colnames(deviations)
+}}
 
-\item{motifs}{- a character vector of motif names used in analysis or rownames(deviations)}
+\item{motifs}{\itemize{
+\item a character vector of motif names used in analysis or rownames(deviations)
+}}
+
+\item{alternative}{\itemize{
+\item a character string specifying the alternative hypothesis,
+must be one of "two.sided" (default), "greater" or "less".
+}}
+
+\item{parametric}{\itemize{
+\item logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.
+}}
+
+\item{padjMethod}{\itemize{
+\item method for p-value adjustment, default is "BH"
+}}
 }
 \value{
 a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
@@ -23,5 +45,5 @@ a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
 \description{
 Differential analysis is to test which motifs are having significant
 deviations among different cell-types.
-Inspired from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
+Adapted from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
 }
