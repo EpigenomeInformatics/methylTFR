@@ -142,7 +142,6 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #'  footprint base for all given motifs using parallel package
 #' @param sample_ann   - a tab seperated file contains sample annotations
 #' @param sample_dir   - directory where all bed file and annotation file stored
-#' @param genome       - human genome version default: hg38
 #' @param threads      - thread count for parallel processing
 #' @param enhancer     - Specific regions like distal motif
 #' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
@@ -152,6 +151,8 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param chunkSize     - chunk size for parallel processing of motifs
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
 #' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
+#' @param filetype      - file type of the bed file, currently supported: bissnp, epp
+#' @param returnSE      - if TRUE, the methylTFRDeviations object is returned
 #' @return deviation score matrix for all samples
 #' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
@@ -160,13 +161,11 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom DelayedArray write_block close ArbitraryArrayGrid
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info log_error
+#' @importFrom SummarizedExperiment SummarizedExperiment
 run_methyltfr <- function(
-    sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL,
+    sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
-  if (is.null(genome) || !is.character(genome)) {
-    logger::log_error("Please provide a valid genome version")
-  }
+    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL,returnSE=FALSE) {
   if (tolower(filetype) %in% c("bissnp", "epp")) {
     logger::log_error("Please provide a valid file type")
   }
@@ -184,8 +183,11 @@ run_methyltfr <- function(
   }
   if (endsWith(annfile, ".csv")) {
     samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-  } else {
-    samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+  } 
+  if(endsWith(annfile, ".tsv")){
+      samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+  }else {
+    logger::log_error("Please provide a valid annotation file with .csv or .tsv extension")
   }
   if (full_path) {
     files_list <- samples[, sampleColName]
@@ -255,7 +257,15 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
-  deviation <- as.matrix(deviation)
-  file.remove(tempfile) # TODO find a better solution for this
-  return(deviation)
+  #file.remove(tempfile) # TODO find a better solution for this
+
+  if(returnSE){
+    se <- SummarizedExperiment::SummarizedExperiment(
+      assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+      colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+    )
+    return(new("methylTFRDeviations", se))
+  }else{
+    return(as.matrix(deviation))
+  }
 }
