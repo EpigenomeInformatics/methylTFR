@@ -22,9 +22,9 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>",
-    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+  collapse = TRUE,
+  comment = "#>",
+  crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
 
@@ -38,14 +38,14 @@ library("RefManageR")
 
 ## Write bibliography information
 bib <- c(
-    R = citation(),
-    BiocStyle = citation("BiocStyle")[1],
-    knitr = citation("knitr")[1],
-    RefManageR = citation("RefManageR")[1],
-    rmarkdown = citation("rmarkdown")[1],
-    sessioninfo = citation("sessioninfo")[1],
-    testthat = citation("testthat")[1],
-    methylTFR = citation("methylTFR")[1]
+  R = citation(),
+  BiocStyle = citation("BiocStyle")[1],
+  knitr = citation("knitr")[1],
+  RefManageR = citation("RefManageR")[1],
+  rmarkdown = citation("rmarkdown")[1],
+  sessioninfo = citation("sessioninfo")[1],
+  testthat = citation("testthat")[1],
+  methylTFR = citation("methylTFR")[1]
 )
 ```
 
@@ -55,8 +55,8 @@ bib <- c(
 
 ```{r "install", eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-      install.packages("BiocManager")
-  }
+  install.packages("BiocManager")
+}
 
 BiocManager::install("methylTFR")
 ```
@@ -81,18 +81,19 @@ suppressPackageStartupMessages({
   library("logger")
 })
 
-#compute genome wise GC bias and save it as a GRanges object
+# compute genome wise GC bias and save it as a GRanges object
 genomewideGC <- computeGenomeWideGC(BSgenome.Hsapiens.UCSC.hg38,
-  onlyMain = TRUE, includeSexChr = TRUE, num_cores = 1)
+  onlyMain = TRUE, includeSexChr = TRUE, num_cores = 1
+)
 
 
-#Get Jaspar2020 motif PFM matrix list
+# Get Jaspar2020 motif PFM matrix list
 motifPFMatrixList <- getMatrixSet(
   x = JASPAR2020,
   opts = list(species = 9606, all_versions = FALSE)
 )
 
-#TODO add a function to convert motif PFM matrix list to GRanges object
+# TODO add a function to convert motif PFM matrix list to GRanges object
 
 log_start("Calculating GC distribution ...")
 gc_dist <- calculate_gcdist(genome = BSgenome.Hsapiens.UCSC.hg38, threads = 1)
@@ -101,13 +102,13 @@ gc_bin <- quantile(gc_dist, probs = seq(0, 1, 1 / 5))
 log_success("GC distribution calculated.")
 
 motif_list <- names(tf_bindsites)
-logger.info(paste0('Number of motifs within the annotation: ',length(motif_list)))
+logger.info(paste0("Number of motifs within the annotation: ", length(motif_list)))
 
 logger_start("Generating GC matrix for each motif ...")
 motif_gcfreq <- mclapply(chunk_motifs, processMotifs2GCMatrix,
-        gc_bin = gc_bin, genome = BSgenome.Hsapiens.UCSC.hg38,
-        mc.cores = 1
-      )
+  gc_bin = gc_bin, genome = BSgenome.Hsapiens.UCSC.hg38,
+  mc.cores = 1
+)
 logger_success("Motifs processed.")
 ```
 After you succesfully build your annotation, you can use it with `methylTFR` functions.

@@ -78,7 +78,7 @@ kw_helper <- function(x, groups) {
 #' @return A matrix.
 #' @importFrom matrixStats rowMeans2 rowSds
 #' @keywords internal
-#' 
+#'
 computeZScore <- function(mat) {
   mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
   mat[base::is.nan(mat)] <- 0

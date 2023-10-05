@@ -152,7 +152,6 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
 #' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
 #' @param filetype      - file type of the bed file, currently supported: bissnp, epp
-#' @param returnSE      - if TRUE, the methylTFRDeviations object is returned
 #' @return deviation score matrix for all samples
 #' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
@@ -165,7 +164,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL,returnSE=FALSE) {
+    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
   if (tolower(filetype) %in% c("bissnp", "epp")) {
     logger::log_error("Please provide a valid file type")
   }
@@ -183,10 +182,10 @@ run_methyltfr <- function(
   }
   if (endsWith(annfile, ".csv")) {
     samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-  } 
-  if(endsWith(annfile, ".tsv")){
-      samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
-  }else {
+  }
+  if (endsWith(annfile, ".tsv")) {
+    samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+  } else {
     logger::log_error("Please provide a valid annotation file with .csv or .tsv extension")
   }
   if (full_path) {
@@ -257,11 +256,11 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
-  #file.remove(tempfile) # TODO find a better solution for this
+  # file.remove(tempfile) # TODO find a better solution for this
 
-    se <- SummarizedExperiment::SummarizedExperiment(
-      assays = list(deviations = as.matrix(deviation), z = methylTFR::computeZScore(deviation)),
-      colData = samples, rowData = DataFrame(motifs = row.names(deviation))
-    )
-    return(new("methylTFRDeviations", se))
+  se <- SummarizedExperiment::SummarizedExperiment(
+    assays = list(deviations = as.matrix(deviation), z = methylTFR::computeZScore(deviation)),
+    colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+  )
+  return(new("methylTFRDeviations", se))
 }
