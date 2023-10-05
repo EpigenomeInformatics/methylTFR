@@ -7,7 +7,6 @@
 run_methyltfr(
   sample_ann,
   sample_dir,
-  genome = "hg38",
   tf_bindsites = NULL,
   gcfreqs = NULL,
   gc_dist = NULL,
@@ -17,7 +16,8 @@ run_methyltfr(
   annfile = NULL,
   threads = 1,
   enhancer = NULL,
-  filetype = NULL
+  filetype = NULL,
+  returnSE = FALSE
 )
 }
 \arguments{
@@ -27,10 +27,6 @@ run_methyltfr(
 
 \item{sample_dir}{\itemize{
 \item directory where all bed file and annotation file stored
-}}
-
-\item{genome}{\itemize{
-\item human genome version default: hg38
 }}
 
 \item{tf_bindsites}{\itemize{
@@ -67,6 +63,14 @@ run_methyltfr(
 
 \item{enhancer}{\itemize{
 \item Specific regions like distal motif
+}}
+
+\item{filetype}{\itemize{
+\item file type of the bed file, currently supported: bissnp, epp
+}}
+
+\item{returnSE}{\itemize{
+\item if TRUE, the methylTFRDeviations object is returned
 }}
 }
 \value{

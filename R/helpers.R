@@ -71,3 +71,16 @@ kw_helper <- function(x, groups) {
   res <- kruskal.test(devs ~ groups, tmpdf)
   return(res$p.value)
 }
+
+#' @title helper function to compute z-score of a matrix
+#' @description This function takes a matrix and computes z-score.
+#' @param mat A matrix.
+#' @return A matrix.
+#' @importFrom matrixStats rowMeans2 rowSds
+#' @keywords internal
+#' 
+computeZScore <- function(mat) {
+  mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
+  mat[base::is.nan(mat)] <- 0
+  return(mat)
+}
