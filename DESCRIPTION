@@ -35,7 +35,8 @@ Imports:
     logger,
     parallel,
     stats,
-    stringr
+    stringr,
+    Biostrings
 Suggests: 
     BiocStyle,
     covr,

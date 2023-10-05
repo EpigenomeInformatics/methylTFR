@@ -259,13 +259,9 @@ run_methyltfr <- function(
   deviation <- t(as(sink, "DelayedArray"))
   #file.remove(tempfile) # TODO find a better solution for this
 
-  if(returnSE){
     se <- SummarizedExperiment::SummarizedExperiment(
-      assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+      assays = list(deviations = as.matrix(deviation), z = methylTFR::computeZScore(deviation)),
       colData = samples, rowData = DataFrame(motifs = row.names(deviation))
     )
     return(new("methylTFRDeviations", se))
-  }else{
-    return(as.matrix(deviation))
-  }
 }
