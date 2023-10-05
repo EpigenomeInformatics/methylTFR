@@ -162,4 +162,3 @@ computeGenomeWideGC <- function(genome, onlyMain = TRUE, includeSexChr = TRUE, n
   t_qgr <- t_qgr[complete.cases(t_qgr$GC_bias, t_qgr$GC_bin), ]
   return(t_qgr)
 }
-
