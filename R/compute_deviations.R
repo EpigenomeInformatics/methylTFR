@@ -1,45 +1,3 @@
-#' @title read_methylome
-#' @description read_methylome is a function to import methylation data into R Genomic
-#'  Range object. Bed file should be processed in the pipeline developed by
-#'  Fabian Müller and Christoph Bock. (EPP format)
-#' @param  - bedfilename which contains methylation data EPP format
-#' @return \code{GenomicRange} object with methylation, coverage information
-#' @export
-#' @importFrom GenomicRanges GRanges
-#' @importFrom IRanges IRanges
-#' @importFrom data.table fread
-#' @importFrom stringr str_split str_replace
-read_methylome <- function(filename, type) {
-  if (!file.exists(filename)) {
-    stop(paste(filename, " doesn't exist or path is incorrect !!"))
-  }
-  type <- match.arg(type)
-  if (type == "epp") {
-    # Parse EPP file format
-    msites <- fread(filename, header = FALSE, showProgress = FALSE)
-    mcov <- unlist(stringr::str_split(msites$V4, "/"))
-    mcov <- as.numeric(stringr::str_replace(mcov, "'", ""))
-    cov <- mcov[seq_along(mcov) %% 2 == 0]
-    mscore <- round(msites$V5 / 1000, 3)
-  }
-  if (type == "bissnp") {
-    # Parse BisSNP Tab-Separated file format
-    msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
-    mscore <- round(msites$V4 / 100, 3)
-    cov <- msites$V5
-  }
-  msites <- GenomicRanges::GRanges(
-    seqnames = msites$V1,
-    ranges = IRanges::IRanges(start = msites$V2, end = msites$V2 + 2),
-    strand = msites$V6,
-    score = mscore,
-    methylation = msites$V4,
-    coverage = cov
-  )
-  return(msites)
-}
-
-
 #' calculate_expmeth
 #'
 #'      This function is used to calculate genome-wide expected methylation
@@ -49,7 +7,6 @@ read_methylome <- function(filename, type) {
 #' @param gcdist - Genome wide GC distribution from (\code{methylTFRann})
 #' @param gcfreq - GC bin frequency table (matrix) from (\code{methylTFRann})
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
-#' @export
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
 calculate_expmeth <- function(msites, gcdist, gcfreq) {
@@ -79,10 +36,8 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 #' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
 #' @param enhancer     - Specific regions like distal motif
 #' @return deviation score for a given motif
-#' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end mcols
 #' @importFrom data.table data.table setDT
-#' @importFrom dplyr n left_join
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                               gcdist, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif]]
@@ -95,7 +50,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
     tfbs <- tfbs[d_hits@from]
   }
 
-  exp_meth <- calculate_expmeth(msites, gcdist, gcfreq)
+  exp_meth <- methylTFR:::calculate_expmeth(msites, gcdist, gcfreq)
   hits <- findOverlaps(msites, tfbs, type = "within")
 
   mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
@@ -231,7 +186,7 @@ run_methyltfr <- function(
       chunk_motifs <- motif_chunks[[j]]
 
       sample_deviations <- mclapply(chunk_motifs,
-        compute_deviation,
+        methylTFR:::compute_deviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
@@ -262,5 +217,5 @@ run_methyltfr <- function(
     assays = list(deviations = as.matrix(deviation), z = methylTFR::computeZScore(deviation)),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation))
   )
-  return(new("methylTFRDeviations", se))
+  return(se)#new("methylTFRDeviations", se))
 }

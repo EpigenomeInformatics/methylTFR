@@ -11,7 +11,7 @@
 #' @param padjMethod - method for p-value adjustment, default is "BH"
 #' @return a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
 #' @export
-#' @importFrom stats aggregate
+#' @importFrom stats aggregate p.adjust
 differential_deviation_test <- function(deviations,
                                         groups = NULL,
                                         motifs = rownames(deviations),
