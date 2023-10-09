@@ -29,7 +29,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 
 #' @title compute_deviation
 #' @description compute_deviation is a function to calculate the deviation in transcription factor
-#' @param motifs        - list of motifs
+#' @param motif        - motif name
 #' @param msites       - imported methylation sites
 #' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
 #' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
@@ -38,6 +38,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 #' @return deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end mcols
 #' @importFrom data.table data.table setDT
+#' @importFrom stats na.omit
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                               gcdist, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif]]
@@ -50,7 +51,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
     tfbs <- tfbs[d_hits@from]
   }
 
-  exp_meth <- methylTFR:::calculate_expmeth(msites, gcdist, gcfreq)
+  exp_meth <- calculate_expmeth(msites, gcdist, gcfreq)
   hits <- findOverlaps(msites, tfbs, type = "within")
 
   mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
@@ -116,6 +117,9 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info log_error
 #' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom S4Vectors DataFrame
+#' @importFrom utils read.table 
+#' @importFrom methods as
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
@@ -186,7 +190,7 @@ run_methyltfr <- function(
       chunk_motifs <- motif_chunks[[j]]
 
       sample_deviations <- mclapply(chunk_motifs,
-        methylTFR:::compute_deviation,
+        compute_deviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
@@ -201,10 +205,10 @@ run_methyltfr <- function(
         viewport = grid[[as.integer(i), as.integer(j)]], sink = sink
       )
       rm(sample_deviations)
-      methylTFR:::cleanMem()
+      cleanMem()
     }
     rm(msites)
-    methylTFR:::cleanMem()
+    cleanMem()
     logger::log_info("Finished processing ", sample_name)
   }
 
