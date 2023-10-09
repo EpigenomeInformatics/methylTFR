@@ -28,20 +28,25 @@ Imports:
     IRanges,
     logger,
     matrixStats,
+    methods,
     parallel,
+    S4Vectors,
     stats,
     stringr,
-    SummarizedExperiment
+    SummarizedExperiment,
+    utils
 Suggests: 
     BiocStyle,
     covr,
     knitr,
     pkgdown,
     rmarkdown,
-    sessioninfo
+    sessioninfo,
+    testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
 biocViews: Software
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
+Config/testthat/edition: 3
