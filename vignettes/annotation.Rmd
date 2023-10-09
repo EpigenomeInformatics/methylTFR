@@ -28,27 +28,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-```{r vignetteSetup, echo=FALSE, message=FALSE, warning = FALSE}
-## Track time spent on making the vignette
-startTime <- Sys.time()
-
-## Bib setup
-library("RefManageR")
-
-## Write bibliography information
-bib <- c(
-  R = citation(),
-  BiocStyle = citation("BiocStyle")[1],
-  knitr = citation("knitr")[1],
-  RefManageR = citation("RefManageR")[1],
-  rmarkdown = citation("rmarkdown")[1],
-  sessioninfo = citation("sessioninfo")[1],
-  testthat = citation("testthat")[1],
-  methylTFR = citation("methylTFR")[1]
-)
-```
-
 ## Install `methylTFR`
 
 `r Biocpkg("methylTFR")` is available from Bioconductor. To install it, please follow the instructions in the [Bioconductor landing page](https://bioconductor.org/packages/methylTFR/). In particular, you will need to install the latest version of `R` and `BiocManager` and then run the following commands:
