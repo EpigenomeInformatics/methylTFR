@@ -16,6 +16,7 @@ cleanMem <- function(iter.gc = 1L) {
 #' @param x - a numeric vector of deviations
 #' @param groups - a character vector of group names or colnames(deviations)
 #' @return a numeric vector of p-values
+#' @importFrom stats aov 
 #' @keywords internal
 anova_helper <- function(x, groups) {
   tmpdf <- data.frame(groups = groups, devs = x)
@@ -31,8 +32,8 @@ anova_helper <- function(x, groups) {
 #' @param alternative - a character string specifying the alternative hypothesis,
 #' must be one of "two.sided" (default), "greater" or "less".
 #' @return a numeric vector of p-values
+#' @importFrom stats t.test
 #' @keywords internal
-#'
 t_helper <- function(x, groups, alternative) {
   splitx <- split(x, groups)
   return(t.test(splitx[[1]], splitx[[2]],
@@ -50,6 +51,7 @@ t_helper <- function(x, groups, alternative) {
 #' @param alternative - a character string specifying the alternative hypothesis,
 #' must be one of "two.sided" (default), "greater" or "less".
 #' @return a numeric vector of p-values
+#' @importFrom stats wilcox.test
 #' @keywords internal
 wilcoxon_helper <- function(x, groups, alternative) {
   splitx <- split(x, groups)
@@ -64,6 +66,7 @@ wilcoxon_helper <- function(x, groups, alternative) {
 #' @param x - a numeric vector of deviations
 #' @param groups - a character vector of group names or colnames(deviations)
 #' @return a numeric vector of p-values
+#' @importFrom stats kruskal.test
 #' @keywords internal
 #'
 kw_helper <- function(x, groups) {
