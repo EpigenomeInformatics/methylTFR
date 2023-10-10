@@ -77,11 +77,12 @@ run this yourself to check for any updates on how to cite __methylTFR__.
 
 ```r
 print(citation('methylTFR'), bibtex = TRUE)
+#> 
 #> To cite package 'methylTFR' in publications use:
 #> 
-#>   Gündüz I, Murugan S, Muller F (2023). _methylTFR: Identification of
-#>   Methylation Patterns in TFBS_. R package version 0.99.0,
-#>   <https://github.com/EpigenomeInformatics/methylTFR>.
+#>   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2023).
+#>   methylTFR: Identification of Methylation Patterns in TFBS. R package
+#>   version 0.99.0. https://github.com/EpigenomeInformatics/methylTFR
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 
@@ -93,4 +94,3 @@ print(citation('methylTFR'), bibtex = TRUE)
 #>     url = {https://github.com/EpigenomeInformatics/methylTFR},
 #>   }
 ```
-

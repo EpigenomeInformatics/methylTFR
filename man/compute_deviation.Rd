@@ -14,6 +14,10 @@ compute_deviation(
 )
 }
 \arguments{
+\item{motif}{\itemize{
+\item motif name
+}}
+
 \item{msites}{\itemize{
 \item imported methylation sites
 }}
@@ -32,10 +36,6 @@ compute_deviation(
 
 \item{enhancer}{\itemize{
 \item Specific regions like distal motif
-}}
-
-\item{motifs}{\itemize{
-\item list of motifs
 }}
 }
 \value{
