@@ -1,45 +1,3 @@
-#' @title read_methylome
-#' @description read_methylome is a function to import methylation data into R Genomic
-#'  Range object. Bed file should be processed in the pipeline developed by
-#'  Fabian Müller and Christoph Bock. (EPP format)
-#' @param  - bedfilename which contains methylation data EPP format
-#' @return \code{GenomicRange} object with methylation, coverage information
-#' @export
-#' @importFrom GenomicRanges GRanges
-#' @importFrom IRanges IRanges
-#' @importFrom data.table fread
-#' @importFrom stringr str_split str_replace
-read_methylome <- function(filename, type) {
-  if (!file.exists(filename)) {
-    stop(paste(filename, " doesn't exist or path is incorrect !!"))
-  }
-  type <- match.arg(type)
-  if (type == "epp") {
-    # Parse EPP file format
-    msites <- fread(filename, header = FALSE, showProgress = FALSE)
-    mcov <- unlist(stringr::str_split(msites$V4, "/"))
-    mcov <- as.numeric(stringr::str_replace(mcov, "'", ""))
-    cov <- mcov[seq_along(mcov) %% 2 == 0]
-    mscore <- round(msites$V5 / 1000, 3)
-  }
-  if (type == "bissnp") {
-    # Parse BisSNP Tab-Separated file format
-    msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
-    mscore <- round(msites$V4 / 100, 3)
-    cov <- msites$V5
-  }
-  msites <- GenomicRanges::GRanges(
-    seqnames = msites$V1,
-    ranges = IRanges::IRanges(start = msites$V2, end = msites$V2 + 2),
-    strand = msites$V6,
-    score = mscore,
-    methylation = msites$V4,
-    coverage = cov
-  )
-  return(msites)
-}
-
-
 #' calculate_expmeth
 #'
 #'      This function is used to calculate genome-wide expected methylation
@@ -49,7 +7,6 @@ read_methylome <- function(filename, type) {
 #' @param gcdist - Genome wide GC distribution from (\code{methylTFRann})
 #' @param gcfreq - GC bin frequency table (matrix) from (\code{methylTFRann})
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
-#' @export
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
 calculate_expmeth <- function(msites, gcdist, gcfreq) {
@@ -72,17 +29,16 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 
 #' @title compute_deviation
 #' @description compute_deviation is a function to calculate the deviation in transcription factor
-#' @param motifs        - list of motifs
+#' @param motif        - motif name
 #' @param msites       - imported methylation sites
 #' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
 #' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
 #' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
 #' @param enhancer     - Specific regions like distal motif
 #' @return deviation score for a given motif
-#' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end mcols
 #' @importFrom data.table data.table setDT
-#' @importFrom dplyr n left_join
+#' @importFrom stats na.omit
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                               gcdist, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif]]
@@ -142,7 +98,6 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #'  footprint base for all given motifs using parallel package
 #' @param sample_ann   - a tab seperated file contains sample annotations
 #' @param sample_dir   - directory where all bed file and annotation file stored
-#' @param genome       - human genome version default: hg38
 #' @param threads      - thread count for parallel processing
 #' @param enhancer     - Specific regions like distal motif
 #' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
@@ -152,6 +107,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param chunkSize     - chunk size for parallel processing of motifs
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
 #' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
+#' @param filetype      - file type of the bed file, currently supported: bissnp, epp
 #' @return deviation score matrix for all samples
 #' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
@@ -160,13 +116,14 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom DelayedArray write_block close ArbitraryArrayGrid
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info log_error
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom S4Vectors DataFrame
+#' @importFrom utils read.table 
+#' @importFrom methods as
 run_methyltfr <- function(
-    sample_ann, sample_dir, genome = "hg38", tf_bindsites = NULL,
+    sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
-  if (is.null(genome) || !is.character(genome)) {
-    logger::log_error("Please provide a valid genome version")
-  }
   if (tolower(filetype) %in% c("bissnp", "epp")) {
     logger::log_error("Please provide a valid file type")
   }
@@ -184,8 +141,11 @@ run_methyltfr <- function(
   }
   if (endsWith(annfile, ".csv")) {
     samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
-  } else {
+  }
+  if (endsWith(annfile, ".tsv")) {
     samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+  } else {
+    logger::log_error("Please provide a valid annotation file with .csv or .tsv extension")
   }
   if (full_path) {
     files_list <- samples[, sampleColName]
@@ -245,17 +205,21 @@ run_methyltfr <- function(
         viewport = grid[[as.integer(i), as.integer(j)]], sink = sink
       )
       rm(sample_deviations)
-      methylTFR:::cleanMem()
+      cleanMem()
     }
     rm(msites)
-    methylTFR:::cleanMem()
+    cleanMem()
     logger::log_info("Finished processing ", sample_name)
   }
 
   # Close the sink
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
-  deviation <- as.matrix(deviation)
-  file.remove(tempfile) # TODO find a better solution for this
-  return(deviation)
+  # file.remove(tempfile) # TODO find a better solution for this
+
+  se <- SummarizedExperiment::SummarizedExperiment(
+    assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+    colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+  )
+  return(se)#new("methylTFRDeviations", se))
 }

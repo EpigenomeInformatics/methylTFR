@@ -2,7 +2,7 @@
 #' @description Differential analysis is to test which motifs are having significant
 #' deviations among different cell-types.
 #' Adapted from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
-#' @param deviations - motif name
+#' @param deviations - a \code{data.frame} contains deviations for each motif
 #' @param groups     - a character vector of group names or colnames(deviations)
 #' @param motifs     - a character vector of motif names used in analysis or rownames(deviations)
 #' @param alternative - a character string specifying the alternative hypothesis,
@@ -10,8 +10,8 @@
 #' @param parametric - logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.
 #' @param padjMethod - method for p-value adjustment, default is "BH"
 #' @return a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
+#' @importFrom stats aggregate p.adjust
 #' @export
-#' @importFrom stats aggregate
 differential_deviation_test <- function(deviations,
                                         groups = NULL,
                                         motifs = rownames(deviations),

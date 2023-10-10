@@ -81,4 +81,3 @@ run this yourself to check for any updates on how to cite __methylTFR__.
 ```{r 'citation', eval = requireNamespace('methylTFR')}
 print(citation('methylTFR'), bibtex = TRUE)
 ```
-

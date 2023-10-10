@@ -49,9 +49,11 @@ convert_to_matrix <- function(bins) {
 #' @param chr_len Chromosome length
 #' @param genome Genome (e.g. BSgenome.Hsapiens.UCSC.hg38)
 #' @return GC distribution
+#' @importFrom GenomicRanges GRanges
+#' @importFrom Biostrings getSeq letterFrequency
+#' @importFrom IRanges IRanges
 #' @keywords internal
 get_gcdist <- function(chr, chr_len, genome) {
-  require(GenomicRanges)
   qgr <- GRanges(
     seqnames = chr,
     ranges = IRanges(start = seq(1, chr_len[chr], 30), width = 30)
@@ -71,6 +73,9 @@ get_gcdist <- function(chr, chr_len, genome) {
 #' @title helper function to calculate GC distribution of a chromosome
 #' @description helper function to calculate GC distribution of a chromosome
 #' @param chr Chromosome name
+#' @importFrom GenomicRanges GRanges
+#' @importFrom Biostrings getSeq letterFrequency
+#' @importFrom IRanges IRanges
 #' @keywords internal
 compute_gc_genome <- function(chr) {
   qgr <- GRanges(
@@ -94,6 +99,7 @@ compute_gc_genome <- function(chr) {
 #' @param onlyMain Only main chromosomes
 #' @param includeSexChr keep the sex chromosomes (chrX, chrY, chrM)
 #' @importFrom parallel mclapply
+#' @importFrom GenomeInfoDb seqlengths
 #' @return GC distribution
 #' @export
 calculate_gcdist <- function(genome, threads = 4, onlyMain = TRUE, includeSexChr = TRUE) {
@@ -121,6 +127,7 @@ calculate_gcdist <- function(genome, threads = 4, onlyMain = TRUE, includeSexChr
 #' @param tf_bindsites TF bindsites
 #' @return Matrix containing GC frequencies per motif
 #' @importFrom logger log_info
+#' @importFrom Biostrings getSeq
 #' @export
 #' @author Irem Gunduz
 processMotifs2GCMatrix <- function(tf_bindsites, motif, gc_bin, genome) {
@@ -146,6 +153,9 @@ processMotifs2GCMatrix <- function(tf_bindsites, motif, gc_bin, genome) {
 #' @param includeSexChr keep the sex chromosomes (chrX, chrY, chrM), only valid when onlyMain is TRUE
 #' @param num_cores Number of cores
 #' @importFrom GenomicRanges GRanges
+#' @importFrom GenomeInfoDb seqlengths
+#' @importFrom parallel mclapply
+#' @importFrom stats complete.cases
 #' @return GC distribution GRanges object
 #' @export
 #' @author Irem Gunduz
@@ -162,4 +172,3 @@ computeGenomeWideGC <- function(genome, onlyMain = TRUE, includeSexChr = TRUE, n
   t_qgr <- t_qgr[complete.cases(t_qgr$GC_bias, t_qgr$GC_bin), ]
   return(t_qgr)
 }
-
