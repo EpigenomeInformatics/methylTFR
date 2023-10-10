@@ -76,20 +76,21 @@ motifPFMatrixList <- getMatrixSet(
 
 log_start("Calculating GC distribution ...")
 gc_dist <- calculate_gcdist(genome = BSgenome.Hsapiens.UCSC.hg38, threads = 1)
-log_info("Applying quantile ...")
+log_info("Applying quantile normalization...")
 gc_bin <- quantile(gc_dist, probs = seq(0, 1, 1 / 5))
 log_success("GC distribution calculated.")
 
 motif_list <- names(tf_bindsites)
-logger.info(paste0("Number of motifs within the annotation: ", length(motif_list)))
+log_info(paste0("Number of motifs within the annotation: ", length(motif_list)))
 
 logger_start("Generating GC matrix for each motif ...")
-motif_gcfreq <- mclapply(chunk_motifs, processMotifs2GCMatrix,
+motif_gcfreq <- mclapply(motif_list, processMotifs2GCMatrix,
   gc_bin = gc_bin, genome = BSgenome.Hsapiens.UCSC.hg38,
   mc.cores = 1
 )
 logger_success("Motifs processed.")
 ```
+We highly recommend chunking motifs to speed up the process. Annotations need to be build only once, and can be re-used when saved.
 After you succesfully build your annotation, you can use it with `methylTFR` functions.
 
 ## Asking for help
