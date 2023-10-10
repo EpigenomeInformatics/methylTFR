@@ -16,7 +16,7 @@ cleanMem <- function(iter.gc = 1L) {
 #' @param x - a numeric vector of deviations
 #' @param groups - a character vector of group names or colnames(deviations)
 #' @return a numeric vector of p-values
-#' @importFrom stats aov 
+#' @importFrom stats aov
 #' @keywords internal
 anova_helper <- function(x, groups) {
   tmpdf <- data.frame(groups = groups, devs = x)

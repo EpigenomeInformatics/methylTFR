@@ -7,7 +7,13 @@
 read_methylome(filename, type)
 }
 \arguments{
-\item{-}{type of file format (epp, bissnp)}
+\item{filename}{\itemize{
+\item filename which contains methylation data
+}}
+
+\item{type}{\itemize{
+\item type of file format (epp, bissnp)
+}}
 }
 \value{
 \code{GenomicRange} object with methylation, coverage information
