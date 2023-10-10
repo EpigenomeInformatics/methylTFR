@@ -118,7 +118,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom logger log_info log_error
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
-#' @importFrom utils read.table 
+#' @importFrom utils read.table
 #' @importFrom methods as
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
@@ -221,5 +221,5 @@ run_methyltfr <- function(
     assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation))
   )
-  return(se)#new("methylTFRDeviations", se))
+  return(se) # new("methylTFRDeviations", se))
 }
