@@ -12,9 +12,11 @@
 #' @importFrom stringr str_split str_replace
 read_methylome <- function(filename, type) {
   if (!file.exists(filename)) {
-    stop(paste(filename, " doesn't exist or path is incorrect !!"))
+    stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  type <- match.arg(type)
+  if(!tolower(type) %in% c("bissnp", "epp")) {
+    stop(paste(type, " is not a valid file type!"))
+  }
   if (type == "epp") {
     # Parse EPP file format
     msites <- fread(filename, header = FALSE, showProgress = FALSE)

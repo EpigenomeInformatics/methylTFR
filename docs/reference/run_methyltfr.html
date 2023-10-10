@@ -26,14 +26,14 @@ footprint base for all given motifs using parallel package"><!-- mathjax --><scr
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/overview.html">A computational method to identify DNA methylation signatures in transcription factor binding sites (TFBS)</a>
+    <a class="dropdown-item" href="../articles/annotation.html">Build methylTFR annotations</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
       <ul class="navbar-nav"><li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/EpigenomeInformatics/methylTFR/" aria-label="github">
+  <a class="nav-link" href="https://github.com/EpigenomeInformatics/methylTFR/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -46,7 +46,7 @@ footprint base for all given motifs using parallel package"><!-- mathjax --><scr
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>run_methyltfr</h1>
-      <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/HEAD/R/compute_deviations.R" class="external-link"><code>R/compute_deviations.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/HEAD/R/compute_deviations.R"><code>R/compute_deviations.R</code></a></small>
       <div class="d-none name"><code>run_methyltfr.Rd</code></div>
     </div>
 
@@ -60,7 +60,6 @@ footprint base for all given motifs using parallel package</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_methyltfr</span><span class="op">(</span></span>
 <span>  <span class="va">sample_ann</span>,</span>
 <span>  <span class="va">sample_dir</span>,</span>
-<span>  genome <span class="op">=</span> <span class="st">"hg38"</span>,</span>
 <span>  tf_bindsites <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gcfreqs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gc_dist <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -70,7 +69,7 @@ footprint base for all given motifs using parallel package</p>
 <span>  annfile <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  threads <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  filetype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"EPP"</span>, <span class="st">"BisSNP"</span><span class="op">)</span></span>
+<span>  filetype <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -83,11 +82,6 @@ footprint base for all given motifs using parallel package</p>
 
 <dt>sample_dir</dt>
 <dd><ul><li><p>directory where all bed file and annotation file stored</p></li>
-</ul></dd>
-
-
-<dt>genome</dt>
-<dd><ul><li><p>human genome version default: hg38</p></li>
 </ul></dd>
 
 
@@ -135,6 +129,11 @@ footprint base for all given motifs using parallel package</p>
 <dd><ul><li><p>Specific regions like distal motif</p></li>
 </ul></dd>
 
+
+<dt>filetype</dt>
+<dd><ul><li><p>file type of the bed file, currently supported: bissnp, epp</p></li>
+</ul></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -148,7 +147,7 @@ footprint base for all given motifs using parallel package</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by First Last.</p>
+  <p></p><p>Developed by Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller.</p>
 </div>
 
 <div class="pkgdown-footer-right">

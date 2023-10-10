@@ -218,7 +218,7 @@ run_methyltfr <- function(
   # file.remove(tempfile) # TODO find a better solution for this
 
   se <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(deviations = as.matrix(deviation), z = methylTFR::computeZScore(deviation)),
+    assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation))
   )
   return(se)#new("methylTFRDeviations", se))

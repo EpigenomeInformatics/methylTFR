@@ -15,7 +15,7 @@ differential_deviation_test(
 }
 \arguments{
 \item{deviations}{\itemize{
-\item motif name
+\item a \code{data.frame} contains deviations for each motif
 }}
 
 \item{groups}{\itemize{
