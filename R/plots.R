@@ -10,8 +10,7 @@
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom dplyr %>% mutate
-computeFootprint <- function(motif_name, tf_bindsites, msites,
-                             enhancer = NULL) {
+computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif_name]]
   w <- width(tfbs)[1]
   tfbs <- resize(tfbs, w + 101, fix = "center")
