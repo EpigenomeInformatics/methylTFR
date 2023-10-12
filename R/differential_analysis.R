@@ -9,7 +9,7 @@
 #' must be one of "two.sided" (default), "greater" or "less".
 #' @param parametric - logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.
 #' @param padjMethod - method for p-value adjustment, default is "BH"
-#' @return a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
+#' @return a \code{data.frame} contains motifs with corresponding p-value and adjusted p-value
 #' @importFrom stats aggregate p.adjust
 #' @export
 differential_deviation_test <- function(deviations,
@@ -55,6 +55,6 @@ differential_deviation_test <- function(deviations,
   return(data.frame(
     motifs = motifs,
     p_value = p_val,
-    adj.pvalue = p_adj
+    p_value_adjusted = p_adj
   ))
 }
