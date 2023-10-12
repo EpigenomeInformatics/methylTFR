@@ -40,7 +40,7 @@ must be one of "two.sided" (default), "greater" or "less".
 }}
 }
 \value{
-a \code{data.frame} contains motifs with corresponding p-value and adj-pvalue
+a \code{data.frame} contains motifs with corresponding p-value and adjusted p-value
 }
 \description{
 Differential analysis is to test which motifs are having significant
