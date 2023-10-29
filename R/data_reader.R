@@ -11,10 +11,11 @@
 #' @importFrom data.table fread
 #' @importFrom stringr str_split str_replace
 read_methylome <- function(filename, type) {
+  type <- tolower(type)
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  if (!tolower(type) %in% c("bissnp", "epp")) {
+  if (!type %in% c("bissnp", "epp")) {
     stop(paste(type, " is not a valid file type!"))
   }
   if (type == "epp") {
@@ -33,7 +34,7 @@ read_methylome <- function(filename, type) {
   }
   msites <- GenomicRanges::GRanges(
     seqnames = msites$V1,
-    ranges = IRanges::IRanges(start = msites$V2, end = msites$V2 + 2),
+    ranges = IRanges::IRanges(start = msites$V2, end = msites$V3),
     strand = msites$V6,
     score = mscore,
     methylation = msites$V4,
