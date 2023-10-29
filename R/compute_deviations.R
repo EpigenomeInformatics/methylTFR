@@ -9,6 +9,7 @@
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
+#' @keywords internal
 calculate_expmeth <- function(msites, gcdist, gcfreq) {
   hits <- findOverlaps(msites, gcdist, type = "within")
   gcmap <- data.table(
@@ -16,13 +17,12 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
     gcbin = gcdist[hits@to]$GC_bin
   )
   exp_meth <- gcmap[, .(avg_mscore = mean(mscore)), by = gcbin]
-  exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
+  #exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
   exp_meth <- exp_meth[order(gcbin)]
   exp_meth <- as.matrix(exp_meth)
   exp.data <- t(gcfreq) %*% exp_meth[, 2]
-  mpos <- seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2))
-  exp.methyl <- data.table(x = mpos, avg_methyl = exp.data)
-  colnames(exp.methyl) <- c("x", "exp_avg_methyl")
+  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2) , length.out = length(exp.data)))
+  exp.methyl <- data.table(x = mpos, exp_avg_methyl = exp.data)
   return(exp.methyl)
 }
 
@@ -39,11 +39,13 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end mcols
 #' @importFrom data.table data.table setDT
 #' @importFrom stats na.omit
+#' @import data.table
+#' @keywords internal
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                               gcdist, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif]]
   gcfreq <- gcfreqs[[motif]]
-  w <- width(tfbs)[1]
+  w <- width(tfbs)[1] #TODO remove these lines and make sure annot is 500bp
   tfbs <- resize(tfbs, w + 101, fix = "center")
 
   if (!is.null(enhancer)) {
@@ -56,21 +58,21 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 
   mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
   x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
-  plot.data <- data.table::data.table(
+  sum_meth <- data.table::data.table(
     x = x,
     y1 = msites[hits@from]$score,
     y2 = msites[hits@from]$coverage
   )
 
-  # Convert plot.data and exp_meth to data.tables
-  setDT(plot.data)
+  # Convert sum_meth and exp_meth to data.tables
+  setDT(sum_meth)
   setDT(exp_meth)
 
-  # Group by 'x' and summarize in plot.data
-  plot.data <- plot.data[, .(n = .N, avg_methyl = mean(y1), avg_cov = mean(y2)), by = x]
+  # Group by 'x' and summarize in sum_meth
+  sum_meth <- sum_meth[, .(n = .N, avg_methyl = mean(y1), avg_cov = mean(y2)), by = x]
 
   # GC bias correction
-  dt_join <- merge(plot.data, exp_meth, by = "x")
+  dt_join <- merge(sum_meth, exp_meth, by = "x")
 
   # Calculate 'diff'
   dt_join[, diff := abs(avg_methyl - exp_avg_methyl)]
@@ -124,7 +126,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
-  if (tolower(filetype) %in% c("bissnp", "epp")) {
+  if (!tolower(filetype) %in% c("bissnp", "epp")) {
     logger::log_error("Please provide a valid file type")
   }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
@@ -215,11 +217,12 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
-  # file.remove(tempfile) # TODO find a better solution for this
+  file.remove(tempfile) # TODO find a better solution for this
 
-  se <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
-    colData = samples, rowData = DataFrame(motifs = row.names(deviation))
-  )
-  return(se) # new("methylTFRDeviations", se)) #TODO
+  #se <- SummarizedExperiment::SummarizedExperiment(
+   # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+    #colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+ # )
+  #return(se) # new("methylTFRDeviations", se)) #TODO
+  return(as.matrix(deviation))
 }

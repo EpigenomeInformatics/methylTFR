@@ -3,16 +3,17 @@ Title: Identification of Methylation Patterns in TFBS
 Version: 0.99.0
 Date: 2023-09-28
 Authors@R: c(
-    person("Irem B.", "Gündüz", , "irembgunduz@gmail.com", role = c("aut", "cre"),
+    person(given = "Irem B.", family ="Gündüz", email = "irembgunduz@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2641-0916")),
-    person("Sarath Kumar", "Murugan", , "sarath.murugan@outlook.com", role = "aut",
+    person(given = "Sarath Kumar", family ="Murugan", email = "sarath.murugan@outlook.com", role = "aut",
            comment = c(ORCID = "0000-0001-7378-7869")),
-    person("Fabian", "Muller", , "fabian.mueller@uni-saarland.de", role = "aut",
+    person(given = "Fabian", family ="Muller", email = "fabian.mueller@uni-saarland.de", role = "aut",
            comment = c(ORCID = "0000-0001-5809-2321"))
   )
 Description: methylTFR is an R package designed for identifying
-    methylation patterns within transcription factor binding sites (TFBS).
-License: MIT + file LICENSE
+    variable methylation patterns within transcription factor binding sites (TFBS) across sets of annotations. 
+    It is designed primarily for single-cell or whole-genome bisulfate sequencing data and its variations.
+License: Artistic-2.0
 URL: https://github.com/EpigenomeInformatics/methylTFR
 BugReports: https://support.bioconductor.org/t/methylTFR
 Imports: 
@@ -41,13 +42,12 @@ Suggests:
     knitr,
     pkgdown,
     rmarkdown,
-    sessioninfo,
-    testthat (>= 3.0.0)
+    sessioninfo
 VignetteBuilder: 
     knitr
-biocViews: Software
+BiocType: Software
+biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,	GeneRegulation, Epigenetics
+Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Config/testthat/edition: 3
-BiocType: Software
