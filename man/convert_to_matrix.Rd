@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation_builder.R
 \name{convert_to_matrix}
 \alias{convert_to_matrix}
-\title{Convert GC bins to matrix}
+\title{convert_to_matrix}
 \usage{
 convert_to_matrix(bins)
 }
@@ -10,7 +10,7 @@ convert_to_matrix(bins)
 \item{bins}{GC bins}
 }
 \value{
-GC matrix
+matrix contatining GC bins
 }
 \description{
 Convert GC bins to matrix

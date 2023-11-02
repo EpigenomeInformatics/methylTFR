@@ -3,33 +3,40 @@ Title: Identification of Methylation Patterns in TFBS
 Version: 0.99.0
 Date: 2023-09-28
 Authors@R: c(
-    person(given = "Irem B.", family ="Gündüz", email = "irembgunduz@gmail.com", role = c("aut", "cre"),
+    person("Irem B.", "Gündüz", , "irembgunduz@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2641-0916")),
-    person(given = "Sarath Kumar", family ="Murugan", email = "sarath.murugan@outlook.com", role = "aut",
+    person("Sarath Kumar", "Murugan", , "sarath.murugan@outlook.com", role = "aut",
            comment = c(ORCID = "0000-0001-7378-7869")),
-    person(given = "Fabian", family ="Muller", email = "fabian.mueller@uni-saarland.de", role = "aut",
+    person("Fabian", "Muller", , "fabian.mueller@uni-saarland.de", role = "aut",
            comment = c(ORCID = "0000-0001-5809-2321"))
   )
-Description: methylTFR is an R package designed for identifying
-    variable methylation patterns within transcription factor binding sites (TFBS) across sets of annotations. 
-    It is designed primarily for single-cell or whole-genome bisulfate sequencing data and its variations.
+Description: methylTFR is a comprehensive R package tailored for the
+    analysis of DNA methylation patterns within transcription factor
+    binding sites (TFBS) across various genomic annotations. methylTFR
+    enhances methylation analysis by computing, for each TFBS and each
+    cell or sample, a bias-corrected "deviation" in methylation levels
+    from the expected methylation for each motif, utilizing the GC bias
+    distribution and frequency data. The package provides a range of
+    functions for creating comprehensive genome-wide annotations, aiding
+    in the discovery of TFBS with varying methylation patterns across
+    different samples or cells.
 License: Artistic-2.0
-URL: https://github.com/EpigenomeInformatics/methylTFR
+URL: https://github.com/igunduz/methylTFR
 BugReports: https://support.bioconductor.org/t/methylTFR
 Imports: 
     Biostrings,
+    BSgenome,
     data.table,
     DelayedArray,
-    dplyr,
     GenomeInfoDb,
     GenomicRanges,
-    ggplot2,
-    ggrepel,
     HDF5Array,
     IRanges,
     logger,
     matrixStats,
     methods,
+    methylKit,
+    motifmatchr,
     parallel,
     S4Vectors,
     stats,
@@ -38,15 +45,17 @@ Imports:
     utils
 Suggests: 
     BiocStyle,
-    covr,
+    BSgenome.Hsapiens.UCSC.hg38,
     knitr,
-    pkgdown,
     rmarkdown,
-    sessioninfo
+    sessioninfo,
+    TFBSTools
 VignetteBuilder: 
     knitr
 BiocType: Software
-biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,	GeneRegulation, Epigenetics
+biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,
+    GeneRegulation, Epigenetics,Transcription, Sequencing, WholeGenome,
+    DifferentialMethylation
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

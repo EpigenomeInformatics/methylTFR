@@ -72,15 +72,15 @@ motifPFMatrixList <- getMatrixSet(
   opts = list(species = 9606, all_versions = FALSE)
 )
 
-#To have readable motif names, we can use the following code
-motifNames <- unlist(lapply(seq_along(motifPFMatrixList), function(x){
-    namex <- make.names(motifPFMatrixList[[x]]@name)
-    if(substr(namex,nchar(namex),nchar(namex))=="."){
-      namex <- substr(namex,1,nchar(namex)-1)
-    }
-    namex <- paste0(namex, "_", x)
-    namex
-  }))
+# To have readable motif names, we can use the following code
+motifNames <- unlist(lapply(seq_along(motifPFMatrixList), function(x) {
+  namex <- make.names(motifPFMatrixList[[x]]@name)
+  if (substr(namex, nchar(namex), nchar(namex)) == ".") {
+    namex <- substr(namex, 1, nchar(namex) - 1)
+  }
+  namex <- paste0(namex, "_", x)
+  namex
+}))
 names(motifPFMatrixList) <- motifNames
 
 # TODO add a function to convert motif PFM matrix list to GRanges object

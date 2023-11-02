@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation_builder.R
 \name{processMotifs2GCMatrix}
 \alias{processMotifs2GCMatrix}
-\title{Process motifs to matrix containing GC frequencies per motif}
+\title{processMotifs2GCMatrix}
 \usage{
 processMotifs2GCMatrix(tf_bindsites, motif, gc_bin, genome)
 }
@@ -20,6 +20,23 @@ Matrix containing GC frequencies per motif
 }
 \description{
 Process motifs to matrix containing GC frequencies per motif
+}
+\examples{
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(JASPAR2020)
+library(methylTFR)
+
+motifPFMatrixList <- getMatrixSet(
+  x = JASPAR2020,
+  opts = list(species = 9606, all_versions = FALSE, collection = "CORE")
+)
+tf_bindsites <- motifBSFromPFMatrixList(motifPFMatrixList[1], BSgenome.Hsapiens.UCSC.hg38, 1)
+gc_dist <- calculate_gcdist(genome = BSgenome.Hsapiens.UCSC.hg38, threads = 1)
+gc_bin <- quantile(gc_dist, probs = seq(0, 1, 1 / 5))
+gc_matrix <- processMotifs2GCMatrix(
+  tf_bindsites[[1]], names(tf_bindsites)[1],
+  gc_bin, BSgenome.Hsapiens.UCSC.hg38
+)
 }
 \author{
 Irem Gunduz
