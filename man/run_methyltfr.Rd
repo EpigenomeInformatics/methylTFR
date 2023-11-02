@@ -69,7 +69,7 @@ run_methyltfr(
 }}
 }
 \value{
-deviation score matrix for all samples
+deviation score matrix for all samples and motifs
 }
 \description{
 This function is a wrapper function to calculate the deviation in transcription factor

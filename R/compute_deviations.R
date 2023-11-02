@@ -1,8 +1,5 @@
-#' calculate_expmeth
-#'
-#'      This function is used to calculate genome-wide expected methylation
-#'  for each motif.
-#'
+#' @title calculate_expmeth
+#' @description  This function is used to calculate genome-wide expected methylation for each motif.
 #' @param msites - imported methylation sites
 #' @param gcdist - Genome wide GC distribution from (\code{methylTFRann})
 #' @param gcfreq - GC bin frequency table (matrix) from (\code{methylTFRann})
@@ -17,12 +14,13 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
     gcbin = gcdist[hits@to]$GC_bin
   )
   exp_meth <- gcmap[, .(avg_mscore = mean(mscore)), by = gcbin]
-  #exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
+  # exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
   exp_meth <- exp_meth[order(gcbin)]
   exp_meth <- as.matrix(exp_meth)
   exp.data <- t(gcfreq) %*% exp_meth[, 2]
-  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2) , length.out = length(exp.data)))
+  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2), length.out = length(exp.data)))
   exp.methyl <- data.table(x = mpos, exp_avg_methyl = exp.data)
+  colnames(exp.methyl) <- c("x", "exp_avg_methyl")
   return(exp.methyl)
 }
 
@@ -35,17 +33,18 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 #' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
 #' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
 #' @param enhancer     - Specific regions like distal motif
-#' @return deviation score for a given motif
-#' @importFrom GenomicRanges GRanges findOverlaps width resize start end mcols
+#' @return a \code{numeric} deviation score for a given motif
+#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
 #' @importFrom stats na.omit
+#' @importFrom S4Vectors mcols
 #' @import data.table
 #' @keywords internal
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
                               gcdist, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif]]
   gcfreq <- gcfreqs[[motif]]
-  w <- width(tfbs)[1] #TODO remove these lines and make sure annot is 500bp
+  w <- width(tfbs)[1] # TODO remove these lines and make sure annot is 500bp
   tfbs <- resize(tfbs, w + 101, fix = "center")
 
   if (!is.null(enhancer)) {
@@ -60,8 +59,8 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
   x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
   sum_meth <- data.table::data.table(
     x = x,
-    y1 = msites[hits@from]$score,
-    y2 = msites[hits@from]$coverage
+    avg_methyl = msites[hits@from]$score,
+    avg_cov = msites[hits@from]$coverage
   )
 
   # Convert sum_meth and exp_meth to data.tables
@@ -69,7 +68,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
   setDT(exp_meth)
 
   # Group by 'x' and summarize in sum_meth
-  sum_meth <- sum_meth[, .(n = .N, avg_methyl = mean(y1), avg_cov = mean(y2)), by = x]
+  sum_meth <- sum_meth[, .(n = .N, avg_methyl = mean(avg_methyl), avg_cov = mean(avg_cov)), by = x]
 
   # GC bias correction
   dt_join <- merge(sum_meth, exp_meth, by = "x")
@@ -110,8 +109,6 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
 #' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
 #' @param filetype      - file type of the bed file, currently supported: bissnp, epp
-#' @return deviation score matrix for all samples
-#' @export
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
@@ -122,15 +119,41 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @importFrom S4Vectors DataFrame
 #' @importFrom utils read.table
 #' @importFrom methods as
+#' @return deviation score matrix for all samples and motifs
+#' @export
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
+  
   if (!tolower(filetype) %in% c("bissnp", "epp")) {
     logger::log_error("Please provide a valid file type")
   }
+  if(is.null(sampleColName) || !is.character(sampleColName)) {
+    logger::log_error("Please provide a valid sample column name")
+  }
+  if(!is.numeric(chunkSize) || chunkSize < 1) {
+    logger::log_warn("Invalid chunk size detected, using default chunk size")
+    chunkSize <- 20
+  }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
     logger::log_error("Please load the annotation objects for given genome.")
+  }
+  if(is.null(sample_ann) || !is.character(sample_ann)) {
+    logger::log_error("Please provide a valid sample annotation file")
+  }
+  if(is.null(sample_dir) || !is.character(sample_dir)) {
+    logger::log_error("Please provide a valid sample directory")
+  }
+  if(!is.numeric(threads) || threads < 1) {
+    logger::log_warn("Invalid thread count detected, using default thread count")
+    threads <- 1
+  }
+  if(!is.logical(full_path)) {
+    logger::log_error("Invalid full path flag detected, please provide a valid logical value")
+  }
+  if(!dir.exists(sample_dir)) {
+    logger::log_error("Sample directory does not exist, please check the directory path")
   }
   # TODO add type checker for sample_ann
   if (!is.null(annfile) & is.character(annfile)) {
@@ -138,7 +161,7 @@ run_methyltfr <- function(
   } else {
     annfile <- file.path(sample_dir, sample_ann)
   }
-  if (!file.exists(annfile)) {
+  if (!file.exists(annfile) || !is.character(annfile)) {
     logger::log_error(" %s does not exist, please check the file path !!", annfile)
   }
   if (endsWith(annfile, ".csv")) {
@@ -213,16 +236,16 @@ run_methyltfr <- function(
     cleanMem()
     logger::log_info("Finished processing ", sample_name)
   }
-
+  logger::log_success("Computed all deviations successfully")
   # Close the sink
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
-  file.remove(tempfile) # TODO find a better solution for this
+  # file.remove(tempfile) # TODO find a better solution for this
 
-  #se <- SummarizedExperiment::SummarizedExperiment(
-   # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
-    #colData = samples, rowData = DataFrame(motifs = row.names(deviation))
- # )
-  #return(se) # new("methylTFRDeviations", se)) #TODO
+  # se <- SummarizedExperiment::SummarizedExperiment(
+  # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+  # colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+  # )
+  # return(se) # new("methylTFRDeviations", se)) #TODO
   return(as.matrix(deviation))
 }
