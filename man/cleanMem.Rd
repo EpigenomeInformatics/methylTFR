@@ -11,6 +11,9 @@ cleanMem(iter.gc = 1L)
 \item number of times to run the garbage collector
 }}
 }
+\value{
+invisible NULL
+}
 \description{
 cleanMem is a function to clean the memory
 }

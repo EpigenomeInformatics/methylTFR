@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation_builder.R
 \name{get_gcdist}
 \alias{get_gcdist}
-\title{helper function to calculate GC distribution}
+\title{get_gcdist}
 \usage{
 get_gcdist(chr, chr_len, genome)
 }
@@ -14,7 +14,7 @@ get_gcdist(chr, chr_len, genome)
 \item{genome}{Genome (e.g. BSgenome.Hsapiens.UCSC.hg38)}
 }
 \value{
-GC distribution
+matrix contatining GC distribution
 }
 \description{
 helper function to calculate GC distribution

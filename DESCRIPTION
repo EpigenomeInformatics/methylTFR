@@ -10,25 +10,33 @@ Authors@R: c(
     person("Fabian", "Muller", , "fabian.mueller@uni-saarland.de", role = "aut",
            comment = c(ORCID = "0000-0001-5809-2321"))
   )
-Description: methylTFR is an R package designed for identifying
-    methylation patterns within transcription factor binding sites (TFBS).
-License: MIT + file LICENSE
+Description: methylTFR is a comprehensive R package tailored for the
+    analysis of DNA methylation patterns within transcription factor
+    binding sites (TFBS) across various genomic annotations. methylTFR
+    enhances methylation analysis by computing, for each TFBS and each
+    cell or sample, a bias-corrected "deviation" in methylation levels
+    from the expected methylation for each motif, utilizing the GC bias
+    distribution and frequency data. The package provides a range of
+    functions for creating comprehensive genome-wide annotations, aiding
+    in the discovery of TFBS with varying methylation patterns across
+    different samples or cells.
+License: Artistic-2.0
 URL: https://github.com/EpigenomeInformatics/methylTFR
 BugReports: https://support.bioconductor.org/t/methylTFR
 Imports: 
     Biostrings,
+    BSgenome,
     data.table,
     DelayedArray,
-    dplyr,
     GenomeInfoDb,
     GenomicRanges,
-    ggplot2,
-    ggrepel,
     HDF5Array,
     IRanges,
     logger,
     matrixStats,
     methods,
+    methylKit,
+    motifmatchr,
     parallel,
     S4Vectors,
     stats,
@@ -37,17 +45,18 @@ Imports:
     utils
 Suggests: 
     BiocStyle,
-    covr,
+    BSgenome.Hsapiens.UCSC.hg38,
     knitr,
-    pkgdown,
     rmarkdown,
     sessioninfo,
-    testthat (>= 3.0.0)
+    TFBSTools
 VignetteBuilder: 
     knitr
-biocViews: Software
+BiocType: Software
+biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,
+    GeneRegulation, Epigenetics,Transcription, Sequencing, WholeGenome,
+    DifferentialMethylation, MotifAnnotation, MotifDiscovery
+Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Config/testthat/edition: 3
-BiocType: Software
