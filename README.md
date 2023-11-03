@@ -21,7 +21,7 @@ Get the latest release `methylTFR` from [Bioconductor](http://bioconductor.org/)
 
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-    install.packages("BiocManager")
+  install.packages("BiocManager")
 }
 
 BiocManager::install("methylTFR")
@@ -32,7 +32,7 @@ And the development version from [GitHub](https://github.com/EpigenomeInformatic
 
 ```r
 if (!requireNamespace("remotes", quietly = TRUE)) {
-    install.packages("remotes")
+  install.packages("remotes")
 }
 remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
@@ -56,17 +56,15 @@ sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
 deviations <- run_methyltfr(sample_ann, # sample annotation file
-                            sample_dir, #where the EPP files are
-                            threads = 8, # number of threads
-                            chunkSize = 10, # number of chunks to process
-                            sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-                            genome = "hg38", # genome version
-                            tf_bindsites = tf_bindsites, # TF binding sites
-                            gcfreqs = gcfreqs, # GC frequency
-                            gc_dist = gc_dist, # GC distribution
-                            filetype = "EPP" # file type
-                            )
-
+  sample_dir, # where the EPP files are
+  threads = 8, # number of threads
+  chunkSize = 10, # number of chunks to process
+  sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+  tf_bindsites = tf_bindsites, # TF binding sites
+  gcfreqs = gcfreqs, # GC frequency
+  gc_dist = gc_dist, # GC distribution
+  filetype = "EPP" # file type
+)
 ```
 
 ## Citation
@@ -76,13 +74,12 @@ run this yourself to check for any updates on how to cite __methylTFR__.
 
 
 ```r
-print(citation('methylTFR'), bibtex = TRUE)
-#> 
+print(citation("methylTFR"), bibtex = TRUE)
 #> To cite package 'methylTFR' in publications use:
 #> 
-#>   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2023).
-#>   methylTFR: Identification of Methylation Patterns in TFBS. R package
-#>   version 0.99.0. https://github.com/EpigenomeInformatics/methylTFR
+#>   Gündüz I, Murugan S, Muller F (2023). _methylTFR: Identification of
+#>   Methylation Patterns in TFBS_. R package version 0.99.0,
+#>   <https://github.com/EpigenomeInformatics/methylTFR>.
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 

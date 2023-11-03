@@ -28,38 +28,12 @@ CompressedGRangesList, data.frame, methylRawList, methylRawListDB, methylRaw obj
 \item logical, whether to print out the progress
 }}
 }
+\value{
+a list of \code{GenomicRanges} object with EPP format or if save TRUE, invisible NULL
+}
 \description{
 convertToEPP is a function to convert different objects to EPP format
 and save as bed file
-}
-\examples{
-suppressPackageStartupMessages(library(methylKit))
-file.list <- list(
-  system.file("extdata",
-    "test1.myCpG.txt",
-    package = "methylKit"
-  ),
-  system.file("extdata",
-    "test2.myCpG.txt",
-    package = "methylKit"
-  ),
-  system.file("extdata",
-    "control1.myCpG.txt",
-    package = "methylKit"
-  ),
-  system.file("extdata",
-    "control2.myCpG.txt",
-    package = "methylKit"
-  )
-)
-myobj <- methRead(file.list,
-  sample.id = list("test1", "test2", "ctrl1", "ctrl2"),
-  assembly = "hg18",
-  treatment = c(1, 1, 0, 0),
-  context = "CpG",
-  mincov = 10
-)
-epps <- convertToEPP(myobj, save = FALSE)
 }
 \author{
 Irem Gunduz

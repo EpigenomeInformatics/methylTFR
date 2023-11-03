@@ -14,11 +14,11 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
     gcbin = gcdist[hits@to]$GC_bin
   )
   exp_meth <- gcmap[, .(avg_mscore = mean(mscore)), by = gcbin]
-  #exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
+  # exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
   exp_meth <- exp_meth[order(gcbin)]
   exp_meth <- as.matrix(exp_meth)
   exp.data <- t(gcfreq) %*% exp_meth[, 2]
-  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2) , length.out = length(exp.data)))
+  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2), length.out = length(exp.data)))
   exp.methyl <- data.table(x = mpos, avg_methyl = exp.data)
   colnames(exp.methyl) <- c("x", "exp_avg_methyl")
   return(exp.methyl)
@@ -125,34 +125,33 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
-
   if (!tolower(filetype) %in% c("bissnp", "epp")) {
     logger::log_error("Please provide a valid file type")
   }
-  if(is.null(sampleColName) || !is.character(sampleColName)) {
+  if (is.null(sampleColName) || !is.character(sampleColName)) {
     logger::log_error("Please provide a valid sample column name")
   }
-  if(!is.numeric(chunkSize) || chunkSize < 1) {
+  if (!is.numeric(chunkSize) || chunkSize < 1) {
     logger::log_warn("Invalid chunk size detected, using default chunk size")
     chunkSize <- 20
   }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
     logger::log_error("Please load the annotation objects for given genome.")
   }
-  if(is.null(sample_ann) || !is.character(sample_ann)) {
+  if (is.null(sample_ann) || !is.character(sample_ann)) {
     logger::log_error("Please provide a valid sample annotation file")
   }
-  if(is.null(sample_dir) || !is.character(sample_dir)) {
+  if (is.null(sample_dir) || !is.character(sample_dir)) {
     logger::log_error("Please provide a valid sample directory")
   }
-  if(!is.numeric(threads) || threads < 1) {
+  if (!is.numeric(threads) || threads < 1) {
     logger::log_warn("Invalid thread count detected, using default thread count")
     threads <- 1
   }
-  if(!is.logical(full_path)) {
+  if (!is.logical(full_path)) {
     logger::log_error("Invalid full path flag detected, please provide a valid logical value")
   }
-  if(!dir.exists(sample_dir)) {
+  if (!dir.exists(sample_dir)) {
     logger::log_error("Sample directory does not exist, please check the directory path")
   }
   # TODO add type checker for sample_ann
@@ -242,10 +241,10 @@ run_methyltfr <- function(
   deviation <- t(as(sink, "DelayedArray"))
   file.remove(tempfile) # TODO find a better solution for this
 
-  #se <- SummarizedExperiment::SummarizedExperiment(
-   # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
-    #colData = samples, rowData = DataFrame(motifs = row.names(deviation))
- # )
-  #return(se) # new("methylTFRDeviations", se)) #TODO
+  # se <- SummarizedExperiment::SummarizedExperiment(
+  # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+  # colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+  # )
+  # return(se) # new("methylTFRDeviations", se)) #TODO
   return(as.matrix(deviation))
 }
