@@ -136,7 +136,7 @@ convertToEPP <- function(obj, save = FALSE, filePath = NULL, threads = 1, verbos
       stop("data.frame must contain columns chr,start,end,strand,score,coverage,methylation")
     }
   }
-  if (class(obj) == "GRanges") {
+  if (is(obj,"GRanges")) {
     tiles <- EPP_helper(obj)
   }
   if (class(obj) %in% c("GRangesList", "CompressedGRangesList")) {

@@ -22,6 +22,8 @@ matrix containing GC distribution
 calculating GC distribution and GC frequency table
 }
 \examples{
+\donttest{
 library(BSgenome.Hsapiens.UCSC.hg38)
-gc_dist <- calculate_GCdist(BSgenome.Hsapiens.UCSC.hg38, threads = 2)
+gc_dist <- calculate_GCdist(BSgenome.Hsapiens.UCSC.hg38, threads = 1)
+}
 }

@@ -27,8 +27,10 @@ GC distribution GRanges object
 Compute genome-wide GC distribution for given genome
 }
 \examples{
+\donttest{
 library(BSgenome.Hsapiens.UCSC.hg38)
 gc_dist <- calculate_GCdist(BSgenome.Hsapiens.UCSC.hg38, threads = 1)
+}
 }
 \author{
 Irem Gunduz
