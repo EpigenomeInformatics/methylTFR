@@ -14,12 +14,12 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
     gcbin = gcdist[hits@to]$GC_bin
   )
   exp_meth <- gcmap[, .(avg_mscore = mean(mscore)), by = gcbin]
-  # exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
+  #exp_meth <- exp_meth[, .(mscore = mean(avg_mscore)), by = gcbin]
   exp_meth <- exp_meth[order(gcbin)]
   exp_meth <- as.matrix(exp_meth)
   exp.data <- t(gcfreq) %*% exp_meth[, 2]
-  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2), length.out = length(exp.data)))
-  exp.methyl <- data.table(x = mpos, exp_avg_methyl = exp.data)
+  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2) , length.out = length(exp.data)))
+  exp.methyl <- data.table(x = mpos, avg_methyl = exp.data)
   colnames(exp.methyl) <- c("x", "exp_avg_methyl")
   return(exp.methyl)
 }
@@ -125,7 +125,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
-  
+
   if (!tolower(filetype) %in% c("bissnp", "epp")) {
     logger::log_error("Please provide a valid file type")
   }
@@ -240,12 +240,12 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
-  # file.remove(tempfile) # TODO find a better solution for this
+  file.remove(tempfile) # TODO find a better solution for this
 
-  # se <- SummarizedExperiment::SummarizedExperiment(
-  # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
-  # colData = samples, rowData = DataFrame(motifs = row.names(deviation))
-  # )
-  # return(se) # new("methylTFRDeviations", se)) #TODO
+  #se <- SummarizedExperiment::SummarizedExperiment(
+   # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+    #colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+ # )
+  #return(se) # new("methylTFRDeviations", se)) #TODO
   return(as.matrix(deviation))
 }
