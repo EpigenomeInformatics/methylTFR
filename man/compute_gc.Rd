@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation_builder.R
 \name{compute_gc}
 \alias{compute_gc}
-\title{Process motifs to matrix containing GC frequencies per motif}
+\title{compute_gc}
 \usage{
 compute_gc(X)
 }
@@ -12,7 +12,7 @@ compute_gc(X)
 \item{motif}{Motif name}
 }
 \value{
-gc frequency
+matrix contatining gc frequency table
 }
 \description{
 Process motifs to matrix containing GC frequencies per motif

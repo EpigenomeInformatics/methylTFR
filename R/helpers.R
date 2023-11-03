@@ -1,11 +1,10 @@
 #' @title cleanMem
 #' @description cleanMem is a function to clean the memory
 #' @param iter.gc - number of times to run the garbage collector
-#' @return NULL
+#' @return invisible NULL
 #' @keywords internal
-#'
 cleanMem <- function(iter.gc = 1L) {
-  for (i in 1:iter.gc) {
+  for (i in seq_along(iter.gc)) {
     gc()
   }
   invisible(NULL)
@@ -68,7 +67,6 @@ wilcoxon_helper <- function(x, groups, alternative) {
 #' @return a numeric vector of p-values
 #' @importFrom stats kruskal.test
 #' @keywords internal
-#'
 kw_helper <- function(x, groups) {
   tmpdf <- data.frame(groups = groups, devs = x)
   res <- kruskal.test(devs ~ groups, tmpdf)
@@ -76,12 +74,11 @@ kw_helper <- function(x, groups) {
 }
 
 #' @title helper function to compute z-score of a matrix
-#' @description This function takes a matrix and computes z-score.
-#' @param mat A matrix.
-#' @return A matrix.
+#' @description This function takes a matrix and computes row-wise z-scores.
+#' @param mat A matrix
+#' @return A matrix with row-wise z-scores
 #' @importFrom matrixStats rowMeans2 rowSds
 #' @keywords internal
-#'
 computeZScore <- function(mat) {
   mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
   mat[base::is.nan(mat)] <- 0

@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation_builder.R
 \name{processMotifs2GCMatrix}
 \alias{processMotifs2GCMatrix}
-\title{Process motifs to matrix containing GC frequencies per motif}
+\title{processMotifs2GCMatrix}
 \usage{
 processMotifs2GCMatrix(tf_bindsites, motif, gc_bin, genome)
 }

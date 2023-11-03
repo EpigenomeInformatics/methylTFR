@@ -2,12 +2,15 @@
 % Please edit documentation in R/annotation_builder.R
 \name{compute_gc_genome}
 \alias{compute_gc_genome}
-\title{helper function to calculate GC distribution of a chromosome}
+\title{compute_gc_genome}
 \usage{
 compute_gc_genome(chr)
 }
 \arguments{
 \item{chr}{Chromosome name}
+}
+\value{
+data.frame contatining GC distribution
 }
 \description{
 helper function to calculate GC distribution of a chromosome

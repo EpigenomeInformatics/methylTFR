@@ -39,8 +39,9 @@ compute_deviation(
 }}
 }
 \value{
-deviation score for a given motif
+a \code{numeric} deviation score for a given motif
 }
 \description{
 compute_deviation is a function to calculate the deviation in transcription factor
 }
+\keyword{internal}

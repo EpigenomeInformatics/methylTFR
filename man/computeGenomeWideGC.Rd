@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation_builder.R
 \name{computeGenomeWideGC}
 \alias{computeGenomeWideGC}
-\title{Compute genome-wide GC distribution for given genome}
+\title{computeGenomeWideGC}
 \usage{
 computeGenomeWideGC(
   genome,
@@ -12,7 +12,7 @@ computeGenomeWideGC(
 )
 }
 \arguments{
-\item{genome}{Genome (e.g. BSgenome.Hsapiens.UCSC.hg38)}
+\item{genome}{BSgenome object (e.g., BSgenome.Hsapiens.UCSC.hg38)}
 
 \item{onlyMain}{Only main chromosomes}
 
@@ -25,6 +25,10 @@ GC distribution GRanges object
 }
 \description{
 Compute genome-wide GC distribution for given genome
+}
+\examples{
+library(BSgenome.Hsapiens.UCSC.hg38)
+gc_dist <- calculate_GCdist(BSgenome.Hsapiens.UCSC.hg38, threads = 1)
 }
 \author{
 Irem Gunduz

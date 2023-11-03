@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation_builder.R
 \name{convert_to_bins}
 \alias{convert_to_bins}
-\title{Convert GC frequencies to bins}
+\title{convert_to_bins}
 \usage{
 convert_to_bins(x, gc_bin)
 }
@@ -12,7 +12,7 @@ convert_to_bins(x, gc_bin)
 \item{gc_bin}{GC bin}
 }
 \value{
-GC bins
+table containing GC bins
 }
 \description{
 Convert GC frequencies to bins

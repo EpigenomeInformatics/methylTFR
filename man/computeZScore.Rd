@@ -7,12 +7,12 @@
 computeZScore(mat)
 }
 \arguments{
-\item{mat}{A matrix.}
+\item{mat}{A matrix}
 }
 \value{
-A matrix.
+A matrix with row-wise z-scores
 }
 \description{
-This function takes a matrix and computes z-score.
+This function takes a matrix and computes row-wise z-scores.
 }
 \keyword{internal}

@@ -1,9 +1,9 @@
-#' @title Process motifs to matrix containing GC frequencies per motif
+#' @title compute_gc
 #' @description Process motifs to matrix containing GC frequencies per motif
 #' @param motif Motif name
 #' @importFrom Biostrings DNAString letterFrequencyInSlidingView
 #' @param X DNA sequence
-#' @return gc frequency
+#' @return matrix contatining gc frequency table
 #' @author Sarath Kumar
 #' @keywords internal
 compute_gc <- function(X) {
@@ -17,11 +17,11 @@ compute_gc <- function(X) {
   return(gc)
 }
 
-#' @title Convert GC frequencies to bins
+#' @title convert_to_bins
 #' @description Convert GC frequencies to bins
 #' @param x GC frequencies
 #' @param gc_bin GC bin
-#' @return GC bins
+#' @return table containing GC bins
 #' @keywords internal
 #' @author Sarath Kumar
 convert_to_bins <- function(x, gc_bin) {
@@ -29,10 +29,10 @@ convert_to_bins <- function(x, gc_bin) {
   return(bin)
 }
 
-#' @title Convert GC bins to matrix
+#' @title convert_to_matrix
 #' @description Convert GC bins to matrix
 #' @param bins GC bins
-#' @return GC matrix
+#' @return matrix contatining GC bins
 #' @keywords internal
 #' @author Sarath Kumar
 convert_to_matrix <- function(bins) {
@@ -43,12 +43,12 @@ convert_to_matrix <- function(bins) {
 }
 
 
-#' @title helper function to calculate GC distribution
+#' @title get_gcdist
 #' @description helper function to calculate GC distribution
 #' @param chr Chromosome name
 #' @param chr_len Chromosome length
 #' @param genome Genome (e.g. BSgenome.Hsapiens.UCSC.hg38)
-#' @return GC distribution
+#' @return matrix contatining GC distribution
 #' @importFrom GenomicRanges GRanges
 #' @importFrom Biostrings getSeq letterFrequency
 #' @importFrom IRanges IRanges
@@ -70,13 +70,15 @@ get_gcdist <- function(chr, chr_len, genome) {
 }
 
 
-#' @title helper function to calculate GC distribution of a chromosome
+#' @title compute_gc_genome
 #' @description helper function to calculate GC distribution of a chromosome
 #' @param chr Chromosome name
 #' @importFrom GenomicRanges GRanges
 #' @importFrom Biostrings getSeq letterFrequency
 #' @importFrom IRanges IRanges
+#' @importFrom S4Vectors DataFrame
 #' @keywords internal
+#' @return data.frame contatining GC distribution
 compute_gc_genome <- function(chr) {
   qgr <- GRanges(
     seqnames = chr,
@@ -92,7 +94,7 @@ compute_gc_genome <- function(chr) {
   return(qgr)
 }
 
-#' @title calculating GC distribution and GC frequency table
+#' @title calculate_GCdist
 #' @description calculating GC distribution and GC frequency table
 #' @param genome Genome (e.g. BSgenome.Hsapiens.UCSC.hg38)
 #' @param threads Number of threads
@@ -100,9 +102,24 @@ compute_gc_genome <- function(chr) {
 #' @param includeSexChr keep the sex chromosomes (chrX, chrY, chrM)
 #' @importFrom parallel mclapply
 #' @importFrom GenomeInfoDb seqlengths
-#' @return GC distribution
+#' @return matrix containing GC distribution
 #' @export
-calculate_gcdist <- function(genome, threads = 4, onlyMain = TRUE, includeSexChr = TRUE) {
+#' @examples
+#' library(BSgenome.Hsapiens.UCSC.hg38)
+#' gc_dist <- calculate_GCdist(BSgenome.Hsapiens.UCSC.hg38, threads = 2)
+calculate_GCdist <- function(genome, threads = 1, onlyMain = TRUE, includeSexChr = TRUE) {
+  if (!is.numeric(threads)) {
+    stop("Number of threads must be numeric!")
+  }
+  if (!is.logical(onlyMain)) {
+    stop("onlyMain must be logical!")
+  }
+  if (!is.logical(includeSexChr)) {
+    stop("includeSexChr must be logical!")
+  }
+  if (!is(genome, "BSgenome")) {
+    stop("genome must be a BSgenome object")
+  }
   chr_len <- seqlengths(genome)
   if (onlyMain) {
     filter <- ifelse(includeSexChr, "^chr[0-9MXY]+$", "^chr[0-9]+$")
@@ -119,7 +136,7 @@ calculate_gcdist <- function(genome, threads = 4, onlyMain = TRUE, includeSexChr
 }
 
 
-#' @title Process motifs to matrix containing GC frequencies per motif
+#' @title processMotifs2GCMatrix
 #' @description Process motifs to matrix containing GC frequencies per motif
 #' @param motif Motif name
 #' @param gc_bin GC bin
@@ -128,11 +145,23 @@ calculate_gcdist <- function(genome, threads = 4, onlyMain = TRUE, includeSexChr
 #' @return Matrix containing GC frequencies per motif
 #' @importFrom logger log_info
 #' @importFrom Biostrings getSeq
-#' @export
+#' @importFrom methods is
 #' @author Irem Gunduz
+#' @export
 processMotifs2GCMatrix <- function(tf_bindsites, motif, gc_bin, genome) {
-  tfbs <- tf_bindsites[[motif]]
-  dna_seq <- getSeq(genome, tfbs)
+  if (!class(tf_bindsites) %in% c("list", "GRangesList")) {
+    stop("tf_bindsites must be a list object")
+  }
+  if (!is(genome, "BSgenome")) {
+    stop("genome must be a BSgenome object")
+  }
+  if (!is.character(motif)) {
+    stop("motif must be a character")
+  }
+  if (!is.numeric(gc_bin)) {
+    stop("gc_bin must be numeric")
+  }
+  dna_seq <- getSeq(genome, tf_bindsites[[motif]])
   logger::log_info(paste("Processing compute gc .. ", motif))
   motif_gc <- lapply(dna_seq, compute_gc)
   logger::log_info(paste("Processing convert to bins .. ", motif))
@@ -146,9 +175,9 @@ processMotifs2GCMatrix <- function(tf_bindsites, motif, gc_bin, genome) {
 }
 
 
-#' @title Compute genome-wide GC distribution for given genome
+#' @title computeGenomeWideGC
 #' @description Compute genome-wide GC distribution for given genome
-#' @param genome Genome (e.g. BSgenome.Hsapiens.UCSC.hg38)
+#' @param genome BSgenome object (e.g., BSgenome.Hsapiens.UCSC.hg38)
 #' @param onlyMain Only main chromosomes
 #' @param includeSexChr keep the sex chromosomes (chrX, chrY, chrM), only valid when onlyMain is TRUE
 #' @param num_cores Number of cores
@@ -156,13 +185,28 @@ processMotifs2GCMatrix <- function(tf_bindsites, motif, gc_bin, genome) {
 #' @importFrom GenomeInfoDb seqlengths
 #' @importFrom parallel mclapply
 #' @importFrom stats complete.cases
+#' @importFrom methods is
 #' @return GC distribution GRanges object
 #' @export
+#' @examples
+#' library(BSgenome.Hsapiens.UCSC.hg38)
+#' gc_dist <- calculate_GCdist(BSgenome.Hsapiens.UCSC.hg38, threads = 1)
 #' @author Irem Gunduz
 computeGenomeWideGC <- function(genome, onlyMain = TRUE, includeSexChr = TRUE, num_cores = 1) {
+  if (!is(genome, "BSgenome")) {
+    stop("genome must be a BSgenome object")
+  }
   chr_len <- seqlengths(genome)
   chr_names <- names(chr_len)
-
+  if (!is.logical(onlyMain)) {
+    stop("onlyMain must be logical!")
+  }
+  if (!is.logical(includeSexChr)) {
+    stop("includeSexChr must be logical!")
+  }
+  if (!is.numeric(num_cores)) {
+    stop("Number of cores must be numeric!")
+  }
   if (onlyMain) {
     filter <- ifelse(includeSexChr, "^chr[0-9MXY]+$", "^chr[0-9]+$")
     chr_names <- chr_names[grepl(filter, chr_names)]
@@ -171,4 +215,75 @@ computeGenomeWideGC <- function(genome, onlyMain = TRUE, includeSexChr = TRUE, n
   t_qgr <- do.call(c, t_qgr)
   t_qgr <- t_qgr[complete.cases(t_qgr$GC_bias, t_qgr$GC_bin), ]
   return(t_qgr)
+}
+
+#' @title motifBSFromPFMatrixList
+#' @description This function extracts motif binding sites from a PFMatrixList using a specified genome.
+#' @param motifPFMatrixList PFMatrixList object containing motif profiles
+#' @param genome BSgenome object (e.g., BSgenome.Hsapiens.UCSC.hg38)
+#' @param threads Number of parallel threads for processing
+#' @param onlyMainChr Logical, indicating whether to include only main chromosomes
+#' @param includeSexChr Logical, indicating whether to include sex chromosomes (valid when onlyMainChr is TRUE)
+#' @return A GRangesList object containing motif binding sites
+#' @importFrom GenomicRanges GRanges resize GRangesList
+#' @importFrom parallel mclapply
+#' @importFrom GenomeInfoDb seqnames
+#' @importFrom IRanges IRanges
+#' @importFrom BSgenome getSeq
+#' @importFrom motifmatchr matchMotifs
+#' @importFrom methods is
+#' @author Irem Gunduz
+#' @export
+motifBSFromPFMatrixList <- function(
+    motifPFMatrixList, genome, threads = 2,
+    onlyMainChr = TRUE, includeSexChr = TRUE) {
+  seqNames <- seqnames(genome)
+  if (!is(genome, "BSgenome")) {
+    stop("genome must be a BSgenome object")
+  }
+  if (!is(motifPFMatrixList, "PFMatrixList")) {
+    stop("motifPFMatrixList must be a PFMatrixList object")
+  }
+  if (!is.numeric(threads)) {
+    stop("Number of threads must be numeric!")
+  }
+  if (!is.logical(onlyMainChr)) {
+    stop("onlyMainChr must be logical!")
+  }
+  if (!is.logical(includeSexChr)) {
+    stop("includeSexChr must be logical!")
+  }
+  filter <- ifelse(onlyMainChr, ifelse(includeSexChr, "chr[0-9MXY]+$", "chr[0-9]+$"), seqNames)
+  seqNames <- seqNames[grepl(filter, seqNames)]
+  motif_names <- names(motifPFMatrixList)
+  if (!is.numeric(threads)) {
+    stop("Number of threads must be numeric!")
+  }
+  result_list <- lapply(motif_names, function(mo) {
+    logger::log_info(paste0("Started processing ", mo))
+    motif_data <- motifPFMatrixList[[mo]]
+    tf_binding <- parallel::mclapply(seqNames, function(chr) {
+      chr_seq <- getSeq(genome, chr)
+      motif_ix <- matchMotifs(motif_data, chr_seq, out = "positions")
+      motif_ix <- unlist(motif_ix[[1]])
+
+      curr_motif <- GRanges(
+        seqnames = chr,
+        ranges = IRanges(start = start(motif_ix), width = unique(width(motif_ix))),
+        strand = unlist(motif_ix@elementMetadata["strand"])
+      )
+      values(curr_motif) <- motif_ix@elementMetadata["score"]
+      curr_motif <- resize(curr_motif, motif_width + 400, fix = "center")
+      return(curr_motif)
+    }, mc.cores = threads)
+
+    tf_binding <- do.call(c, tf_binding)
+    logger::log_success(paste0("Finished processing ", mo))
+    return(tf_binding)
+  })
+
+  logger::log_info("Finished processing all motifs, converting results into GRangesList")
+  tf_bindsites <- GRangesList(result_list)
+  names(tf_bindsites) <- motif_names
+  return(tf_bindsites)
 }

@@ -23,8 +23,6 @@ calculate_expmeth(msites, gcdist, gcfreq)
 a \code{data.table} object with GC bin with corresponding avg methylation
 }
 \description{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{ This function is used to calculate genome-wide expected methylation
-}\if{html}{\out{</div>}}
-
-for each motif.
+This function is used to calculate genome-wide expected methylation for each motif.
 }
+\keyword{internal}

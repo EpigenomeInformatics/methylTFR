@@ -1,5 +1,5 @@
 ---
-title: "Build methylTFR annotations"
+title: "Build methylTFR Annotations per Genome"
 author: 
   - name: Irem B. Gunduz
     affiliation:
@@ -45,7 +45,7 @@ BiocManager::install("methylTFR")
 `methylTFR` computes expected methylation values using GC content of the genome. Annotation builder functions are part of the `methylTFR` package.
 In nuthsell, you will need a two component to build your own annotation:
 
-- A genome object, such as `BSgenome.Hsapiens.UCSC.hg19` from the `BSgenome` package.
+- A `BSgenome` object, such as `BSgenome.Hsapiens.UCSC.hg19` from the `BSgenome` package.
 - A desired motif annotations, such as `JASPAR2020`
 
 ### Quick start to build your own annotations using `methylTFR`
@@ -72,10 +72,23 @@ motifPFMatrixList <- getMatrixSet(
   opts = list(species = 9606, all_versions = FALSE)
 )
 
-# TODO add a function to convert motif PFM matrix list to GRanges object
+# To have readable motif names, we can use the following code
+motifNames <- unlist(lapply(seq_along(motifPFMatrixList), function(x) {
+  namex <- make.names(motifPFMatrixList[[x]]@name)
+  if (substr(namex, nchar(namex), nchar(namex)) == ".") {
+    namex <- substr(namex, 1, nchar(namex) - 1)
+  }
+  namex <- paste0(namex, "_", x)
+  namex
+}))
+names(motifPFMatrixList) <- motifNames
+
+# Convert motif PFM matrix list to processed GRangesList object
+tf_bindsites <- motifBSFromPFMatrixList(motifPFMatrixList, genome, threads = 2,
+    onlyMainChr = TRUE, includeSexChr = TRUE)
 
 log_start("Calculating GC distribution ...")
-gc_dist <- calculate_gcdist(genome = BSgenome.Hsapiens.UCSC.hg38, threads = 1)
+gc_dist <- calculate_gcdist(genome = BSgenome.Hsapiens.UCSC.hg38, threads = 2)
 log_info("Applying quantile normalization...")
 gc_bin <- quantile(gc_dist, probs = seq(0, 1, 1 / 5))
 log_success("GC distribution calculated.")
@@ -85,11 +98,10 @@ log_info(paste0("Number of motifs within the annotation: ", length(motif_list)))
 
 logger_start("Generating GC matrix for each motif ...")
 motif_gcfreq <- mclapply(motif_list, processMotifs2GCMatrix,
-  gc_bin = gc_bin, genome = BSgenome.Hsapiens.UCSC.hg38,
-  mc.cores = 1
-)
+  gc_bin = gc_bin, genome = BSgenome.Hsapiens.UCSC.hg38,mc.cores = 2)
 logger_success("Motifs processed.")
 ```
+
 We highly recommend chunking motifs to speed up the process. Annotations need to be build only once, and can be re-used when saved.
 After you succesfully build your annotation, you can use it with `methylTFR` functions.
 
