@@ -31,6 +31,7 @@ read_methylome <- function(filename, type) {
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
   }
+  # TODO add allc format, bed format, maybe bismark format?
   gr_obj <- granges_helper(msites, msites$V1, mscore, cov, msites$V4, msites$V2, msites$V3)
   return(gr_obj)
 }
@@ -108,34 +109,7 @@ EPP_helper <- function(granges) {
 #' @importFrom data.table fwrite as.data.table
 #' @author Irem Gunduz
 #' @export
-#' @examples
-#' suppressPackageStartupMessages(library(methylKit))
-#' file.list <- list(
-#'   system.file("extdata",
-#'     "test1.myCpG.txt",
-#'     package = "methylKit"
-#'   ),
-#'   system.file("extdata",
-#'     "test2.myCpG.txt",
-#'     package = "methylKit"
-#'   ),
-#'   system.file("extdata",
-#'     "control1.myCpG.txt",
-#'     package = "methylKit"
-#'   ),
-#'   system.file("extdata",
-#'     "control2.myCpG.txt",
-#'     package = "methylKit"
-#'   )
-#' )
-#' myobj <- methRead(file.list,
-#'   sample.id = list("test1", "test2", "ctrl1", "ctrl2"),
-#'   assembly = "hg18",
-#'   treatment = c(1, 1, 0, 0),
-#'   context = "CpG",
-#'   mincov = 10
-#' )
-#' epps <- convertToEPP(myobj, save = FALSE)
+#' @return a list of \code{GenomicRanges} object with EPP format or if save TRUE, invisible NULL
 convertToEPP <- function(obj, save = FALSE, filePath = NULL, threads = 1, verbose = TRUE) {
   if (!class(obj) %in% c(
     "data.frame", "GRanges",
@@ -195,5 +169,6 @@ convertToEPP <- function(obj, save = FALSE, filePath = NULL, threads = 1, verbos
         logger::log_warn(paste0("File already exists in filePath for sample ", sample, "!"))
       }
     }
+    return(invisible(NULL))
   }
 }

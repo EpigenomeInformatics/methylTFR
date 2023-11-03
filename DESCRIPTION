@@ -21,7 +21,7 @@ Description: methylTFR is a comprehensive R package tailored for the
     in the discovery of TFBS with varying methylation patterns across
     different samples or cells.
 License: Artistic-2.0
-URL: https://github.com/igunduz/methylTFR
+URL: https://github.com/EpigenomeInformatics/methylTFR
 BugReports: https://support.bioconductor.org/t/methylTFR
 Imports: 
     Biostrings,

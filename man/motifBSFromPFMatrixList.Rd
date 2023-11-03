@@ -7,7 +7,7 @@
 motifBSFromPFMatrixList(
   motifPFMatrixList,
   genome,
-  threads = 30,
+  threads = 2,
   onlyMainChr = TRUE,
   includeSexChr = TRUE
 )
@@ -28,15 +28,6 @@ A GRangesList object containing motif binding sites
 }
 \description{
 This function extracts motif binding sites from a PFMatrixList using a specified genome.
-}
-\examples{
-library(BSgenome.Hsapiens.UCSC.hg38)
-library(JASPAR2020)
-motifPFMatrixList <- TFBSTools::getMatrixSet(
-  x = JASPAR2020,
-  opts = list(species = 9606, all_versions = FALSE, collection = "CORE")
-)
-result <- processMotifData(motifPFMatrixList[1], BSgenome.Hsapiens.UCSC.hg38, 1)
 }
 \author{
 Irem Gunduz
