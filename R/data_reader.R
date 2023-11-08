@@ -30,9 +30,37 @@ read_methylome <- function(filename, type) {
     msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
+    #mcov <- round(mscore * cov, 0)
   }
-  # TODO add allc format, bed format, maybe bismark format?
-  gr_obj <- granges_helper(msites, msites$V1, mscore, cov, msites$V4, msites$V2, msites$V3)
+  if (type == "allc") {
+    allc <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
+    if (ncol(msites) < 6) {
+      logger::log_warn(paste0(filename, " is an invalid allc file!"))
+      stop("allc file must contain at least 6 columns!")
+    }
+    mcov <- allc$V5
+    cov <- allc$V6
+    mscore <- round(mcov / cov, 3)
+    msites <- allc[, .(V1, V2, V2, V3)]
+    msites$V4 <- mscore
+    colnames(msites) <- c("V1", "V2", "V3", "strand", "V4")
+  }
+  if(type == "bismark"){
+    #TODO implement bismark file format
+  }
+  if(type == "bed"){
+    #TODO implement bed file format
+  }
+  # convert to GRanges object
+  gr_obj <- granges_helper(
+    grobj = msites,
+    chr = msites$V1,
+    mscore = mscore,
+    cov = cov,
+    meth = msites$V4,
+    startP = msites$V2,
+    endP = msites$V3
+  )
   return(gr_obj)
 }
 
@@ -66,20 +94,20 @@ methylKitToEPP <- function(mKit) {
 #' @param  grobj - GRanges object
 #' @param  chr - chromosome
 #' @param  mscore - methylation score
-#' @param  mcov - methylation coverage
+#' @param  cov - methylation coverage
 #' @param  meth - methylation information
 #' @param  startP - start position
 #' @param  endP - end position
 #' @return a \code{GenomicRanges} object with EPP format
 #' @keywords internal
-granges_helper <- function(grobj, chr, mscore, mcov, meth, startP, endP) {
+granges_helper <- function(grobj, chr, mscore, cov, meth, startP, endP) {
   return(GenomicRanges::GRanges(
     seqnames = chr,
     ranges = IRanges::IRanges(start = startP, end = endP),
     strand = grobj$strand,
     score = mscore,
     methylation = meth,
-    coverage = mcov
+    coverage = cov
   ))
 }
 
@@ -136,7 +164,7 @@ convertToEPP <- function(obj, save = FALSE, filePath = NULL, threads = 1, verbos
       stop("data.frame must contain columns chr,start,end,strand,score,coverage,methylation")
     }
   }
-  if (is(obj,"GRanges")) {
+  if (is(obj, "GRanges")) {
     tiles <- EPP_helper(obj)
   }
   if (class(obj) %in% c("GRangesList", "CompressedGRangesList")) {
