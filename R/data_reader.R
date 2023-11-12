@@ -1,6 +1,6 @@
 #' @title read_methylome
 #' @description read_methylome is a function to import methylation data into R Genomic
-#'  Range object. Bed file should be processed in EPP format, or BisSNP.
+#'  Range object. Bed file should be in EPP,ALLC or BisSNP format.
 #' @param  filename - filename which contains methylation data
 #' @param  type - type of file format (epp, bissnp)
 #' @importFrom GenomicRanges GRanges
@@ -14,7 +14,7 @@ read_methylome <- function(filename, type) {
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  if (!type %in% c("bissnp", "epp")) {
+  if (!type %in% c("bissnp", "epp","allc")) {
     stop(paste(type, " is not a valid file type!"))
   }
   if (type == "epp") {

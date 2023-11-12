@@ -108,7 +108,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param chunkSize     - chunk size for parallel processing of motifs
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
 #' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
-#' @param filetype      - file type of the bed file, currently supported: bissnp, epp
+#' @param filetype      - file type of the bed file, currently supported: bissnp, epp,allc
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
@@ -125,7 +125,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
-  if (!tolower(filetype) %in% c("bissnp", "epp")) {
+  if (!tolower(filetype) %in% c("bissnp", "epp","allc")) {
     logger::log_error("Please provide a valid file type")
   }
   if (is.null(sampleColName) || !is.character(sampleColName)) {
