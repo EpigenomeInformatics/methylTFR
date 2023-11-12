@@ -4,7 +4,7 @@
 \alias{granges_helper}
 \title{granges_helper}
 \usage{
-granges_helper(grobj, chr, mscore, mcov, meth, startP, endP)
+granges_helper(grobj, chr, mscore, cov, startP, endP)
 }
 \arguments{
 \item{grobj}{\itemize{
@@ -19,12 +19,8 @@ granges_helper(grobj, chr, mscore, mcov, meth, startP, endP)
 \item methylation score
 }}
 
-\item{mcov}{\itemize{
+\item{cov}{\itemize{
 \item methylation coverage
-}}
-
-\item{meth}{\itemize{
-\item methylation information
 }}
 
 \item{startP}{\itemize{

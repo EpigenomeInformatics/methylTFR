@@ -24,13 +24,15 @@ read_methylome <- function(filename, type) {
     mcov <- as.numeric(stringr::str_replace(mcov, "'", ""))
     cov <- mcov[seq_along(mcov) %% 2 == 0]
     mscore <- round(msites$V5 / 1000, 3)
+    msites <- msites[, .(V1, V2, V3, V6)]
+    colnames(msites) <- c("chr", "start", "end", "strand")
   }
   if (type == "bissnp") {
     # Parse BisSNP Tab-Separated file format
     msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
-    #mcov <- round(mscore * cov, 0)
+    # mcov <- round(mscore * cov, 0)
   }
   if (type == "allc") {
     allc <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
@@ -42,52 +44,28 @@ read_methylome <- function(filename, type) {
     cov <- allc$V6
     mscore <- round(mcov / cov, 3)
     msites <- allc[, .(V1, V2, V2, V3)]
-    msites$V4 <- mscore
-    colnames(msites) <- c("V1", "V2", "V3", "strand", "V4")
+    # msites$V4 <- mscore
+    colnames(msites) <- c("chr", "start", "end", "strand") # , "meth")
   }
-  if(type == "bismark"){
-    #TODO implement bismark file format
+  if (type == "bismark") {
+    # TODO implement bismark file format
   }
-  if(type == "bed"){
-    #TODO implement bed file format
+  if (type == "bed") {
+    # TODO implement bed file format
   }
   # convert to GRanges object
   gr_obj <- granges_helper(
     grobj = msites,
-    chr = msites$V1,
+    chr = msites$chr,
     mscore = mscore,
     cov = cov,
-    meth = msites$V4,
-    startP = msites$V2,
-    endP = msites$V3
+    # meth = msites$meth,
+    startP = msites$start,
+    endP = msites$end
   )
   return(gr_obj)
 }
 
-#' @title convert methylKit object to EPP format
-#' @description convert methylKit object to EPP format
-#' @param  mKit - methylKit object
-#' @return a \code{GenomicRanges} or  object with EPP format
-#' @importFrom GenomicRanges GRanges GRangesList
-#' @importFrom methylKit getSampleID
-#' @keywords internal
-methylKitToEPP <- function(mKit) {
-  if (is(mKit, "methylRaw")) {
-    mscore <- round(x$numCs / x$coverage, 2)
-    meth <- paste0(x$numCs, "/", x$coverage)
-    gr_obj <- granges_helper(mKit, mKit$chr, mscore, mKit$coverage, meth, mKit$start, mKit$end)
-  }
-  if (is(mKit, "methylRawList") || is(mKit, "methylRawListDB")) {
-    gr_obj <- lapply(mKit, function(x) {
-      mscore <- round(x$numCs / x$coverage, 2)
-      meth <- paste0(x$numCs, "/", x$coverage)
-      return(granges_helper(x, x$chr, mscore, x$coverage, meth, x$start, x$end))
-    })
-    gr_obj <- GRangesList(gr_obj)
-    names(gr_obj) <- getSampleID(mKit)
-  }
-  return(gr_obj)
-}
 
 #' @title granges_helper
 #' @description  helper function to convert msites in EPP GRanges format
@@ -95,18 +73,20 @@ methylKitToEPP <- function(mKit) {
 #' @param  chr - chromosome
 #' @param  mscore - methylation score
 #' @param  cov - methylation coverage
-#' @param  meth - methylation information
+# @param  meth - methylation information
 #' @param  startP - start position
 #' @param  endP - end position
 #' @return a \code{GenomicRanges} object with EPP format
 #' @keywords internal
-granges_helper <- function(grobj, chr, mscore, cov, meth, startP, endP) {
+granges_helper <- function(
+    grobj, chr, mscore, cov, # meth,
+    startP, endP) {
   return(GenomicRanges::GRanges(
     seqnames = chr,
     ranges = IRanges::IRanges(start = startP, end = endP),
     strand = grobj$strand,
     score = mscore,
-    methylation = meth,
+    # methylation = meth,
     coverage = cov
   ))
 }
@@ -199,4 +179,29 @@ convertToEPP <- function(obj, save = FALSE, filePath = NULL, threads = 1, verbos
     }
     return(invisible(NULL))
   }
+}
+
+#' @title convert methylKit object to EPP format
+#' @description convert methylKit object to EPP format
+#' @param  mKit - methylKit object
+#' @return a \code{GenomicRanges} or  object with EPP format
+#' @importFrom GenomicRanges GRanges GRangesList
+#' @importFrom methylKit getSampleID
+#' @keywords internal
+methylKitToEPP <- function(mKit) {
+  if (is(mKit, "methylRaw")) {
+    mscore <- round(x$numCs / x$coverage, 2)
+    meth <- paste0(x$numCs, "/", x$coverage)
+    gr_obj <- granges_helper(mKit, mKit$chr, mscore, mKit$coverage, meth, mKit$start, mKit$end)
+  }
+  if (is(mKit, "methylRawList") || is(mKit, "methylRawListDB")) {
+    gr_obj <- lapply(mKit, function(x) {
+      mscore <- round(x$numCs / x$coverage, 2)
+      meth <- paste0(x$numCs, "/", x$coverage)
+      return(granges_helper(x, x$chr, mscore, x$coverage, meth, x$start, x$end))
+    })
+    gr_obj <- GRangesList(gr_obj)
+    names(gr_obj) <- getSampleID(mKit)
+  }
+  return(gr_obj)
 }
