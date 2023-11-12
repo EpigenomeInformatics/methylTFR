@@ -65,7 +65,7 @@ run_methyltfr(
 }}
 
 \item{filetype}{\itemize{
-\item file type of the bed file, currently supported: bissnp, epp
+\item file type of the bed file, currently supported: bissnp, epp,allc
 }}
 }
 \value{
