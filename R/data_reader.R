@@ -36,7 +36,7 @@ read_methylome <- function(filename, type) {
   }
   if (type == "allc") {
     allc <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
-    if (ncol(msites) < 6) {
+    if (ncol(allc) < 6) {
       logger::log_warn(paste0(filename, " is an invalid allc file!"))
       stop("allc file must contain at least 6 columns!")
     }
