@@ -138,11 +138,16 @@ run_methyltfr <- function(
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
     logger::log_error("Please load the annotation objects for given genome.")
   }
-  if (is.null(sample_ann) || !is.character(sample_ann)) {
-    logger::log_error("Please provide a valid sample annotation file")
-  }
-  if (is.null(sample_dir) || !is.character(sample_dir)) {
-    logger::log_error("Please provide a valid sample directory")
+  if (is.null(annfile) || !is.character(annfile)) {
+    if (is.null(sample_ann) || !is.character(sample_ann)) {
+      logger::log_error("Please provide a valid sample annotation file")
+    }
+    if (is.null(sample_dir) || !is.character(sample_dir)) {
+      logger::log_error("Please provide a valid sample directory")
+    }
+    if (!dir.exists(sample_dir)) {
+      logger::log_error("Sample directory does not exist, please check the directory path")
+    }
   }
   if (!is.numeric(threads) || threads < 1) {
     logger::log_warn("Invalid thread count detected, using default thread count")
@@ -151,16 +156,10 @@ run_methyltfr <- function(
   if (!is.logical(full_path)) {
     logger::log_error("Invalid full path flag detected, please provide a valid logical value")
   }
-  if (!dir.exists(sample_dir)) {
-    logger::log_error("Sample directory does not exist, please check the directory path")
-  }
-  # TODO add type checker for sample_ann
-  if (!is.null(annfile) & is.character(annfile)) {
-    sample_ann <- annfile
-  } else {
+  if (is.null(annfile) || !is.character(annfile)) {
     annfile <- file.path(sample_dir, sample_ann)
   }
-  if (!file.exists(annfile) || !is.character(annfile)) {
+  if (!file.exists(annfile)) {
     logger::log_error(" %s does not exist, please check the file path !!", annfile)
   }
   if (endsWith(annfile, ".csv")) {
