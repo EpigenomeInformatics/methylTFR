@@ -14,7 +14,7 @@ read_methylome <- function(filename, type) {
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  if (!type %in% c("bissnp", "epp","allc")) {
+  if (!type %in% c("bissnp", "epp", "allc")) {
     stop(paste(type, " is not a valid file type!"))
   }
   if (type == "epp") {
@@ -192,13 +192,27 @@ methylKitToEPP <- function(mKit) {
   if (is(mKit, "methylRaw")) {
     mscore <- round(x$numCs / x$coverage, 2)
     meth <- paste0(x$numCs, "/", x$coverage)
-    gr_obj <- granges_helper(mKit, mKit$chr, mscore, mKit$coverage, meth, mKit$start, mKit$end)
+    gr_obj <- granges_helper(
+      grobj = mKit,
+      chr = mKit$chr,
+      mscore = mscore,
+      cov = mKit$coverage,
+      startP = mKit$start,
+      endP = mKit$end
+    )
   }
   if (is(mKit, "methylRawList") || is(mKit, "methylRawListDB")) {
     gr_obj <- lapply(mKit, function(x) {
       mscore <- round(x$numCs / x$coverage, 2)
       meth <- paste0(x$numCs, "/", x$coverage)
-      return(granges_helper(x, x$chr, mscore, x$coverage, meth, x$start, x$end))
+      return(granges_helper(
+        grobj = x,
+        chr = x$chr,
+        mscore = mscore,
+        cov = x$coverage,
+        startP = x$start,
+        endP = x$end
+      ))
     })
     gr_obj <- GRangesList(gr_obj)
     names(gr_obj) <- getSampleID(mKit)

@@ -125,7 +125,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
-  if (!tolower(filetype) %in% c("bissnp", "epp","allc")) {
+  if (!tolower(filetype) %in% c("bissnp", "epp", "allc")) {
     logger::log_error("Please provide a valid file type")
   }
   if (is.null(sampleColName) || !is.character(sampleColName)) {
@@ -185,7 +185,11 @@ run_methyltfr <- function(
   numChunks <- ceiling(length(motifs) / chunkSize)
   motif_chunks <- split(motifs, rep(1:numChunks, each = chunkSize, length.out = length(motifs)))
 
-  tempfile <- tempfile(pattern = "methylTFR", tmpdir = tempdir(), fileext = ".h5")
+  # Create a temp sink
+  if (!dir.exists("methylTFR_tmp")) {
+    dir.create("methylTFR_tmp")
+  }
+  tempfile <- tempfile(pattern = "methylTFR", tmpdir = "methylTFR_tmp", fileext = ".h5")
   # Create a sink for each region type
   sink <- HDF5Array::HDF5RealizationSink(
     dim = c(length(files_list), length(motifs)),
@@ -238,7 +242,7 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(sink)
   deviation <- t(as(sink, "DelayedArray"))
-  file.remove(tempfile) # TODO find a better solution for this
+  # file.remove(tempfile) # TODO find a better solution for this
 
   # se <- SummarizedExperiment::SummarizedExperiment(
   # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
