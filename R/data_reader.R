@@ -32,9 +32,11 @@ read_methylome <- function(filename, type) {
     msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
-    # mcov <- round(mscore * cov, 0)
+    msites <- msites[, .(V1, V2, V3, V6)]
+    colnames(msites) <- c("chr", "start", "end", "strand")
   }
   if (type == "allc") {
+    # Parse ALLC Tab-Separated file format
     allc <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
     if (ncol(allc) < 6) {
       logger::log_warn(paste0(filename, " is an invalid allc file!"))
@@ -44,7 +46,6 @@ read_methylome <- function(filename, type) {
     cov <- allc$V6
     mscore <- round(mcov / cov, 3)
     msites <- allc[, .(V1, V2, V2, V3)]
-    # msites$V4 <- mscore
     colnames(msites) <- c("chr", "start", "end", "strand") # , "meth")
   }
   if (type == "bismark") {
@@ -59,7 +60,6 @@ read_methylome <- function(filename, type) {
     chr = msites$chr,
     mscore = mscore,
     cov = cov,
-    # meth = msites$meth,
     startP = msites$start,
     endP = msites$end
   )
@@ -73,7 +73,6 @@ read_methylome <- function(filename, type) {
 #' @param  chr - chromosome
 #' @param  mscore - methylation score
 #' @param  cov - methylation coverage
-# @param  meth - methylation information
 #' @param  startP - start position
 #' @param  endP - end position
 #' @return a \code{GenomicRanges} object with EPP format
@@ -86,7 +85,6 @@ granges_helper <- function(
     ranges = IRanges::IRanges(start = startP, end = endP),
     strand = grobj$strand,
     score = mscore,
-    # methylation = meth,
     coverage = cov
   ))
 }
