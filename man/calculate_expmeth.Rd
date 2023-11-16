@@ -4,7 +4,7 @@
 \alias{calculate_expmeth}
 \title{calculate_expmeth}
 \usage{
-calculate_expmeth(msites, gcdist, gcfreq)
+calculate_expmeth(msites, gcdist, gcfreq, ignoreStrand)
 }
 \arguments{
 \item{msites}{\itemize{
@@ -17,6 +17,10 @@ calculate_expmeth(msites, gcdist, gcfreq)
 
 \item{gcfreq}{\itemize{
 \item GC bin frequency table (matrix) from (\code{methylTFRann})
+}}
+
+\item{ignoreStrand}{\itemize{
+\item if TRUE, it ignores strand info from annotation
 }}
 }
 \value{

@@ -10,7 +10,8 @@ compute_deviation(
   tf_bindsites,
   gcfreqs,
   gcdist,
-  enhancer = NULL
+  enhancer,
+  ignoreStrand
 )
 }
 \arguments{
@@ -36,6 +37,10 @@ compute_deviation(
 
 \item{enhancer}{\itemize{
 \item Specific regions like distal motif
+}}
+
+\item{ignoreStrand}{\itemize{
+\item if TRUE, it ignores strand info from annotation
 }}
 }
 \value{
