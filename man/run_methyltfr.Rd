@@ -16,7 +16,8 @@ run_methyltfr(
   annfile = NULL,
   threads = 1,
   enhancer = NULL,
-  filetype = NULL
+  filetype = NULL,
+  ignoreStrand = TRUE
 )
 }
 \arguments{
@@ -66,6 +67,10 @@ run_methyltfr(
 
 \item{filetype}{\itemize{
 \item file type of the bed file, currently supported: bissnp, epp,allc
+}}
+
+\item{ignoreStrand}{\itemize{
+\item if TRUE, it ignores strand info from annotation
 }}
 }
 \value{

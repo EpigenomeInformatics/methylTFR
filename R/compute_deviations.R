@@ -3,12 +3,13 @@
 #' @param msites - imported methylation sites
 #' @param gcdist - Genome wide GC distribution from (\code{methylTFRann})
 #' @param gcfreq - GC bin frequency table (matrix) from (\code{methylTFRann})
+#' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
 #' @keywords internal
-calculate_expmeth <- function(msites, gcdist, gcfreq) {
-  hits <- findOverlaps(msites, gcdist, type = "within")
+calculate_expmeth <- function(msites, gcdist, gcfreq,ignoreStrand) {
+  hits <- findOverlaps(msites, gcdist, type = "within",ignore.strand=ignoreStrand)
   gcmap <- data.table(
     mscore = msites[hits@from]$score,
     gcbin = gcdist[hits@to]$GC_bin
@@ -33,6 +34,7 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 #' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
 #' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
 #' @param enhancer     - Specific regions like distal motif
+#' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{numeric} deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
@@ -41,21 +43,21 @@ calculate_expmeth <- function(msites, gcdist, gcfreq) {
 #' @import data.table
 #' @keywords internal
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
-                              gcdist, enhancer = NULL) {
+                              gcdist, enhancer,ignoreStrand) {
   tfbs <- tf_bindsites[[motif]]
   gcfreq <- gcfreqs[[motif]]
   w <- width(tfbs)[1] # TODO remove these lines and make sure annot is 500bp
   tfbs <- resize(tfbs, w + 101, fix = "center")
 
   if (!is.null(enhancer)) {
-    d_hits <- findOverlaps(tfbs, enhancer)
+    d_hits <- findOverlaps(tfbs, enhancer,ignoreStrand)
     tfbs <- tfbs[d_hits@from]
   }
 
-  exp_meth <- calculate_expmeth(msites, gcdist, gcfreq)
-  hits <- findOverlaps(msites, tfbs, type = "within")
+  exp_meth <- calculate_expmeth(msites, gcdist, gcfreq,ignoreStrand)
+  hits <- findOverlaps(msites, tfbs, type = "within",ignore.strand=ignoreStrand)
 
-  mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
+  S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
   x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
   sum_meth <- data.table::data.table(
     x = x,
@@ -109,6 +111,7 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
 #' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
 #' @param filetype      - file type of the bed file, currently supported: bissnp, epp,allc
+#' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
@@ -124,9 +127,15 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, filetype = NULL) {
+    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, 
+    filetype = NULL,ignoreStrand=TRUE) {
+
   if (!tolower(filetype) %in% c("bissnp", "epp", "allc")) {
     logger::log_error("Please provide a valid file type")
+  }
+  if(!is.logical(ignoreStrand)){
+   logger::log_warn("Found invalid strand option, using the default")
+   ignoreStrand <- TRUE
   }
   if (is.null(sampleColName) || !is.character(sampleColName)) {
     logger::log_error("Please provide a valid sample column name")
@@ -216,14 +225,15 @@ run_methyltfr <- function(
       # Get the current chunk
       chunk_motifs <- motif_chunks[[j]]
 
-      sample_deviations <- mclapply(chunk_motifs,
+      sample_deviations <- parallel::mclapply(chunk_motifs,
         compute_deviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
         gcdist = gc_dist,
         enhancer = enhancer,
-        mc.cores = threads
+        mc.cores = threads,
+        ignoreStrand = ignoreStrand
       )
 
       # Write the block to the sink
