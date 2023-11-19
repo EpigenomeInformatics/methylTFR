@@ -12,7 +12,7 @@ read_methylome(filename, type)
 }}
 
 \item{type}{\itemize{
-\item type of file format (epp, bissnp)
+\item type of file format (epp, bissnp,bismark,allc)
 }}
 }
 \value{

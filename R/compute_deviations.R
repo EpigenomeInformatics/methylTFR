@@ -1,8 +1,8 @@
 #' @title calculate_expmeth
 #' @description  This function is used to calculate genome-wide expected methylation for each motif.
 #' @param msites - imported methylation sites
-#' @param gcdist - Genome wide GC distribution from (\code{methylTFRann})
-#' @param gcfreq - GC bin frequency table (matrix) from (\code{methylTFRann})
+#' @param gcdist - Genome wide GC distribution 
+#' @param gcfreq - GC bin frequency table (matrix) 
 #' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @importFrom GenomicRanges GRanges findOverlaps
@@ -30,9 +30,9 @@ calculate_expmeth <- function(msites, gcdist, gcfreq,ignoreStrand) {
 #' @description compute_deviation is a function to calculate the deviation in transcription factor
 #' @param motif        - motif name
 #' @param msites       - imported methylation sites
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
-#' @param gcdist       - Genome wide GC distribution from (\code{methylTFRann})
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions 
+#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) 
+#' @param gcdist       - Genome wide GC distribution 
 #' @param enhancer     - Specific regions like distal motif
 #' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{numeric} deviation score for a given motif
@@ -103,14 +103,14 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param sample_dir   - directory where all bed file and annotation file stored
 #' @param threads      - thread count for parallel processing
 #' @param enhancer     - Specific regions like distal motif
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
-#' @param gc_dist       - Genome wide GC distribution from (\code{methylTFRann})
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions 
+#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) 
+#' @param gc_dist       - Genome wide GC distribution 
 #' @param sampleColName - column name of the sample bed file in the annotation file
 #' @param chunkSize     - chunk size for parallel processing of motifs
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
 #' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
-#' @param filetype      - file type of the bed file, currently supported: bissnp, epp,allc
+#' @param filetype      - file type of the bed file, currently supported: bissnp,epp,allc,bismark
 #' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
