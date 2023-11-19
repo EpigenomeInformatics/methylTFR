@@ -24,15 +24,15 @@ compute_deviation(
 }}
 
 \item{tf_bindsites}{\itemize{
-\item a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+\item a GenomicRange object contains tf binding sites positions
 }}
 
 \item{gcfreqs}{\itemize{
-\item GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+\item GC bin frequency tables (matrices for multiple motif)
 }}
 
 \item{gcdist}{\itemize{
-\item Genome wide GC distribution from (\code{methylTFRann})
+\item Genome wide GC distribution
 }}
 
 \item{enhancer}{\itemize{

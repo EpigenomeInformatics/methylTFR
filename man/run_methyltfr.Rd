@@ -30,15 +30,15 @@ run_methyltfr(
 }}
 
 \item{tf_bindsites}{\itemize{
-\item a GenomicRange object contains tf binding sites positions from (\code{methylTFRann})
+\item a GenomicRange object contains tf binding sites positions
 }}
 
 \item{gcfreqs}{\itemize{
-\item GC bin frequency tables (matrices for multiple motif) from (\code{methylTFRann})
+\item GC bin frequency tables (matrices for multiple motif)
 }}
 
 \item{gc_dist}{\itemize{
-\item Genome wide GC distribution from (\code{methylTFRann})
+\item Genome wide GC distribution
 }}
 
 \item{sampleColName}{\itemize{
@@ -66,7 +66,7 @@ run_methyltfr(
 }}
 
 \item{filetype}{\itemize{
-\item file type of the bed file, currently supported: bissnp, epp,allc
+\item file type of the bed file, currently supported: bissnp,epp,allc,bismark
 }}
 
 \item{ignoreStrand}{\itemize{
