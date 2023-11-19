@@ -12,11 +12,11 @@ calculate_expmeth(msites, gcdist, gcfreq, ignoreStrand)
 }}
 
 \item{gcdist}{\itemize{
-\item Genome wide GC distribution from (\code{methylTFRann})
+\item Genome wide GC distribution
 }}
 
 \item{gcfreq}{\itemize{
-\item GC bin frequency table (matrix) from (\code{methylTFRann})
+\item GC bin frequency table (matrix)
 }}
 
 \item{ignoreStrand}{\itemize{
