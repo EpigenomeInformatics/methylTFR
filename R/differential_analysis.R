@@ -1,7 +1,6 @@
 #' @title  differential_deviation_test
 #' @description Differential analysis is to test which motifs are having significant
-#' deviations among different cell-types.
-#' Adapted from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
+#' deviations among different groups. Adapted from chromVAR::differential_test
 #' @param deviations - a \code{data.frame} contains deviations for each motif
 #' @param groups     - a character vector of group names or colnames(deviations)
 #' @param motifs     - a character vector of motif names used in analysis or rownames(deviations)
