@@ -1,15 +1,15 @@
 #' @title calculate_expmeth
 #' @description  This function is used to calculate genome-wide expected methylation for each motif.
 #' @param msites - imported methylation sites
-#' @param gcdist - Genome wide GC distribution 
-#' @param gcfreq - GC bin frequency table (matrix) 
+#' @param gcdist - Genome wide GC distribution
+#' @param gcfreq - GC bin frequency table (matrix)
 #' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
 #' @keywords internal
-calculate_expmeth <- function(msites, gcdist, gcfreq,ignoreStrand) {
-  hits <- findOverlaps(msites, gcdist, type = "within",ignore.strand=ignoreStrand)
+calculate_expmeth <- function(msites, gcdist, gcfreq, ignoreStrand) {
+  hits <- findOverlaps(msites, gcdist, type = "within", ignore.strand = ignoreStrand)
   gcmap <- data.table(
     mscore = msites[hits@from]$score,
     gcbin = gcdist[hits@to]$GC_bin
@@ -30,9 +30,9 @@ calculate_expmeth <- function(msites, gcdist, gcfreq,ignoreStrand) {
 #' @description compute_deviation is a function to calculate the deviation in transcription factor
 #' @param motif        - motif name
 #' @param msites       - imported methylation sites
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions 
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) 
-#' @param gcdist       - Genome wide GC distribution 
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions
+#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif)
+#' @param gcdist       - Genome wide GC distribution
 #' @param enhancer     - Specific regions like distal motif
 #' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{numeric} deviation score for a given motif
@@ -43,19 +43,19 @@ calculate_expmeth <- function(msites, gcdist, gcfreq,ignoreStrand) {
 #' @import data.table
 #' @keywords internal
 compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
-                              gcdist, enhancer,ignoreStrand) {
+                              gcdist, enhancer, ignoreStrand) {
   tfbs <- tf_bindsites[[motif]]
   gcfreq <- gcfreqs[[motif]]
   w <- width(tfbs)[1] # TODO remove these lines and make sure annot is 500bp
   tfbs <- resize(tfbs, w + 101, fix = "center")
 
   if (!is.null(enhancer)) {
-    d_hits <- findOverlaps(tfbs, enhancer,ignoreStrand)
+    d_hits <- findOverlaps(tfbs, enhancer, ignoreStrand)
     tfbs <- tfbs[d_hits@from]
   }
 
-  exp_meth <- calculate_expmeth(msites, gcdist, gcfreq,ignoreStrand)
-  hits <- findOverlaps(msites, tfbs, type = "within",ignore.strand=ignoreStrand)
+  exp_meth <- calculate_expmeth(msites, gcdist, gcfreq, ignoreStrand)
+  hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand)
 
   S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
   x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
@@ -103,9 +103,9 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @param sample_dir   - directory where all bed file and annotation file stored
 #' @param threads      - thread count for parallel processing
 #' @param enhancer     - Specific regions like distal motif
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions 
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif) 
-#' @param gc_dist       - Genome wide GC distribution 
+#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions
+#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif)
+#' @param gc_dist       - Genome wide GC distribution
 #' @param sampleColName - column name of the sample bed file in the annotation file
 #' @param chunkSize     - chunk size for parallel processing of motifs
 #' @param full_path     - if TRUE, the bed file path in the annotation file is full path
@@ -127,15 +127,14 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL, 
-    filetype = NULL,ignoreStrand=TRUE) {
-
+    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
+    filetype = NULL, ignoreStrand = TRUE) {
   if (!tolower(filetype) %in% c("bissnp", "epp", "allc")) {
     logger::log_error("Please provide a valid file type")
   }
-  if(!is.logical(ignoreStrand)){
-   logger::log_warn("Found invalid strand option, using the default")
-   ignoreStrand <- TRUE
+  if (!is.logical(ignoreStrand)) {
+    logger::log_warn("Found invalid strand option, using the default")
+    ignoreStrand <- TRUE
   }
   if (is.null(sampleColName) || !is.character(sampleColName)) {
     logger::log_error("Please provide a valid sample column name")

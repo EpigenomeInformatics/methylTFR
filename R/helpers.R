@@ -73,14 +73,26 @@ kw_helper <- function(x, groups) {
   return(res$p.value)
 }
 
-#' @title helper function to compute z-score of a matrix
+#' @title helper function to compute row-wise z-score of a matrix
 #' @description This function takes a matrix and computes row-wise z-scores.
 #' @param mat A matrix
 #' @return A matrix with row-wise z-scores
 #' @importFrom matrixStats rowMeans2 rowSds
 #' @keywords internal
-computeZScore <- function(mat) {
+computeRowZScore <- function(mat) {
   mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
+  mat[base::is.nan(mat)] <- 0
+  return(mat)
+}
+
+#' @title Helper function to compute column-wise z-score of a matrix
+#' @description This function takes a matrix and computes column-wise z-scores.
+#' @param mat A matrix
+#' @return A matrix with column-wise z-scores
+#' @importFrom matrixStats colMeans2 colSds
+#' @keywords internal
+computeColZScore <- function(mat) {
+  mat <- (mat - matrixStats::colMeans2(mat)) / matrixStats::colSds(mat)
   mat[base::is.nan(mat)] <- 0
   return(mat)
 }

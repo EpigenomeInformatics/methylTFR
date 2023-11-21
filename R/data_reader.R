@@ -14,7 +14,7 @@ read_methylome <- function(filename, type) {
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  if (!type %in% c("bissnp", "epp", "allc","bismark")) {
+  if (!type %in% c("bissnp", "epp", "allc", "bismark")) {
     stop(paste(type, " is not a valid file type!"))
   }
   if (type == "epp") {
@@ -25,7 +25,7 @@ read_methylome <- function(filename, type) {
     cov <- mcov[seq_along(mcov) %% 2 == 0]
     mscore <- round(msites$V5 / 1000, 3)
     msites <- msites[, .(V1, V2, V3, V6)]
-    #colnames(msites) <- c("chr", "start", "end", "strand")
+    # colnames(msites) <- c("chr", "start", "end", "strand")
   }
   if (type == "bissnp") {
     # Parse BisSNP Tab-Separated file format
@@ -33,7 +33,7 @@ read_methylome <- function(filename, type) {
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
     msites <- msites[, .(V1, V2, V3, V6)]
-    #colnames(msites) <- c("chr", "start", "end", "strand")
+    # colnames(msites) <- c("chr", "start", "end", "strand")
   }
   if (type == "allc") {
     # Parse ALLC Tab-Separated file format
@@ -45,16 +45,16 @@ read_methylome <- function(filename, type) {
     cov <- allc$V6
     mscore <- round(allc$V5 / cov, 3)
     msites <- allc[, .(V1, V2, V2, V3)]
-    #colnames(msites) <- c("chr", "start", "end", "strand") # , "meth")
+    # colnames(msites) <- c("chr", "start", "end", "strand") # , "meth")
   }
   if (type == "bismark") {
     # Parse bismark file format
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
     mscore <- round(msites$V4 / msites$V5, 3)
-    #remove invalid sites if there is any
-    if(any(Inf %in% mscore)){
+    # remove invalid sites if there is any
+    if (any(Inf %in% mscore)) {
       idx <- which(mscore != Inf)
-      msites <- msites[idx,]
+      msites <- msites[idx, ]
       mscore <- mscore[idx]
     }
     cov <- msites$V5
