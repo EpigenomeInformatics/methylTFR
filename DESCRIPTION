@@ -26,6 +26,8 @@ Imports:
     data.table,
     DelayedArray,
     GenomicRanges,
+    ggplot2,
+    ggrepel,
     HDF5Array,
     IRanges,
     logger,
