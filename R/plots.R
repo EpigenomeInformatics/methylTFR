@@ -1,22 +1,22 @@
-#' @title plotZscoreVariability
+#' @title plotVariability
 #' @description plot Z-score variability of motifs across cells or samples
-#' @param variability output from \code{\link{computeZScoreVariability}}
+#' @param variability output from \code{\link{computeVariability}}
 #' @param xlab label for x-axis (default is 'Sorted TFs')
-#' @param n  number of top motifs to label (default is 5)
+#' @param nLab  number of top motifs to label (default is 5)
 #' @param motif_names vector of motif names to use as motif_names (default is
 #' variability$name)
 #' @import ggplot2
 #' @return ggplot object
 #' @export
-plotZscoreVariability <- function(variability, xlab = "Sorted TFs", n = 5,
+plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
                                   motif_names = variability$name) {
   if (!is.data.frame(variability)) {
-    stop("variability must be output from computeZScoreVariability")
+    stop("variability must be output from computeVariability")
   }
   if (!is.character(xlab)) {
     stop("xlab must be a character value")
   }
-  if (!is.numeric(n) || n %% 1 != 0 || n < 0) {
+  if (!is.numeric(nLab) || nLab %% 1 != 0 || nLab < 0) {
     stop("n must be a positive integer")
   }
   if (!is.character(motif_names)) {
@@ -61,11 +61,55 @@ plotZscoreVariability <- function(variability, xlab = "Sorted TFs", n = 5,
       )
   }
 
-  if (n >= 1) {
-    top_df <- res_df[res_df$rank <= n, ]
+  if (nLab >= 1) {
+    top_df <- res_df[res_df$rank <= nLab, ]
     plot <- plot +
       geom_text(data = top_df, size = 3, hjust = -0.45, col = "Black")
   }
   return(plot)
 }
 
+#' @title plotMotifFootprint
+#' @description Creates a footprint plot for given motifs and methylation site. 
+#' @param motifs Motif names as character vector
+#' @param tf_bindsites -Transcript Factor binding sites from the annotation package
+#' @param samples Sample names as character vector of paths to methylation data
+#' @return A ggplot object of TF footprint plot
+#' @export 
+#' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
+#' @importFrom ggrepel geom_label_repel
+plotMotifFootprint <- function(motifs, tf_bindsites, samples,
+                           sample_names = NULL,
+                           type = "EPP") {
+    
+    # Prepare a list of methylation sites
+    msites_list <- lapply(samples, read_methylome, type = type)
+    
+    # If sample labels are not provided, use file names as labels
+    if (is.null(sample_names)){
+        sample_names <- unlist(lapply(samples, basename))
+    }
+    names(msites_list) <- sample_names    
+    plot_data <- data.table()
+
+    # Iterate through each methylation site and compute footprint
+    for (i in 1:length(msites_list)){
+        msites <- msites_list[[i]]
+        current_plot <- rbindlist(lapply(motifs, function(motif) {
+            computeFootprint(motif, tf_bindsites, msites)
+        }), fill = TRUE)
+        current_plot[, sample_name := sample_names[i]]
+        plot_data <- rbind(plot_data, current_plot)
+    }
+
+    # Generate the footprint plot
+    p1 <- ggplot(plot_data, aes(x = x, y = avg_methyl, group = interaction(motif, sample_name))) +
+        geom_line(aes(color = sample_name)) +
+        geom_point(aes(color = sample_name)) +
+        xlab("Distance from motif center") +
+        ylab("Methylation level") +
+        theme_classic() +
+        ggtitle("TF footprint")
+
+    return(p1)
+}

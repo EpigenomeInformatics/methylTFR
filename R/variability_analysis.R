@@ -1,7 +1,7 @@
-#' @title computeZScoreVariability
-#' @description Function to compute overall Z-score variability across samples per motif set
+#' @title computeVariability
+#' @description Function to compute overall deviation score variability across samples per motif set
 #' Adapted from chromVAR::computeVariability
-#' @param object methylTFRdeviations object, or z-score matrix
+#' @param object methylTFRdeviations object, or deviation score matrix
 #' @param computeError if TRUE, it will compute bootstrap confidence interval
 #' @param bootNsamples number of bootstrap samples to use, default is 1000
 #' @param quantiles quantiles for bootstrap, default is 0.025 and 0.975
@@ -10,17 +10,17 @@
 #' @return data.frame with columns for name, variability, bootstrap lower bound,
 #' bootstrap upper bound, raw p value, adjust p value.
 #' @export
-computeZScoreVariability <- function(object,
+computeVariability <- function(object,
                                      computeError = TRUE,
                                      bootNsamples = 1000,
                                      quantiles = c(0.025, 0.975),
                                      padjMethod = "BH",
                                      na.rm = TRUE) {
   if (!any(class(object) %in% c("methylTFRDeviations", "matrix", "data.frame"))) {
-    stop("object must be a methylTFRDeviations object or a Z-score matrix")
+    stop("object must be a methylTFRDeviations object or adeviation score matrix")
   }
   if (is(object, "methylTFRDeviations")) {
-    object <- assays(object)$z
+    object <- assays(object)$deviations
   }
   if (!is.logical(computeError)) {
     stop("computeError must be TRUE or FALSE")
@@ -128,7 +128,7 @@ row_sds_perm <- function(X, na.rm = FALSE) {
 }
 
 #' @title quantile_helper
-#' @description Helper function for computeZScoreVariability
+#' @description Helper function for computeVariability
 #' @param values numeric vector
 #' @param quantiles numeric vector of quantiles
 #' @param na.rm logical, if TRUE, remove NA values
