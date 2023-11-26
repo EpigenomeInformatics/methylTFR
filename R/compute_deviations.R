@@ -1,14 +1,27 @@
-#' @title calculate_expmeth
+#' @title computeExpectations
 #' @description  This function is used to calculate genome-wide expected methylation for each motif.
-#' @param msites - imported methylation sites
-#' @param gcdist - Genome wide GC distribution
-#' @param gcfreq - GC bin frequency table (matrix)
+#' @param msites Imported methylation sites using \code{read_methylome} function
+#' @param gcdist a \code{GRanges} object contains Genome wide GC distribution
+#' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
 #' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
-#' @keywords internal
-calculate_expmeth <- function(msites, gcdist, gcfreq, ignoreStrand) {
+#' @export
+computeExpectations <- function(msites, gcdist, gcfreq, ignoreStrand=TRUE) {
+  if(!is.logical(ignoreStrand)) {
+    logger::log_warn("Found invalid strand option, using the default")
+    ignoreStrand <- TRUE
+  }
+  if (is.null(msites) || !is(msites,"GRanges")) {
+    logger::log_error("Please provide a valid methylation sites with read_methylome function")
+  }
+  if(is.null(gcdist) || !is(gcdist,"GRanges")) {
+    logger::log_error("Please provide a valid GC distribution")
+  }
+  if(is.null(gcfreq) || !is.list(gcfreqs)) {
+    logger::log_error("Please provide a valid GC bin frequency table as a list")
+  }
   hits <- findOverlaps(msites, gcdist, type = "within", ignore.strand = ignoreStrand)
   gcmap <- data.table(
     mscore = msites[hits@from]$score,
@@ -26,35 +39,57 @@ calculate_expmeth <- function(msites, gcdist, gcfreq, ignoreStrand) {
 }
 
 
-#' @title compute_deviation
-#' @description compute_deviation is a function to calculate the deviation in transcription factor
-#' @param motif        - motif name
-#' @param msites       - imported methylation sites
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif)
-#' @param gcdist       - Genome wide GC distribution
-#' @param enhancer     - Specific regions like distal motif
-#' @param ignoreStrand - if TRUE, it ignores strand info from annotation
+#' @title computeDeviation
+#' @description computeDeviation is a function to calculate the deviation in transcription factor
+#' binding sites for a given motif
+#' @param motif A character vector containing motif name
+#' @param msites imported methylation sites
+#' @param tf_bindsites a \code{GRangesList} object contains tf binding sites positions
+#' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
+#' @param gcdist a \code{GRanges} object contains Genome wide GC distribution
+#' @param enhancer  a \code{GRanges} object specifying regions such as distal motif (optional) 
+#' @param ignoreStrand if TRUE, it ignores strand info from annotation
 #' @return a \code{numeric} deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
 #' @importFrom stats na.omit
 #' @importFrom S4Vectors mcols
 #' @import data.table
-#' @keywords internal
-compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
-                              gcdist, enhancer, ignoreStrand) {
+#' @export
+computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
+                              gcdist, enhancer=NULL, ignoreStrand=TRUE) {
+  if(!is.logical(ignoreStrand)) {
+    logger::log_warn("Found invalid strand option, using the default")
+    ignoreStrand <- TRUE
+  }
+  if (is.null(motif) || !is.character(motif)) {
+    logger::log_error("Please provide a valid motif name")
+  }
+  if (is.null(msites) || !is(msites,"GRanges")) {
+    logger::log_error("Please provide a valid methylation sites with read_methylome function")
+  }
+  if(is.null(tf_bindsites) || !is(tf_bindsites,"GRangesList")) {
+    logger::log_error("Please provide a valid tf binding sites as GRangesList")
+  }
+  if(is.null(gcfreqs) || !is.list(gcfreqs)) {
+    logger::log_error("Please provide a valid GC bin frequency table list")
+  }
+  if(is.null(gcdist) || !is(gcdist,"GRanges")) {
+    logger::log_error("Please provide a valid GC distribution")
+  }
+  if (!is.null(enhancer) && !is(enhancer,"GRanges")) {
+    logger::log_error("Please provide a valid enhancer regions")
+  }
   tfbs <- tf_bindsites[[motif]]
   gcfreq <- gcfreqs[[motif]]
-  w <- width(tfbs)[1] # TODO remove these lines and make sure annot is 500bp
-  tfbs <- resize(tfbs, w + 101, fix = "center")
+  tfbs <- resize(tfbs, width(tfbs)[1] + 101, fix = "center")
 
   if (!is.null(enhancer)) {
     d_hits <- findOverlaps(tfbs, enhancer, ignoreStrand)
     tfbs <- tfbs[d_hits@from]
   }
 
-  exp_meth <- calculate_expmeth(msites, gcdist, gcfreq, ignoreStrand)
+  exp_meth <- computeExpectations(msites, gcdist, gcfreq, ignoreStrand)
   hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand)
 
   S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
@@ -99,19 +134,19 @@ compute_deviation <- function(motif, msites, tf_bindsites, gcfreqs,
 #' @title run_methyltfr
 #' @description This function is a wrapper function to calculate the deviation in transcription factor
 #'  footprint base for all given motifs using parallel package
-#' @param sample_ann   - a tab seperated file contains sample annotations
-#' @param sample_dir   - directory where all bed file and annotation file stored
-#' @param threads      - thread count for parallel processing
-#' @param enhancer     - Specific regions like distal motif
-#' @param tf_bindsites - a GenomicRange object contains tf binding sites positions
-#' @param gcfreqs      - GC bin frequency tables (matrices for multiple motif)
-#' @param gc_dist       - Genome wide GC distribution
-#' @param sampleColName - column name of the sample bed file in the annotation file
-#' @param chunkSize     - chunk size for parallel processing of motifs
-#' @param full_path     - if TRUE, the bed file path in the annotation file is full path
-#' @param annfile       - if provided, the sample annotation file is not read from the sample_dir
-#' @param filetype      - file type of the bed file, currently supported: bissnp,epp,allc,bismark
-#' @param ignoreStrand - if TRUE, it ignores strand info from annotation
+#' @param sample_ann A tab seperated file contains sample annotations
+#' @param sample_dir The directory where all bed file and annotation file stored
+#' @param threads Thread count for parallel processing
+#' @param enhancer a \code{GRanges} object specifying regions such as distal motif (optional)
+#' @param tf_bindsites a \code{GRangesList} object contains tf binding sites positions
+#' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
+#' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
+#' @param sampleColName column name of the sample bed file in the annotation file
+#' @param chunkSize Chunk size for parallel processing of motifs (default: 20)
+#' @param full_path if TRUE, the bed file path in the annotation file is full path
+#' @param annfile if provided, the sample annotation file is not read from the sample_dir
+#' @param filetype file type of the bed file, currently supported: bissnp,epp,allc,bismark
+#' @param ignoreStrand if TRUE, it ignores strand info from annotation
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
@@ -225,7 +260,7 @@ run_methyltfr <- function(
       chunk_motifs <- motif_chunks[[j]]
 
       sample_deviations <- parallel::mclapply(chunk_motifs,
-        compute_deviation,
+        computeDeviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
@@ -254,7 +289,7 @@ run_methyltfr <- function(
   # file.remove(tempfile) # TODO find a better solution for this
 
   # se <- SummarizedExperiment::SummarizedExperiment(
-  # assays = list(deviations = as.matrix(deviation), z = computeZScore(deviation)),
+  # assays = list(deviations = as.matrix(deviation), z = computeRowZScore(deviation)),
   # colData = samples, rowData = DataFrame(motifs = row.names(deviation))
   # )
   # return(se) # new("methylTFRDeviations", se)) #TODO
