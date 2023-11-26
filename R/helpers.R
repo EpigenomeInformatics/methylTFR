@@ -98,44 +98,60 @@ computeColZScore <- function(mat) {
 }
 
 
-#' @title compute_fp
-#' @description Compute footprint returns a data.table required to create a transcription
-#' factor footprint with label.
-#' @param motif_name  chracter vector containing motif name eg: GATA string   
-#' @param tf_bindsites  TF binding sites positions from methTFRannotation package
-#' @param msites Nethylation data  
-#' @param enhancer Specific regions such as distal motif, proximal motif
-#' @return a \code{data.table} object to plot tf footprint
-#' @keywords internal 
-#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
-#' @import data.table 
-computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) {
-    tfbs <- tf_bindsites[[motif_name]]
-    w <- width(tfbs)[1]
-    tfbs <- resize(tfbs, w + 101, fix = "center")
+#' @title row_sds
+#' @description Compute standard deviation across rows of a matrix
+#' @param X matrix
+#' @param na.rm logical, if TRUE, remove NA values
+#' @return numeric vector of standard deviations
+#' @keywords internal
+row_sds <- function(X, na.rm = FALSE) {
+  res <- numeric(nrow(X))
+  if (na.rm) {
+    for (j in 1:nrow(X)) {
+      tmp <- X[j, , drop = FALSE]
+      keep <- which(!is.na(tmp))
 
-    if (!is.null(enhancer)){
-        d_hits <- findOverlaps(tfbs, enhancer)
-        tfbs <- tfbs[d_hits@from]
+      if (length(keep) > 1) {
+        res[j] <- sd(tmp[keep])
+      } else {
+        res[j] <- NaN
+      }
     }
-    
-    hits <- findOverlaps(msites, tfbs, type = "within")
-    
-    mcols(tfbs)$mid_point <- round(end(tfbs) + (start(tfbs) - end(tfbs))/2)
-    x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
-    plot.data <- data.table(
-        x = x, 
-        y1 = msites[hits@from]$score, 
-        y2 = msites[hits@from]$coverage
-    )
+  } else {
+    res <- apply(X, 1, sd, na.rm = TRUE)
+  }
 
-    plot.data <- plot.data[, .(
-        n = .N,
-        avg_methyl = mean(y1),
-        avg_cov = mean(y2),
-        motif = motif_name,
-        label = fifelse(x == max(x), as.character(motif), NA_character_)
-    ), by = x]
+  return(res)
+}
 
-    return(plot.data)
+#' @title row_sds_perm
+#' @description Compute standard deviation across rows of a matrix with random permutations
+#' @param X matrix
+#' @param na.rm logical, if TRUE, remove NA values
+#' @return numeric vector of standard deviations
+#' @keywords internal
+row_sds_perm <- function(X, na.rm = FALSE) {
+  ix <- sample(seq_len(ncol(X)), ncol(X), replace = TRUE)
+  shuffled <- X[, ix, drop = FALSE]
+  return(row_sds(shuffled, na.rm))
+}
+
+#' @title quantile_helper
+#' @description Helper function for computeVariability
+#' @param values numeric vector
+#' @param quantiles numeric vector of quantiles
+#' @param na.rm logical, if TRUE, remove NA values
+#' @return numeric vector of quantiles
+#' @keywords internal
+quantile_helper <- function(values, quantiles, na.rm) {
+  if (na.rm) {
+    out <- quantile(values, quantiles, na.rm = TRUE)
+  } else {
+    if (!all_false(is.na(values))) {
+      out <- rep(NA, length(quantiles))
+    } else {
+      out <- quantile(values, quantiles)
+    }
+  }
+  return(out)
 }

@@ -9,7 +9,7 @@
 #' @return ggplot object
 #' @export
 plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
-                                  motif_names = variability$name) {
+                            motif_names = variability$name) {
   if (!is.data.frame(variability)) {
     stop("variability must be output from computeVariability")
   }
@@ -70,46 +70,45 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 }
 
 #' @title plotMotifFootprint
-#' @description Creates a footprint plot for given motifs and methylation site. 
+#' @description Creates a footprint plot for given motifs and methylation site.
 #' @param motifs Motif names as character vector
 #' @param tf_bindsites -Transcript Factor binding sites from the annotation package
 #' @param samples Sample names as character vector of paths to methylation data
 #' @return A ggplot object of TF footprint plot
-#' @export 
+#' @export
 #' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
 #' @importFrom ggrepel geom_label_repel
 plotMotifFootprint <- function(motifs, tf_bindsites, samples,
-                           sample_names = NULL,
-                           type = "EPP") {
-    
-    # Prepare a list of methylation sites
-    msites_list <- lapply(samples, read_methylome, type = type)
-    
-    # If sample labels are not provided, use file names as labels
-    if (is.null(sample_names)){
-        sample_names <- unlist(lapply(samples, basename))
-    }
-    names(msites_list) <- sample_names    
-    plot_data <- data.table()
+                               sample_names = NULL,
+                               type = "EPP") {
+  # Prepare a list of methylation sites
+  msites_list <- lapply(samples, read_methylome, type = type)
 
-    # Iterate through each methylation site and compute footprint
-    for (i in 1:length(msites_list)){
-        msites <- msites_list[[i]]
-        current_plot <- rbindlist(lapply(motifs, function(motif) {
-            computeFootprint(motif, tf_bindsites, msites)
-        }), fill = TRUE)
-        current_plot[, sample_name := sample_names[i]]
-        plot_data <- rbind(plot_data, current_plot)
-    }
+  # If sample labels are not provided, use file names as labels
+  if (is.null(sample_names)) {
+    sample_names <- unlist(lapply(samples, basename))
+  }
+  names(msites_list) <- sample_names
+  plot_data <- data.table()
 
-    # Generate the footprint plot
-    p1 <- ggplot(plot_data, aes(x = x, y = avg_methyl, group = interaction(motif, sample_name))) +
-        geom_line(aes(color = sample_name)) +
-        geom_point(aes(color = sample_name)) +
-        xlab("Distance from motif center") +
-        ylab("Methylation level") +
-        theme_classic() +
-        ggtitle("TF footprint")
+  # Iterate through each methylation site and compute footprint
+  for (i in 1:length(msites_list)) {
+    msites <- msites_list[[i]]
+    current_plot <- rbindlist(lapply(motifs, function(motif) {
+      computeFootprint(motif, tf_bindsites, msites)
+    }), fill = TRUE)
+    current_plot[, sample_name := sample_names[i]]
+    plot_data <- rbind(plot_data, current_plot)
+  }
 
-    return(p1)
+  # Generate the footprint plot
+  p1 <- ggplot(plot_data, aes(x = x, y = avg_methyl, group = interaction(motif, sample_name))) +
+    geom_line(aes(color = sample_name)) +
+    geom_point(aes(color = sample_name)) +
+    xlab("Distance from motif center") +
+    ylab("Methylation level") +
+    theme_classic() +
+    ggtitle("TF footprint")
+
+  return(p1)
 }

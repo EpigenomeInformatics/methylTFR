@@ -21,57 +21,31 @@ run_methyltfr(
 )
 }
 \arguments{
-\item{sample_ann}{\itemize{
-\item a tab seperated file contains sample annotations
-}}
+\item{sample_ann}{A tab seperated file contains sample annotations}
 
-\item{sample_dir}{\itemize{
-\item directory where all bed file and annotation file stored
-}}
+\item{sample_dir}{The directory where all bed file and annotation file stored}
 
-\item{tf_bindsites}{\itemize{
-\item a GenomicRange object contains tf binding sites positions
-}}
+\item{tf_bindsites}{a \code{GRangesList} object contains tf binding sites positions}
 
-\item{gcfreqs}{\itemize{
-\item GC bin frequency tables (matrices for multiple motif)
-}}
+\item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
 
-\item{gc_dist}{\itemize{
-\item Genome wide GC distribution
-}}
+\item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
 
-\item{sampleColName}{\itemize{
-\item column name of the sample bed file in the annotation file
-}}
+\item{sampleColName}{column name of the sample bed file in the annotation file}
 
-\item{chunkSize}{\itemize{
-\item chunk size for parallel processing of motifs
-}}
+\item{chunkSize}{Chunk size for parallel processing of motifs (default: 20)}
 
-\item{full_path}{\itemize{
-\item if TRUE, the bed file path in the annotation file is full path
-}}
+\item{full_path}{if TRUE, the bed file path in the annotation file is full path}
 
-\item{annfile}{\itemize{
-\item if provided, the sample annotation file is not read from the sample_dir
-}}
+\item{annfile}{if provided, the sample annotation file is not read from the sample_dir}
 
-\item{threads}{\itemize{
-\item thread count for parallel processing
-}}
+\item{threads}{Thread count for parallel processing}
 
-\item{enhancer}{\itemize{
-\item Specific regions like distal motif
-}}
+\item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
-\item{filetype}{\itemize{
-\item file type of the bed file, currently supported: bissnp,epp,allc,bismark
-}}
+\item{filetype}{file type of the bed file, currently supported: bissnp,epp,allc,bismark}
 
-\item{ignoreStrand}{\itemize{
-\item if TRUE, it ignores strand info from annotation
-}}
+\item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
 }
 \value{
 deviation score matrix for all samples and motifs

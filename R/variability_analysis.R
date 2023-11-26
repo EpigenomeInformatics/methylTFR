@@ -11,11 +11,11 @@
 #' bootstrap upper bound, raw p value, adjust p value.
 #' @export
 computeVariability <- function(object,
-                                     computeError = TRUE,
-                                     bootNsamples = 1000,
-                                     quantiles = c(0.025, 0.975),
-                                     padjMethod = "BH",
-                                     na.rm = TRUE) {
+                               computeError = TRUE,
+                               bootNsamples = 1000,
+                               quantiles = c(0.025, 0.975),
+                               padjMethod = "BH",
+                               na.rm = TRUE) {
   if (!any(class(object) %in% c("methylTFRDeviations", "matrix", "data.frame"))) {
     stop("object must be a methylTFRDeviations object or adeviation score matrix")
   }
@@ -86,63 +86,5 @@ computeVariability <- function(object,
     )
   }
 
-  return(out)
-}
-
-#' @title row_sds
-#' @description Compute standard deviation across rows of a matrix
-#' @param X matrix
-#' @param na.rm logical, if TRUE, remove NA values
-#' @return numeric vector of standard deviations
-#' @keywords internal
-row_sds <- function(X, na.rm = FALSE) {
-  res <- numeric(nrow(X))
-  if (na.rm) {
-    for (j in 1:nrow(X)) {
-      tmp <- X[j, , drop = FALSE]
-      keep <- which(!is.na(tmp))
-
-      if (length(keep) > 1) {
-        res[j] <- sd(tmp[keep])
-      } else {
-        res[j] <- NaN
-      }
-    }
-  } else {
-    res <- apply(X, 1, sd, na.rm = TRUE)
-  }
-
-  return(res)
-}
-
-#' @title row_sds_perm
-#' @description Compute standard deviation across rows of a matrix
-#' @param X matrix
-#' @param na.rm logical, if TRUE, remove NA values
-#' @return numeric vector of standard deviations
-#' @keywords internal
-row_sds_perm <- function(X, na.rm = FALSE) {
-  ix <- sample(seq_len(ncol(X)), ncol(X), replace = TRUE)
-  shuffled <- X[, ix, drop = FALSE]
-  return(row_sds(shuffled, na.rm))
-}
-
-#' @title quantile_helper
-#' @description Helper function for computeVariability
-#' @param values numeric vector
-#' @param quantiles numeric vector of quantiles
-#' @param na.rm logical, if TRUE, remove NA values
-#' @return numeric vector of quantiles
-#' @keywords internal
-quantile_helper <- function(values, quantiles, na.rm) {
-  if (na.rm) {
-    out <- quantile(values, quantiles, na.rm = TRUE)
-  } else {
-    if (!all_false(is.na(values))) {
-      out <- rep(NA, length(quantiles))
-    } else {
-      out <- quantile(values, quantiles)
-    }
-  }
   return(out)
 }
