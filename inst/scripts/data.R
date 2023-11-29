@@ -16,9 +16,6 @@ Encode <- data.frame(
   blockSizes = c(6, 3, 0, 10, 0, 10)
 )
 
-# Save as a TSV file
-write.table(Encode, file = paste0(output_dir,"encode.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
-
 #bismarkCytosine data
 bismarkCytosine <- data.frame(
   chr = rep("chr2", 7),
@@ -30,8 +27,6 @@ bismarkCytosine <- data.frame(
   context = rep("CG", 7),
   trinucleotide = c("CGG", "CGA", "CGG", "CGT", "CGC", "CGT", "CGC")
 )
-# Save as a TSV file
-write.table(bismarkCytosine, file = paste0(output_dir,"bismarkCytosine.tsv"), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
 
 #bissnp data
 bissnp <- data.frame(
@@ -48,9 +43,6 @@ bissnp <- data.frame(
   blockSizes = c(0, 0, 5, 145)
 )
 
-# Save as a TSV file
-write.table(bissnp, file = paste0(output_dir,"bissnp.tsv"), sep = "\t", row.names = FALSE, quote = FALSE)
-
 #EPP data
 epp <- data.frame(
     chr = c("chr1", "chr1", "chr1", "chr1", "chr1", "chr1"),
@@ -61,8 +53,6 @@ epp <- data.frame(
     strand = c("+", "-", "+", "-", "+", "-")
 )
 
-write.table(epp, file = paste0(output_dir,"epp.tsv"), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
-
 #bismarkCov
 bismarkCov <- data.frame(
     chr = c("chr1", "chr1", "chr1", "chr1", "chr1", "chr1"),
@@ -72,8 +62,6 @@ bismarkCov <- data.frame(
     mcov = c(1,0,1,0,1,1),
     ucov = c(0,1,0,1,0,0)
 )
-
-write.table(bismarkCov, file = paste0(output_dir,"bismarkCov.tsv"), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
 
 #allc
 allc <- data.frame(
@@ -86,5 +74,17 @@ allc <- data.frame(
   methylated = c(1, 0, 1)
 )
 
-# Save as a TSV file
-write.table(allc, file = paste0(output_dir,"allc.tsv"), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
+#Save as a compressed TSV files
+write.table(allc, file = gzfile(paste0(output_dir,"allc.tsv")), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
+
+write.table(Encode, file = gzfile(paste0(output_dir,"encode.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE)
+
+write.table(bismarkCytosine, file = gzfile(paste0(output_dir,"bismarkCytosine.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
+
+write.table(bissnp, file = gzfile(paste0(output_dir,"bissnp.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE)
+
+write.table(epp, file = gzfile(paste0(output_dir,"epp.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
+
+write.table(bismarkCov, file = gzfile(paste0(output_dir,"bismarkCov.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
+
+write.table(allc, file = gzfile(paste0(output_dir,"allc.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE,col.names = FALSE)
