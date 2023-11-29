@@ -8,6 +8,11 @@
 #' @importFrom data.table fread
 #' @importFrom stringr str_split str_replace
 #' @return a \code{GenomicRange} object with methylation, coverage information
+#' @author Irem Gunduz
+#' @examples
+#' # Read EPP file
+#' epp_path <- system.file("extdata", "epp.tsv.gz",package = "methylTFR")
+#' epp <- read_methylome(epp_path,"EPP")
 #' @export
 read_methylome <- function(filename, type) {
   type <- tolower(type)
