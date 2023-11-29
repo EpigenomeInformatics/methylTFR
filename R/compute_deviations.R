@@ -111,10 +111,10 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
   dt_join <- merge(sum_meth, exp_meth, by = "x")
 
   # Calculate 'diff'
-  dt_join[, diff := abs(avg_methyl - exp_avg_methyl)]
+  dt_join[, diff := (avg_methyl - exp_avg_methyl)] #Removed abs()
 
   # Create intervals and calculate mean
-  dt_join[, cuts := cut(x, c(-200, -100, -10, 10, 100, 200))]
+  dt_join[, cuts := cut(x, c(-250, -200, -25, 25, 200, 250))]
   interval_mean <- dt_join[, .(n = .N, mean = mean(diff)), by = cuts]
   # interval_mean$mean <- round(interval_mean$mean,6)
   interval_mean <- na.omit(interval_mean[order(cuts)])

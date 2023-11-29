@@ -11,9 +11,7 @@ read_methylome(filename, type)
 \item filename which contains methylation data
 }}
 
-\item{type}{\itemize{
-\item type of file format (epp, bissnp,bismark,allc)
-}}
+\item{type}{Type of file format. Currently supported epp, bissnp,bismarkCytosine,bismarkcov,allc and encode}
 }
 \value{
 a \code{GenomicRange} object with methylation, coverage information

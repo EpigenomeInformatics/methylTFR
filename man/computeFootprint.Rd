@@ -11,7 +11,7 @@ computeFootprint(motif_name, tf_bindsites, msites, enhancer = NULL)
 
 \item{tf_bindsites}{TF binding sites positions from methTFRannotation package}
 
-\item{msites}{Nethylation data}
+\item{msites}{Methylation data}
 
 \item{enhancer}{Specific regions such as distal motif, proximal motif}
 }
