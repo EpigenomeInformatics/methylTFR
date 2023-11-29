@@ -75,25 +75,3 @@ setMethod("rbind", "methylTFRdeviations", function(..., deparse.level = 1) {
 
   as(se, "methylTFRdeviations")
 })
-
-setMethod("cbind", "methylTFRdeviations", function(..., deparse.level = 1) {
-  objs <- list(...)
-
-  # Check if all objects have the same rows
-  same_rows <- all(sapply(objs[-1], function(x) identical(rowRanges(objs[[1]]), rowRanges(x))))
-
-  if (!same_rows) {
-    stop("All methylTFRdeviations objects must have the same rows.")
-  }
-
-  deviations <- do.call("cbind", lapply(objs, function(x) assay(x, "deviations")))
-  z_scores <- do.call("cbind", lapply(objs, function(x) assay(x, "z")))
-
-  se <- SummarizedExperiment(
-    assays = SimpleList(deviations = deviations, z = z_scores),
-    colData = colData(objs[[1]]),
-    rowData = rowData(objs[[1]])
-  )
-
-  as(se, "methylTFRdeviations")
-})

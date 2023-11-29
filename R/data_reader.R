@@ -2,7 +2,7 @@
 #' @description read_methylome is a function to import methylation data into R Genomic
 #'  Range object. Bed file should be in EPP,ALLC or BisSNP format.
 #' @param  filename - filename which contains methylation data
-#' @param  type - type of file format (epp, bissnp,bismark,allc)
+#' @param  type Type of file format. Currently supported epp, bissnp,bismarkCytosine,bismarkcov,allc and encode
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @importFrom data.table fread
@@ -14,7 +14,7 @@ read_methylome <- function(filename, type) {
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  if (!type %in% c("bissnp", "epp", "allc", "bismark")) {
+  if (!type %in% c("bissnp", "epp", "allc", "bismarkcytosine","bismarkcov","encode")) {
     stop(paste(type, " is not a valid file type!"))
   }
   if (type == "epp") {
@@ -29,7 +29,7 @@ read_methylome <- function(filename, type) {
   }
   if (type == "bissnp") {
     # Parse BisSNP Tab-Separated file format
-    msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
+    msites <- data.table::fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
     msites <- msites[, .(V1, V2, V3, V6)]
@@ -47,18 +47,39 @@ read_methylome <- function(filename, type) {
     msites <- allc[, .(V1, V2, V2, V3)]
     # colnames(msites) <- c("chr", "start", "end", "strand") # , "meth")
   }
-  if (type == "bismark") {
-    # Parse bismark file format
+  if (type == "bismarkcytosine") {
+    # Parse bismarkCytosine file format
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
-    mscore <- round(msites$V4 / msites$V5, 3)
-    # remove invalid sites if there is any
-    if (any(Inf %in% mscore)) {
-      idx <- which(mscore != Inf)
-      msites <- msites[idx, ]
-      mscore <- mscore[idx]
+    if (ncol(msites) < 8) {
+      logger::log_warn(paste0(filename, " is an invalid bismarkCytosine file!"))
+      stop("bismarkCytosine file must contain at least 8 columns!")
     }
-    cov <- msites$V5
-    msites <- msites[, .(V1, V2, V2, V3)]
+    mscore <- round(msites$V5 / msites$V6, 3)
+    cov <- msites$V6
+    msites <- msites[, .(V1, V3, V3, V4)]
+  }
+  if(type == "bismarkcov"){
+    # Parse bismarkCov file format
+    msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
+    if(ncol(msites) < 6){
+      logger::log_warn(paste0(filename, " is an invalid bismarkCov file!"))
+      stop("bismarkCov file must contain at least 6 columns!")
+    }
+    mscore <- round(msites$V4 / 100, 3)
+    cov <- msites$V5 + msites$V6
+    msites <- msites[, .(V1, V2, V3)]
+    msites$strand <- rep("*", nrow(msites))
+  }
+  if(type == "encode"){
+    # Parse encode file format
+    msites <- data.table::fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
+    if(ncol(msites) < 11){
+      logger::log_warn(paste0(filename, " is an invalid encode file!"))
+      stop("encode file must contain 11 columns!")
+    }
+    mscore <- round(msites$V11 / msites$V10, 3)
+    cov <- msites$V10
+    msites <- msites[, .(V1, V2, V3, V6)]
   }
   colnames(msites) <- c("chr", "start", "end", "strand")
   # convert to GRanges object
@@ -87,13 +108,18 @@ read_methylome <- function(filename, type) {
 granges_helper <- function(
     grobj, chr, mscore, cov, # meth,
     startP, endP) {
-  return(GenomicRanges::GRanges(
+    gr_obj <- GenomicRanges::GRanges(
     seqnames = chr,
     ranges = IRanges::IRanges(start = startP, end = endP),
     strand = grobj$strand,
     score = mscore,
     coverage = cov
-  ))
+  )
+  if(any(is.na(gr_obj$score))){
+    # Remove for NaN values
+   gr_obj <- gr_obj[!is.nan(gr_obj$score)]
+  }
+  return(gr_obj)
 }
 
 #' @title EPP_helper
