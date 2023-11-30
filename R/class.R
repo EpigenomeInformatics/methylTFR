@@ -7,14 +7,18 @@
 #' two accessor functions are defined for extracting bias corrected deviations
 #' (\code{\link{deviations}}) and deviation Z-scores
 #' (\code{\link{deviationZScores}})
+#' @name methylTFRdeviations-class
+#' @rdname methylTFRdeviations-class
+#' @exportClass methylTFRdeviations
+#' @importFrom SummarizedExperiment SummarizedExperiment
 setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 
 # Set validity function
 setValidity(
   "methylTFRdeviations",
   function(object) {
-    if (!"deviations" %in% assayNames(object) || !"z" %in%
-      assayNames(object)) {
+    if (!"deviations" %in% SummarizedExperiment::assayNames(object) || !"z" %in%
+      SummarizedExperiment::assayNames(object)) {
       return("The assays slot must contain 'deviations' and 'z'")
     }
     return(TRUE)
@@ -28,17 +32,32 @@ setValidity(
 # Define generic function for deviations
 setGeneric("deviations", function(x) standardGeneric("deviations"))
 
+#' @title deviations
+#' @description Extract bias corrected deviations from methylTFRdeviations object.
+#' @param x methylTFRdeviations object.
+#' @return A matrix of bias corrected deviations.
+#' @export
+#' @importFrom SummarizedExperiment assay
+#' @importFrom methods setMethod
+#' 
 # Define method for methylTFRdeviations class
 setMethod("deviations", "methylTFRdeviations", function(x) {
-  assay(x, "deviations")
+  SummarizedExperiment::assay(x, "deviations")
 })
 
 # Define generic function for deviationZScores
 setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 
+#' @title deviationZScores
+#' @description Extract deviation Z-scores from methylTFRdeviations object.
+#' @param x methylTFRdeviations object.
+#' @return A matrix of deviation Z-scores.
+#' @export
+#' @importFrom SummarizedExperiment assay
+#' @importFrom methods setMethod
 # Define method for methylTFRdeviations class
 setMethod("deviationZScores", "methylTFRdeviations", function(x) {
-  assay(x, "z")
+  SummarizedExperiment::assay(x, "z")
 })
 
 # Define generic function for rbind
@@ -47,6 +66,15 @@ setGeneric("rbind", function(...) standardGeneric("rbind"))
 # Define generic function for cbind
 setGeneric("cbind", function(...) standardGeneric("cbind"))
 
+#' @title rbind
+#' @description Combine methylTFRdeviations objects by row.
+#' @param ... methylTFRdeviations objects.
+#' @return A methylTFRdeviations object.
+#' @export
+#' @importFrom SummarizedExperiment SummarizedExperiment rowData colData
+#' @importFrom S4Vectors SimpleList
+#' @importFrom methods setMethod as
+#' 
 # Define rbind and cbind methods
 setMethod("rbind", "methylTFRdeviations", function(..., deparse.level = 1) {
   inputs <- list(...)
@@ -67,11 +95,11 @@ setMethod("rbind", "methylTFRdeviations", function(..., deparse.level = 1) {
   z_scores <- do.call("rbind", lapply(inputs, function(x) assay(x, "z")))
   rd <- do.call("rbind", lapply(inputs, rowData))
 
-  se <- SummarizedExperiment(
+  se <- SummarizedExperiment::aSummarizedExperiment(
     assays = SimpleList(deviations = deviations, z = z_scores),
     colData = colData(inputs[[1]]),
     rowData = rd
   )
 
-  as(se, "methylTFRdeviations")
+  return(as(se, "methylTFRdeviations"))
 })

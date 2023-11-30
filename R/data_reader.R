@@ -11,15 +11,15 @@
 #' @author Irem Gunduz
 #' @examples
 #' # Read EPP file
-#' epp_path <- system.file("extdata", "epp.tsv.gz",package = "methylTFR")
-#' epp <- read_methylome(epp_path,"EPP")
+#' epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
+#' epp <- read_methylome(epp_path, "EPP")
 #' @export
 read_methylome <- function(filename, type) {
   type <- tolower(type)
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  if (!type %in% c("bissnp", "epp", "allc", "bismarkcytosine","bismarkcov","encode")) {
+  if (!type %in% c("bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode")) {
     stop(paste(type, " is not a valid file type!"))
   }
   if (type == "epp") {
@@ -63,10 +63,10 @@ read_methylome <- function(filename, type) {
     cov <- msites$V6
     msites <- msites[, .(V1, V3, V3, V4)]
   }
-  if(type == "bismarkcov"){
+  if (type == "bismarkcov") {
     # Parse bismarkCov file format
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
-    if(ncol(msites) < 6){
+    if (ncol(msites) < 6) {
       logger::log_warn(paste0(filename, " is an invalid bismarkCov file!"))
       stop("bismarkCov file must contain at least 6 columns!")
     }
@@ -75,10 +75,10 @@ read_methylome <- function(filename, type) {
     msites <- msites[, .(V1, V2, V3)]
     msites$strand <- rep("*", nrow(msites))
   }
-  if(type == "encode"){
+  if (type == "encode") {
     # Parse encode file format
     msites <- data.table::fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
-    if(ncol(msites) < 11){
+    if (ncol(msites) < 11) {
       logger::log_warn(paste0(filename, " is an invalid encode file!"))
       stop("encode file must contain 11 columns!")
     }
@@ -113,16 +113,16 @@ read_methylome <- function(filename, type) {
 granges_helper <- function(
     grobj, chr, mscore, cov, # meth,
     startP, endP) {
-    gr_obj <- GenomicRanges::GRanges(
+  gr_obj <- GenomicRanges::GRanges(
     seqnames = chr,
     ranges = IRanges::IRanges(start = startP, end = endP),
     strand = grobj$strand,
     score = mscore,
     coverage = cov
   )
-  if(any(is.na(gr_obj$score))){
+  if (any(is.na(gr_obj$score))) {
     # Remove for NaN values
-   gr_obj <- gr_obj[!is.nan(gr_obj$score)]
+    gr_obj <- gr_obj[!is.nan(gr_obj$score)]
   }
   return(gr_obj)
 }

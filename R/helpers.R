@@ -1,15 +1,3 @@
-#' @title cleanMem
-#' @description cleanMem is a function to clean the memory
-#' @param iter.gc - number of times to run the garbage collector
-#' @return invisible NULL
-#' @keywords internal
-cleanMem <- function(iter.gc = 1L) {
-  for (i in seq_along(iter.gc)) {
-    gc()
-  }
-  invisible(NULL)
-}
-
 #' @title  anova test for multiple groups
 #' @description anova test for multiple groups
 #' @param x - a numeric vector of deviations

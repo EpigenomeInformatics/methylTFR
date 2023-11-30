@@ -3,7 +3,7 @@
 #' factor footprint with label.
 #' @param motif_name  chracter vector containing motif name eg: GATA string
 #' @param tf_bindsites  TF binding sites positions from methTFRannotation package
-#' @param msites Methylation data 
+#' @param msites Methylation data
 #' @param enhancer Specific regions such as distal motif, proximal motif
 #' @return a \code{data.table} object to plot tf footprint
 #' @keywords internal

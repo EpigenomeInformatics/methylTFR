@@ -43,12 +43,12 @@ run_methyltfr(
 
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
-\item{filetype}{file type of the bed file, currently supported: bissnp,epp,allc,bismark}
+\item{filetype}{file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
 }
 \value{
-deviation score matrix for all samples and motifs
+a \code{methylTFRdeviations} object with deviation and zscore
 }
 \description{
 This function is a wrapper function to calculate the deviation in transcription factor
