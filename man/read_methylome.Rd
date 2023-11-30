@@ -22,8 +22,8 @@ Range object. Bed file should be in EPP,ALLC or BisSNP format.
 }
 \examples{
 # Read EPP file
-epp_path <- system.file("extdata", "epp.tsv.gz",package = "methylTFR")
-epp <- read_methylome(epp_path,"EPP")
+epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
+epp <- read_methylome(epp_path, "EPP")
 }
 \author{
 Irem Gunduz

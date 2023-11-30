@@ -11,7 +11,8 @@ computeDeviation(
   gcfreqs,
   gcdist,
   enhancer = NULL,
-  ignoreStrand = TRUE
+  ignoreStrand = TRUE,
+  intermediate = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ computeDeviation(
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
+
+\item{intermediate}{if TRUE, it returns the intermediate results as well}
 }
 \value{
 a \code{numeric} deviation score for a given motif
