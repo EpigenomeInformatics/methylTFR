@@ -4,7 +4,7 @@
 \alias{quantile_helper}
 \title{quantile_helper}
 \usage{
-quantile_helper(values, quantiles, na.rm)
+quantile_helper(values, quantiles, na.rm = TRUE)
 }
 \arguments{
 \item{values}{numeric vector}

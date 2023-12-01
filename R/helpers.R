@@ -132,11 +132,11 @@ row_sds_perm <- function(X, na.rm = FALSE) {
 #' @return numeric vector of quantiles
 #' @keywords internal
 #' @importFrom stats quantile
-quantile_helper <- function(values, quantiles, na.rm) {
+quantile_helper <- function(values, quantiles, na.rm = TRUE) {
   if (na.rm) {
-    out <- quantile(values, quantiles, na.rm = TRUE)
+    out <- quantile(values, quantiles, na.rm = na.rm)
   } else {
-    if (!all_false(is.na(values))) {
+    if (any(is.na(values))) {
       out <- rep(NA, length(quantiles))
     } else {
       out <- quantile(values, quantiles)

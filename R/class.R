@@ -62,7 +62,6 @@ setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 #' @export
 #' @importFrom SummarizedExperiment assay
 #' @importFrom methods setMethod
-# Define method for methylTFRdeviations class
 setMethod("deviationZScores", "methylTFRdeviations", function(x) {
   SummarizedExperiment::assay(x, "z")
 })
@@ -84,6 +83,7 @@ setGeneric("cbind", function(...) standardGeneric("cbind"))
 #' @title rbind
 #' @description Combine methylTFRdeviations objects by row.
 #' @param ... methylTFRdeviations objects.
+#' @param deparse.level An integer specifying the level of deparse to use.
 #' @return A methylTFRdeviations object.
 #' @export
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData colData

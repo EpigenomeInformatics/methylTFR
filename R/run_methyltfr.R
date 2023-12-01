@@ -17,8 +17,6 @@
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
-#' @importFrom DelayedArray write_block close ArbitraryArrayGrid
-#' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info log_error
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
@@ -129,7 +127,7 @@ run_methyltfr <- function(
       )
 
       # Write the block to the sink
-      write_block_to_sink(lapply(sample_deviations, function(x) x$obs_dev),dev_grid, i, j, dev_sink)
+      write_block_to_sink(lapply(sample_deviations, function(x) x$dev),dev_grid, i, j, dev_sink)
       write_block_to_sink(lapply(sample_deviations, function(x) x$exp_dev),z_grid, i, j, z_sink)
       rm(sample_deviations)
     }
