@@ -1,15 +1,3 @@
-#' @title cleanMem
-#' @description cleanMem is a function to clean the memory
-#' @param iter.gc - number of times to run the garbage collector
-#' @return invisible NULL
-#' @keywords internal
-cleanMem <- function(iter.gc = 1L) {
-  for (i in seq_along(iter.gc)) {
-    gc()
-  }
-  invisible(NULL)
-}
-
 #' @title  anova test for multiple groups
 #' @description anova test for multiple groups
 #' @param x - a numeric vector of deviations
@@ -73,14 +61,86 @@ kw_helper <- function(x, groups) {
   return(res$p.value)
 }
 
-#' @title helper function to compute z-score of a matrix
+#' @title helper function to compute row-wise z-score of a matrix
 #' @description This function takes a matrix and computes row-wise z-scores.
 #' @param mat A matrix
 #' @return A matrix with row-wise z-scores
 #' @importFrom matrixStats rowMeans2 rowSds
 #' @keywords internal
-computeZScore <- function(mat) {
+computeRowZScore <- function(mat) {
   mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
   mat[base::is.nan(mat)] <- 0
   return(mat)
+}
+
+#' @title Helper function to compute column-wise z-score of a matrix
+#' @description This function takes a matrix and computes column-wise z-scores.
+#' @param mat A matrix
+#' @return A matrix with column-wise z-scores
+#' @importFrom matrixStats colMeans2 colSds
+#' @keywords internal
+computeColZScore <- function(mat) {
+  mat <- (mat - matrixStats::colMeans2(mat)) / matrixStats::colSds(mat)
+  mat[base::is.nan(mat)] <- 0
+  return(mat)
+}
+
+
+#' @title row_sds
+#' @description Compute standard deviation across rows of a matrix
+#' @param X matrix
+#' @param na.rm logical, if TRUE, remove NA values
+#' @return numeric vector of standard deviations
+#' @keywords internal
+row_sds <- function(X, na.rm = FALSE) {
+  res <- numeric(nrow(X))
+  if (na.rm) {
+    for (j in 1:nrow(X)) {
+      tmp <- X[j, , drop = FALSE]
+      keep <- which(!is.na(tmp))
+
+      if (length(keep) > 1) {
+        res[j] <- sd(tmp[keep])
+      } else {
+        res[j] <- NaN
+      }
+    }
+  } else {
+    res <- apply(X, 1, sd, na.rm = TRUE)
+  }
+
+  return(res)
+}
+
+#' @title row_sds_perm
+#' @description Compute standard deviation across rows of a matrix with random permutations
+#' @param X matrix
+#' @param na.rm logical, if TRUE, remove NA values
+#' @return numeric vector of standard deviations
+#' @keywords internal
+row_sds_perm <- function(X, na.rm = FALSE) {
+  ix <- sample(seq_len(ncol(X)), ncol(X), replace = TRUE)
+  shuffled <- X[, ix, drop = FALSE]
+  return(row_sds(shuffled, na.rm))
+}
+
+#' @title quantile_helper
+#' @description Helper function for computeVariability
+#' @param values numeric vector
+#' @param quantiles numeric vector of quantiles
+#' @param na.rm logical, if TRUE, remove NA values
+#' @return numeric vector of quantiles
+#' @keywords internal
+#' @importFrom stats quantile
+quantile_helper <- function(values, quantiles, na.rm = TRUE) {
+  if (na.rm) {
+    out <- quantile(values, quantiles, na.rm = na.rm)
+  } else {
+    if (any(is.na(values))) {
+      out <- rep(NA, length(quantiles))
+    } else {
+      out <- quantile(values, quantiles)
+    }
+  }
+  return(out)
 }

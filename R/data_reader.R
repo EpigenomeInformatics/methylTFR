@@ -1,20 +1,27 @@
 #' @title read_methylome
-#' @description read_methylome is a function to import methylation data into R Genomic
-#'  Range object. Bed file should be processed in EPP format, or BisSNP.
-#' @param  filename - filename which contains methylation data
-#' @param  type - type of file format (epp, bissnp)
+#' @description read_methylome is a function to import methylation data into a GRanges
+#' object. Bed file should be in EPP,ALLC or BisSNP format.
+#' @param filename - filename which contains methylation data
+#' @param type Type of file format. Currently supported epp, bissnp, bismarkCytosine,
+#' bismarkcov,allc and encode
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
-#' @importFrom data.table fread
+#' @import data.table 
+#' @importFrom data.table := .N fread 
 #' @importFrom stringr str_split str_replace
 #' @return a \code{GenomicRange} object with methylation, coverage information
+#' @author Irem Gunduz
+#' @examples
+#' # Read EPP file
+#' epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
+#' epp <- read_methylome(epp_path, "EPP")
 #' @export
 read_methylome <- function(filename, type) {
   type <- tolower(type)
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
-  if (!type %in% c("bissnp", "epp")) {
+  if (!type %in% c("bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode")) {
     stop(paste(type, " is not a valid file type!"))
   }
   if (type == "epp") {
@@ -24,63 +31,99 @@ read_methylome <- function(filename, type) {
     mcov <- as.numeric(stringr::str_replace(mcov, "'", ""))
     cov <- mcov[seq_along(mcov) %% 2 == 0]
     mscore <- round(msites$V5 / 1000, 3)
+    msites <- msites[, .(V1, V2, V3, V6),]
   }
   if (type == "bissnp") {
     # Parse BisSNP Tab-Separated file format
-    msites <- fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
+    msites <- data.table::fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
+    msites <- msites[, .(V1, V2, V3, V6),]
   }
-  # TODO add allc format, bed format, maybe bismark format?
-  gr_obj <- granges_helper(msites, msites$V1, mscore, cov, msites$V4, msites$V2, msites$V3)
+  if (type == "allc") {
+    # Parse ALLC Tab-Separated file format
+    allc <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
+    if (ncol(allc) < 6) {
+      logger::log_warn(paste0(filename, " is an invalid allc file!"))
+      stop("allc file must contain at least 6 columns!")
+    }
+    cov <- allc$V6
+    mscore <- round(allc$V5 / cov, 3)
+    msites <- allc[, .(V1, V2, V2, V3),]
+  }
+  if (type == "bismarkcytosine") {
+    # Parse bismarkCytosine file format
+    msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
+    if (ncol(msites) < 8) {
+      logger::log_warn(paste0(filename, " is an invalid bismarkCytosine file!"))
+      stop("bismarkCytosine file must contain at least 8 columns!")
+    }
+    mscore <- round(msites$V5 / msites$V6, 3)
+    cov <- msites$V6
+    msites <- msites[, .(V1, V3, V3, V4),]
+  }
+  if (type == "bismarkcov") {
+    # Parse bismarkCov file format
+    msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
+    if (ncol(msites) < 6) {
+      logger::log_warn(paste0(filename, " is an invalid bismarkCov file!"))
+      stop("bismarkCov file must contain at least 6 columns!")
+    }
+    mscore <- round(msites$V4 / 100, 3)
+    cov <- msites$V5 + msites$V6
+    msites <- msites[, .(V1, V2, V3),]
+    msites$strand <- rep("*", nrow(msites))
+  }
+  if (type == "encode") {
+    # Parse encode file format
+    msites <- data.table::fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
+    if (ncol(msites) < 11) {
+      logger::log_warn(paste0(filename, " is an invalid encode file!"))
+      stop("encode file must contain 11 columns!")
+    }
+    mscore <- round(msites$V11 / msites$V10, 3)
+    cov <- msites$V10
+    msites <- msites[, .(V1, V2, V3, V6),]
+  }
+  colnames(msites) <- c("chr", "start", "end", "strand")
+  # convert to GRanges object
+  gr_obj <- granges_helper(
+    grobj = msites,
+    chr = msites$chr,
+    mscore = mscore,
+    cov = cov,
+    startP = msites$start,
+    endP = msites$end
+  )
   return(gr_obj)
 }
 
-#' @title convert methylKit object to EPP format
-#' @description convert methylKit object to EPP format
-#' @param  mKit - methylKit object
-#' @return a \code{GenomicRanges} or  object with EPP format
-#' @importFrom GenomicRanges GRanges GRangesList
-#' @importFrom methylKit getSampleID
-#' @keywords internal
-methylKitToEPP <- function(mKit) {
-  if (is(mKit, "methylRaw")) {
-    mscore <- round(x$numCs / x$coverage, 2)
-    meth <- paste0(x$numCs, "/", x$coverage)
-    gr_obj <- granges_helper(mKit, mKit$chr, mscore, mKit$coverage, meth, mKit$start, mKit$end)
-  }
-  if (is(mKit, "methylRawList") || is(mKit, "methylRawListDB")) {
-    gr_obj <- lapply(mKit, function(x) {
-      mscore <- round(x$numCs / x$coverage, 2)
-      meth <- paste0(x$numCs, "/", x$coverage)
-      return(granges_helper(x, x$chr, mscore, x$coverage, meth, x$start, x$end))
-    })
-    gr_obj <- GRangesList(gr_obj)
-    names(gr_obj) <- getSampleID(mKit)
-  }
-  return(gr_obj)
-}
 
 #' @title granges_helper
 #' @description  helper function to convert msites in EPP GRanges format
 #' @param  grobj - GRanges object
 #' @param  chr - chromosome
 #' @param  mscore - methylation score
-#' @param  mcov - methylation coverage
-#' @param  meth - methylation information
+#' @param  cov - methylation coverage
 #' @param  startP - start position
 #' @param  endP - end position
 #' @return a \code{GenomicRanges} object with EPP format
 #' @keywords internal
-granges_helper <- function(grobj, chr, mscore, mcov, meth, startP, endP) {
-  return(GenomicRanges::GRanges(
+granges_helper <- function(
+    grobj, chr, mscore, cov, # meth,
+    startP, endP) {
+  gr_obj <- GenomicRanges::GRanges(
     seqnames = chr,
     ranges = IRanges::IRanges(start = startP, end = endP),
     strand = grobj$strand,
     score = mscore,
-    methylation = meth,
-    coverage = mcov
-  ))
+    coverage = cov
+  )
+  if (any(is.na(gr_obj$score))) {
+    # Remove for NaN values
+    gr_obj <- gr_obj[!is.nan(gr_obj$score)]
+  }
+  return(gr_obj)
 }
 
 #' @title EPP_helper
@@ -136,7 +179,7 @@ convertToEPP <- function(obj, save = FALSE, filePath = NULL, threads = 1, verbos
       stop("data.frame must contain columns chr,start,end,strand,score,coverage,methylation")
     }
   }
-  if (class(obj) == "GRanges") {
+  if (is(obj, "GRanges")) {
     tiles <- EPP_helper(obj)
   }
   if (class(obj) %in% c("GRangesList", "CompressedGRangesList")) {
@@ -171,4 +214,43 @@ convertToEPP <- function(obj, save = FALSE, filePath = NULL, threads = 1, verbos
     }
     return(invisible(NULL))
   }
+}
+
+#' @title convert methylKit object to EPP format
+#' @description convert methylKit object to EPP format
+#' @param  mKit - methylKit object
+#' @return a \code{GenomicRanges} or  object with EPP format
+#' @importFrom GenomicRanges GRanges GRangesList
+#' @importFrom methylKit getSampleID
+#' @keywords internal
+methylKitToEPP <- function(mKit) {
+  if (is(mKit, "methylRaw")) {
+    mscore <- round(x$numCs / x$coverage, 2)
+    meth <- paste0(x$numCs, "/", x$coverage)
+    gr_obj <- granges_helper(
+      grobj = mKit,
+      chr = mKit$chr,
+      mscore = mscore,
+      cov = mKit$coverage,
+      startP = mKit$start,
+      endP = mKit$end
+    )
+  }
+  if (is(mKit, "methylRawList") || is(mKit, "methylRawListDB")) {
+    gr_obj <- lapply(mKit, function(x) {
+      mscore <- round(x$numCs / x$coverage, 2)
+      meth <- paste0(x$numCs, "/", x$coverage)
+      return(granges_helper(
+        grobj = x,
+        chr = x$chr,
+        mscore = mscore,
+        cov = x$coverage,
+        startP = x$start,
+        endP = x$end
+      ))
+    })
+    gr_obj <- GRangesList(gr_obj)
+    names(gr_obj) <- getSampleID(mKit)
+  }
+  return(gr_obj)
 }

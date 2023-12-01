@@ -19,7 +19,6 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 `methylTFR` is an R-package to analyze DNA methylation patterns on transcription factor binding sites in each individual cells or samples.
-It takes inputs from `RnBeads` processed bed file, *EPP* format. 
 
 ## Installation instructions
 

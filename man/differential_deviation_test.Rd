@@ -44,6 +44,5 @@ a \code{data.frame} contains motifs with corresponding p-value and adjusted p-va
 }
 \description{
 Differential analysis is to test which motifs are having significant
-deviations among different cell-types.
-Adapted from https://github.com/GreenleafLab/chromVAR/blob/master/R/differential_tests.R
+deviations among different groups. Adapted from chromVAR::differential_test
 }

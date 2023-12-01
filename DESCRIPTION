@@ -17,26 +17,23 @@ Description: methylTFR is a comprehensive R package tailored for the
     cell or sample, a bias-corrected "deviation" in methylation levels
     from the expected methylation for each motif, utilizing the GC bias
     distribution and frequency data. The package provides a range of
-    functions for creating comprehensive genome-wide annotations, aiding
-    in the discovery of TFBS with varying methylation patterns across
-    different samples or cells.
+    functions aiding in the discovery of TFBS with varying methylation
+    patterns across different samples or cells.
 License: Artistic-2.0
 URL: https://github.com/EpigenomeInformatics/methylTFR
 BugReports: https://support.bioconductor.org/t/methylTFR
 Imports: 
-    Biostrings,
-    BSgenome,
     data.table,
     DelayedArray,
-    GenomeInfoDb,
     GenomicRanges,
+    ggplot2,
+    ggrepel,
     HDF5Array,
     IRanges,
     logger,
     matrixStats,
     methods,
     methylKit,
-    motifmatchr,
     parallel,
     S4Vectors,
     stats,
@@ -44,14 +41,7 @@ Imports:
     SummarizedExperiment,
     utils
 Suggests: 
-    BiocStyle,
-    BSgenome.Hsapiens.UCSC.hg38,
-    knitr,
-    rmarkdown,
-    sessioninfo,
-    TFBSTools
-VignetteBuilder: 
-    knitr
+    testthat (>= 3.0.0)
 BiocType: Software
 biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,
     GeneRegulation, Epigenetics,Transcription, Sequencing, WholeGenome,
