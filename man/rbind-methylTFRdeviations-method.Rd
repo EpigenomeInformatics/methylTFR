@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{...}{methylTFRdeviations objects.}
+
+\item{deparse.level}{An integer specifying the level of deparse to use.}
 }
 \value{
 A methylTFRdeviations object.

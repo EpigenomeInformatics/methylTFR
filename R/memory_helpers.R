@@ -7,6 +7,8 @@
 #' @param fileext A character vector specifying the file extension for the temp file
 #' @param verbose A logical indicating whether to print messages
 #' @return A methylTFR sink
+#' @importFrom HDF5Array HDF5RealizationSink
+#' @importFrom logger log_info
 #' @keywords internal
 create_sink <- function(
     files_list, motifs, temp_dir = "methylTFR_tmp", pattern = "methylTFR",
@@ -39,6 +41,7 @@ create_sink <- function(
 #' @param motif_chunks A list of motif chunks
 #' @return A methylTFR grid
 #' @keywords internal
+#' @importFrom DelayedArray ArbitraryArrayGrid
 set_grid <- function(files_list, motif_chunks) {
   # set the grid
   grid <- DelayedArray::ArbitraryArrayGrid(list(
@@ -57,6 +60,7 @@ set_grid <- function(files_list, motif_chunks) {
 #' @param j An integer specifying the column index
 #' @param sink A methylTFR sink
 #' @return A methylTFR sink
+#' @importFrom DelayedArray write_block
 #' @keywords internal
 write_block_to_sink <- function(dev_values, grid, i, j, sink) {
   # Write the block to the sink
