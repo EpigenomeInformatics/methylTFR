@@ -11,14 +11,20 @@ read_methylome(filename, type)
 \item filename which contains methylation data
 }}
 
-\item{type}{\itemize{
-\item type of file format (epp, bissnp)
-}}
+\item{type}{Type of file format. Currently supported epp, bissnp,bismarkCytosine,bismarkcov,allc and encode}
 }
 \value{
 a \code{GenomicRange} object with methylation, coverage information
 }
 \description{
 read_methylome is a function to import methylation data into R Genomic
-Range object. Bed file should be processed in EPP format, or BisSNP.
+Range object. Bed file should be in EPP,ALLC or BisSNP format.
+}
+\examples{
+# Read EPP file
+epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
+epp <- read_methylome(epp_path, "EPP")
+}
+\author{
+Irem Gunduz
 }
