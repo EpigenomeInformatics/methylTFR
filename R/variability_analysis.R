@@ -10,17 +10,21 @@
 #' @return data.frame with columns for name, variability, bootstrap lower bound,
 #' bootstrap upper bound, raw p value, adjust p value.
 #' @export
+#' @importFrom SummarizedExperiment assays
+#' @importFrom stats pchisq
+#' @importFrom stats p.adjust
+#' @importFrom methods is
 computeVariability <- function(object,
                                computeError = TRUE,
                                bootNsamples = 1000,
                                quantiles = c(0.025, 0.975),
                                padjMethod = "BH",
                                na.rm = TRUE) {
-  if (!any(class(object) %in% c("methylTFRDeviations", "matrix", "data.frame"))) {
-    stop("object must be a methylTFRDeviations object or adeviation score matrix")
+  if (!any(class(object) %in% c("methylTFRdeviations", "matrix", "data.frame"))) {
+    stop("object must be a methylTFRdeviations object or adeviation score matrix")
   }
-  if (is(object, "methylTFRDeviations")) {
-    object <- assays(object)$deviations
+  if (is(object, "methylTFRdeviations")) {
+    object <- assays(object)$z
   }
   if (!is.logical(computeError)) {
     stop("computeError must be TRUE or FALSE")

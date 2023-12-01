@@ -131,6 +131,7 @@ row_sds_perm <- function(X, na.rm = FALSE) {
 #' @param na.rm logical, if TRUE, remove NA values
 #' @return numeric vector of quantiles
 #' @keywords internal
+#' @importFrom stats quantile
 quantile_helper <- function(values, quantiles, na.rm) {
   if (na.rm) {
     out <- quantile(values, quantiles, na.rm = TRUE)

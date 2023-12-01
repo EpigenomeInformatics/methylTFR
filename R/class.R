@@ -5,8 +5,8 @@
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment}}, and most methods
 #' for that class should work for objects of this class as well. Additionally,
 #' two accessor functions are defined for extracting bias corrected deviations
-#' (\code{\link{deviations}}) and deviation Z-scores
-#' (\code{\link{deviationZScores}})
+#' (\code{\link[=deviations,methylTFRdeviations-method]{deviations}}) and deviation Z-scores
+#' (\code{\link[=deviationZScores,methylTFRdeviations-method]{deviationZScores}})
 #' @name methylTFRdeviations-class
 #' @rdname methylTFRdeviations-class
 #' @exportClass methylTFRdeviations
@@ -29,7 +29,11 @@ setValidity(
 ########### Generic functions for methylTFRdeviations class ##############
 ##########################################################################
 
-# Define generic function for deviations
+#' @title deviations
+#' @description Function to get deviations from a methylTFRdeviations object.
+#' @param x A methylTFRdeviations object.
+#' @return A matrix of deviations.
+#' @export
 setGeneric("deviations", function(x) standardGeneric("deviations"))
 
 #' @title deviations
@@ -39,13 +43,16 @@ setGeneric("deviations", function(x) standardGeneric("deviations"))
 #' @export
 #' @importFrom SummarizedExperiment assay
 #' @importFrom methods setMethod
-#' 
 # Define method for methylTFRdeviations class
 setMethod("deviations", "methylTFRdeviations", function(x) {
   SummarizedExperiment::assay(x, "deviations")
 })
 
-# Define generic function for deviationZScores
+#' @title deviationZScores
+#' @description Function to get deviation Z-scores from a methylTFRdeviations object.
+#' @param x A methylTFRdeviations object.
+#' @return A matrix of deviation Z-scores.
+#' @export
 setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 
 #' @title deviationZScores
@@ -60,10 +67,18 @@ setMethod("deviationZScores", "methylTFRdeviations", function(x) {
   SummarizedExperiment::assay(x, "z")
 })
 
-# Define generic function for rbind
+#' @title rbind
+#' @description Combine methylTFRdeviations objects by row.
+#' @param ... methylTFRdeviations objects.
+#' @return A methylTFRdeviations object.
+#' @export
 setGeneric("rbind", function(...) standardGeneric("rbind"))
 
-# Define generic function for cbind
+#' @title cbind
+#' @description Combine methylTFRdeviations objects by column.
+#' @param ... methylTFRdeviations objects.
+#' @return A methylTFRdeviations object.
+#' @export
 setGeneric("cbind", function(...) standardGeneric("cbind"))
 
 #' @title rbind
@@ -75,7 +90,6 @@ setGeneric("cbind", function(...) standardGeneric("cbind"))
 #' @importFrom S4Vectors SimpleList
 #' @importFrom methods setMethod as
 #' 
-# Define rbind and cbind methods
 setMethod("rbind", "methylTFRdeviations", function(..., deparse.level = 1) {
   inputs <- list(...)
 

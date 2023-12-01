@@ -12,6 +12,6 @@ This class inherits from
 \code{\link[SummarizedExperiment]{SummarizedExperiment}}, and most methods
 for that class should work for objects of this class as well. Additionally,
 two accessor functions are defined for extracting bias corrected deviations
-(\code{\link{deviations}}) and deviation Z-scores
-(\code{\link{deviationZScores}})
+(\code{\link[=deviations,methylTFRdeviations-method]{deviations}}) and deviation Z-scores
+(\code{\link[=deviationZScores,methylTFRdeviations-method]{deviationZScores}})
 }

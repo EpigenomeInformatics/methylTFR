@@ -18,6 +18,10 @@ plotMotifFootprint(
 \item{tf_bindsites}{-Transcript Factor binding sites from the annotation package}
 
 \item{samples}{Sample names as character vector of paths to methylation data}
+
+\item{sample_names}{Sample names as character vector}
+
+\item{type}{Type of methylation data, default is "EPP"}
 }
 \value{
 A ggplot object of TF footprint plot

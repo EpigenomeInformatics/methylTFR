@@ -11,11 +11,11 @@ computeExpectations(msites, gcdist, gcfreq, ignoreStrand = TRUE)
 
 \item{gcdist}{a \code{GRanges} object contains Genome wide GC distribution}
 
+\item{gcfreq}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
+
 \item{ignoreStrand}{\itemize{
 \item if TRUE, it ignores strand info from annotation
 }}
-
-\item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
 }
 \value{
 a \code{data.table} object with GC bin with corresponding avg methylation

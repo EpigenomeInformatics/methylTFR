@@ -1,4 +1,3 @@
-
 #' @title run_methyltfr
 #' @description This function is a wrapper function to calculate the deviation in transcription factor
 #'  footprint base for all given motifs using parallel package
@@ -24,7 +23,8 @@
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom utils read.table
-#' @importFrom methods as
+#' @importFrom methods as new
+#' @importFrom stats sd
 #' @return a \code{methylTFRdeviations} object with deviation and zscore
 #' @export
 run_methyltfr <- function(
@@ -129,7 +129,7 @@ run_methyltfr <- function(
       )
 
       # Write the block to the sink
-      write_block_to_sink(lapply(sample_deviations, function(x) x$dev),dev_grid, i, j, dev_sink)
+      write_block_to_sink(lapply(sample_deviations, function(x) x$obs_dev),dev_grid, i, j, dev_sink)
       write_block_to_sink(lapply(sample_deviations, function(x) x$exp_dev),z_grid, i, j, z_sink)
       rm(sample_deviations)
     }
@@ -144,10 +144,11 @@ run_methyltfr <- function(
   DelayedArray::close(z_sink)
   deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
   exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
-  #file.remove(tempfile) 
 
-  # Compute the zscore
+  # Compute the sd and normalize the deviation
+  #norm_dev <- deviation - matrixStats::colMeans2(exp_dev, na.rm = TRUE)
   sd <- apply(exp_dev, 2, sd, na.rm = TRUE)
+
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(deviations = deviation, z = as.matrix(deviation / sd)),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation)))

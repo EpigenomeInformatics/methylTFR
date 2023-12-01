@@ -2,7 +2,7 @@
 #' @description  This function is used to calculate genome-wide expected methylation for each motif.
 #' @param msites Imported methylation sites using \code{read_methylome} function
 #' @param gcdist a \code{GRanges} object contains Genome wide GC distribution
-#' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
+#' @param gcfreq a \code{list} of GC bin frequency tables (matrices for multiple motif)
 #' @param ignoreStrand - if TRUE, it ignores strand info from annotation
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @importFrom GenomicRanges GRanges findOverlaps
@@ -19,8 +19,8 @@ computeExpectations <- function(msites, gcdist, gcfreq, ignoreStrand=TRUE) {
   if(is.null(gcdist) || !is(gcdist,"GRanges")) {
     logger::log_error("Please provide a valid GC distribution")
   }
-  if(is.null(gcfreq) || !is.list(gcfreqs)) {
-    logger::log_error("Please provide a valid GC bin frequency table as a list")
+  if(!is.matrix(gcfreq)) {
+    logger::log_error("Please provide a valid GC bin frequency table as a matrix")
   }
   hits <- findOverlaps(msites, gcdist, type = "within", ignore.strand = ignoreStrand)
   gcmap <- data.table(
@@ -62,6 +62,10 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
   if(!is.logical(ignoreStrand)) {
     logger::log_warn("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
+  }
+  if(!is.logical(intermediate)) {
+    logger::log_warn("Found invalid intermediate option, using the default")
+    intermediate <- FALSE
   }
   if (is.null(motif) || !is.character(motif)) {
     logger::log_error("Please provide a valid motif name")
