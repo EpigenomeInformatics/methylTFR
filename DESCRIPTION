@@ -42,8 +42,6 @@ Imports:
     utils
 Suggests: 
     testthat (>= 3.0.0)
-VignetteBuilder: 
-    knitr
 BiocType: Software
 biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,
     GeneRegulation, Epigenetics,Transcription, Sequencing, WholeGenome,

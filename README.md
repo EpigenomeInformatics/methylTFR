@@ -12,7 +12,6 @@
 <!-- badges: end -->
 
 `methylTFR` is an R-package to analyze DNA methylation patterns on transcription factor binding sites in each individual cells or samples.
-It takes inputs from `RnBeads` processed bed file, *EPP* format. 
 
 ## Installation instructions
 
@@ -75,11 +74,12 @@ run this yourself to check for any updates on how to cite __methylTFR__.
 
 ```r
 print(citation("methylTFR"), bibtex = TRUE)
+#> 
 #> To cite package 'methylTFR' in publications use:
 #> 
-#>   Gündüz I, Murugan S, Muller F (2023). _methylTFR: Identification of
-#>   Methylation Patterns in TFBS_. R package version 0.99.0,
-#>   <https://github.com/EpigenomeInformatics/methylTFR>.
+#>   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2023).
+#>   methylTFR: Identification of Methylation Patterns in TFBS. R package
+#>   version 0.99.0. https://github.com/EpigenomeInformatics/methylTFR
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 

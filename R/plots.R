@@ -74,6 +74,8 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 #' @param motifs Motif names as character vector
 #' @param tf_bindsites -Transcript Factor binding sites from the annotation package
 #' @param samples Sample names as character vector of paths to methylation data
+#' @param sample_names Sample names as character vector
+#' @param type Type of methylation data, default is "EPP"
 #' @return A ggplot object of TF footprint plot
 #' @export
 #' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle

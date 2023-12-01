@@ -5,3 +5,4 @@ vignettes/*.html
 docs
 inst/doc
 archive/
+dev/

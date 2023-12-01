@@ -5,7 +5,7 @@
 #' @param  type Type of file format. Currently supported epp, bissnp,bismarkCytosine,bismarkcov,allc and encode
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
-#' @importFrom data.table fread
+#' @import data.table 
 #' @importFrom stringr str_split str_replace
 #' @return a \code{GenomicRange} object with methylation, coverage information
 #' @author Irem Gunduz
