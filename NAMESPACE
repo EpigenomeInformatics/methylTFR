@@ -2,7 +2,6 @@
 
 export(cbind)
 export(computeDeviation)
-export(computeExpectations)
 export(computeVariability)
 export(convertToEPP)
 export(deviationZScores)

@@ -11,14 +11,15 @@ read_methylome(filename, type)
 \item filename which contains methylation data
 }}
 
-\item{type}{Type of file format. Currently supported epp, bissnp,bismarkCytosine,bismarkcov,allc and encode}
+\item{type}{Type of file format. Currently supported epp, bissnp, bismarkCytosine,
+bismarkcov,allc and encode}
 }
 \value{
 a \code{GenomicRange} object with methylation, coverage information
 }
 \description{
-read_methylome is a function to import methylation data into R Genomic
-Range object. Bed file should be in EPP,ALLC or BisSNP format.
+read_methylome is a function to import methylation data into a GRanges
+object. Bed file should be in EPP,ALLC or BisSNP format.
 }
 \examples{
 # Read EPP file

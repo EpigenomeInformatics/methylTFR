@@ -30,7 +30,6 @@ run_methyltfr <- function(
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
     filetype = NULL, ignoreStrand = TRUE) {
-
   if (!tolower(filetype) %in% c("bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode")) {
     logger::log_error("Please provide a valid file type")
   }
@@ -127,8 +126,8 @@ run_methyltfr <- function(
       )
 
       # Write the block to the sink
-      write_block_to_sink(lapply(sample_deviations, function(x) x$dev),dev_grid, i, j, dev_sink)
-      write_block_to_sink(lapply(sample_deviations, function(x) x$exp_dev),z_grid, i, j, z_sink)
+      write_block_to_sink(lapply(sample_deviations, function(x) x$dev), dev_grid, i, j, dev_sink)
+      write_block_to_sink(lapply(sample_deviations, function(x) x$exp_dev), z_grid, i, j, z_sink)
       rm(sample_deviations)
     }
     rm(msites)
@@ -144,12 +143,12 @@ run_methyltfr <- function(
   exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
   # Compute the sd and normalize the deviation
-  #norm_dev <- deviation - matrixStats::colMeans2(exp_dev, na.rm = TRUE)
+  # norm_dev <- deviation - matrixStats::colMeans2(exp_dev, na.rm = TRUE)
   sd <- apply(exp_dev, 2, sd, na.rm = TRUE)
 
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(deviations = deviation, z = as.matrix(deviation / sd)),
-    colData = samples, rowData = DataFrame(motifs = row.names(deviation)))
-  return(new("methylTFRdeviations", se)) 
-  #return(as.matrix(deviation))
+    colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+  )
+  return(new("methylTFRdeviations", se))
 }
