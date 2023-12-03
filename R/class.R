@@ -89,7 +89,7 @@ setGeneric("cbind", function(...) standardGeneric("cbind"))
 #' @importFrom SummarizedExperiment SummarizedExperiment rowData colData
 #' @importFrom S4Vectors SimpleList
 #' @importFrom methods setMethod as
-#' 
+#'
 setMethod("rbind", "methylTFRdeviations", function(..., deparse.level = 1) {
   inputs <- list(...)
 

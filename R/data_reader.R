@@ -6,8 +6,8 @@
 #' bismarkcov,allc and encode
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
-#' @import data.table 
-#' @importFrom data.table := .N fread 
+#' @import data.table
+#' @importFrom data.table := .N fread
 #' @importFrom stringr str_split str_replace
 #' @return a \code{GenomicRange} object with methylation, coverage information
 #' @author Irem Gunduz
@@ -31,14 +31,14 @@ read_methylome <- function(filename, type) {
     mcov <- as.numeric(stringr::str_replace(mcov, "'", ""))
     cov <- mcov[seq_along(mcov) %% 2 == 0]
     mscore <- round(msites$V5 / 1000, 3)
-    msites <- msites[, .(V1, V2, V3, V6),]
+    msites <- msites[, .(V1, V2, V3, V6), ]
   }
   if (type == "bissnp") {
     # Parse BisSNP Tab-Separated file format
     msites <- data.table::fread(filename, header = FALSE, skip = 1, showProgress = FALSE)
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5
-    msites <- msites[, .(V1, V2, V3, V6),]
+    msites <- msites[, .(V1, V2, V3, V6), ]
   }
   if (type == "allc") {
     # Parse ALLC Tab-Separated file format
@@ -49,7 +49,7 @@ read_methylome <- function(filename, type) {
     }
     cov <- allc$V6
     mscore <- round(allc$V5 / cov, 3)
-    msites <- allc[, .(V1, V2, V2, V3),]
+    msites <- allc[, .(V1, V2, V2, V3), ]
   }
   if (type == "bismarkcytosine") {
     # Parse bismarkCytosine file format
@@ -60,7 +60,7 @@ read_methylome <- function(filename, type) {
     }
     mscore <- round(msites$V5 / msites$V6, 3)
     cov <- msites$V6
-    msites <- msites[, .(V1, V3, V3, V4),]
+    msites <- msites[, .(V1, V3, V3, V4), ]
   }
   if (type == "bismarkcov") {
     # Parse bismarkCov file format
@@ -71,7 +71,7 @@ read_methylome <- function(filename, type) {
     }
     mscore <- round(msites$V4 / 100, 3)
     cov <- msites$V5 + msites$V6
-    msites <- msites[, .(V1, V2, V3),]
+    msites <- msites[, .(V1, V2, V3), ]
     msites$strand <- rep("*", nrow(msites))
   }
   if (type == "encode") {
@@ -83,7 +83,7 @@ read_methylome <- function(filename, type) {
     }
     mscore <- round(msites$V11 / msites$V10, 3)
     cov <- msites$V10
-    msites <- msites[, .(V1, V2, V3, V6),]
+    msites <- msites[, .(V1, V2, V3, V6), ]
   }
   colnames(msites) <- c("chr", "start", "end", "strand")
   # convert to GRanges object

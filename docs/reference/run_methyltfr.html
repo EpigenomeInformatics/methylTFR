@@ -23,12 +23,6 @@ footprint base for all given motifs using parallel package"><!-- mathjax --><scr
       <ul class="navbar-nav me-auto"><li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
-<li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/annotation.html">Build methylTFR annotations</a>
-  </div>
-</li>
 <li class="nav-item">
   <a class="nav-link" href="../news/index.html">Changelog</a>
 </li>
@@ -36,7 +30,7 @@ footprint base for all given motifs using parallel package"><!-- mathjax --><scr
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
       <ul class="navbar-nav"><li class="nav-item">
-  <a class="nav-link" href="https://github.com/EpigenomeInformatics/methylTFR/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/EpigenomeInformatics/methylTFR/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -49,7 +43,7 @@ footprint base for all given motifs using parallel package"><!-- mathjax --><scr
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>run_methyltfr</h1>
-      <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/HEAD/R/compute_deviations.R"><code>R/compute_deviations.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/HEAD/R/run_methyltfr.R" class="external-link"><code>R/run_methyltfr.R</code></a></small>
       <div class="d-none name"><code>run_methyltfr.Rd</code></div>
     </div>
 
@@ -72,77 +66,70 @@ footprint base for all given motifs using parallel package</p>
 <span>  annfile <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  threads <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  filetype <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  filetype <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ignoreStrand <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>sample_ann</dt>
-<dd><ul><li><p>a tab seperated file contains sample annotations</p></li>
-</ul></dd>
+<dd><p>A tab seperated file contains sample annotations</p></dd>
 
 
 <dt>sample_dir</dt>
-<dd><ul><li><p>directory where all bed file and annotation file stored</p></li>
-</ul></dd>
+<dd><p>The directory where all bed file and annotation file stored</p></dd>
 
 
 <dt>tf_bindsites</dt>
-<dd><ul><li><p>a GenomicRange object contains tf binding sites positions from (<code>methylTFRann</code>)</p></li>
-</ul></dd>
+<dd><p>a <code>GRangesList</code> object contains tf binding sites positions</p></dd>
 
 
 <dt>gcfreqs</dt>
-<dd><ul><li><p>GC bin frequency tables (matrices for multiple motif) from (<code>methylTFRann</code>)</p></li>
-</ul></dd>
+<dd><p>a <code>list</code> of GC bin frequency tables (matrices for multiple motif)</p></dd>
 
 
 <dt>gc_dist</dt>
-<dd><ul><li><p>Genome wide GC distribution from (<code>methylTFRann</code>)</p></li>
-</ul></dd>
+<dd><p>a <code>GRanges</code> object contains Genome wide GC distribution</p></dd>
 
 
 <dt>sampleColName</dt>
-<dd><ul><li><p>column name of the sample bed file in the annotation file</p></li>
-</ul></dd>
+<dd><p>column name of the sample bed file in the annotation file</p></dd>
 
 
 <dt>chunkSize</dt>
-<dd><ul><li><p>chunk size for parallel processing of motifs</p></li>
-</ul></dd>
+<dd><p>Chunk size for parallel processing of motifs (default: 20)</p></dd>
 
 
 <dt>full_path</dt>
-<dd><ul><li><p>if TRUE, the bed file path in the annotation file is full path</p></li>
-</ul></dd>
+<dd><p>if TRUE, the bed file path in the annotation file is full path</p></dd>
 
 
 <dt>annfile</dt>
-<dd><ul><li><p>if provided, the sample annotation file is not read from the sample_dir</p></li>
-</ul></dd>
+<dd><p>if provided, the sample annotation file is not read from the sample_dir</p></dd>
 
 
 <dt>threads</dt>
-<dd><ul><li><p>thread count for parallel processing</p></li>
-</ul></dd>
+<dd><p>Thread count for parallel processing</p></dd>
 
 
 <dt>enhancer</dt>
-<dd><ul><li><p>Specific regions like distal motif</p></li>
-</ul></dd>
+<dd><p>a <code>GRanges</code> object specifying regions such as distal motif (optional)</p></dd>
 
 
 <dt>filetype</dt>
-<dd><ul><li><p>file type of the bed file, currently supported: bissnp, epp</p></li>
-</ul></dd>
+<dd><p>file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode</p></dd>
+
+
+<dt>ignoreStrand</dt>
+<dd><p>if TRUE, it ignores strand info from annotation</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>deviation score matrix for all samples and motifs</p>
+<p>a <code>methylTFRdeviations</code> object with deviation and zscore</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
