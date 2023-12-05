@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# *methylTFR* : Identification of Methylation Patterns in TFBS
+# *methylTFR* : Quantification of DNA Methylation Patterns at TFBS
 
 <!-- badges: start -->
 [![R-CMD-check-bioc](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml)

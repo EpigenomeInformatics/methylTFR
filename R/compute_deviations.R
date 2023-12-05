@@ -61,15 +61,15 @@ computeExpectations <- function(msites, gcdist, gcfreq, ignoreStrand = TRUE) {
 #' @import data.table
 #' @examples
 #' library(methylTFR)
-#' 
+#'
 #' # Load the data
 #' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 #' load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 #' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-#' 
+#'
 #' # Compute the deviation
-#' devs <- computeDeviation("FOXF2",msites,tf_bindsites,gcfreqs,gcdist)
+#' devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, gcdist)
 #' @export
 computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
                              gcdist, enhancer = NULL, ignoreStrand = TRUE,
@@ -88,7 +88,7 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
   if (is.null(msites) || !is(msites, "GRanges")) {
     logger::log_error("Please provide a valid methylation sites with read_methylome function")
   }
-  if (is.null(tf_bindsites) || !is(tf_bindsites, "GRangesList")) {
+  if (is.null(tf_bindsites) || !any(c(!is(tf_bindsites, "GRangesList") || !is.list(tf_bindsites))) ) {
     logger::log_error("Please provide a valid tf binding sites as GRangesList")
   }
   if (is.null(gcfreqs) || !is.list(gcfreqs)) {

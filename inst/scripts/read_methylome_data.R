@@ -1,5 +1,5 @@
 # Create simulated data formats for the methylTFR tests
-output_dir <- "inst/extdata/"
+output_dir <- "/icbb/projects/igunduz/methylTFR/inst/extdata/"
 
 # Encode data
 Encode <- data.frame(
@@ -75,8 +75,6 @@ allc <- data.frame(
 )
 
 # Save as a compressed TSV files
-write.table(allc, file = gzfile(paste0(output_dir, "allc.tsv")), sep = "\t", row.names = FALSE, quote = FALSE, col.names = FALSE)
-
 write.table(Encode, file = gzfile(paste0(output_dir, "encode.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE)
 
 write.table(bismarkCytosine, file = gzfile(paste0(output_dir, "bismarkCytosine.tsv.gz")), sep = "\t", row.names = FALSE, quote = FALSE, col.names = FALSE)

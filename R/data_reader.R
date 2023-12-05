@@ -7,14 +7,17 @@
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @import data.table
+#' @import R.utils
 #' @importFrom data.table := .N fread
 #' @importFrom stringr str_split str_replace
 #' @return a \code{GenomicRange} object with methylation, coverage information
 #' @author Irem Gunduz
-#' @examples
-#' # Read EPP file
-#' epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
-#' epp <- read_methylome(epp_path, "EPP")
+#' @examples 
+#' library(methylTFR)
+#' 
+#' # Read bissnp file
+#' bissnp_path <- system.file("extdata", "bissnp.tsv.gz", package = "methylTFR")
+#' bissnp <- read_methylome(bissnp_path, "bissnp")
 #' @export
 read_methylome <- function(filename, type) {
   type <- tolower(type)
