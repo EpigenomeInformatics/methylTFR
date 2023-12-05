@@ -12,7 +12,7 @@ plotVariability(
 )
 }
 \arguments{
-\item{variability}{output from \code{\link{computeVariability}}}
+\item{variability}{output from \code{\link{computeZScoreVariability}}}
 
 \item{xlab}{label for x-axis (default is 'Sorted TFs')}
 

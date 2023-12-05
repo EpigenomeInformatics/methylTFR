@@ -1,4 +1,4 @@
-#' @title computeVariability
+#' @title computeZScoreVariability
 #' @description Function to compute overall deviation score variability across samples per motif set
 #' Adapted from chromVAR::computeVariability
 #' @param object methylTFRdeviations object, or deviation score matrix
@@ -14,17 +14,17 @@
 #' @importFrom stats pchisq
 #' @importFrom stats p.adjust
 #' @importFrom methods is
-computeVariability <- function(object,
-                               computeError = TRUE,
-                               bootNsamples = 1000,
-                               quantiles = c(0.025, 0.975),
-                               padjMethod = "BH",
-                               na.rm = TRUE) {
+computeZScoreVariability <- function(object,
+                                     computeError = TRUE,
+                                     bootNsamples = 1000,
+                                     quantiles = c(0.025, 0.975),
+                                     padjMethod = "BH",
+                                     na.rm = TRUE) {
   if (!any(class(object) %in% c("methylTFRdeviations", "matrix", "data.frame"))) {
     stop("object must be a methylTFRdeviations object or adeviation score matrix")
   }
   if (is(object, "methylTFRdeviations")) {
-    object <- assays(object)$z
+    object <- deviationZScores(object)
   }
   if (!is.logical(computeError)) {
     stop("computeError must be TRUE or FALSE")

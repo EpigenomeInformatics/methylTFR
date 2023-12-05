@@ -1,6 +1,6 @@
 #' @title run_methyltfr
 #' @description This function is a wrapper function to calculate the deviation in transcription factor
-#'  footprint base for all given motifs using parallel package
+#' footprint base for all given motifs per raw samples
 #' @param sample_ann A tab seperated file contains sample annotations
 #' @param sample_dir The directory where all bed file and annotation file stored
 #' @param threads Thread count for parallel processing
@@ -23,8 +23,31 @@
 #' @importFrom utils read.table
 #' @importFrom methods as new
 #' @importFrom stats sd
-#' @return a \code{methylTFRdeviations} object with deviation and zscore
+#' @return a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
 #' @export
+#' @examples
+#' \dontrun{
+#' library(methylTFR)
+#' library(methylTFRAnnotationHg38)
+#' 
+#' gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+#' gc_dist <- getGenomeGC()
+#' tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+#' 
+#' sample_dir <- file.path("samples_dir")
+#' sample_ann <- "samples.tsv" # should contain column name bedFile
+#' # deviation score matrix
+#' deviations <- run_methyltfr(sample_ann, # sample annotation file
+#' sample_dir, # where the EPP files are
+#' threads = 8, # number of threads
+#' chunkSize = 10, # number of chunks to process
+#' sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+#' tf_bindsites = tf_bindsites, # TF binding sites
+#' gcfreqs = gcfreqs, # GC frequency
+#' gc_dist = gc_dist, # GC distribution
+#' filetype = "EPP" # file type
+#' )
+#' }
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
@@ -46,6 +69,18 @@ run_methyltfr <- function(
   }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
     logger::log_error("Please load the annotation objects for given genome.")
+  }
+  if (!is(tf_bindsites, "GRangesList")) {
+    stop("tf_bindsites must be a GRangesList object")
+  }
+  if (!is(gcfreqs, "list")) {
+    stop("gcfreqs must be a list object")
+  }
+  if (!is(gc_dist, "GRanges")) {
+    stop("gc_dist must be a GRanges object")
+  }
+  if (!is(enhancer, "GRanges")) {
+    stop("enhancer must be a GRanges object")
   }
   if (is.null(annfile) || !is.character(annfile)) {
     if (is.null(sample_ann) || !is.character(sample_ann)) {
@@ -152,3 +187,4 @@ run_methyltfr <- function(
   )
   return(new("methylTFRdeviations", se))
 }
+

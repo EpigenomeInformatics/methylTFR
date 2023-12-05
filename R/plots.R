@@ -1,6 +1,6 @@
 #' @title plotVariability
 #' @description plot Z-score variability of motifs across cells or samples
-#' @param variability output from \code{\link{computeVariability}}
+#' @param variability output from \code{\link{computeZScoreVariability}}
 #' @param xlab label for x-axis (default is 'Sorted TFs')
 #' @param nLab  number of top motifs to label (default is 5)
 #' @param motif_names vector of motif names to use as motif_names (default is
@@ -11,7 +11,7 @@
 plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
                             motif_names = variability$name) {
   if (!is.data.frame(variability)) {
-    stop("variability must be output from computeVariability")
+    stop("variability must be output from computeZScoreVariability")
   }
   if (!is.character(xlab)) {
     stop("xlab must be a character value")
@@ -80,31 +80,34 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 #' @export
 #' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
 #' @importFrom ggrepel geom_label_repel
-plotMotifFootprint <- function(motifs, tf_bindsites, samples,
-                               sample_names = NULL,
-                               type = "EPP") {
+#' @importFrom data.table rbindlist
+plotMotifFootprints <- function(motifs, tf_bindsites, samples,
+                                sample_names = NULL,
+                                type = "EPP") {
   # Prepare a list of methylation sites
   msites_list <- lapply(samples, read_methylome, type = type)
-
+  if (length(msites_list) == 0) {
+    stop("No methylation data found")
+  }
   # If sample labels are not provided, use file names as labels
   if (is.null(sample_names)) {
     sample_names <- unlist(lapply(samples, basename))
   }
   names(msites_list) <- sample_names
-  plot_data <- data.table()
 
-  # Iterate through each methylation site and compute footprint
-  for (i in 1:length(msites_list)) {
+  # combine all data.tables in the list
+  plot_data <- rbindlist(lapply(seq_along(msites_list), function(i) {
     msites <- msites_list[[i]]
-    current_plot <- rbindlist(lapply(motifs, function(motif) {
-      computeFootprint(motif, tf_bindsites, msites)
+    rbindlist(lapply(motifs, function(motif) {
+      computeFootprint(motif, tf_bindsites, msites)[, sample_name := sample_names[i]]
     }), fill = TRUE)
-    current_plot[, sample_name := sample_names[i]]
-    plot_data <- rbind(plot_data, current_plot)
-  }
+  }))
 
   # Generate the footprint plot
-  p1 <- ggplot(plot_data, aes(x = x, y = avg_methyl, group = interaction(motif, sample_name))) +
+  p1 <- ggplot(plot_data, aes(
+    x = x, y = avg_methyl,
+    group = interaction(motif, sample_name)
+  )) +
     geom_line(aes(color = sample_name)) +
     geom_point(aes(color = sample_name)) +
     xlab("Distance from motif center") +

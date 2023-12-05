@@ -8,6 +8,7 @@
 #' @return a \code{data.table} object with GC bin with corresponding avg methylation
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
+#' @importFrom logger log_info log_warn log_error
 #' @keywords internal
 computeExpectations <- function(msites, gcdist, gcfreq, ignoreStrand = TRUE) {
   if (!is.logical(ignoreStrand)) {
@@ -58,6 +59,17 @@ computeExpectations <- function(msites, gcdist, gcfreq, ignoreStrand = TRUE) {
 #' @importFrom stats na.omit
 #' @importFrom S4Vectors mcols
 #' @import data.table
+#' @examples
+#' library(methylTFR)
+#' 
+#' # Load the data
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+#' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+#' 
+#' # Compute the deviation
+#' devs <- computeDeviation("FOXF2",msites,tf_bindsites,gcfreqs,gcdist)
 #' @export
 computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
                              gcdist, enhancer = NULL, ignoreStrand = TRUE,
@@ -104,8 +116,8 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
   x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
   sum_meth <- data.table::data.table(
     x = x,
-    avg_methyl = msites[hits@from]$score,
-    avg_cov = msites[hits@from]$coverage
+    avg_methyl = msites[hits@from]$score # ,
+    # avg_cov = msites[hits@from]$coverage
   )
 
   # Convert sum_meth and exp_meth to data.tables
