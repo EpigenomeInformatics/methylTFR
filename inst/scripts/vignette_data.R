@@ -24,8 +24,14 @@ msites <- read_methylome(filename,"bissnp")
 msites <- msites[seqnames(msites) == "chr1"]
 gcdist <- gcdist[seqnames(gcdist) == "chr1"]
 
+#Subset to first 1000 rows
+msites <- msites[1:1000]
+gcdist <- subsetByOverlaps(gcdist, msites)
+
 # Extract FOXF2 annotations
 tf_bindsites <- tf_bindsites[1]
+tf_bindsites <- list(unlist(tf_bindsites)[1:1000])
+names(tf_bindsites) <- "FOXF2"
 gcfreqs <- gcfreqs[1]
 
 # Save the data as RDA files

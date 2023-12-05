@@ -22,9 +22,11 @@ read_methylome is a function to import methylation data into a GRanges
 object. Bed file should be in EPP,ALLC or BisSNP format.
 }
 \examples{
-# Read EPP file
-epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
-epp <- read_methylome(epp_path, "EPP")
+library(methylTFR)
+
+# Read bissnp file
+bissnp_path <- system.file("extdata", "bissnp.tsv.gz", package = "methylTFR")
+bissnp <- read_methylome(bissnp_path, "bissnp")
 }
 \author{
 Irem Gunduz
