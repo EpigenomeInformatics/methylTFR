@@ -48,9 +48,33 @@ run_methyltfr(
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
 }
 \value{
-a \code{methylTFRdeviations} object with deviation and zscore
+a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
 }
 \description{
 This function is a wrapper function to calculate the deviation in transcription factor
-footprint base for all given motifs using parallel package
+footprint base for all given motifs per raw samples
+}
+\examples{
+\dontrun{
+library(methylTFR)
+library(methylTFRAnnotationHg38)
+
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+gc_dist <- getGenomeGC()
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+
+sample_dir <- file.path("samples_dir")
+sample_ann <- "samples.tsv" # should contain column name bedFile
+# deviation score matrix
+deviations <- run_methyltfr(sample_ann, # sample annotation file
+sample_dir, # where the EPP files are
+threads = 8, # number of threads
+chunkSize = 10, # number of chunks to process
+sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+tf_bindsites = tf_bindsites, # TF binding sites
+gcfreqs = gcfreqs, # GC frequency
+gc_dist = gc_dist, # GC distribution
+filetype = "EPP" # file type
+)
+}
 }

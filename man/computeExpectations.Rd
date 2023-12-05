@@ -21,6 +21,7 @@ computeExpectations(msites, gcdist, gcfreq, ignoreStrand = TRUE)
 a \code{data.table} object with GC bin with corresponding avg methylation
 }
 \description{
-This function is used to calculate genome-wide expected methylation for each motif.
+This function is used to calculate genome-wide expected methylation
+for each motif.
 }
 \keyword{internal}

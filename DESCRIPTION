@@ -1,5 +1,5 @@
 Package: methylTFR
-Title: Identification of Methylation Patterns in TFBS
+Title: Quantification of DNA Methylation Patterns in TFBS
 Version: 0.99.0
 Date: 2023-09-28
 Authors@R: c(
@@ -13,17 +13,18 @@ Authors@R: c(
 Description: methylTFR is a comprehensive R package tailored for the
     analysis of DNA methylation patterns within transcription factor
     binding sites (TFBS) across various genomic annotations. methylTFR
-    enhances methylation analysis by computing, for each TFBS and each
-    cell or sample, a bias-corrected "deviation" in methylation levels
-    from the expected methylation for each motif, utilizing the GC bias
-    distribution and frequency data. The package provides a range of
-    functions aiding in the discovery of TFBS with varying methylation
-    patterns across different samples or cells.
+    enhances methylation analysis by computing a bias-corrected
+    "deviation" in methylation levels for each motif per sample, utilizing
+    the GC bias distribution and frequency data. The package provides a
+    range of functions aiding in the discovery of TFBS with varying
+    methylation patterns across different samples or cells.
 License: Artistic-2.0
 URL: https://github.com/EpigenomeInformatics/methylTFR
 BugReports: https://support.bioconductor.org/t/methylTFR
+Depends: 
+    data.table (>= 1.14.0),
+    R (>= 4.1)
 Imports: 
-    data.table,
     DelayedArray,
     GenomicRanges,
     ggplot2,
@@ -33,7 +34,6 @@ Imports:
     logger,
     matrixStats,
     methods,
-    methylKit,
     parallel,
     S4Vectors,
     stats,
@@ -41,7 +41,14 @@ Imports:
     SummarizedExperiment,
     utils
 Suggests: 
+    BiocStyle,
+    knitr,
+    RefManageR,
+    rmarkdown,
+    sessioninfo,
     testthat (>= 3.0.0)
+VignetteBuilder: 
+    knitr
 BiocType: Software
 biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,
     GeneRegulation, Epigenetics,Transcription, Sequencing, WholeGenome,

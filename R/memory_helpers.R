@@ -59,8 +59,8 @@ set_grid <- function(files_list, motif_chunks) {
 #' @param i An integer specifying the row index
 #' @param j An integer specifying the column index
 #' @param sink A methylTFR sink
-#' @return A methylTFR sink
 #' @importFrom DelayedArray write_block
+#' @return invisible NULL
 #' @keywords internal
 write_block_to_sink <- function(dev_values, grid, i, j, sink) {
   # Write the block to the sink
@@ -71,6 +71,7 @@ write_block_to_sink <- function(dev_values, grid, i, j, sink) {
   )
   rm(dev_values)
   cleanMem()
+  invisible(NULL)
 }
 
 #' @title cleanMem
