@@ -155,11 +155,13 @@ run_methyltfr <- function(
   exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
   # Compute the sd and normalize the deviation
-  # norm_dev <- deviation - matrixStats::colMeans2(exp_dev, na.rm = TRUE)
-  sd <- apply(exp_dev, 2, sd, na.rm = TRUE)
-
+  # sd <- apply(exp_dev, 2, sd, na.rm = TRUE)
+  sd <- matrixStats::rowSds(exp_dev, na.rm = TRUE)
   se <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(deviations = deviation, z = as.matrix(deviation / sd)),
+    assays = list(
+      deviations = deviation, z = as.matrix(deviation / sd),
+      exp_dev = exp_dev
+    ),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation))
   )
   return(new("methylTFRdeviations", se))

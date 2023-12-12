@@ -16,7 +16,7 @@ computeFootprint(motif_name, tf_bindsites, msites, enhancer = NULL)
 \item{enhancer}{Specific regions such as distal motif, proximal motif}
 }
 \value{
-a \code{data.table} object to plot tf footprint
+a \code{data.table} object to containing TF footprint
 }
 \description{
 Compute footprint returns a data.table required to create a transcription

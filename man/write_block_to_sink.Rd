@@ -18,7 +18,7 @@ write_block_to_sink(dev_values, grid, i, j, sink)
 \item{sink}{A methylTFR sink}
 }
 \value{
-invisible NULL
+sink
 }
 \description{
 Write the block to the methylTFR sink

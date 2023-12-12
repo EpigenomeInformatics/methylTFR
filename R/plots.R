@@ -25,7 +25,7 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
   if (length(motif_names) > nrow(variability)) {
     stop("motif_names can't have length more than the number of rows in variability")
   }
-  res_df <- cbind(variability,
+  res_df <- base::cbind(variability,
     rank = rank(-1 * variability$variability,
       ties.method = "random"
     ),

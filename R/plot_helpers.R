@@ -5,9 +5,10 @@
 #' @param tf_bindsites  TF binding sites positions from methTFRannotation package
 #' @param msites Methylation data
 #' @param enhancer Specific regions such as distal motif, proximal motif
-#' @return a \code{data.table} object to plot tf footprint
+#' @return a \code{data.table} object to containing TF footprint
 #' @keywords internal
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom S4Vectors mcols
 #' @import data.table
 computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif_name]]
