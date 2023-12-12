@@ -12,9 +12,7 @@
 #' @importFrom stringr str_split str_replace
 #' @return a \code{GenomicRange} object with methylation, coverage information
 #' @author Irem Gunduz
-#' @examples 
-#' library(methylTFR)
-#' 
+#' @examples
 #' # Read bissnp file
 #' bissnp_path <- system.file("extdata", "bissnp.tsv.gz", package = "methylTFR")
 #' bissnp <- read_methylome(bissnp_path, "bissnp")

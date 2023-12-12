@@ -25,6 +25,7 @@ Depends:
     data.table (>= 1.14.0),
     R (>= 4.1)
 Imports: 
+    BiocGenerics,
     DelayedArray,
     GenomicRanges,
     ggplot2,

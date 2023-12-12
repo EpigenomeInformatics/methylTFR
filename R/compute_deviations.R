@@ -88,7 +88,7 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
   if (is.null(msites) || !is(msites, "GRanges")) {
     logger::log_error("Please provide a valid methylation sites with read_methylome function")
   }
-  if (is.null(tf_bindsites) || !any(c(!is(tf_bindsites, "GRangesList") || !is.list(tf_bindsites))) ) {
+  if (is.null(tf_bindsites) || !any(c(!is(tf_bindsites, "GRangesList") || !is.list(tf_bindsites)))) {
     logger::log_error("Please provide a valid tf binding sites as GRangesList")
   }
   if (is.null(gcfreqs) || !is.list(gcfreqs)) {
