@@ -4,24 +4,18 @@
 \alias{computeExpectations}
 \title{computeExpectations}
 \usage{
-computeExpectations(msites, gcdist, gcfreq, ignoreStrand = TRUE)
+computeExpectations(binMsites, gcfreq)
 }
 \arguments{
-\item{msites}{Imported methylation sites using \code{read_methylome} function}
-
-\item{gcdist}{a \code{GRanges} object contains Genome wide GC distribution}
+\item{binMsites}{Imported methylation sites with GC bin}
 
 \item{gcfreq}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
-
-\item{ignoreStrand}{\itemize{
-\item if TRUE, it ignores strand info from annotation
-}}
 }
 \value{
 a \code{data.table} object with GC bin with corresponding avg methylation
 }
 \description{
-This function is used to calculate genome-wide expected methylation
-for each motif.
+This function is used to calculate expected methylation for a given
+motif and sample.
 }
 \keyword{internal}

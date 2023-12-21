@@ -12,7 +12,7 @@ plotVariability(
 )
 }
 \arguments{
-\item{variability}{output from \code{\link{computeZScoreVariability}}}
+\item{variability}{output from \code{\link{computeVariability}}}
 
 \item{xlab}{label for x-axis (default is 'Sorted TFs')}
 
@@ -25,5 +25,5 @@ variability$name)}
 ggplot object
 }
 \description{
-plot Z-score variability of motifs across cells or samples
+plot variability of motifs across cells or samples
 }

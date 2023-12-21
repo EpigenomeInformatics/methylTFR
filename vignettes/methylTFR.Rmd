@@ -128,12 +128,15 @@ Here is a quick example of how to compute bias-corrected deviation scores with `
 ```{r "computedevs", message=FALSE}
 library(methylTFR)
 
+# Add GC content into methylome
+bin_meth <- addGCBintoMethylome(msites, gcdist)
+
 # Compute deviation scores
 devs <- computeDeviation("FOXF2", # motif name
   msites = msites, # sample data
   tf_bindsites = tf_bindsites, # TF binding sites
   gcfreqs = gcfreqs, # GC frequency
-  gcdist = gcdist, # GC distribution
+  binMsites = bin_meth, # Binned methylation
   ignoreStrand = TRUE
 )
 
@@ -149,8 +152,8 @@ devs <- computeDeviation("FOXF2", # motif name
   msites = msites, # sample data
   tf_bindsites = tf_bindsites, # TF binding sites
   gcfreqs = gcfreqs, # GC frequency
-  gcdist = gcdist, # GC distribution
   ignoreStrand = TRUE, # ignore strand information
+  binMsites = bin_meth, # Binned methylation
   intermediate = TRUE # return intermediate results
 )
 

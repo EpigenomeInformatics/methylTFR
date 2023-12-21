@@ -1,6 +1,6 @@
 #' @title plotVariability
-#' @description plot Z-score variability of motifs across cells or samples
-#' @param variability output from \code{\link{computeZScoreVariability}}
+#' @description plot variability of motifs across cells or samples
+#' @param variability output from \code{\link{computeVariability}}
 #' @param xlab label for x-axis (default is 'Sorted TFs')
 #' @param nLab  number of top motifs to label (default is 5)
 #' @param motif_names vector of motif names to use as motif_names (default is
@@ -11,7 +11,7 @@
 plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
                             motif_names = variability$name) {
   if (!is.data.frame(variability)) {
-    stop("variability must be output from computeZScoreVariability")
+    stop("variability must be output from computeVariability")
   }
   if (!is.character(xlab)) {
     stop("xlab must be a character value")

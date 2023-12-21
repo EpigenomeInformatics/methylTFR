@@ -30,24 +30,27 @@ run_methyltfr <- function(
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
     filetype = NULL, ignoreStrand = TRUE) {
-  if (!tolower(filetype) %in% c("bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode")) {
-    logger::log_error("Please provide a valid file type")
+  if (!tolower(filetype) %in% c(
+    "bissnp", "epp", "allc", "bismarkcytosine",
+    "bismarkcov", "encode"
+  )) {
+    stop("Please provide a valid file type")
   }
   if (!is.logical(ignoreStrand)) {
-    logger::log_warn("Found invalid strand option, using the default")
+    warning("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
   }
   if (is.null(sampleColName) || !is.character(sampleColName)) {
-    logger::log_error("Please provide a valid sample column name")
+    stop("Please provide a valid sample column name")
   }
   if (!is.numeric(chunkSize) || chunkSize < 1) {
-    logger::log_warn("Invalid chunk size detected, using default chunk size")
+    warning("Invalid chunk size detected, using default chunk size")
     chunkSize <- 20
   }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
-    logger::log_error("Please load the annotation objects for given genome.")
+    stop("Please load the annotation objects for given genome.")
   }
-  if (!is(tf_bindsites, "GRangesList")) {
+  if (!is(tf_bindsites, "GRangesList") && !is.list(tf_bindsites)) {
     stop("tf_bindsites must be a GRangesList object")
   }
   if (!is(gcfreqs, "list")) {
@@ -61,27 +64,27 @@ run_methyltfr <- function(
   }
   if (is.null(annfile) || !is.character(annfile)) {
     if (is.null(sample_ann) || !is.character(sample_ann)) {
-      logger::log_error("Please provide a valid sample annotation file")
+      stop("Please provide a valid sample annotation file")
     }
     if (is.null(sample_dir) || !is.character(sample_dir)) {
-      logger::log_error("Please provide a valid sample directory")
+      stop("Please provide a valid sample directory")
     }
     if (!dir.exists(sample_dir)) {
-      logger::log_error("Sample directory does not exist, please check the directory path")
+      stop("Sample directory does not exist, please check the directory path")
     }
   }
   if (!is.numeric(threads) || threads < 1) {
-    logger::log_warn("Invalid thread count detected, using default thread count")
+    warning("Invalid thread count detected, using default thread count")
     threads <- 1
   }
   if (!is.logical(full_path)) {
-    logger::log_error("Invalid full path flag detected, please provide a valid logical value")
+    stop("Invalid full path flag detected, please provide a valid logical value")
   }
   if (is.null(annfile) || !is.character(annfile)) {
     annfile <- file.path(sample_dir, sample_ann)
   }
   if (!file.exists(annfile)) {
-    logger::log_error(" %s does not exist, please check the file path !!", annfile)
+    stop(" %s does not exist, please check the file path !!", annfile)
   }
   if (endsWith(annfile, ".csv")) {
     samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
@@ -89,7 +92,7 @@ run_methyltfr <- function(
   if (endsWith(annfile, ".tsv")) {
     samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   } else {
-    logger::log_error("Please provide a valid annotation file with .csv or .tsv extension")
+    stop("Please provide a valid annotation file with .csv or .tsv extension")
   }
   if (full_path) {
     files_list <- samples[, sampleColName]
@@ -97,14 +100,17 @@ run_methyltfr <- function(
     files_list <- file.path(sample_dir, samples[, sampleColName])
   }
   if (!all(file.exists(files_list))) {
-    logger::log_error("Some of the files does not exist, please check the file path!")
+    stop("Some of the files does not exist, please check the file path!")
   }
   logger::log_success("The samples are successfully located")
 
   motifs <- names(gcfreqs)
   # Split the motifs into chunks
   numChunks <- ceiling(length(motifs) / chunkSize)
-  motif_chunks <- split(motifs, rep(1:numChunks, each = chunkSize, length.out = length(motifs)))
+  motif_chunks <- split(motifs, rep(1:numChunks,
+    each = chunkSize,
+    length.out = length(motifs)
+  ))
 
   # Create a temp sinks
   dev_sink <- create_sink(files_list, motifs)
@@ -119,6 +125,7 @@ run_methyltfr <- function(
     sample_name <- basename(bedfile)
     msites <- read_methylome(bedfile, type = filetype)
     logger::log_info("Processing ", sample_name)
+    bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
 
     # Process motifs in chunks
     for (j in seq_along(motif_chunks)) {
@@ -130,7 +137,7 @@ run_methyltfr <- function(
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
-        gcdist = gc_dist,
+        binMsites = bin_meth,
         enhancer = enhancer,
         mc.cores = threads,
         ignoreStrand = ignoreStrand,
@@ -138,11 +145,17 @@ run_methyltfr <- function(
       )
 
       # Write the block to the sink
-      write_block_to_sink(lapply(sample_deviations, function(x) x$dev), dev_grid, i, j, dev_sink)
-      write_block_to_sink(lapply(sample_deviations, function(x) x$exp_dev), z_grid, i, j, z_sink)
+      write_block_to_sink(
+        lapply(sample_deviations, function(x) x$dev),
+        dev_grid, i, j, dev_sink
+      )
+      write_block_to_sink(
+        lapply(sample_deviations, function(x) x$exp_dev),
+        z_grid, i, j, z_sink
+      )
       rm(sample_deviations)
     }
-    rm(msites)
+    rm(msites, exp_meth)
     cleanMem()
     logger::log_info("Finished processing ", sample_name)
   }
@@ -155,11 +168,9 @@ run_methyltfr <- function(
   exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
   # Compute the sd and normalize the deviation
-  # sd <- apply(exp_dev, 2, sd, na.rm = TRUE)
-  sd <- matrixStats::rowSds(exp_dev, na.rm = TRUE)
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(
-      deviations = deviation, z = as.matrix(deviation / sd),
+      deviations = deviation, z = computeRowZScore(deviation),
       exp_dev = exp_dev
     ),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation))

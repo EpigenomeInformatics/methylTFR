@@ -17,7 +17,7 @@ setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 setValidity(
   "methylTFRdeviations",
   function(object) {
-    if(any(!c("deviations","z","exp_dev") %in% SummarizedExperiment::assayNames(object))) {
+    if (any(!c("deviations", "z", "exp_dev") %in% SummarizedExperiment::assayNames(object))) {
       return("The assays slot must contain 'deviations' and 'z'")
     }
     return(TRUE)
@@ -107,10 +107,12 @@ setGeneric("rbind", function(x, y) standardGeneric("rbind"))
 #' @export
 #' @importFrom BiocGenerics cbind
 #' @importFrom methods setMethod
-setMethod("cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"), 
-          function(x, y) {
-              BiocGenerics::cbind(x, y)
-          })
+setMethod(
+  "cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+  function(x, y) {
+    BiocGenerics::cbind(x, y)
+  }
+)
 
 #' @title rbind
 #' @description Combine two methylTFRdeviations objects by row.
@@ -120,7 +122,9 @@ setMethod("cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations
 #' @export
 #' @importFrom BiocGenerics rbind
 #' @importFrom methods setMethod
-setMethod("rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"), 
-          function(x, y) {
-              BiocGenerics::rbind(x, y)
-          })
+setMethod(
+  "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+  function(x, y) {
+    BiocGenerics::rbind(x, y)
+  }
+)
