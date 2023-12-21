@@ -9,10 +9,10 @@ computeDeviation(
   msites,
   tf_bindsites,
   gcfreqs,
-  gcdist,
   enhancer = NULL,
   ignoreStrand = TRUE,
-  intermediate = FALSE
+  intermediate = FALSE,
+  binMsites
 )
 }
 \arguments{
@@ -24,13 +24,13 @@ computeDeviation(
 
 \item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
 
-\item{gcdist}{a \code{GRanges} object contains Genome wide GC distribution}
-
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
 
 \item{intermediate}{if TRUE, it returns the intermediate results as well}
+
+\item{binMsites}{a \code{data.table} object with GC bin with corresponding avg methylation}
 }
 \value{
 a \code{numeric} deviation score for a given motif
@@ -48,6 +48,9 @@ load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
+# Add GC bin
+bin_meth <- addGCBintoMethylome(msites, gcdist)
+
 # Compute the deviation
-devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, gcdist)
+devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, binMsites = bin_meth)
 }
