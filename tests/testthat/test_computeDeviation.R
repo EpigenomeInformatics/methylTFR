@@ -2,40 +2,54 @@
 
 library(methylTFR)
 
-test_that("computeDeviation",{
-    # Load the data
-    load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-    load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
-    load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
-    load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+test_that("computeDeviation", {
+  # Load the data
+  load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+  load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+  load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+  load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-    # Add GC bin
-    bin_meth <- addGCBintoMethylome(msites, gcdist)
+  # Add GC bin
+  bin_meth <- addGCBintoMethylome(msites, gcdist)
 
-    # Compute the deviation
-    devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs,binMsites = bin_meth)
+  # Compute the deviation
+  devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, binMsites = bin_meth)
 
-    # Check that the result is a double value
-    expect_type(devs, "double")
+  # Check that the result is a double value
+  expect_type(devs, "double")
 
-    # Check that the function returns an error when given incorrect input
-    expect_error(computeDeviation(motif=NULL, msites, tf_bindsites, gcfreqs,enhancer=NULL, binMsites = bin_meth),
-     "Please provide a valid motif name")
-    expect_error(computeDeviation("FOXF2", NULL, tf_bindsites, gcfreqs, binMsites = bin_meth), 
-    "Please provide a valid methylation sites with read_methylome function")
-    expect_error(computeDeviation("FOXF2", msites, NULL, gcfreqs, binMsites = bin_meth), 
-    "Please provide a valid tf binding sites as GRangesList")
-    expect_error(computeDeviation("FOXF2", msites, tf_bindsites, NULL, binMsites = bin_meth), 
-    "Please provide a valid GC bin frequency table list")
-    expect_error(computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, binMsites = NULL),
-     "Please provide a valid binMsites as a matrix")
+  # Check that the function returns an error when given incorrect input
+  expect_error(
+    computeDeviation(motif = NULL, msites, tf_bindsites, gcfreqs, enhancer = NULL, binMsites = bin_meth),
+    "Please provide a valid motif name"
+  )
+  expect_error(
+    computeDeviation("FOXF2", NULL, tf_bindsites, gcfreqs, binMsites = bin_meth),
+    "Please provide a valid methylation sites with read_methylome function"
+  )
+  expect_error(
+    computeDeviation("FOXF2", msites, NULL, gcfreqs, binMsites = bin_meth),
+    "Please provide a valid tf binding sites as GRangesList"
+  )
+  expect_error(
+    computeDeviation("FOXF2", msites, tf_bindsites, NULL, binMsites = bin_meth),
+    "Please provide a valid GC bin frequency table list"
+  )
+  expect_error(
+    computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, binMsites = NULL),
+    "Please provide a valid binMsites as a matrix"
+  )
 
-    # Check that the function returns a warning when given incorrect options
-    expect_warning(computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, ignoreStrand = "invalid", binMsites = bin_meth),
-     "Found invalid strand option, using the default")
-    expect_warning(computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, intermediate = "invalid", binMsites = bin_meth),
-     "Found invalid intermediate option, using the default")
+  # Check that the function returns a warning when given incorrect options
+  expect_warning(
+    computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, ignoreStrand = "invalid", binMsites = bin_meth),
+    "Found invalid strand option, using the default"
+  )
+  expect_warning(
+    computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, intermediate = "invalid", binMsites = bin_meth),
+    "Found invalid intermediate option, using the default"
+  )
 
-    # Check that the function returns the expected result when given a specific input
-    expect_equal(computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, binMsites = bin_meth), devs)
+  # Check that the function returns the expected result when given a specific input
+  expect_equal(computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, binMsites = bin_meth), devs)
 })
