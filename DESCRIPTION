@@ -1,5 +1,5 @@
 Package: methylTFR
-Title: Quantification of DNA Methylation Patterns at TFBS
+Title: Quantification of DNA Methylation Signatures in TFBS
 Version: 0.99.0
 Date: 2023-09-28
 Authors@R: c(
@@ -11,7 +11,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-5809-2321"))
   )
 Description: methylTFR is an extensive R package designed specifically for
-    analyzing DNA methylation patterns within transcription factor binding
+    analyzing DNA methylation signatures within transcription factor binding
     sites (TFBS) across diverse genomic annotations. It enhances
     methylation analysis by calculating a bias-corrected 'deviation' in
     methylation levels, leveraging GC bias distribution and frequency

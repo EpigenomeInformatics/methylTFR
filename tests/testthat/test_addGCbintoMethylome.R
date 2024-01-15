@@ -6,15 +6,15 @@ test_that("addGCbintoMethylome", {
   # load example data
   load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
   load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-  
+
   # Add GC bin
   bin_meth <- addGCBintoMethylome(msites, gcdist)
-  
+
   # Test the output
   expect_type(bin_meth, "double")
   expect_equal(dim(bin_meth), c(5, 2))
 
-   # Test the values in avg_mscore column
+  # Test the values in avg_mscore column
   expect_true(all(bin_meth[, "avg_mscore"] >= 0))
   expect_true(all(bin_meth[, "avg_mscore"] <= 1))
 
@@ -30,14 +30,22 @@ test_that("addGCbintoMethylome", {
   # Read ALLC format
   allc_path <- system.file("extdata", "allc.tsv.gz", package = "methylTFR")
   allc <- read_methylome(allc_path, "allc")
-  expect_error(addGCBintoMethylome(allc, gcdist),
-  "No methylation sites found in the GC distribution")
+  expect_error(
+    addGCBintoMethylome(allc, gcdist),
+    "No methylation sites found in the GC distribution"
+  )
 
   # Test if the function throws an error when the input is not a GRanges object
-  expect_error(addGCBintoMethylome(NULL, gcdist),
-  "Please provide a valid methylation sites with read_methylome function")
-    expect_error(addGCBintoMethylome(msites, NULL),
-  "Please provide a valid GC distribution")
-  expect_warning(addGCBintoMethylome(msites, gcdist, ignoreStrand = NULL),
-    "Found invalid strand option, using the default")
+  expect_error(
+    addGCBintoMethylome(NULL, gcdist),
+    "Please provide a valid methylation sites with read_methylome function"
+  )
+  expect_error(
+    addGCBintoMethylome(msites, NULL),
+    "Please provide a valid GC distribution"
+  )
+  expect_warning(
+    addGCBintoMethylome(msites, gcdist, ignoreStrand = NULL),
+    "Found invalid strand option, using the default"
+  )
 })

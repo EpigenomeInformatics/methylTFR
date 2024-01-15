@@ -13,7 +13,7 @@
 computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) {
   tfbs <- tf_bindsites[[motif_name]]
   w <- width(tfbs)[1]
-  tfbs <- resize(tfbs, w + 101, fix = "center")
+  tfbs <- resize(tfbs, w + 130, fix = "center")
 
   if (!is.null(enhancer)) {
     d_hits <- findOverlaps(tfbs, enhancer, ignore.strand = TRUE)
