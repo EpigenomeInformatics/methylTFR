@@ -19,7 +19,7 @@ Encode <- data.frame(
 # bismarkCytosine data
 bismarkCytosine <- data.frame(
   chr = rep("chr2", 7),
-  start = rep(2, 7),
+  #start = rep(2, 7),
   end = c(16050097, 16050098, 16050114, 16050115, 16115591, 16117938, 16122790),
   strand = c("+", "-", "+", "-", "+", "-", "+"),
   score1 = c(0, 1, 0, 0, 1, 0, 0),

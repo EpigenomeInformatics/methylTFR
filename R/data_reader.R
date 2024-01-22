@@ -55,13 +55,13 @@ read_methylome <- function(filename, type) {
   if (type == "bismarkcytosine") {
     # Parse bismarkCytosine file format
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
-    if (ncol(msites) < 8) {
+    if (ncol(msites) < 5) {
       logger::log_warn(paste0(filename, " is an invalid bismarkCytosine file!"))
-      stop("bismarkCytosine file must contain at least 8 columns!")
+      stop("bismarkCytosine file must contain at least 5 columns!")
     }
-    mscore <- round(msites$V5 / msites$V6, 6)
-    cov <- msites$V6
-    msites <- msites[, .(V1, V3, V3, V4), ]
+    cov <- (msites$V5 + msites$V4) # methylated + unmethylated
+    mscore <- round(msites$V4 / cov, 6)
+    msites <- msites[, .(V1, V2, V2, V3), ]
   }
   if (type == "bismarkcov") {
     # Parse bismarkCov file format
