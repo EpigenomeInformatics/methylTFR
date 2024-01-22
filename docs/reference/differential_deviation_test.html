@@ -20,7 +20,10 @@ deviations among different groups. Adapted from chromVAR::differential_test"><!-
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="nav-link" href="../articles/methylTFR.html">Get started</a>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
 <li class="nav-item">
@@ -67,41 +70,37 @@ deviations among different groups. Adapted from chromVAR::differential_test</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>deviations</dt>
-<dd><ul><li><p>a <code>data.frame</code> contains deviations for each motif</p></li>
-</ul></dd>
+<dd><p>a <code>data.frame</code> contains deviations for each motif</p></dd>
 
 
 <dt>groups</dt>
-<dd><ul><li><p>a character vector of group names or colnames(deviations)</p></li>
-</ul></dd>
+<dd><p>a character vector of group names or colnames(deviations)</p></dd>
 
 
 <dt>motifs</dt>
-<dd><ul><li><p>a character vector of motif names used in analysis or rownames(deviations)</p></li>
-</ul></dd>
+<dd><p>a character vector of motif names used in analysis or rownames(deviations)</p></dd>
 
 
 <dt>alternative</dt>
-<dd><ul><li><p>a character string specifying the alternative hypothesis,
-must be one of "two.sided" (default), "greater" or "less".</p></li>
-</ul></dd>
+<dd><p>a character string specifying the alternative hypothesis,
+must be one of "two.sided" (default), "greater" or "less".</p></dd>
 
 
 <dt>parametric</dt>
-<dd><ul><li><p>logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.</p></li>
-</ul></dd>
+<dd><p>logical, if TRUE, parametric tests are used,
+otherwise non-parametric tests are used.</p></dd>
 
 
 <dt>padjMethod</dt>
-<dd><ul><li><p>method for p-value adjustment, default is "BH"</p></li>
-</ul></dd>
+<dd><p>method for p-value adjustment, default is "BH"</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>a <code>data.frame</code> contains motifs with corresponding p-value and adjusted p-value</p>
+<p>a <code>data.frame</code> contains motifs with corresponding p-value and
+adjusted p-value</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

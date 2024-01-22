@@ -20,7 +20,10 @@ object. Bed file should be in EPP,ALLC or BisSNP format."><!-- mathjax --><scrip
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item">
+      <ul class="navbar-nav me-auto"><li class="nav-item">
+  <a class="nav-link" href="../articles/methylTFR.html">Get started</a>
+</li>
+<li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
 </li>
 <li class="nav-item">
@@ -82,9 +85,9 @@ bismarkcov,allc and encode</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Read EPP file</span></span></span>
-<span class="r-in"><span><span class="va">epp_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"epp.tsv.gz"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">epp</span> <span class="op">&lt;-</span> <span class="fu">read_methylome</span><span class="op">(</span><span class="va">epp_path</span>, <span class="st">"EPP"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Read bissnp file</span></span></span>
+<span class="r-in"><span><span class="va">bissnp_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"bissnp.tsv.gz"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bissnp</span> <span class="op">&lt;-</span> <span class="fu">read_methylome</span><span class="op">(</span><span class="va">bissnp_path</span>, <span class="st">"bissnp"</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

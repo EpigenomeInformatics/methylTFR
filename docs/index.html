@@ -5,30 +5,28 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content='methylTFR is a comprehensive R package tailored for the
-    analysis of DNA methylation patterns within transcription factor
-    binding sites (TFBS) across various genomic annotations. methylTFR
-    enhances methylation analysis by computing, for each TFBS and each
-    cell or sample, a bias-corrected "deviation" in methylation levels
-    from the expected methylation for each motif, utilizing the GC bias
-    distribution and frequency data. The package provides a range of
-    functions aiding in the discovery of TFBS with varying methylation
-    patterns across different samples or cells.'>
-<title>Identification of Methylation Patterns in TFBS • methylTFR</title>
+<meta name="description" content="methylTFR is an extensive R package designed specifically for
+    analyzing DNA methylation signatures within transcription factor binding
+    sites (TFBS) across diverse genomic annotations. It enhances
+    methylation analysis by calculating a bias-corrected deviation in
+    methylation levels, leveraging GC bias distribution and frequency
+    data.  This package offers a variety of functions that facilitate the
+    motif activity exhibiting diverse methylation patterns across distinct
+    samples or cells.">
+<title>Quantification of DNA Methylation Signatures in TFBS • methylTFR</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Identification of Methylation Patterns in TFBS">
-<meta property="og:description" content='methylTFR is a comprehensive R package tailored for the
-    analysis of DNA methylation patterns within transcription factor
-    binding sites (TFBS) across various genomic annotations. methylTFR
-    enhances methylation analysis by computing, for each TFBS and each
-    cell or sample, a bias-corrected "deviation" in methylation levels
-    from the expected methylation for each motif, utilizing the GC bias
-    distribution and frequency data. The package provides a range of
-    functions aiding in the discovery of TFBS with varying methylation
-    patterns across different samples or cells.'>
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Quantification of DNA Methylation Signatures in TFBS">
+<meta property="og:description" content="methylTFR is an extensive R package designed specifically for
+    analyzing DNA methylation signatures within transcription factor binding
+    sites (TFBS) across diverse genomic annotations. It enhances
+    methylation analysis by calculating a bias-corrected deviation in
+    methylation levels, leveraging GC bias distribution and frequency
+    data.  This package offers a variety of functions that facilitate the
+    motif activity exhibiting diverse methylation patterns across distinct
+    samples or cells.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -51,6 +49,9 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item">
+  <a class="nav-link" href="articles/methylTFR.html">Get started</a>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
@@ -77,12 +78,12 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="methyltfr--identification-of-methylation-patterns-in-tfbs">
-<em>methylTFR</em> : Identification of Methylation Patterns in TFBS<a class="anchor" aria-label="anchor" href="#methyltfr--identification-of-methylation-patterns-in-tfbs"></a>
+<div class="page-header"><h1 id="methyltfr--quantification-of-dna-methylation-patterns-in-tfbs">
+<em>methylTFR</em> : Quantification of DNA Methylation Patterns in TFBS<a class="anchor" aria-label="anchor" href="#methyltfr--quantification-of-dna-methylation-patterns-in-tfbs"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p><code>methylTFR</code> is an R-package to analyze DNA methylation patterns on transcription factor binding sites in each individual cells or samples.</p>
+<p><code>methylTFR</code> is an R-package to analyze DNA methylation signatures in transcription factor binding sites in each individual cells or samples.</p>
 <div class="section level2">
 <h2 id="installation-instructions">Installation instructions<a class="anchor" aria-label="anchor" href="#installation-instructions"></a>
 </h2>
@@ -139,13 +140,14 @@
 <span><span class="co">#&gt; To cite package 'methylTFR' in publications use:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2023).</span></span>
-<span><span class="co">#&gt;   methylTFR: Identification of Methylation Patterns in TFBS. R package</span></span>
-<span><span class="co">#&gt;   version 0.99.0. https://github.com/EpigenomeInformatics/methylTFR</span></span>
+<span><span class="co">#&gt;   methylTFR: Quantification of DNA Methylation Signatures in TFBS. R</span></span>
+<span><span class="co">#&gt;   package version 0.99.0.</span></span>
+<span><span class="co">#&gt;   https://github.com/EpigenomeInformatics/methylTFR</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; A BibTeX entry for LaTeX users is</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   @Manual{,</span></span>
-<span><span class="co">#&gt;     title = {methylTFR: Identification of Methylation Patterns in TFBS},</span></span>
+<span><span class="co">#&gt;     title = {methylTFR: Quantification of DNA Methylation Signatures in TFBS},</span></span>
 <span><span class="co">#&gt;     author = {Irem B. Gündüz and Sarath Kumar Murugan and Fabian Muller},</span></span>
 <span><span class="co">#&gt;     year = {2023},</span></span>
 <span><span class="co">#&gt;     note = {R package version 0.99.0},</span></span>
