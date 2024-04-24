@@ -4,21 +4,27 @@
 \alias{read_methylome}
 \title{read_methylome}
 \usage{
-read_methylome(filename, type)
+read_methylome(filename, type, cov_threshold = 5)
 }
 \arguments{
 \item{filename}{\itemize{
 \item filename which contains methylation data
 }}
 
-\item{type}{Type of file format. Currently supported epp, bissnp,bismarkCytosine,bismarkcov,allc and encode}
+\item{type}{Type of file format. Currently supported epp, bissnp, bismarkCytosine,
+bismarkcov,allc and encode}
+
+\item{cov_threshold}{\itemize{
+\item numeric, coverage threshold to filter out low coverage sites,
+default is 5
+}}
 }
 \value{
 a \code{GenomicRange} object with methylation, coverage information
 }
 \description{
-read_methylome is a function to import methylation data into R Genomic
-Range object. Bed file should be in EPP,ALLC or BisSNP format.
+read_methylome is a function to import methylation data into a GRanges
+object. Bed file should be in EPP,ALLC or BisSNP format.
 }
 \examples{
 # Read EPP file
