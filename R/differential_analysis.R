@@ -22,7 +22,7 @@ differential_deviation_test <- function(deviations,
   if (!class(deviations) %in% c("data.frame", "matrix", "methylTFRDeviation")) {
     stop("deviations must be a methylTFRDeviation object, or data.frame or matrix")
   }
-  if (class(deviations) == "methylTFRDeviation") {
+  if (is(deviations,"methylTFRDeviation")) {
     deviations <- deviations(deviations)
   }
   if (is.null(groups)) {

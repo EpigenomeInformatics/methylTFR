@@ -5,7 +5,7 @@ library(methylTFR)
 test_that("read_methylome", {
   # Test read_methylome for ALLC format
   allc_path <- system.file("extdata", "allc.tsv.gz", package = "methylTFR")
-  allc <- read_methylome(allc_path, "allc")
+  allc <- read_methylome(allc_path, "allc", cov_threshold = 1)
 
   # Check the length of the allc object
   expect_equal(length(allc), 3)

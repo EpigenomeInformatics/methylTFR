@@ -113,12 +113,12 @@ run_methyltfr <- function(
   ))
 
   # Create a temp sinks
-  dev_sink <- methylTFR:::create_sink(files_list, motifs)
-  z_sink <- methylTFR:::create_sink(files_list, motifs)
+  dev_sink <- create_sink(files_list, motifs)
+  z_sink <- create_sink(files_list, motifs)
 
   # set the grid
-  dev_grid <- methylTFR:::set_grid(files_list, motif_chunks)
-  z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
+  dev_grid <- set_grid(files_list, motif_chunks)
+  z_grid <- set_grid(files_list, motif_chunks)
 
   for (i in seq_along(files_list)) {
     bedfile <- files_list[i]
@@ -145,11 +145,11 @@ run_methyltfr <- function(
       )
 
       # Write the block to the sink
-      methylTFR:::write_block_to_sink(
+      write_block_to_sink(
         lapply(sample_deviations, function(x) x$dev),
         dev_grid, i, j, dev_sink
       )
-      methylTFR:::write_block_to_sink(
+      write_block_to_sink(
         lapply(sample_deviations, function(x) x$exp_dev),
         z_grid, i, j, z_sink
       )
