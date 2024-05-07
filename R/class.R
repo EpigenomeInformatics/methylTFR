@@ -17,7 +17,7 @@ setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 setValidity(
   "methylTFRdeviations",
   function(object) {
-    if (any(!c("deviations", "z", "exp_dev") %in% SummarizedExperiment::assayNames(object))) {
+    if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
       return("The assays slot must contain 'deviations' and 'z'")
     }
     return(TRUE)
@@ -63,24 +63,6 @@ setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 #' @importFrom methods setMethod
 setMethod("deviationZScores", "methylTFRdeviations", function(x) {
   SummarizedExperiment::assay(x, "z")
-})
-
-#' @title expectedDeviations
-#' @description Function to get deviations from a methylTFRdeviations object.
-#' @param x A methylTFRdeviations object.
-#' @return A matrix of deviations.
-#' @export
-setGeneric("expectedDeviations", function(x) standardGeneric("expectedDeviations"))
-
-#' @title expectedDeviations
-#' @description Extract expected deviations from methylTFRdeviations object.
-#' @param x methylTFRdeviations object.
-#' @return A matrix of expected deviations.
-#' @export
-#' @importFrom SummarizedExperiment assay
-#' @importFrom methods setMethod
-setMethod("expectedDeviations", "methylTFRdeviations", function(x) {
-  SummarizedExperiment::assay(x, "exp_dev")
 })
 
 #' @title cbind

@@ -4,7 +4,7 @@
 \alias{read_methylome}
 \title{read_methylome}
 \usage{
-read_methylome(filename, type)
+read_methylome(filename, type, cov_threshold = 5)
 }
 \arguments{
 \item{filename}{\itemize{
@@ -13,6 +13,11 @@ read_methylome(filename, type)
 
 \item{type}{Type of file format. Currently supported epp, bissnp, bismarkCytosine,
 bismarkcov,allc and encode}
+
+\item{cov_threshold}{\itemize{
+\item numeric, coverage threshold to filter out low coverage sites,
+default is 5
+}}
 }
 \value{
 a \code{GenomicRange} object with methylation, coverage information

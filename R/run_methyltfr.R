@@ -125,23 +125,32 @@ run_methyltfr <- function(
     sample_name <- basename(bedfile)
     msites <- read_methylome(bedfile, type = filetype)
     logger::log_info("Processing ", sample_name)
-    bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
 
     # Process motifs in chunks
     for (j in seq_along(motif_chunks)) {
       # Get the current chunk
       chunk_motifs <- motif_chunks[[j]]
 
+      # Compute expected deviations
+      exp_dev <- parallel::mclapply(chunk_motifs, computeExpectedDeviation,
+        msites = msites,
+        gcfreqs = gcfreqs,
+        gc_dist = gc_dist,
+        enhancer = enhancer,
+        ignoreStrand = ignoreStrand,
+        mc.cores = threads
+      )
+      # Compute bias corrected deviations
       sample_deviations <- parallel::mclapply(chunk_motifs,
         computeDeviation,
         msites = msites,
+        gc_dist = gc_dist,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
-        binMsites = bin_meth,
         enhancer = enhancer,
         mc.cores = threads,
         ignoreStrand = ignoreStrand,
-        intermediate = TRUE
+        exp_dev = exp_dev
       )
 
       # Write the block to the sink
@@ -150,7 +159,7 @@ run_methyltfr <- function(
         dev_grid, i, j, dev_sink
       )
       methylTFR:::write_block_to_sink(
-        lapply(sample_deviations, function(x) x$exp_dev),
+        lapply(sample_deviations, function(x) x$obs_dev),
         z_grid, i, j, z_sink
       )
       rm(sample_deviations)
@@ -165,13 +174,12 @@ run_methyltfr <- function(
   DelayedArray::close(dev_sink)
   DelayedArray::close(z_sink)
   deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
-  exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
+  obs_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
-  # Compute the sd and normalize the deviation
+  # create summarized experiment object
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(
-      deviations = deviation, z = computeRowZScore(deviation),
-      exp_dev = exp_dev
+      deviations = obs_dev, z = deviation
     ),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation))
   )

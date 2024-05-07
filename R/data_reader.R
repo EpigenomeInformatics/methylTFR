@@ -4,6 +4,8 @@
 #' @param filename - filename which contains methylation data
 #' @param type Type of file format. Currently supported epp, bissnp, bismarkCytosine,
 #' bismarkcov,allc and encode
+#' @param cov_threshold - numeric, coverage threshold to filter out low coverage sites,
+#' default is 5
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @import data.table
@@ -17,13 +19,16 @@
 #' bissnp_path <- system.file("extdata", "bissnp.tsv.gz", package = "methylTFR")
 #' bissnp <- read_methylome(bissnp_path, "bissnp")
 #' @export
-read_methylome <- function(filename, type) {
+read_methylome <- function(filename, type, cov_threshold = 5) {
   type <- tolower(type)
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))
   }
   if (!type %in% c("bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode")) {
     stop(paste(type, " is not a valid file type!"))
+  }
+  if(!is.numeric(cov_threshold) || cov_threshold < 0){
+    stop(paste(cov_threshold, " is not a valid coverage threshold!"))
   }
   if (type == "epp") {
     # Parse EPP file format
@@ -96,6 +101,8 @@ read_methylome <- function(filename, type) {
     startP = msites$start,
     endP = msites$end
   )
+  # Filter low coverage sites
+  gr_obj <- gr_obj[gr_obj$coverage >= cov_threshold]
   return(gr_obj)
 }
 
