@@ -108,9 +108,9 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs, gc_dist,
   #dev <- (obs_dev - exp_dev)
 
   # WARNING: This is a trial implementation
-  dev <- (obs_dev - mean(exp_dev))/sd(exp_dev)
+  z_score <- (obs_dev - mean(exp_dev))/sd(exp_dev)
   obs_dev <- (obs_dev - mean(exp_dev))
-  return(data.table::data.table(obs_dev, dev)) 
+  return(data.table::data.table(obs_dev, z_score)) 
   # WARNING: Changed exp_dev to obs_dev
 }
 

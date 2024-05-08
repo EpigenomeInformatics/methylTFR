@@ -155,11 +155,11 @@ run_methyltfr <- function(
 
       # Write the block to the sink
       methylTFR:::write_block_to_sink(
-        lapply(sample_deviations, function(x) x$dev),
+        lapply(sample_deviations, function(x) x$obs_dev),
         dev_grid, i, j, dev_sink
       )
       methylTFR:::write_block_to_sink(
-        lapply(sample_deviations, function(x) x$obs_dev),
+        lapply(sample_deviations, function(x) x$z_score),
         z_grid, i, j, z_sink
       )
       rm(sample_deviations)
@@ -173,15 +173,15 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(dev_sink)
   DelayedArray::close(z_sink)
-  deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
-  obs_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
+  obs_dev <- as.matrix(t(as(dev_sink, "DelayedArray")))
+  z_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
   # create summarized experiment object
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(
-      deviations = obs_dev, z = deviation
+      deviations = obs_dev, z = z_dev
     ),
-    colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+    colData = samples, rowData = DataFrame(motifs = row.names(obs_dev))
   )
   return(new("methylTFRdeviations", se))
 }
