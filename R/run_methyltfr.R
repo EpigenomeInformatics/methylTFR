@@ -14,6 +14,7 @@
 #' @param annfile if provided, the sample annotation file is not read from the sample_dir
 #' @param filetype file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
+#' @param sample_size number of GC sites to sample, default is 25000
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
@@ -29,7 +30,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
-    filetype = NULL, ignoreStrand = TRUE) {
+    filetype = NULL, ignoreStrand = TRUE, sample_size = 25000) {
   if (!tolower(filetype) %in% c(
     "bissnp", "epp", "allc", "bismarkcytosine",
     "bismarkcov", "encode"
@@ -120,6 +121,12 @@ run_methyltfr <- function(
   dev_grid <- methylTFR:::set_grid(files_list, motif_chunks)
   z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
 
+  if (!is.null(enhancer)) {
+    d_hits <- findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand)
+    gc_dist <- gc_dist[d_hits@from]
+  }
+  gc_dist <- as.data.table(gc_dist)
+
   for (i in seq_along(files_list)) {
     bedfile <- files_list[i]
     sample_name <- basename(bedfile)
@@ -136,15 +143,18 @@ run_methyltfr <- function(
         msites = msites,
         gcfreqs = gcfreqs,
         gc_dist = gc_dist,
-        enhancer = enhancer,
+        # enhancer = enhancer,
         ignoreStrand = ignoreStrand,
+        sample_size = sample_size,
         mc.cores = threads
       )
+      names(exp_dev) <- chunk_motifs
+
       # Compute bias corrected deviations
       sample_deviations <- parallel::mclapply(chunk_motifs,
         computeDeviation,
         msites = msites,
-        gc_dist = gc_dist,
+        # gc_dist = gc_dist,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
         enhancer = enhancer,

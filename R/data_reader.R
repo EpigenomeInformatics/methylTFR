@@ -27,7 +27,7 @@ read_methylome <- function(filename, type, cov_threshold = 5) {
   if (!type %in% c("bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode")) {
     stop(paste(type, " is not a valid file type!"))
   }
-  if(!is.numeric(cov_threshold) || cov_threshold < 0){
+  if (!is.numeric(cov_threshold) || cov_threshold < 0) {
     stop(paste(cov_threshold, " is not a valid coverage threshold!"))
   }
   if (type == "epp") {

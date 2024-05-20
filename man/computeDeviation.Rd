@@ -9,7 +9,6 @@ computeDeviation(
   msites,
   tf_bindsites,
   gcfreqs,
-  gc_dist,
   enhancer = NULL,
   ignoreStrand = TRUE,
   exp_dev
@@ -23,8 +22,6 @@ computeDeviation(
 \item{tf_bindsites}{a \code{GRangesList} object contains tf binding sites positions}
 
 \item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
-
-\item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
 
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
@@ -43,13 +40,12 @@ binding sites for a given motif
 library(methylTFR)
 
 # Load the data
-load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
 # Add GC bin
-bin_meth <- computeExpectedDeviation("FOXF2", msites, gcfreqs, gc_dist,TRUE)
+bin_meth <- computeExpectedDeviation("FOXF2", msites, gcfreqs, TRUE)
 
 # Compute the deviation
 devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)

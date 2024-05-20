@@ -6,18 +6,44 @@
 #' @param gcShuffleSize - integer - number of GC sites to sample
 #' @param gcfreq - matrix - GC frequency matrix
 #' @return - list of matrices
+#' @importFrom GenomicRanges GRanges findOverlaps
+#' @importFrom data.table data.table rbindlist
+#' @importFrom dplyr sample_n
 #' @keywords internal
+
 compute_exp_meth <- function(msites, gcdist, gcShuffleSize, ignoreStrand, gcfreq) {
-  sampled_gcdist <- sample(gcdist, size = gcShuffleSize, replace = TRUE, prob = gcfreq)
+  n_samples <- round(gcfreq * gcShuffleSize)
+  sampled_gcdist <- lapply(seq_along(n_samples), function(i) {
+    sample_n(gcdist[gcdist$GC_bin == i], n_samples[i], replace = FALSE, prob = NULL)
+  })
+  sampled_gcdist <- rbindlist(sampled_gcdist)
+  sampled_gcdist <- GRanges(
+    seqnames = sampled_gcdist$seqnames,
+    ranges = IRanges(
+      start = sampled_gcdist$start,
+      end = sampled_gcdist$end
+    ),
+    strand = sampled_gcdist$strand,
+    GC_bias = sampled_gcdist$GC_bias,
+    GC_bin = sampled_gcdist$GC_bin
+  )
   hits <- findOverlaps(msites, sampled_gcdist, type = "within", ignore.strand = ignoreStrand)
+
   if (length(hits@from) == 0) {
-    stop("No methylation sites found in the GC distribution")
+    return(as.matrix(data.frame(gcbin = 1:5, avg_mscore = rep(0, 5))))
   }
   gcmap <- data.table(
     mscore = msites[hits@from]$score,
     gcbin = sampled_gcdist[hits@to]$GC_bin
   )
   exp_meth <- gcmap[, .(avg_mscore = mean(mscore)), by = gcbin]
+
+  # Set gcbin as a key column in exp_meth
+  setkey(exp_meth, gcbin)
+
+  # Join exp_meth with a data table of all gcbin values and replace NA with 0
+  exp_meth <- exp_meth[.(1:5), on = .(gcbin)]
+  exp_meth[is.na(exp_meth)] <- 0
   exp_meth <- exp_meth[order(gcbin)]
   return(as.matrix(exp_meth))
 }
@@ -34,10 +60,11 @@ compute_exp_meth <- function(msites, gcdist, gcShuffleSize, ignoreStrand, gcfreq
 #' @importFrom logger log_info log_warn log_error
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom parallel mclapply
-#' @export
+#' @keywords internal
 #' @author Irem Gunduz
-addGCBintoMethylome <- function(msites, gcdist, ignoreStrand = TRUE,
- sample_size = 10000,gcfreq) {
+addGCBintoMethylome <- function(
+    msites, gcdist, ignoreStrand = TRUE,
+    sample_size = 25000, gcfreq) {
   if (!is.logical(ignoreStrand)) {
     warning("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
@@ -45,14 +72,45 @@ addGCBintoMethylome <- function(msites, gcdist, ignoreStrand = TRUE,
   if (is.null(msites) || !is(msites, "GRanges")) {
     stop("Please provide a valid methylation sites with read_methylome function")
   }
-  if (is.null(gcdist) || !is(gcdist, "GRanges")) {
-    stop("Please provide a valid GC distribution")
-  } 
-  #gcfreq_resized <- gcfreq[gcdist$GC_bin] # This will select only the first column
-  exp_meth_list <- lapply(250:(NCOL(gcfreq) - 250),  # This will focus on motif center
-  function(x) compute_exp_meth(msites, gcdist, sample_size,
-  ignoreStrand,gcfreq[gcdist$GC_bin,x])) # Test if this makes function slower
+  # Find overlaps between msites and gcdist
+  # hits <- findOverlaps(msites, gcdist, type = "within", ignore.strand = ignoreStrand)
+  # gcdist <- gcdist[hits@to] # To assure every GC_bin is present in the final result
+  exp_meth_list <- lapply(
+    251:(NCOL(gcfreq) - 250), # This will focus on motif center
+    function(x) {
+      compute_exp_meth(
+        msites, gcdist, sample_size,
+        ignoreStrand, gcfreq[, x]
+      )
+    }
+  ) # This will calculate the expected methylation for each GC bin
   return(exp_meth_list)
+}
+
+#' @title computeExpectations
+#' @description  This function is used to calculate expected methylation for a given
+#' motif and sample.
+#' @param binMsites_sub Imported methylation sites with GC bin
+#' @param gcfreq a \code{list} of GC bin frequency tables (matrices for multiple motif)
+#' @return a \code{data.table} object with GC bin with corresponding avg methylation
+#' @importFrom GenomicRanges GRanges findOverlaps
+#' @importFrom data.table data.table
+#' @importFrom logger log_info log_warn log_error
+#' @keywords internal
+computeExpectations <- function(binMsites_sub, gcfreq) {
+  if (!is.matrix(binMsites_sub)) {
+    stop("Please provide a valid GC bin frequency table as a matrix")
+  }
+  if (!is.matrix(gcfreq)) {
+    stop("Please provide a valid GC bin frequency table as a matrix")
+  }
+  exp.data <- t(gcfreq) %*% binMsites_sub[, 2]
+  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2),
+    length.out = length(exp.data)
+  ))
+  exp.methyl <- data.table(x = mpos, avg_methyl = exp.data)
+  colnames(exp.methyl) <- c("x", "avg_methyl")
+  return(exp.methyl)
 }
 
 #' @title computeExpectedDeviation
@@ -63,14 +121,14 @@ addGCBintoMethylome <- function(msites, gcdist, ignoreStrand = TRUE,
 #' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param enhancer  a \code{GRanges} object specifying regions such as distal motif (optional)
+#' @param sample_size number of GC sites to sample, default is 25000
 #' @return a \code{numeric} deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
-#' @export 
+#' @export
 computeExpectedDeviation <- function(motif, msites, gcfreqs, gc_dist,
-                             ignoreStrand = TRUE,enhancer=NULL) {
- if (!is.logical(ignoreStrand)) {
+                                     ignoreStrand = TRUE, sample_size = 25000) {
+  if (!is.logical(ignoreStrand)) {
     warning("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
   }
@@ -83,13 +141,9 @@ computeExpectedDeviation <- function(motif, msites, gcfreqs, gc_dist,
   if (is.null(gcfreqs) || !is.list(gcfreqs)) {
     stop("Please provide a valid GC bin frequency table list")
   }
-  if (!is.null(enhancer)) {
-    d_hits <- findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand)
-    gc_dist <- gc_dist[d_hits@from]
-  }
   gcfreq <- gcfreqs[[motif]]
-  binMsites <- addGCBintoMethylome(msites, gc_dist,ignoreStrand,10000,gcfreq) 
-  exp_meth <- lapply(binMsites, function(x) computeExpectations(x, gcfreq))
+  binMsites <- addGCBintoMethylome(msites, gc_dist, ignoreStrand, sample_size, gcfreq)
+  exp_meth <- lapply(binMsites, function(i) computeExpectations(i, gcfreq))
   exp_dev <- lapply(exp_meth, dev_helper)
   return(unlist(exp_dev))
 }
