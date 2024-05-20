@@ -1,30 +1,3 @@
-#' @title computeExpectations
-#' @description  This function is used to calculate expected methylation for a given
-#' motif and sample.
-#' @param binMsites Imported methylation sites with GC bin
-#' @param gcfreq a \code{list} of GC bin frequency tables (matrices for multiple motif)
-#' @return a \code{data.table} object with GC bin with corresponding avg methylation
-#' @importFrom GenomicRanges GRanges findOverlaps
-#' @importFrom data.table data.table
-#' @importFrom logger log_info log_warn log_error
-#' @keywords internal
-computeExpectations <- function(binMsites, gcfreq) {
-  if (!is.matrix(binMsites)) {
-    stop("Please provide a valid GC bin frequency table as a matrix")
-  }
-  if (!is.matrix(gcfreq)) {
-    stop("Please provide a valid GC bin frequency table as a matrix")
-  }
-  exp.data <- t(gcfreq) %*% binMsites[, 2]
-  mpos <- round(seq(-floor(length(exp.data) / 2), floor(length(exp.data) / 2),
-    length.out = length(exp.data)
-  ))
-  exp.methyl <- data.table(x = mpos, avg_methyl = exp.data)
-  colnames(exp.methyl) <- c("x", "avg_methyl")
-  return(exp.methyl)
-}
-
-
 #' @title computeDeviation
 #' @description computeDeviation is a function to calculate the deviation in transcription factor
 #' binding sites for a given motif
@@ -32,7 +5,6 @@ computeExpectations <- function(binMsites, gcfreq) {
 #' @param msites imported methylation sites
 #' @param tf_bindsites a \code{GRangesList} object contains tf binding sites positions
 #' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
-#' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param enhancer  a \code{GRanges} object specifying regions such as distal motif (optional)
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
 #' @param exp_dev a numeric vector of expected deviations computed by computeExpectedDeviation
@@ -46,19 +18,18 @@ computeExpectations <- function(binMsites, gcfreq) {
 #' library(methylTFR)
 #'
 #' # Load the data
-#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 #' load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 #' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 #'
 #' # Add GC bin
-#' bin_meth <- computeExpectedDeviation("FOXF2", msites, gcfreqs, gc_dist,TRUE)
+#' bin_meth <- computeExpectedDeviation("FOXF2", msites, gcfreqs, TRUE)
 #'
 #' # Compute the deviation
 #' devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
 #' @export
-computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs, gc_dist,
-                             enhancer = NULL, ignoreStrand = TRUE,exp_dev) {
+computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
+                             enhancer = NULL, ignoreStrand = TRUE, exp_dev) {
   if (!is.logical(ignoreStrand)) {
     warning("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
@@ -87,15 +58,15 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs, gc_dist,
     d_hits <- findOverlaps(tfbs, enhancer, ignore.strand = ignoreStrand)
     tfbs <- tfbs[d_hits@from]
   }
-  exp_dev <- unlist(exp_dev)
+  exp_dev <- exp_dev[[motif]]
   hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand)
   if (length(hits@from) == 0) {
     stop(paste0("No methylation sites found in the", motif, " binding sites"))
   }
-  #binMsites <- addGCBintoMethylome(msites, gc_dist,ignoreStrand, 10000,threads,gcfreq) 
-  #exp_meth <- computeExpectations(binMsites, gcfreq)
+  # binMsites <- addGCBintoMethylome(msites, gc_dist,ignoreStrand, 10000,threads,gcfreq)
+  # exp_meth <- computeExpectations(binMsites, gcfreq)
   # WARNING: This is a trial implementation
-  #exp_meth <- lapply(binMsites, function(x) computeExpectations(x, gcfreq))#, mc.cores = threads)
+  # exp_meth <- lapply(binMsites, function(x) computeExpectations(x, gcfreq))#, mc.cores = threads)
 
   S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
   sum_meth <- data.table::data.table(
@@ -104,13 +75,13 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs, gc_dist,
   )
   # GC bias correction
   obs_dev <- dev_helper(sum_meth)
-  #exp_dev <- dev_helper(exp_meth)
-  #dev <- (obs_dev - exp_dev)
+  # exp_dev <- dev_helper(exp_meth)
+  # dev <- (obs_dev - exp_dev)
 
   # WARNING: This is a trial implementation
-  z_score <- (obs_dev - mean(exp_dev))/sd(exp_dev)
   obs_dev <- (obs_dev - mean(exp_dev))
-  return(data.table::data.table(obs_dev, z_score)) 
+  z_score <- obs_dev / sd(exp_dev)
+  return(data.table::data.table(obs_dev, z_score))
   # WARNING: Changed exp_dev to obs_dev
 }
 
