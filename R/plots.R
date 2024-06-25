@@ -68,3 +68,48 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
   }
   return(plot)
 }
+
+#' @title plotMotifFootprint
+#' @description Creates a footprint plot for given motifs and methylation site.
+#' @param motifs Motif names as character vector
+#' @param tf_bindsites -Transcript Factor binding sites from the annotation package
+#' @param samples Sample names as character vector of paths to methylation data
+#' @param sample_names Sample names as character vector
+#' @param type Type of methylation data, default is "EPP"
+#' @param enhancer Specific regions such as distal motif, proximal motif
+#' @return A ggplot object of TF footprint plot
+#' @export
+#' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
+#' @importFrom ggrepel geom_label_repel
+plotMotifFootprint <- function(motif, tf_bindsites, samples,
+                               sample_names = NULL,
+                               type = "EPP", enhancer = NULL) {
+  # Prepare a list of methylation sites
+  msites_list <- lapply(samples, read_methylome, type = type)
+
+  # If sample labels are not provided, use file names as labels
+  if (is.null(sample_names)) {
+    sample_names <- unlist(lapply(samples, basename))
+  }
+  names(msites_list) <- sample_names
+  plot_data <- data.table()
+
+  # Compute footprint for the single motif
+  for (i in 1:length(msites_list)) {
+    msites <- msites_list[[i]]
+    current_plot <- computeFootprint(motif, tf_bindsites, msites,enhancer)
+    current_plot[, sample_name := sample_names[i]]
+    plot_data <- current_plot
+  }
+
+  # Generate the footprint plot
+  p1 <- ggplot(plot_data, aes(x = x, y = avg_methyl, group = sample_name)) +
+    geom_line(aes(color = sample_name)) +
+    geom_point(aes(color = sample_name)) +
+    xlab("Distance from motif center") +
+    ylab("Methylation level") +
+    theme_classic() +
+    ggtitle(paste("TF footprint for", motif))
+
+  return(p1)
+}

@@ -10,7 +10,7 @@ computeExpectedDeviation(
   gcfreqs,
   gc_dist,
   ignoreStrand = TRUE,
-  sample_size = 25000
+  sample_deviations
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ computeExpectedDeviation(
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
 
-\item{sample_size}{number of GC sites to sample, default is 25000}
+\item{sample_deviations}{a \code{data.table} object contains the deviation scores}
 }
 \value{
 a \code{numeric} deviation score for a given motif

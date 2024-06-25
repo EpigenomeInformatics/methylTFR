@@ -10,8 +10,7 @@ computeDeviation(
   tf_bindsites,
   gcfreqs,
   enhancer = NULL,
-  ignoreStrand = TRUE,
-  exp_dev
+  ignoreStrand = TRUE
 )
 }
 \arguments{
@@ -26,8 +25,6 @@ computeDeviation(
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
-
-\item{exp_dev}{a numeric vector of expected deviations computed by computeExpectedDeviation}
 }
 \value{
 a \code{numeric} deviation score for a given motif

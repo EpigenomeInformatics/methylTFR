@@ -7,7 +7,6 @@
 #' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
 #' @param enhancer  a \code{GRanges} object specifying regions such as distal motif (optional)
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param exp_dev a numeric vector of expected deviations computed by computeExpectedDeviation
 #' @return a \code{numeric} deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
@@ -29,7 +28,7 @@
 #' devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
 #' @export
 computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
-                             enhancer = NULL, ignoreStrand = TRUE, exp_dev) {
+                             enhancer = NULL, ignoreStrand = TRUE) {
   if (!is.logical(ignoreStrand)) {
     warning("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
@@ -58,8 +57,7 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
     d_hits <- findOverlaps(tfbs, enhancer, ignore.strand = ignoreStrand)
     tfbs <- tfbs[d_hits@from]
   }
-  exp_dev <- exp_dev[[motif]]
-  hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand)
+  hits <- suppressWarnings(findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand))
   if (length(hits@from) == 0) {
     stop(paste0("No methylation sites found in the", motif, " binding sites"))
   }
@@ -74,15 +72,10 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
     avg_methyl = msites[hits@from]$score
   )
   # GC bias correction
-  obs_dev <- dev_helper(sum_meth)
-  # exp_dev <- dev_helper(exp_meth)
-  # dev <- (obs_dev - exp_dev)
-
   # WARNING: This is a trial implementation
-  obs_dev <- (obs_dev - mean(exp_dev))
-  z_score <- obs_dev / sd(exp_dev)
-  return(data.table::data.table(obs_dev, z_score))
-  # WARNING: Changed exp_dev to obs_dev
+  # obs_dev <- (obs_dev - mean(exp_dev))
+  # z_score <- obs_dev / sd(exp_dev)
+  return(list(obs_dev = dev_helper(sum_meth), tfbs = NROW(tfbs)))
 }
 
 #' @title dev_helper
