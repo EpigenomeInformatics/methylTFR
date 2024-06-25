@@ -14,7 +14,6 @@
 #' @param annfile if provided, the sample annotation file is not read from the sample_dir
 #' @param filetype file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param sample_size number of GC sites to sample, default is 25000
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
@@ -30,7 +29,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
-    filetype = NULL, ignoreStrand = TRUE, sample_size = 25000) {
+    filetype = NULL, ignoreStrand = TRUE) {
   if (!tolower(filetype) %in% c(
     "bissnp", "epp", "allc", "bismarkcytosine",
     "bismarkcov", "encode"
@@ -121,10 +120,10 @@ run_methyltfr <- function(
   dev_grid <- methylTFR:::set_grid(files_list, motif_chunks)
   z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
 
-  if (!is.null(enhancer)) {
-    d_hits <- findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand)
-    gc_dist <- gc_dist[d_hits@from]
-  }
+  #if (!is.null(enhancer)) {
+    #d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
+    #gc_dist <- gc_dist[d_hits@from]
+  #}
   gc_dist <- as.data.table(gc_dist)
 
   for (i in seq_along(files_list)) {
@@ -138,41 +137,38 @@ run_methyltfr <- function(
       # Get the current chunk
       chunk_motifs <- motif_chunks[[j]]
 
+      # Compute observed deviations
+      sample_deviations <- parallel::mclapply(chunk_motifs,
+        computeDeviation,
+        msites = msites,
+        tf_bindsites = tf_bindsites,
+        gcfreqs = gcfreqs,
+        enhancer = enhancer,
+        mc.cores = threads,
+        ignoreStrand = ignoreStrand
+      )
+      names(sample_deviations) <- chunk_motifs
+
       # Compute expected deviations
       exp_dev <- parallel::mclapply(chunk_motifs, computeExpectedDeviation,
         msites = msites,
         gcfreqs = gcfreqs,
         gc_dist = gc_dist,
-        # enhancer = enhancer,
+        sample_deviations = sample_deviations,
         ignoreStrand = ignoreStrand,
-        sample_size = sample_size,
         mc.cores = threads
-      )
-      names(exp_dev) <- chunk_motifs
-
-      # Compute bias corrected deviations
-      sample_deviations <- parallel::mclapply(chunk_motifs,
-        computeDeviation,
-        msites = msites,
-        # gc_dist = gc_dist,
-        tf_bindsites = tf_bindsites,
-        gcfreqs = gcfreqs,
-        enhancer = enhancer,
-        mc.cores = threads,
-        ignoreStrand = ignoreStrand,
-        exp_dev = exp_dev
       )
 
       # Write the block to the sink
       methylTFR:::write_block_to_sink(
-        lapply(sample_deviations, function(x) x$obs_dev),
+        lapply(exp_dev, function(x) x$obs_dev),
         dev_grid, i, j, dev_sink
       )
       methylTFR:::write_block_to_sink(
-        lapply(sample_deviations, function(x) x$z_score),
+        lapply(exp_dev, function(x) x$z_score),
         z_grid, i, j, z_sink
       )
-      rm(sample_deviations)
+      rm(exp_dev, sample_deviations)
     }
     rm(msites)
     cleanMem()

@@ -19,7 +19,7 @@
 #' bissnp_path <- system.file("extdata", "bissnp.tsv.gz", package = "methylTFR")
 #' bissnp <- read_methylome(bissnp_path, "bissnp")
 #' @export
-read_methylome <- function(filename, type, cov_threshold = 5) {
+read_methylome <- function(filename, type, cov_threshold = 0) {
   type <- tolower(type)
   if (!file.exists(filename)) {
     stop(paste(filename, " doesn't exist or path is incorrect!"))

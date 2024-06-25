@@ -17,8 +17,7 @@ run_methyltfr(
   threads = 1,
   enhancer = NULL,
   filetype = NULL,
-  ignoreStrand = TRUE,
-  sample_size = 25000
+  ignoreStrand = TRUE
 )
 }
 \arguments{
@@ -47,8 +46,6 @@ run_methyltfr(
 \item{filetype}{file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
-
-\item{sample_size}{number of GC sites to sample, default is 25000}
 }
 \value{
 a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores

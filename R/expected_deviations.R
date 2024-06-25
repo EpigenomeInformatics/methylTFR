@@ -10,10 +10,10 @@
 #' @importFrom data.table data.table rbindlist
 #' @importFrom dplyr sample_n
 #' @keywords internal
-
 compute_exp_meth <- function(msites, gcdist, gcShuffleSize, ignoreStrand, gcfreq) {
   n_samples <- round(gcfreq * gcShuffleSize)
   sampled_gcdist <- lapply(seq_along(n_samples), function(i) {
+    #n_samples[i] <- ifelse(n_samples[i] > NROW(gcdist[gcdist$GC_bin == i]), min(n_samples), n_samples[i])
     sample_n(gcdist[gcdist$GC_bin == i], n_samples[i], replace = FALSE, prob = NULL)
   })
   sampled_gcdist <- rbindlist(sampled_gcdist)
@@ -72,15 +72,15 @@ addGCBintoMethylome <- function(
   if (is.null(msites) || !is(msites, "GRanges")) {
     stop("Please provide a valid methylation sites with read_methylome function")
   }
-  # Find overlaps between msites and gcdist
-  # hits <- findOverlaps(msites, gcdist, type = "within", ignore.strand = ignoreStrand)
-  # gcdist <- gcdist[hits@to] # To assure every GC_bin is present in the final result
+  gcfreq <- gcfreq[, 224:275] # 50 bp including motif center
+  summed <- rowSums(gcfreq)
+  percentages <- summed / sum(summed)
   exp_meth_list <- lapply(
-    251:(NCOL(gcfreq) - 250), # This will focus on motif center
+    1:50, # Create 50 pseudo motifs
     function(x) {
       compute_exp_meth(
         msites, gcdist, sample_size,
-        ignoreStrand, gcfreq[, x]
+        ignoreStrand, percentages
       )
     }
   ) # This will calculate the expected methylation for each GC bin
@@ -121,13 +121,13 @@ computeExpectations <- function(binMsites_sub, gcfreq) {
 #' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param sample_size number of GC sites to sample, default is 25000
+#' @param sample_deviations a \code{data.table} object contains the deviation scores
 #' @return a \code{numeric} deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
 #' @export
 computeExpectedDeviation <- function(motif, msites, gcfreqs, gc_dist,
-                                     ignoreStrand = TRUE, sample_size = 25000) {
+                                     ignoreStrand = TRUE, sample_deviations) {
   if (!is.logical(ignoreStrand)) {
     warning("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
@@ -142,8 +142,18 @@ computeExpectedDeviation <- function(motif, msites, gcfreqs, gc_dist,
     stop("Please provide a valid GC bin frequency table list")
   }
   gcfreq <- gcfreqs[[motif]]
+  sample_size <- sample_deviations[[motif]]$tfbs
+
+  # Find overlaps between msites and gcdist
+  # hits <- findOverlaps(msites, gc_dist, type = "within", ignore.strand = ignoreStrand)
+  # gc_dist <- as.data.table(gc_dist[hits@to])
+
   binMsites <- addGCBintoMethylome(msites, gc_dist, ignoreStrand, sample_size, gcfreq)
   exp_meth <- lapply(binMsites, function(i) computeExpectations(i, gcfreq))
-  exp_dev <- lapply(exp_meth, dev_helper)
-  return(unlist(exp_dev))
+  exp_dev <- unlist(lapply(exp_meth, dev_helper))
+
+  # GC bias correction
+  obs_dev <- sample_deviations[[motif]]$obs_dev - mean(exp_dev)
+  z_score <- obs_dev / sd(exp_dev)
+  return(data.table::data.table(obs_dev, z_score))
 }
