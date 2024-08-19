@@ -13,8 +13,8 @@
 compute_exp_meth <- function(msites, gcdist, gcShuffleSize, ignoreStrand, gcfreq) {
   n_samples <- round(gcfreq * gcShuffleSize)
   sampled_gcdist <- lapply(seq_along(n_samples), function(i) {
-    #n_samples[i] <- ifelse(n_samples[i] > NROW(gcdist[gcdist$GC_bin == i]), min(n_samples), n_samples[i])
-    sample_n(gcdist[gcdist$GC_bin == i], n_samples[i], replace = FALSE, prob = NULL)
+    # n_samples[i] <- ifelse(n_samples[i] > NROW(gcdist[gcdist$GC_bin == i]), min(n_samples), n_samples[i])
+    sample_n(gcdist[gcdist$GC_bin == i], n_samples[i], replace = TRUE, prob = NULL)
   })
   sampled_gcdist <- rbindlist(sampled_gcdist)
   sampled_gcdist <- GRanges(
@@ -72,7 +72,7 @@ addGCBintoMethylome <- function(
   if (is.null(msites) || !is(msites, "GRanges")) {
     stop("Please provide a valid methylation sites with read_methylome function")
   }
-  gcfreq <- gcfreq[, 224:275] # 50 bp including motif center
+  gcfreq <- gcfreq[, 235:264] # 30 bp including motif center
   summed <- rowSums(gcfreq)
   percentages <- summed / sum(summed)
   exp_meth_list <- lapply(

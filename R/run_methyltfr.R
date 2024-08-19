@@ -120,10 +120,10 @@ run_methyltfr <- function(
   dev_grid <- methylTFR:::set_grid(files_list, motif_chunks)
   z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
 
-  #if (!is.null(enhancer)) {
-    #d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
-    #gc_dist <- gc_dist[d_hits@from]
-  #}
+  if (!is.null(enhancer)) {
+    d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
+    gc_dist <- gc_dist[d_hits@from]
+  }
   gc_dist <- as.data.table(gc_dist)
 
   for (i in seq_along(files_list)) {
@@ -161,11 +161,11 @@ run_methyltfr <- function(
 
       # Write the block to the sink
       methylTFR:::write_block_to_sink(
-        lapply(exp_dev, function(x) x$obs_dev),
+        lapply(exp_dev, function(x) x[["obs_dev"]]),
         dev_grid, i, j, dev_sink
       )
       methylTFR:::write_block_to_sink(
-        lapply(exp_dev, function(x) x$z_score),
+        lapply(exp_dev, function(x) x[["z_score"]]),
         z_grid, i, j, z_sink
       )
       rm(exp_dev, sample_deviations)
