@@ -125,6 +125,22 @@ computeExpectations <- function(binMsites_sub, gcfreq) {
 #' @return a \code{numeric} deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
+#' @examples
+#' library(methylTFR)
+#' 
+#' # Load the data
+#' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+#' 
+#' # Compute the deviation
+#' devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
+#' sample_deviations <- list(FOXF2 = devs)
+#' gcdist <- as.data.table(gcdist) # make sure gcdist object is a data table
+#' 
+#' # Compute the expected deviation
+#' exp_devs <- computeExpectedDeviation("FOXF2", msites, gcfreqs, gcdist,TRUE, sample_deviations)
 #' @export
 computeExpectedDeviation <- function(motif, msites, gcfreqs, gc_dist,
                                      ignoreStrand = TRUE, sample_deviations) {
