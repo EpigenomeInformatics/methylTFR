@@ -13,7 +13,8 @@ plotMotifFootprint(
   seed = 12,
   gc_dist,
   gcfreqs,
-  enhancer = NULL
+  enhancer = NULL,
+  returnPlotData = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ plotMotifFootprint(
 \item{gcfreqs}{GC frequency of the genome used to compute expected methylation}
 
 \item{enhancer}{Specific region such as distal motif, proximal motif}
+
+\item{returnPlotData}{Logical indicating whether to return the plot data}
 }
 \value{
 A ggplot object of TF footprint plot for a single sample
