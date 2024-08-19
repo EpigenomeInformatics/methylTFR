@@ -19,21 +19,16 @@ differential_deviation_test <- function(deviations,
                                         alternative = c("two.sided", "less", "greater"),
                                         parametric = TRUE,
                                         padjMethod = "BH") {
-  if (!class(deviations) %in% c("data.frame", "matrix", "methylTFRDeviation")) {
+  if (!any(class(deviations) %in% c("data.frame", "matrix", "methylTFRDeviation"))) {
     stop("deviations must be a methylTFRDeviation object, or data.frame or matrix")
   }
-  if (class(deviations) == "methylTFRDeviation") {
+  if (is(deviations, "methylTFRDeviation")) {
     deviations <- deviations(deviations)
   }
+  deviations <- t(deviations)
   if (is.null(groups)) {
     groups <- colnames(groups)
-  } else if (length(groups) != ncol(deviations)) {
-    stop(
-      "invalid groups input, must be vector of lench ncol(variantion) or column",
-      " name from variations dataframe"
-    )
   }
-
   groups <- as.factor(groups)
   if (length(alternative) > 1) {
     stop(

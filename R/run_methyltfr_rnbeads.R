@@ -18,7 +18,7 @@
 #' @author Irem B. Gunduz
 #' @export
 #' @return a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
-#' 
+#'
 run_methylTFR_RnBeads <- function(rnb_set, tf_bindsites, threads = 1,
                                   enhancer = NULL, gcfreqs = NULL, gc_dist = NULL,
                                   chunkSize = 20, ignoreStrand = TRUE) {
@@ -78,7 +78,7 @@ run_methylTFR_RnBeads <- function(rnb_set, tf_bindsites, threads = 1,
   dev_grid <- methylTFR:::set_grid(sample_names, motif_chunks)
   z_grid <- methylTFR:::set_grid(sample_names, motif_chunks)
 
-  
+
   if (!is.null(enhancer)) {
     d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
     gc_dist <- gc_dist[d_hits@from]
