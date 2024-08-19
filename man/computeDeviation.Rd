@@ -41,9 +41,6 @@ load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-# Add GC bin
-bin_meth <- computeExpectedDeviation("FOXF2", msites, gcfreqs, TRUE)
-
 # Compute the deviation
 devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
 }
