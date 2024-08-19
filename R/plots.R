@@ -80,12 +80,13 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param gcfreqs GC frequency of the genome used to compute expected methylation
 #' @param enhancer Specific region such as distal motif, proximal motif
+#' @param returnPlotData Logical indicating whether to return the plot data
 #' @return A ggplot object of TF footprint plot for a single sample
 #' @export
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotMotifFootprint <- function(motif, tf_bindsites, sample,
                                sample_name = NULL, type = "EPP", seed = 12,
-                               gc_dist, gcfreqs, enhancer = NULL) {
+                               gc_dist, gcfreqs, enhancer = NULL, returnPlotData = FALSE) {
   # Prepare methylation sites for the single sample
   msites <- read_methylome(sample, type)
 
@@ -116,6 +117,9 @@ plotMotifFootprint <- function(motif, tf_bindsites, sample,
     ggtitle(paste("TF footprint for", motif, "in", sample_name)) +
     scale_color_manual(values = c("Expected" = "blue", "Observed" = "red")) +
     theme(legend.position = "bottom")
-
-  return(p1)
+  if (returnPlotData) {
+    return(list(plot = p1, plotDF = plot_data))
+  } else {
+    return(p1)
+  }
 }
