@@ -25,5 +25,5 @@ variability$name)}
 ggplot object
 }
 \description{
-plot Z-score variability of motifs across cells or samples
+plot variability of motifs across cells or samples
 }

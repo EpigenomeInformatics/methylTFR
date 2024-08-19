@@ -14,33 +14,23 @@ differential_deviation_test(
 )
 }
 \arguments{
-\item{deviations}{\itemize{
-\item a \code{data.frame} contains deviations for each motif
-}}
+\item{deviations}{a \code{data.frame} contains deviations for each motif}
 
-\item{groups}{\itemize{
-\item a character vector of group names or colnames(deviations)
-}}
+\item{groups}{a character vector of group names or colnames(deviations)}
 
-\item{motifs}{\itemize{
-\item a character vector of motif names used in analysis or rownames(deviations)
-}}
+\item{motifs}{a character vector of motif names used in analysis or rownames(deviations)}
 
-\item{alternative}{\itemize{
-\item a character string specifying the alternative hypothesis,
-must be one of "two.sided" (default), "greater" or "less".
-}}
+\item{alternative}{a character string specifying the alternative hypothesis,
+must be one of "two.sided" (default), "greater" or "less".}
 
-\item{parametric}{\itemize{
-\item logical, if TRUE, parametric tests are used, otherwise non-parametric tests are used.
-}}
+\item{parametric}{logical, if TRUE, parametric tests are used,
+otherwise non-parametric tests are used.}
 
-\item{padjMethod}{\itemize{
-\item method for p-value adjustment, default is "BH"
-}}
+\item{padjMethod}{method for p-value adjustment, default is "BH"}
 }
 \value{
-a \code{data.frame} contains motifs with corresponding p-value and adjusted p-value
+a \code{data.frame} contains motifs with corresponding p-value and
+adjusted p-value
 }
 \description{
 Differential analysis is to test which motifs are having significant

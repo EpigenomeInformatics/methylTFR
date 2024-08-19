@@ -2,7 +2,7 @@
 
 
 
-# *methylTFR* : Identification of Methylation Patterns in TFBS
+# *methylTFR* : Quantification of DNA Methylation Patterns in TFBS
 
 <!-- badges: start -->
 [![R-CMD-check-bioc](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml)
@@ -11,7 +11,7 @@
 [![GitHub pulls](https://img.shields.io/github/issues-pr/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/pulls)
 <!-- badges: end -->
 
-`methylTFR` is an R-package to analyze DNA methylation patterns on transcription factor binding sites in each individual cells or samples.
+`methylTFR` is an R-package to analyze DNA methylation signatures in transcription factor binding sites in each individual cells or samples.
 
 ## Installation instructions
 
@@ -78,13 +78,14 @@ print(citation("methylTFR"), bibtex = TRUE)
 #> To cite package 'methylTFR' in publications use:
 #> 
 #>   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2023).
-#>   methylTFR: Identification of Methylation Patterns in TFBS. R package
-#>   version 0.99.0. https://github.com/EpigenomeInformatics/methylTFR
+#>   methylTFR: Quantification of DNA Methylation Signatures in TFBS. R
+#>   package version 0.99.0.
+#>   https://github.com/EpigenomeInformatics/methylTFR
 #> 
 #> A BibTeX entry for LaTeX users is
 #> 
 #>   @Manual{,
-#>     title = {methylTFR: Identification of Methylation Patterns in TFBS},
+#>     title = {methylTFR: Quantification of DNA Methylation Signatures in TFBS},
 #>     author = {Irem B. Gündüz and Sarath Kumar Murugan and Fabian Muller},
 #>     year = {2023},
 #>     note = {R package version 0.99.0},

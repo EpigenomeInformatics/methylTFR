@@ -48,9 +48,9 @@ run_methyltfr(
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
 }
 \value{
-a \code{methylTFRdeviations} object with deviation and zscore
+a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
 }
 \description{
 This function is a wrapper function to calculate the deviation in transcription factor
-footprint base for all given motifs using parallel package
+footprint base for all given motifs per raw samples
 }
