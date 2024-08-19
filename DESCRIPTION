@@ -11,8 +11,8 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-5809-2321"))
   )
 Description: methylTFR is an extensive R package designed specifically for
-    analyzing DNA methylation signatures within transcription factor binding
-    sites (TFBS) across diverse genomic annotations. It enhances
+    analyzing DNA methylation signatures within transcription factor
+    binding sites (TFBS) across diverse genomic annotations. It enhances
     methylation analysis by calculating a bias-corrected 'deviation' in
     methylation levels, leveraging GC bias distribution and frequency
     data.  This package offers a variety of functions that facilitate the
@@ -27,9 +27,9 @@ Depends:
 Imports: 
     BiocGenerics,
     DelayedArray,
+    dplyr,
     GenomicRanges,
     ggplot2,
-    ggrepel,
     HDF5Array,
     IRanges,
     logger,
