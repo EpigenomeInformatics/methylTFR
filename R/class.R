@@ -17,8 +17,7 @@ setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 setValidity(
   "methylTFRdeviations",
   function(object) {
-    if (!"deviations" %in% SummarizedExperiment::assayNames(object) || !"z" %in%
-      SummarizedExperiment::assayNames(object)) {
+    if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
       return("The assays slot must contain 'deviations' and 'z'")
     }
     return(TRUE)
@@ -66,54 +65,48 @@ setMethod("deviationZScores", "methylTFRdeviations", function(x) {
   SummarizedExperiment::assay(x, "z")
 })
 
-#' @title rbind
-#' @description Combine methylTFRdeviations objects by row.
-#' @param ... methylTFRdeviations objects.
+#' @title cbind
+#' @description Combine two methylTFRdeviations objects by column.
+#' @param x methylTFRdeviations object
+#' @param y methylTFRdeviations object
 #' @return A methylTFRdeviations object.
 #' @export
-setGeneric("rbind", function(...) standardGeneric("rbind"))
+setGeneric("cbind", function(x, y) standardGeneric("cbind"))
+
+#' @title rbind
+#' @description Combine two methylTFRdeviations objects by row.
+#' @param x methylTFRdeviations object
+#' @param y methylTFRdeviations object
+#' @return A methylTFRdeviations object.
+#' @export
+setGeneric("rbind", function(x, y) standardGeneric("rbind"))
 
 #' @title cbind
-#' @description Combine methylTFRdeviations objects by column.
-#' @param ... methylTFRdeviations objects.
+#' @description Combine two methylTFRdeviations objects by column.
+#' @param x methylTFRdeviations object
+#' @param y methylTFRdeviations object
 #' @return A methylTFRdeviations object.
 #' @export
-setGeneric("cbind", function(...) standardGeneric("cbind"))
+#' @importFrom BiocGenerics cbind
+#' @importFrom methods setMethod
+setMethod(
+  "cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+  function(x, y) {
+    BiocGenerics::cbind(x, y)
+  }
+)
 
 #' @title rbind
-#' @description Combine methylTFRdeviations objects by row.
-#' @param ... methylTFRdeviations objects.
-#' @param deparse.level An integer specifying the level of deparse to use.
+#' @description Combine two methylTFRdeviations objects by row.
+#' @param x methylTFRdeviations object
+#' @param y methylTFRdeviations object
 #' @return A methylTFRdeviations object.
 #' @export
-#' @importFrom SummarizedExperiment SummarizedExperiment rowData colData
-#' @importFrom S4Vectors SimpleList
-#' @importFrom methods setMethod as
-#' 
-setMethod("rbind", "methylTFRdeviations", function(..., deparse.level = 1) {
-  inputs <- list(...)
-
-  all_rowdata_colnames <- unique(do.call(c, lapply(inputs, function(x) colnames(rowData(x)))))
-  in_common <- vapply(all_rowdata_colnames, function(x) {
-    all(vapply(inputs, function(y) {
-      x %in% colnames(rowData(y))
-    }, rep(TRUE, length(x))))
-  }, TRUE)
-  common_colnames <- all_rowdata_colnames[in_common]
-  inputs <- lapply(inputs, function(x) {
-    rowData(x) <- rowData(x)[, common_colnames, drop = FALSE]
-    x
-  })
-
-  deviations <- do.call("rbind", lapply(inputs, function(x) assay(x, "deviations")))
-  z_scores <- do.call("rbind", lapply(inputs, function(x) assay(x, "z")))
-  rd <- do.call("rbind", lapply(inputs, rowData))
-
-  se <- SummarizedExperiment::aSummarizedExperiment(
-    assays = SimpleList(deviations = deviations, z = z_scores),
-    colData = colData(inputs[[1]]),
-    rowData = rd
-  )
-
-  return(as(se, "methylTFRdeviations"))
-})
+#' @importFrom BiocGenerics rbind
+#' @importFrom methods setMethod
+setMethod(
+  "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+  function(x, y) {
+    BiocGenerics::rbind(x, y)
+  }
+)

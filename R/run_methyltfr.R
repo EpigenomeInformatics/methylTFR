@@ -1,6 +1,6 @@
 #' @title run_methyltfr
 #' @description This function is a wrapper function to calculate the deviation in transcription factor
-#'  footprint base for all given motifs using parallel package
+#' footprint base for all given motifs per raw samples
 #' @param sample_ann A tab seperated file contains sample annotations
 #' @param sample_dir The directory where all bed file and annotation file stored
 #' @param threads Thread count for parallel processing
@@ -23,54 +23,68 @@
 #' @importFrom utils read.table
 #' @importFrom methods as new
 #' @importFrom stats sd
-#' @return a \code{methylTFRdeviations} object with deviation and zscore
+#' @return a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
 #' @export
 run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
     filetype = NULL, ignoreStrand = TRUE) {
-
-  if (!tolower(filetype) %in% c("bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode")) {
-    logger::log_error("Please provide a valid file type")
+  if (!tolower(filetype) %in% c(
+    "bissnp", "epp", "allc", "bismarkcytosine",
+    "bismarkcov", "encode"
+  )) {
+    stop("Please provide a valid file type")
   }
   if (!is.logical(ignoreStrand)) {
-    logger::log_warn("Found invalid strand option, using the default")
+    warning("Found invalid strand option, using the default")
     ignoreStrand <- TRUE
   }
   if (is.null(sampleColName) || !is.character(sampleColName)) {
-    logger::log_error("Please provide a valid sample column name")
+    stop("Please provide a valid sample column name")
   }
   if (!is.numeric(chunkSize) || chunkSize < 1) {
-    logger::log_warn("Invalid chunk size detected, using default chunk size")
+    warning("Invalid chunk size detected, using default chunk size")
     chunkSize <- 20
   }
   if (any(sapply(list(tf_bindsites, gcfreqs, gc_dist), is.null))) {
-    logger::log_error("Please load the annotation objects for given genome.")
+    stop("Please load the annotation objects for given genome.")
+  }
+  if (!is(tf_bindsites, "GRangesList") && !is.list(tf_bindsites)) {
+    stop("tf_bindsites must be a GRangesList object")
+  }
+  if (!is(gcfreqs, "list")) {
+    stop("gcfreqs must be a list object")
+  }
+  if (!is(gc_dist, "GRanges")) {
+    stop("gc_dist must be a GRanges object")
+  }
+  if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
+    stop("enhancer must be a GRanges object")
   }
   if (is.null(annfile) || !is.character(annfile)) {
     if (is.null(sample_ann) || !is.character(sample_ann)) {
-      logger::log_error("Please provide a valid sample annotation file")
+      stop("Please provide a valid sample annotation file")
     }
     if (is.null(sample_dir) || !is.character(sample_dir)) {
-      logger::log_error("Please provide a valid sample directory")
+      stop("Please provide a valid sample directory")
     }
     if (!dir.exists(sample_dir)) {
-      logger::log_error("Sample directory does not exist, please check the directory path")
+      stop("Sample directory does not exist, please check the directory path")
     }
   }
   if (!is.numeric(threads) || threads < 1) {
-    logger::log_warn("Invalid thread count detected, using default thread count")
+    warning("Invalid thread count detected, using default thread count")
     threads <- 1
   }
   if (!is.logical(full_path)) {
-    logger::log_error("Invalid full path flag detected, please provide a valid logical value")
+    stop("Invalid full path flag detected, please provide a valid logical value")
   }
   if (is.null(annfile) || !is.character(annfile)) {
     annfile <- file.path(sample_dir, sample_ann)
   }
   if (!file.exists(annfile)) {
-    logger::log_error(" %s does not exist, please check the file path !!", annfile)
+    stop(" %s does not exist, please check the file path !!", annfile)
   }
   if (endsWith(annfile, ".csv")) {
     samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
@@ -78,7 +92,7 @@ run_methyltfr <- function(
   if (endsWith(annfile, ".tsv")) {
     samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
   } else {
-    logger::log_error("Please provide a valid annotation file with .csv or .tsv extension")
+    stop("Please provide a valid annotation file with .csv or .tsv extension")
   }
   if (full_path) {
     files_list <- samples[, sampleColName]
@@ -86,22 +100,31 @@ run_methyltfr <- function(
     files_list <- file.path(sample_dir, samples[, sampleColName])
   }
   if (!all(file.exists(files_list))) {
-    logger::log_error("Some of the files does not exist, please check the file path!")
+    stop("Some of the files does not exist, please check the file path!")
   }
   logger::log_success("The samples are successfully located")
 
   motifs <- names(gcfreqs)
   # Split the motifs into chunks
   numChunks <- ceiling(length(motifs) / chunkSize)
-  motif_chunks <- split(motifs, rep(1:numChunks, each = chunkSize, length.out = length(motifs)))
+  motif_chunks <- split(motifs, rep(1:numChunks,
+    each = chunkSize,
+    length.out = length(motifs)
+  ))
 
   # Create a temp sinks
-  dev_sink <- create_sink(files_list, motifs)
-  z_sink <- create_sink(files_list, motifs)
+  dev_sink <- methylTFR:::create_sink(files_list, motifs)
+  z_sink <- methylTFR:::create_sink(files_list, motifs)
 
   # set the grid
-  dev_grid <- set_grid(files_list, motif_chunks)
-  z_grid <- set_grid(files_list, motif_chunks)
+  dev_grid <- methylTFR:::set_grid(files_list, motif_chunks)
+  z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
+
+  if (!is.null(enhancer)) {
+    d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
+    gc_dist <- gc_dist[d_hits@from]
+  }
+  gc_dist <- as.data.table(gc_dist)
 
   for (i in seq_along(files_list)) {
     bedfile <- files_list[i]
@@ -114,22 +137,38 @@ run_methyltfr <- function(
       # Get the current chunk
       chunk_motifs <- motif_chunks[[j]]
 
+      # Compute observed deviations
       sample_deviations <- parallel::mclapply(chunk_motifs,
         computeDeviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
-        gcdist = gc_dist,
         enhancer = enhancer,
         mc.cores = threads,
+        ignoreStrand = ignoreStrand
+      )
+      names(sample_deviations) <- chunk_motifs
+
+      # Compute expected deviations
+      exp_dev <- parallel::mclapply(chunk_motifs, computeExpectedDeviation,
+        msites = msites,
+        gcfreqs = gcfreqs,
+        gc_dist = gc_dist,
+        sample_deviations = sample_deviations,
         ignoreStrand = ignoreStrand,
-        intermediate = TRUE
+        mc.cores = threads
       )
 
       # Write the block to the sink
-      write_block_to_sink(lapply(sample_deviations, function(x) x$dev),dev_grid, i, j, dev_sink)
-      write_block_to_sink(lapply(sample_deviations, function(x) x$exp_dev),z_grid, i, j, z_sink)
-      rm(sample_deviations)
+      methylTFR:::write_block_to_sink(
+        lapply(exp_dev, function(x) x[["obs_dev"]]),
+        dev_grid, i, j, dev_sink
+      )
+      methylTFR:::write_block_to_sink(
+        lapply(exp_dev, function(x) x[["z_score"]]),
+        z_grid, i, j, z_sink
+      )
+      rm(exp_dev, sample_deviations)
     }
     rm(msites)
     cleanMem()
@@ -140,16 +179,15 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(dev_sink)
   DelayedArray::close(z_sink)
-  deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
-  exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
+  obs_dev <- as.matrix(t(as(dev_sink, "DelayedArray")))
+  z_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
-  # Compute the sd and normalize the deviation
-  #norm_dev <- deviation - matrixStats::colMeans2(exp_dev, na.rm = TRUE)
-  sd <- apply(exp_dev, 2, sd, na.rm = TRUE)
-
+  # create summarized experiment object
   se <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(deviations = deviation, z = as.matrix(deviation / sd)),
-    colData = samples, rowData = DataFrame(motifs = row.names(deviation)))
-  return(new("methylTFRdeviations", se)) 
-  #return(as.matrix(deviation))
+    assays = list(
+      deviations = obs_dev, z = z_dev
+    ),
+    colData = samples, rowData = DataFrame(motifs = row.names(obs_dev))
+  )
+  return(new("methylTFRdeviations", se))
 }

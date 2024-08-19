@@ -5,27 +5,42 @@
 \title{plotMotifFootprint}
 \usage{
 plotMotifFootprint(
-  motifs,
+  motif,
   tf_bindsites,
-  samples,
-  sample_names = NULL,
-  type = "EPP"
+  sample,
+  sample_name = NULL,
+  type = "EPP",
+  seed = 12,
+  gc_dist,
+  gcfreqs,
+  enhancer = NULL,
+  returnPlotData = FALSE
 )
 }
 \arguments{
-\item{motifs}{Motif names as character vector}
+\item{motif}{Motif name as a character string}
 
-\item{tf_bindsites}{-Transcript Factor binding sites from the annotation package}
+\item{tf_bindsites}{Transcript Factor binding sites from the annotation package}
 
-\item{samples}{Sample names as character vector of paths to methylation data}
+\item{sample}{Path to a single methylation data file}
 
-\item{sample_names}{Sample names as character vector}
+\item{sample_name}{Optional sample name as a character string, defaults to the file name if not provided}
 
 \item{type}{Type of methylation data, default is "EPP"}
+
+\item{seed}{Seed for random number generation}
+
+\item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
+
+\item{gcfreqs}{GC frequency of the genome used to compute expected methylation}
+
+\item{enhancer}{Specific region such as distal motif, proximal motif}
+
+\item{returnPlotData}{Logical indicating whether to return the plot data}
 }
 \value{
-A ggplot object of TF footprint plot
+A ggplot object of TF footprint plot for a single sample
 }
 \description{
-Creates a footprint plot for given motifs and methylation site.
+Creates a footprint plot for a given motif and a single methylation site.
 }

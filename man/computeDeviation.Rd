@@ -9,10 +9,8 @@ computeDeviation(
   msites,
   tf_bindsites,
   gcfreqs,
-  gcdist,
   enhancer = NULL,
-  ignoreStrand = TRUE,
-  intermediate = FALSE
+  ignoreStrand = TRUE
 )
 }
 \arguments{
@@ -24,13 +22,9 @@ computeDeviation(
 
 \item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
 
-\item{gcdist}{a \code{GRanges} object contains Genome wide GC distribution}
-
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
-
-\item{intermediate}{if TRUE, it returns the intermediate results as well}
 }
 \value{
 a \code{numeric} deviation score for a given motif
@@ -38,4 +32,15 @@ a \code{numeric} deviation score for a given motif
 \description{
 computeDeviation is a function to calculate the deviation in transcription factor
 binding sites for a given motif
+}
+\examples{
+library(methylTFR)
+
+# Load the data
+load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+
+# Compute the deviation
+devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
 }

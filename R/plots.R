@@ -1,5 +1,5 @@
 #' @title plotVariability
-#' @description plot Z-score variability of motifs across cells or samples
+#' @description plot variability of motifs across cells or samples
 #' @param variability output from \code{\link{computeVariability}}
 #' @param xlab label for x-axis (default is 'Sorted TFs')
 #' @param nLab  number of top motifs to label (default is 5)
@@ -25,7 +25,7 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
   if (length(motif_names) > nrow(variability)) {
     stop("motif_names can't have length more than the number of rows in variability")
   }
-  res_df <- cbind(variability,
+  res_df <- base::cbind(variability,
     rank = rank(-1 * variability$variability,
       ties.method = "random"
     ),
@@ -70,47 +70,56 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 }
 
 #' @title plotMotifFootprint
-#' @description Creates a footprint plot for given motifs and methylation site.
-#' @param motifs Motif names as character vector
-#' @param tf_bindsites -Transcript Factor binding sites from the annotation package
-#' @param samples Sample names as character vector of paths to methylation data
-#' @param sample_names Sample names as character vector
+#' @description Creates a footprint plot for a given motif and a single methylation site.
+#' @param motif Motif name as a character string
+#' @param tf_bindsites Transcript Factor binding sites from the annotation package
+#' @param sample Path to a single methylation data file
+#' @param sample_name Optional sample name as a character string, defaults to the file name if not provided
 #' @param type Type of methylation data, default is "EPP"
-#' @return A ggplot object of TF footprint plot
+#' @param seed Seed for random number generation
+#' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
+#' @param gcfreqs GC frequency of the genome used to compute expected methylation
+#' @param enhancer Specific region such as distal motif, proximal motif
+#' @param returnPlotData Logical indicating whether to return the plot data
+#' @return A ggplot object of TF footprint plot for a single sample
 #' @export
-#' @importFrom ggplot2 ggplot ggsave geom_point geom_line ggtitle
-#' @importFrom ggrepel geom_label_repel
-plotMotifFootprint <- function(motifs, tf_bindsites, samples,
-                               sample_names = NULL,
-                               type = "EPP") {
-  # Prepare a list of methylation sites
-  msites_list <- lapply(samples, read_methylome, type = type)
+#' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
+plotMotifFootprint <- function(motif, tf_bindsites, sample,
+                               sample_name = NULL, type = "EPP", seed = 12,
+                               gc_dist, gcfreqs, enhancer = NULL, returnPlotData = FALSE) {
+  # Prepare methylation sites for the single sample
+  msites <- read_methylome(sample, type)
 
-  # If sample labels are not provided, use file names as labels
-  if (is.null(sample_names)) {
-    sample_names <- unlist(lapply(samples, basename))
+  # If sample label is not provided, use file name as label
+  if (is.null(sample_name)) {
+    sample_name <- basename(sample)
   }
-  names(msites_list) <- sample_names
-  plot_data <- data.table()
 
-  # Iterate through each methylation site and compute footprint
-  for (i in 1:length(msites_list)) {
-    msites <- msites_list[[i]]
-    current_plot <- rbindlist(lapply(motifs, function(motif) {
-      computeFootprint(motif, tf_bindsites, msites)
-    }), fill = TRUE)
-    current_plot[, sample_name := sample_names[i]]
-    plot_data <- rbind(plot_data, current_plot)
-  }
+  # Compute footprint for the motif
+  plot_data <- computeFootprint(motif, tf_bindsites, msites, enhancer)
+
+  # Compute expected footprint for the motif
+  exp_data <- computeExpectedFootprint(motif, plot_data$tfbs, gcfreqs, gc_dist, seed, enhancer)
+
+  # Add a new column to indicate whether the data is expected or observed
+  exp_data[, type := "Expected"]
+  plot_data$plot.data[, type := "Observed"]
+  combined_data <- rbindlist(list(exp_data[, .(x, avg_methyl, type)], plot_data$plot.data[, .(x, avg_methyl, type)]))
 
   # Generate the footprint plot
-  p1 <- ggplot(plot_data, aes(x = x, y = avg_methyl, group = interaction(motif, sample_name))) +
-    geom_line(aes(color = sample_name)) +
-    geom_point(aes(color = sample_name)) +
+  p1 <- ggplot(combined_data, aes(x = x, y = avg_methyl, color = type)) +
+    geom_line() +
+    geom_point() +
+    geom_smooth(data = subset(combined_data, type == "Observed"), se = FALSE, color = "black") +
     xlab("Distance from motif center") +
     ylab("Methylation level") +
     theme_classic() +
-    ggtitle("TF footprint")
-
-  return(p1)
+    ggtitle(paste("TF footprint for", motif, "in", sample_name)) +
+    scale_color_manual(values = c("Expected" = "blue", "Observed" = "red")) +
+    theme(legend.position = "bottom")
+  if (returnPlotData) {
+    return(list(plot = p1, plotDF = plot_data))
+  } else {
+    return(p1)
+  }
 }

@@ -4,14 +4,16 @@
 \alias{rbind}
 \title{rbind}
 \usage{
-rbind(...)
+rbind(x, y)
 }
 \arguments{
-\item{...}{methylTFRdeviations objects.}
+\item{x}{methylTFRdeviations object}
+
+\item{y}{methylTFRdeviations object}
 }
 \value{
 A methylTFRdeviations object.
 }
 \description{
-Combine methylTFRdeviations objects by row.
+Combine two methylTFRdeviations objects by row.
 }

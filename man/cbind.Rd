@@ -4,14 +4,16 @@
 \alias{cbind}
 \title{cbind}
 \usage{
-cbind(...)
+cbind(x, y)
 }
 \arguments{
-\item{...}{methylTFRdeviations objects.}
+\item{x}{methylTFRdeviations object}
+
+\item{y}{methylTFRdeviations object}
 }
 \value{
 A methylTFRdeviations object.
 }
 \description{
-Combine methylTFRdeviations objects by column.
+Combine two methylTFRdeviations objects by column.
 }
