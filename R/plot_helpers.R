@@ -34,7 +34,7 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
     avg_methyl = mean(y1),
     avg_cov = mean(y2),
     motif = motif_name,
-    label = fifelse(x == max(x), as.character(motif), NA_character_)
+    label = fifelse(x == max(x), as.character(motif_name), NA_character_)
   ), by = x]
 
   return(list(plot.data = plot.data, tfbs = NROW(tfbs)))
@@ -49,6 +49,7 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param enhancer Specific regions such as distal motif, proximal motif
 #' @param seed Seed for random number generation
+#' @param msites Methylation data
 #' @return a \code{data.table} object to containing TF footprint
 #' @keywords internal
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
@@ -56,7 +57,7 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
 #' @import data.table
 computeExpectedFootprint <- function(
     motif, sample_size, gcfreqs, gc_dist,
-    seed = 12, enhancer = NULL) {
+    seed = 12, enhancer = NULL,msites) {
   set.seed(seed)
   gcfreq <- gcfreqs[[motif]]
 
