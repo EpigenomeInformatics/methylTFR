@@ -73,9 +73,8 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 #' @description Creates a footprint plot for a given motif and a single methylation site.
 #' @param motif Motif name as a character string
 #' @param tf_bindsites Transcript Factor binding sites from the annotation package
-#' @param sample Path to a single methylation data file
+#' @param msites Methylation sites as a data frame
 #' @param sample_name Optional sample name as a character string, defaults to the file name if not provided
-#' @param type Type of methylation data, default is "EPP"
 #' @param seed Seed for random number generation
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param gcfreqs GC frequency of the genome used to compute expected methylation
@@ -84,22 +83,22 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 #' @return A ggplot object of TF footprint plot for a single sample
 #' @export
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
-plotMotifFootprint <- function(motif, tf_bindsites, sample,
-                               sample_name = NULL, type = "EPP", seed = 12,
+plotMotifFootprint <- function(motif, tf_bindsites, msites,
+                               sample_name = NULL,  seed = 12,
                                gc_dist, gcfreqs, enhancer = NULL, returnPlotData = FALSE) {
-  # Prepare methylation sites for the single sample
-  msites <- read_methylome(sample, type)
-
+  if(is.null(msites)){
+    stop("msites must be a data frame,please provide the methylation sites")
+  }
   # If sample label is not provided, use file name as label
   if (is.null(sample_name)) {
-    sample_name <- basename(sample)
+    sample_name <- "sample"
   }
 
   # Compute footprint for the motif
   plot_data <- computeFootprint(motif, tf_bindsites, msites, enhancer)
 
   # Compute expected footprint for the motif
-  exp_data <- computeExpectedFootprint(motif, plot_data$tfbs, gcfreqs, gc_dist, seed, enhancer)
+  exp_data <- computeExpectedFootprint(motif, plot_data$tfbs, gcfreqs, gc_dist, seed, enhancer,msites)
 
   # Add a new column to indicate whether the data is expected or observed
   exp_data[, type := "Expected"]
@@ -118,7 +117,7 @@ plotMotifFootprint <- function(motif, tf_bindsites, sample,
     scale_color_manual(values = c("Expected" = "blue", "Observed" = "red")) +
     theme(legend.position = "bottom")
   if (returnPlotData) {
-    return(list(plot = p1, plotDF = plot_data))
+    return(list(plot = p1, plotDF = combined_data))
   } else {
     return(p1)
   }
