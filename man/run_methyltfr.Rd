@@ -17,7 +17,8 @@ run_methyltfr(
   threads = 1,
   enhancer = NULL,
   filetype = NULL,
-  ignoreStrand = TRUE
+  ignoreStrand = TRUE,
+  cov_threshold = 5
 )
 }
 \arguments{
@@ -46,6 +47,11 @@ run_methyltfr(
 \item{filetype}{file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
+
+\item{cov_threshold}{\itemize{
+\item numeric, coverage threshold to filter out low coverage sites,
+default is 5
+}}
 }
 \value{
 a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores

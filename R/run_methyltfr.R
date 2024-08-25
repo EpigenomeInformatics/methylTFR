@@ -14,6 +14,8 @@
 #' @param annfile if provided, the sample annotation file is not read from the sample_dir
 #' @param filetype file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
+#' @param cov_threshold - numeric, coverage threshold to filter out low coverage sites,
+#' default is 5
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
@@ -29,7 +31,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
-    filetype = NULL, ignoreStrand = TRUE) {
+    filetype = NULL, ignoreStrand = TRUE,cov_threshold=5) {
   if (!tolower(filetype) %in% c(
     "bissnp", "epp", "allc", "bismarkcytosine",
     "bismarkcov", "encode"
@@ -76,6 +78,10 @@ run_methyltfr <- function(
   if (!is.numeric(threads) || threads < 1) {
     warning("Invalid thread count detected, using default thread count")
     threads <- 1
+  }
+  if(!is.numeric(cov_threshold)){
+    warning("Invalid cov_threshold detected, using default cov_threshold")
+    cov_threshold <- 5
   }
   if (!is.logical(full_path)) {
     stop("Invalid full path flag detected, please provide a valid logical value")
@@ -129,7 +135,7 @@ run_methyltfr <- function(
   for (i in seq_along(files_list)) {
     bedfile <- files_list[i]
     sample_name <- basename(bedfile)
-    msites <- read_methylome(bedfile, type = filetype)
+    msites <- read_methylome(bedfile, type = filetype,cov_threshold)
     logger::log_info("Processing ", sample_name)
 
     # Process motifs in chunks
