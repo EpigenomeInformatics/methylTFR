@@ -7,9 +7,8 @@
 plotMotifFootprint(
   motif,
   tf_bindsites,
-  sample,
+  msites,
   sample_name = NULL,
-  type = "EPP",
   seed = 12,
   gc_dist,
   gcfreqs,
@@ -22,11 +21,9 @@ plotMotifFootprint(
 
 \item{tf_bindsites}{Transcript Factor binding sites from the annotation package}
 
-\item{sample}{Path to a single methylation data file}
+\item{msites}{Methylation sites as a data frame}
 
 \item{sample_name}{Optional sample name as a character string, defaults to the file name if not provided}
-
-\item{type}{Type of methylation data, default is "EPP"}
 
 \item{seed}{Seed for random number generation}
 

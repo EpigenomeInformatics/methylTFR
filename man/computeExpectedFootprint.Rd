@@ -10,7 +10,8 @@ computeExpectedFootprint(
   gcfreqs,
   gc_dist,
   seed = 12,
-  enhancer = NULL
+  enhancer = NULL,
+  msites
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ computeExpectedFootprint(
 \item{seed}{Seed for random number generation}
 
 \item{enhancer}{Specific regions such as distal motif, proximal motif}
+
+\item{msites}{Methylation data}
 }
 \value{
 a \code{data.table} object to containing TF footprint
