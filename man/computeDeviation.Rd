@@ -8,7 +8,6 @@ computeDeviation(
   motif,
   msites,
   tf_bindsites,
-  gcfreqs,
   enhancer = NULL,
   ignoreStrand = TRUE
 )
@@ -19,8 +18,6 @@ computeDeviation(
 \item{msites}{imported methylation sites}
 
 \item{tf_bindsites}{a \code{GRangesList} object contains tf binding sites positions}
-
-\item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
 
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
@@ -37,10 +34,9 @@ binding sites for a given motif
 library(methylTFR)
 
 # Load the data
-load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
 # Compute the deviation
-devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
+devs <- computeDeviation("FOXF2", msites, tf_bindsites)
 }

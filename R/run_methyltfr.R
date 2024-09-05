@@ -127,7 +127,7 @@ run_methyltfr <- function(
   z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
 
   if (!is.null(enhancer)) {
-    d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
+    d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, type = "within",ignore.strand = ignoreStrand))
     gc_dist <- gc_dist[d_hits@from]
   }
   gc_dist <- as.data.table(gc_dist)
@@ -148,7 +148,7 @@ run_methyltfr <- function(
         computeDeviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
-        gcfreqs = gcfreqs,
+        #gcfreqs = gcfreqs,
         enhancer = enhancer,
         mc.cores = threads,
         ignoreStrand = ignoreStrand
