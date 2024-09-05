@@ -72,7 +72,15 @@ addGCBintoMethylome <- function(
   if (is.null(msites) || !is(msites, "GRanges")) {
     stop("Please provide a valid methylation sites with read_methylome function")
   }
-  gcfreq <- gcfreq[, 235:264] # 30 bp including motif center
+  total_columns <- ncol(gcfreq)
+  # Calculate the start and end indices for the middle 30 columns
+  start_index <- round((total_columns / 2) - 15) 
+  end_index <- round((total_columns / 2) + 15)
+
+  # Subset the middle 30 columns
+  gcfreq <- gcfreq[, start_index:end_index]
+
+  #gcfreq <- gcfreq[, 235:264] # 30 bp including motif center
   summed <- rowSums(gcfreq)
   percentages <- summed / sum(summed)
   exp_meth_list <- lapply(

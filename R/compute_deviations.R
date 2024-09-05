@@ -4,7 +4,6 @@
 #' @param motif A character vector containing motif name
 #' @param msites imported methylation sites
 #' @param tf_bindsites a \code{GRangesList} object contains tf binding sites positions
-#' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
 #' @param enhancer  a \code{GRanges} object specifying regions such as distal motif (optional)
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
 #' @return a \code{numeric} deviation score for a given motif
@@ -17,14 +16,13 @@
 #' library(methylTFR)
 #'
 #' # Load the data
-#' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 #' load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 #' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 #'
 #' # Compute the deviation
-#' devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
+#' devs <- computeDeviation("FOXF2", msites, tf_bindsites)
 #' @export
-computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
+computeDeviation <- function(motif, msites, tf_bindsites, 
                              enhancer = NULL, ignoreStrand = TRUE) {
   if (!is.logical(ignoreStrand)) {
     warning("Found invalid strand option, using the default")
@@ -40,18 +38,14 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
     !is.list(tf_bindsites)))) {
     stop("Please provide a valid tf binding sites as GRangesList")
   }
-  if (is.null(gcfreqs) || !is.list(gcfreqs)) {
-    stop("Please provide a valid GC bin frequency table list")
-  }
   if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
     stop("Please provide a valid enhancer regions")
   }
   tfbs <- tf_bindsites[[motif]]
-  gcfreq <- gcfreqs[[motif]]
   tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
 
   if (!is.null(enhancer)) {
-    d_hits <- findOverlaps(tfbs, enhancer, ignore.strand = ignoreStrand)
+    d_hits <- findOverlaps(tfbs, enhancer,type = "within",  ignore.strand = ignoreStrand)
     tfbs <- tfbs[d_hits@from]
   }
   hits <- suppressWarnings(findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand))
