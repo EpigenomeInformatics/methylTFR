@@ -25,7 +25,7 @@ differential_deviation_test <- function(deviations,
   if (is(deviations, "methylTFRDeviation")) {
     deviations <- deviations(deviations)
   }
-  #deviations <- t(deviations)
+  # deviations <- t(deviations)
   if (is.null(groups)) {
     groups <- colnames(groups)
   }

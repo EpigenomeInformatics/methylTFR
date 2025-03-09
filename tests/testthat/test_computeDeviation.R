@@ -39,7 +39,7 @@ test_that("computeDeviation", {
     computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs, ignoreStrand = "invalid"),
     "Found invalid strand option, using the default"
   )
-  #TODO: add the exp dev then run below as a test
+  # TODO: add the exp dev then run below as a test
   # Check that the function returns the expected result when given a specific input
-  #expect_equal(computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs))#, binMsites = bin_meth), devs)
+  # expect_equal(computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs))#, binMsites = bin_meth), devs)
 })

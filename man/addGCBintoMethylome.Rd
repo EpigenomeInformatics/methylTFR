@@ -4,13 +4,7 @@
 \alias{addGCBintoMethylome}
 \title{addGCBintoMethylome}
 \usage{
-addGCBintoMethylome(
-  msites,
-  gcdist,
-  ignoreStrand = TRUE,
-  sample_size = 25000,
-  gcfreq
-)
+addGCBintoMethylome(msites, gcdist, ignoreStrand = TRUE)
 }
 \arguments{
 \item{msites}{Imported methylation sites using \code{read_methylome} function}
@@ -20,23 +14,24 @@ addGCBintoMethylome(
 \item{ignoreStrand}{\itemize{
 \item if TRUE, it ignores strand info from annotation
 }}
-
-\item{sample_size}{\itemize{
-\item number of GC sites to sample, default is 10000
-}}
-
-\item{gcfreq}{\itemize{
-\item a list of GC bin frequency tables (matrices for multiple motif)
-}}
 }
 \value{
-a list of matrices
+a \code{matrix} object with GC bin with corresponding avg methylation
 }
 \description{
 This function is used to add GC bin to the methylation sites
 and calculate the average methylation for each bin.
 }
+\examples{
+library(methylTFR)
+
+# Load the data
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+
+# Add GC bin
+bin_meth <- addGCBintoMethylome(msites, gcdist)
+}
 \author{
 Irem Gunduz
 }
-\keyword{internal}
