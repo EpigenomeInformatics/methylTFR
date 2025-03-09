@@ -8,8 +8,10 @@ computeDeviation(
   motif,
   msites,
   tf_bindsites,
+  gcfreqs,
   enhancer = NULL,
-  ignoreStrand = TRUE
+  ignoreStrand = TRUE,
+  binMsites
 )
 }
 \arguments{
@@ -19,9 +21,13 @@ computeDeviation(
 
 \item{tf_bindsites}{a \code{GRangesList} object contains tf binding sites positions}
 
+\item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
+
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
+
+\item{binMsites}{A matrix object with GC bin with corresponding avg methylation}
 }
 \value{
 a \code{numeric} deviation score for a given motif

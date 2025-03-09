@@ -4,30 +4,18 @@
 \alias{computeExpectedFootprint}
 \title{computeExpectedFootprint}
 \usage{
-computeExpectedFootprint(
-  motif,
-  sample_size,
-  gcfreqs,
-  gc_dist,
-  seed = 12,
-  enhancer = NULL,
-  msites
-)
+computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer = NULL, msites)
 }
 \arguments{
 \item{motif}{chracter vector containing motif name eg: GATA string}
 
-\item{sample_size}{Number of pseudo tfbs to be generated}
-
-\item{gcfreqs}{GC frequency of the genome used to compute expected methylation}
-
 \item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
-
-\item{seed}{Seed for random number generation}
 
 \item{enhancer}{Specific regions such as distal motif, proximal motif}
 
 \item{msites}{Methylation data}
+
+\item{gcfreq}{GC frequency of the genome used to compute expected methylation}
 }
 \value{
 a \code{data.table} object to containing TF footprint

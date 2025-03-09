@@ -75,7 +75,6 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 #' @param tf_bindsites Transcript Factor binding sites from the annotation package
 #' @param msites Methylation sites as a data frame
 #' @param sample_name Optional sample name as a character string, defaults to the file name if not provided
-#' @param seed Seed for random number generation
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param gcfreqs GC frequency of the genome used to compute expected methylation
 #' @param enhancer Specific region such as distal motif, proximal motif
@@ -84,9 +83,9 @@ plotVariability <- function(variability, xlab = "Sorted TFs", nLab = 5,
 #' @export
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotMotifFootprint <- function(motif, tf_bindsites, msites,
-                               sample_name = NULL,  seed = 12,
-                               gc_dist, gcfreqs, enhancer = NULL, returnPlotData = FALSE) {
-  if(is.null(msites)){
+                               sample_name = NULL, gc_dist, gcfreqs,
+                               enhancer = NULL, returnPlotData = FALSE) {
+  if (is.null(msites)) {
     stop("msites must be a data frame,please provide the methylation sites")
   }
   # If sample label is not provided, use file name as label
@@ -98,12 +97,12 @@ plotMotifFootprint <- function(motif, tf_bindsites, msites,
   plot_data <- computeFootprint(motif, tf_bindsites, msites, enhancer)
 
   # Compute expected footprint for the motif
-  exp_data <- computeExpectedFootprint(motif, plot_data$tfbs, gcfreqs, gc_dist, seed, enhancer,msites)
+  exp_data <- computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer, msites)
 
   # Add a new column to indicate whether the data is expected or observed
   exp_data[, type := "Expected"]
-  plot_data$plot.data[, type := "Observed"]
-  combined_data <- rbindlist(list(exp_data[, .(x, avg_methyl, type)], plot_data$plot.data[, .(x, avg_methyl, type)]))
+  plot_data[, type := "Observed"]
+  combined_data <- rbindlist(list(exp_data[, .(x, avg_methyl, type)], plot_data[, .(x, avg_methyl, type)]))
 
   # Generate the footprint plot
   p1 <- ggplot(combined_data, aes(x = x, y = avg_methyl, color = type)) +
