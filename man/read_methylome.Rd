@@ -4,7 +4,7 @@
 \alias{read_methylome}
 \title{read_methylome}
 \usage{
-read_methylome(filename, type, cov_threshold = 0)
+read_methylome(filename, type, cov_threshold = 5)
 }
 \arguments{
 \item{filename}{\itemize{

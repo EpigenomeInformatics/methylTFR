@@ -16,10 +16,8 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
   tfbs <- resize(tfbs, w + 130, fix = "center")
 
   if (!is.null(enhancer)) {
-    d_hits <- findOverlaps(tfbs, enhancer, ignore.strand = TRUE)
-    tfbs <- tfbs[d_hits@from]
+    subsetByOverlaps(tfbs, enhancer, ignore.strand = TRUE)
   }
-
   hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = TRUE)
   mcols(tfbs)$mid_point <- round(end(tfbs) + (start(tfbs) - end(tfbs)) / 2)
   x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
@@ -37,18 +35,16 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
     label = fifelse(x == max(x), as.character(motif_name), NA_character_)
   ), by = x]
 
-  return(list(plot.data = plot.data, tfbs = NROW(tfbs)))
+  return(plot.data)
 }
 
 #' @title computeExpectedFootprint
 #' @description Compute expected footprint returns a data.table required to create a transcription
 #' factor footprint with label.
 #' @param motif  chracter vector containing motif name eg: GATA string
-#' @param sample_size  Number of pseudo tfbs to be generated
-#' @param gcfreqs GC frequency of the genome used to compute expected methylation
+#' @param gcfreq GC frequency of the genome used to compute expected methylation
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param enhancer Specific regions such as distal motif, proximal motif
-#' @param seed Seed for random number generation
 #' @param msites Methylation data
 #' @return a \code{data.table} object to containing TF footprint
 #' @keywords internal
@@ -56,25 +52,14 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
 #' @importFrom S4Vectors mcols
 #' @import data.table
 computeExpectedFootprint <- function(
-    motif, sample_size, gcfreqs, gc_dist,
-    seed = 12, enhancer = NULL,msites) {
-  set.seed(seed)
+    motif, gcfreqs, gc_dist,
+    enhancer = NULL, msites) {
   gcfreq <- gcfreqs[[motif]]
 
   if (!is.null(enhancer)) {
-    d_hits <- findOverlaps(gc_dist, enhancer, ignore.strand = TRUE)
-    gc_dist <- gc_dist[d_hits@from]
+    gc_dist <- suppressWarnings(subsetByOverlaps(gc_dist, enhancer, ignore.strand = TRUE))
   }
-  gc_dist <- as.data.table(gc_dist)
-  binMsites <- addGCBintoMethylome(msites, gc_dist, TRUE, sample_size, gcfreq)
-  exp_meth <- lapply(binMsites, function(i) computeExpectations(i, gcfreq))
-
-  result_list <- lapply(exp_meth, function(dt) {
-    aggregated <- dt[, .(avg_meth = mean(avg_methyl)), by = x]
-    return(aggregated)
-  })
-
-  final_result <- rbindlist(result_list)
-  final_aggregated <- final_result[, .(avg_methyl = mean(avg_meth)), by = x]
-  return(final_aggregated)
+  bin_meth <- addGCBintoMethylome(msites, gc_dist, TRUE)
+  exp_meth <- computeExpectations(bin_meth, gcfreq)
+  return(exp_meth)
 }

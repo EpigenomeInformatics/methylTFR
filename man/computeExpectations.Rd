@@ -4,10 +4,10 @@
 \alias{computeExpectations}
 \title{computeExpectations}
 \usage{
-computeExpectations(binMsites_sub, gcfreq)
+computeExpectations(binMsites, gcfreq)
 }
 \arguments{
-\item{binMsites_sub}{Imported methylation sites with GC bin}
+\item{binMsites}{Imported methylation sites with GC bin}
 
 \item{gcfreq}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
 }
