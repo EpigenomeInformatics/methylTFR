@@ -31,7 +31,7 @@ run_methyltfr <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
-    filetype = NULL, ignoreStrand = TRUE,cov_threshold=5) {
+    filetype = NULL, ignoreStrand = TRUE, cov_threshold = 5) {
   if (!tolower(filetype) %in% c(
     "bissnp", "epp", "allc", "bismarkcytosine",
     "bismarkcov", "encode"
@@ -79,7 +79,7 @@ run_methyltfr <- function(
     warning("Invalid thread count detected, using default thread count")
     threads <- 1
   }
-  if(!is.numeric(cov_threshold)){
+  if (!is.numeric(cov_threshold)) {
     warning("Invalid cov_threshold detected, using default cov_threshold")
     cov_threshold <- 5
   }
@@ -127,54 +127,43 @@ run_methyltfr <- function(
   z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
 
   if (!is.null(enhancer)) {
-    d_hits <- suppressWarnings(findOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
-    gc_dist <- gc_dist[d_hits@from]
+    gc_dist <- suppressWarnings(subsetByOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
   }
-  gc_dist <- as.data.table(gc_dist)
 
   for (i in seq_along(files_list)) {
     bedfile <- files_list[i]
     sample_name <- basename(bedfile)
-    msites <- read_methylome(bedfile, type = filetype,cov_threshold)
+    msites <- read_methylome(bedfile, type = filetype, cov_threshold)
     logger::log_info("Processing ", sample_name)
+    bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
 
     # Process motifs in chunks
     for (j in seq_along(motif_chunks)) {
       # Get the current chunk
       chunk_motifs <- motif_chunks[[j]]
 
-      # Compute observed deviations
       sample_deviations <- parallel::mclapply(chunk_motifs,
         computeDeviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
+        binMsites = bin_meth,
         enhancer = enhancer,
         mc.cores = threads,
         ignoreStrand = ignoreStrand
       )
       names(sample_deviations) <- chunk_motifs
 
-      # Compute expected deviations
-      exp_dev <- parallel::mclapply(chunk_motifs, computeExpectedDeviation,
-        msites = msites,
-        gcfreqs = gcfreqs,
-        gc_dist = gc_dist,
-        sample_deviations = sample_deviations,
-        ignoreStrand = ignoreStrand,
-        mc.cores = threads
-      )
-
       # Write the block to the sink
-      methylTFR:::write_block_to_sink(
-        lapply(exp_dev, function(x) x[["obs_dev"]]),
+      write_block_to_sink(
+        lapply(sample_deviations, function(x) x$dev),
         dev_grid, i, j, dev_sink
       )
-      methylTFR:::write_block_to_sink(
-        lapply(exp_dev, function(x) x[["z_score"]]),
+      write_block_to_sink(
+        lapply(sample_deviations, function(x) x$exp_dev),
         z_grid, i, j, z_sink
       )
-      rm(exp_dev, sample_deviations)
+      rm(sample_deviations)
     }
     rm(msites)
     cleanMem()
@@ -185,15 +174,16 @@ run_methyltfr <- function(
   # Close the sink
   DelayedArray::close(dev_sink)
   DelayedArray::close(z_sink)
-  obs_dev <- as.matrix(t(as(dev_sink, "DelayedArray")))
-  z_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
+  deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
+  exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
-  # create summarized experiment object
+  # Compute the sd and normalize the deviation
   se <- SummarizedExperiment::SummarizedExperiment(
     assays = list(
-      deviations = obs_dev, z = z_dev
+      deviations = deviation, z = methylTFR:::computeRowZScore(deviation) # ,
+      # exp_dev = exp_dev
     ),
-    colData = samples, rowData = DataFrame(motifs = row.names(obs_dev))
+    colData = samples, rowData = DataFrame(motifs = row.names(deviation))
   )
   return(new("methylTFRdeviations", se))
 }

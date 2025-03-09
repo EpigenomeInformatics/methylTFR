@@ -9,7 +9,6 @@ plotMotifFootprint(
   tf_bindsites,
   msites,
   sample_name = NULL,
-  seed = 12,
   gc_dist,
   gcfreqs,
   enhancer = NULL,
@@ -24,8 +23,6 @@ plotMotifFootprint(
 \item{msites}{Methylation sites as a data frame}
 
 \item{sample_name}{Optional sample name as a character string, defaults to the file name if not provided}
-
-\item{seed}{Seed for random number generation}
 
 \item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
 

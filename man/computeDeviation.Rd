@@ -10,7 +10,8 @@ computeDeviation(
   tf_bindsites,
   gcfreqs,
   enhancer = NULL,
-  ignoreStrand = TRUE
+  ignoreStrand = TRUE,
+  binMsites
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ computeDeviation(
 \item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
+
+\item{binMsites}{A matrix object with GC bin with corresponding avg methylation}
 }
 \value{
 a \code{numeric} deviation score for a given motif
@@ -37,10 +40,9 @@ binding sites for a given motif
 library(methylTFR)
 
 # Load the data
-load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
 # Compute the deviation
-devs <- computeDeviation("FOXF2", msites, tf_bindsites, gcfreqs)
+devs <- computeDeviation("FOXF2", msites, tf_bindsites)
 }
