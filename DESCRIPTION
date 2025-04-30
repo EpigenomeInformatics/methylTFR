@@ -27,7 +27,6 @@ Depends:
 Imports: 
     BiocGenerics,
     DelayedArray,
-    dplyr,
     GenomicRanges,
     ggplot2,
     HDF5Array,

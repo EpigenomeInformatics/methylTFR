@@ -15,16 +15,19 @@
 #' @param filetype file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
 #' @param cov_threshold - numeric, coverage threshold to filter out low coverage sites,
-#' default is 5
+#' default is 1
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom IRanges subsetByOverlaps
 #' @importFrom data.table data.table
 #' @importFrom parallel mclapply
 #' @importFrom logger log_info log_error
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
+#' @importFrom DelayedArray DelayedArray close
 #' @importFrom utils read.table
 #' @importFrom methods as new
 #' @importFrom stats sd
+#' @import logger
 #' @return a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
 #' @export
 run_methyltfr <- function(
@@ -108,7 +111,7 @@ run_methyltfr <- function(
   if (!all(file.exists(files_list))) {
     stop("Some of the files does not exist, please check the file path!")
   }
-  logger::log_success("The samples are successfully located")
+  log_success("The samples are successfully located")
 
   motifs <- names(gcfreqs)
   # Split the motifs into chunks
@@ -119,12 +122,12 @@ run_methyltfr <- function(
   ))
 
   # Create a temp sinks
-  dev_sink <- methylTFR:::create_sink(files_list, motifs)
-  z_sink <- methylTFR:::create_sink(files_list, motifs)
+  dev_sink <- create_sink(files_list, motifs)
+  z_sink <- create_sink(files_list, motifs)
 
   # set the grid
-  dev_grid <- methylTFR:::set_grid(files_list, motif_chunks)
-  z_grid <- methylTFR:::set_grid(files_list, motif_chunks)
+  dev_grid <- set_grid(files_list, motif_chunks)
+  z_grid <- set_grid(files_list, motif_chunks)
 
   if (!is.null(enhancer)) {
     gc_dist <- suppressWarnings(subsetByOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
@@ -134,7 +137,7 @@ run_methyltfr <- function(
     bedfile <- files_list[i]
     sample_name <- basename(bedfile)
     msites <- read_methylome(bedfile, type = filetype, cov_threshold)
-    logger::log_info("Processing ", sample_name)
+    log_info("Processing ", sample_name)
     bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
 
     # Process motifs in chunks
@@ -142,7 +145,7 @@ run_methyltfr <- function(
       # Get the current chunk
       chunk_motifs <- motif_chunks[[j]]
 
-      sample_deviations <- parallel::mclapply(chunk_motifs,
+      sample_deviations <- mclapply(chunk_motifs,
         computeDeviation,
         msites = msites,
         tf_bindsites = tf_bindsites,
@@ -167,9 +170,9 @@ run_methyltfr <- function(
     }
     rm(msites)
     cleanMem()
-    logger::log_info("Finished processing ", sample_name)
+    log_info("Finished processing ", sample_name)
   }
-  logger::log_success("Computed all deviations successfully")
+  log_success("Computed all deviations successfully")
 
   # Close the sink
   DelayedArray::close(dev_sink)
@@ -178,9 +181,9 @@ run_methyltfr <- function(
   exp_dev <- as.matrix(t(as(z_sink, "DelayedArray")))
 
   # Compute the sd and normalize the deviation
-  se <- SummarizedExperiment::SummarizedExperiment(
+  se <- SummarizedExperiment(
     assays = list(
-      deviations = deviation, z = methylTFR:::computeRowZScore(deviation) # ,
+      deviations = deviation, z = computeRowZScore(deviation) # ,
       # exp_dev = exp_dev
     ),
     colData = samples, rowData = DataFrame(motifs = row.names(deviation))

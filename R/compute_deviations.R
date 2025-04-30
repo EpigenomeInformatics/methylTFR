@@ -20,9 +20,20 @@
 #' # Load the data
 #' load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
 #' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-#'
+#' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+#' 
+#' # Compute binMsites
+#' bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
+#' 
 #' # Compute the deviation
-#' devs <- computeDeviation("FOXF2", msites, tf_bindsites)
+#' devs <- computeDeviation("FOXF2", 
+#' msites, 
+#' tf_bindsites, 
+#' gcfreqs,
+#' enhancer = NULL, 
+#' ignoreStrand = TRUE,
+#' bin_meth)
 #' @export
 computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
                              enhancer = NULL, ignoreStrand = TRUE,
@@ -57,7 +68,7 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
   exp_meth <- computeExpectations(binMsites, gcfreq)
 
   S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
-  sum_meth <- data.table::data.table(
+  sum_meth <- data.table(
     x = start(msites[hits@from]) - tfbs[hits@to]$mid_point,
     avg_methyl = msites[hits@from]$score
   )
@@ -71,7 +82,7 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
   obs_dev <- dev_helper(sum_meth)
   exp_dev <- dev_helper(exp_meth)
   dev <- obs_dev - exp_dev
-  return(data.table::data.table(dev, exp_dev))
+  return(data.table(dev, exp_dev))
 }
 
 #' @title dev_helper
