@@ -42,7 +42,7 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
 #' @description Compute expected footprint returns a data.table required to create a transcription
 #' factor footprint with label.
 #' @param motif  chracter vector containing motif name eg: GATA string
-#' @param gcfreq GC frequency of the genome used to compute expected methylation
+#' @param gcfreqs GC frequency of the genome used to compute expected methylation
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param enhancer Specific regions such as distal motif, proximal motif
 #' @param msites Methylation data

@@ -50,7 +50,7 @@ run_methyltfr(
 
 \item{cov_threshold}{\itemize{
 \item numeric, coverage threshold to filter out low coverage sites,
-default is 5
+default is 1
 }}
 }
 \value{
