@@ -22,18 +22,19 @@
 #' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 #' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
 #' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-#' 
+#'
 #' # Compute binMsites
 #' bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
-#' 
+#'
 #' # Compute the deviation
-#' devs <- computeDeviation("FOXF2", 
-#' msites, 
-#' tf_bindsites, 
-#' gcfreqs,
-#' enhancer = NULL, 
-#' ignoreStrand = TRUE,
-#' bin_meth)
+#' devs <- computeDeviation("FOXF2",
+#'   msites,
+#'   tf_bindsites,
+#'   gcfreqs,
+#'   enhancer = NULL,
+#'   ignoreStrand = TRUE,
+#'   bin_meth
+#' )
 #' @export
 computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
                              enhancer = NULL, ignoreStrand = TRUE,

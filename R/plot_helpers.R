@@ -19,7 +19,7 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
     subsetByOverlaps(tfbs, enhancer, ignore.strand = TRUE)
   }
   hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = TRUE)
-  mcols(tfbs)$mid_point <- round(end(tfbs) + (start(tfbs) - end(tfbs)) / 2)
+  S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) + (start(tfbs) - end(tfbs)) / 2)
   x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
   plot.data <- data.table(
     x = x,
