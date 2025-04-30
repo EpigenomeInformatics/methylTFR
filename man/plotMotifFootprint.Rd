@@ -12,7 +12,7 @@ plotMotifFootprint(
   gc_dist,
   gcfreqs,
   enhancer = NULL,
-  returnPlotData = FALSE
+  method = "division"
 )
 }
 \arguments{
@@ -30,11 +30,33 @@ plotMotifFootprint(
 
 \item{enhancer}{Specific region such as distal motif, proximal motif}
 
-\item{returnPlotData}{Logical indicating whether to return the plot data}
+\item{method}{Method to calculate the difference, either "substraction" or "division"}
 }
 \value{
-A ggplot object of TF footprint plot for a single sample
+A ggplot object of TF footprint difference plot for a single sample
 }
 \description{
-Creates a footprint plot for a given motif and a single methylation site.
+Creates a footprint plot of bias corrected methylation for a given motif and sample
+}
+\examples{
+library(methylTFR)
+
+# Load the data
+load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+
+# Plot the expected footprint
+p <- plotMotifFootprint(
+  motif = "FOXF2",
+  tf_bindsites = tf_bindsites,
+  msites = msites,
+  sample_name = "Sample1",
+  gc_dist = gcdist,
+  gcfreqs = gcfreqs,
+  enhancer = NULL,
+  method = "division"
+)
+
 }
