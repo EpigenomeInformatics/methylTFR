@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
 })
 
 # Load the annotation
-gcfreqs <-  getGCfreq(motifSet = "jaspar2020")
+gcfreqs <-  getGCfreq(motifSet = "jaspar2020_distal")
 gcdist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
