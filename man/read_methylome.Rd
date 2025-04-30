@@ -4,7 +4,7 @@
 \alias{read_methylome}
 \title{read_methylome}
 \usage{
-read_methylome(filename, type, cov_threshold = 5)
+read_methylome(filename, type, cov_threshold = 1)
 }
 \arguments{
 \item{filename}{\itemize{
@@ -16,7 +16,7 @@ bismarkcov,allc and encode}
 
 \item{cov_threshold}{\itemize{
 \item numeric, coverage threshold to filter out low coverage sites,
-default is 5
+default is 1
 }}
 }
 \value{
