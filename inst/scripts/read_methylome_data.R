@@ -1,5 +1,5 @@
 # Create simulated data formats for the methylTFR tests
-output_dir <- "/icbb/projects/igunduz/methylTFR/inst/extdata/"
+output_dir <- "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/"
 
 # Encode data
 Encode <- data.frame(

@@ -13,10 +13,12 @@ test_that("run_methyltfr", {
     sample_ann = "sample_ann.tsv", sample_dir = ".",
     filetype = "invalid"
   ), "Please provide a valid file type")
+
   expect_error(run_methyltfr(
     sample_ann = "sample_ann.tsv", sample_dir = ".",
     filetype = "epp", sampleColName = NULL
   ), "Please provide a valid sample column name")
+  
   expect_error(run_methyltfr(
     sample_ann = "sample_ann.tsv", sample_dir = ".",
     filetype = "epp"
