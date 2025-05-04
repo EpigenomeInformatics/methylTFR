@@ -39,6 +39,7 @@ A ggplot object of TF footprint difference plot for a single sample
 Creates a footprint plot of bias corrected methylation for a given motif and sample
 }
 \examples{
+library(ggplot2)
 library(methylTFR)
 
 # Load the data
