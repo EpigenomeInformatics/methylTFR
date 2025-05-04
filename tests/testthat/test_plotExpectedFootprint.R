@@ -10,7 +10,7 @@ test_that("plotExpectedFootprint", {
   load(system.file("extdata", "example_data.rda", package = "methylTFR"))
   load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
   load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-  
+
   # Test: Valid inputs
   test_that("Valid inputs return a ggplot object", {
     p <- plotExpectedFootprint(
@@ -23,7 +23,7 @@ test_that("plotExpectedFootprint", {
     )
     expect_s3_class(p, "ggplot")
   })
-  
+
   # Test: Return plot data
   test_that("Valid inputs with returnPlotData = TRUE return plot data", {
     result <- plotExpectedFootprint(
@@ -38,7 +38,7 @@ test_that("plotExpectedFootprint", {
     expect_s3_class(result$plot, "ggplot")
     expect_s3_class(result$plotDF, "data.table")
   })
-  
+
   # Test: Missing msites
   test_that("Missing msites throws an error", {
     expect_error(
@@ -52,7 +52,7 @@ test_that("plotExpectedFootprint", {
       "msites must be a data frame,please provide the methylation sites"
     )
   })
-  
+
   # Test: Invalid motif
   test_that("Invalid motif throws an error", {
     expect_error(
@@ -66,7 +66,7 @@ test_that("plotExpectedFootprint", {
       "Please provide a valid motif name"
     )
   })
-  
+
   # Test: Missing tf_bindsites
   test_that("Missing tf_bindsites throws an error", {
     expect_error(
@@ -80,7 +80,7 @@ test_that("plotExpectedFootprint", {
       "Please provide a valid tf binding sites as GRangesList"
     )
   })
-  
+
   # Test: Missing gc_dist
   test_that("Missing gc_dist throws an error", {
     expect_error(
@@ -94,7 +94,7 @@ test_that("plotExpectedFootprint", {
       "Please provide a valid gc_dist as GRanges"
     )
   })
-  
+
   # Test: Missing gcfreqs
   test_that("Missing gcfreqs throws an error", {
     expect_error(

@@ -10,7 +10,7 @@ test_that("plotMotifFootprint", {
   load(system.file("extdata", "example_data.rda", package = "methylTFR"))
   load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
   load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-  
+
   # Test with valid inputs
   p <- plotMotifFootprint(
     motif = "FOXF2",
@@ -22,10 +22,10 @@ test_that("plotMotifFootprint", {
     enhancer = NULL,
     method = "division"
   )
-  
+
   # Check if the output is a ggplot object
   expect_s3_class(p, "ggplot")
-  
+
   # Test with method = "substraction"
   p_sub <- plotMotifFootprint(
     motif = "FOXF2",
@@ -37,10 +37,10 @@ test_that("plotMotifFootprint", {
     enhancer = NULL,
     method = "substraction"
   )
-  
+
   # Check if the output is a ggplot object
   expect_s3_class(p_sub, "ggplot")
-  
+
   # Test with invalid method
   expect_warning(
     plotMotifFootprint(

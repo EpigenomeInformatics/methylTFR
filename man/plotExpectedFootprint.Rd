@@ -40,6 +40,7 @@ Creates a footprint plot of expected vs observed methylation
 for a given motif and a single methylation site.
 }
 \examples{
+library(ggplot2)
 library(methylTFR)
 
 # Load the data
