@@ -77,7 +77,7 @@ print(citation("methylTFR"), bibtex = TRUE)
 #> 
 #> To cite package 'methylTFR' in publications use:
 #> 
-#>   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2023).
+#>   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2025).
 #>   methylTFR: Quantification of DNA Methylation Signatures in TFBS. R
 #>   package version 0.99.0.
 #>   https://github.com/EpigenomeInformatics/methylTFR
@@ -87,7 +87,7 @@ print(citation("methylTFR"), bibtex = TRUE)
 #>   @Manual{,
 #>     title = {methylTFR: Quantification of DNA Methylation Signatures in TFBS},
 #>     author = {Irem B. Gündüz and Sarath Kumar Murugan and Fabian Muller},
-#>     year = {2023},
+#>     year = {2025},
 #>     note = {R package version 0.99.0},
 #>     url = {https://github.com/EpigenomeInformatics/methylTFR},
 #>   }
