@@ -1,0 +1,20 @@
+pkgVer <- function(pkg) {
+    if (!exists("meta") || is.null(meta)) meta <- packageDescription(pkg)
+    ver <- meta$Version
+    paste0('https://github.com/EpigenomeInformatics/methylTFR', ' - R package version ', ver)
+}
+
+c(
+    bibentry(bibtype = "Manual",
+        title = "methylTFR: Quantification of DNA Methylation Signatures in TFBS",
+        author = personList(
+            as.person("Irem B. Gunduz"),
+            as.person("Sarath Kumar Murugan"),
+            as.person("Fabian Muller")
+        ),
+        year = format(Sys.Date(), "%Y"),
+        url = "https://github.com/EpigenomeInformatics/methylTFR",
+        note = pkgVer('methylTFR'),
+        doi = "10.18129/B9.bioc.methylTFR"
+    )
+)
