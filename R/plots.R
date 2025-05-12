@@ -213,16 +213,16 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
 #' )
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
-plotMotifFootprint <- function(motif,
-    tf_bindsites, msites,
-    sample_name = NULL, gc_dist, gcfreqs,
-    enhancer = NULL, method = "division",
-    bin_meth = NULL) {
+plotMotifFootprint <- function(
+        motif,
+        tf_bindsites, msites,
+        sample_name = NULL, gc_dist, gcfreqs,
+        enhancer = NULL, method = "division",
+        bin_meth = NULL) {
     if (is.null(method) ||
         !method %in% c("substraction", "division")) {
         method <- "division"
-        warning("method is not provided,
-        using default method substraction.")
+        warning("method is not provided,using default method substraction.")
     }
     # Get the expected methylation for the motif
     plot_data <- plotExpectedFootprint(
