@@ -164,27 +164,26 @@ deviations <- run_methyltfr(sample_ann, # sample annotation file
 )
 ```
 
-For illustration, we provide a small example dataset with 3 samples and 3 motifs in the package.
-
-```{r full_Dev, eval=FALSE}
-# TODO
-```
-
 ## Motif Footprinting
 The `methylTFR` package provides a `plotMotifFootprint` function to visualize the methylation footprint of a specific TF motif per sample.
 
 ```{r footprint}
 library(ggplot2)
+load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
+load(system.file("extdata", "bin_meth.rda", package = "methylTFR"))
 
 p <- plotMotifFootprint(
   motif = "FOXF2",
   tf_bindsites = tf_bindsites,
   gc_dist = gcdist,
   gcfreqs = gcfreqs,
-  msites = msites, # TODO change example data
+  msites = msites_sub,
   sample_name = "ExampleSample",
-  enhancer = NULL
+  enhancer = NULL,
+  method = "division",
+  bin_meth = bin_meth
 )
+p
 ```
 
 ### Expected vs Observed Footprint
@@ -198,20 +197,50 @@ In the example below, we visualize the methylation footprint for the `FOXF2` mot
 p <- plotExpectedFootprint(
   motif = "FOXF2",
   tf_bindsites = tf_bindsites,
-  msites = msites, # TODO change example data
+  msites = msites_sub,
   sample_name = "ExampleSample",
   gc_dist = gcdist,
   gcfreqs = gcfreqs,
   enhancer = NULL,
-  returnPlotData = FALSE
+  returnPlotData = FALSE,
+  bin_meth = bin_meth
 )
 
-# Display the plot
-print(p)
+p
 ```
 
 ## Differential TF Activity Analysis
-TODO
+
+To assess differential TF activity between two groups of samples, `methylTFR` provides the `differential_deviation_test()` function. 
+This function computes the observed and expected deviation scores for each TF motif across the specified groups, enabling statistical
+testing to identify differentially active TFs.
+
+This is how `methylTFRdeviations` object is looked like:
+```{r methylTFRdeviations}
+load(system.file("extdata", "tcells_deviations.rda", package = "methylTFR"))
+devs
+```
+
+```{r diffactivity}
+# Construct group labels from sample names
+get_groupname <- function(x) {
+  return(unlist(strsplit(x, split = "_"))[1])
+}
+groups <- sub(".bedGraph", "", unlist(lapply(FUN = get_groupname, X = colnames(devs))))
+table(groups)
+
+# Run the differential deviation test
+tc_result <- differential_deviation_test(
+  deviations = devs,
+  groups = groups,
+  alternative = "two.sided",
+  parametric = TRUE,
+  padjMethod = "BH"
+)
+
+# View the results
+head(tc_result)
+```
 
 ## Session Information
 ```{r session-info}

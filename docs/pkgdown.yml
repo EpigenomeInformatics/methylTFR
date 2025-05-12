@@ -1,5 +1,6 @@
 pandoc: '3.4'
 pkgdown: 2.1.1
 pkgdown_sha: ~
-articles: {}
-last_built: 2025-05-04T10:49Z
+articles:
+  methylTFR: methylTFR.html
+last_built: 2025-05-12T12:04Z

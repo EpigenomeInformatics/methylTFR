@@ -12,6 +12,24 @@
 #' @return a \code{data.frame} contains motifs with corresponding p-value and
 #' adjusted p-value
 #' @importFrom stats aggregate p.adjust
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tcells_deviations.rda", package = "methylTFR"))
+#' # Construct group labels from sample names
+#' get_groupname <- function(x) {
+#'   return(unlist(strsplit(x, split = "_"))[1])
+#' }
+#' groups <- sub(".bedGraph", "", unlist(lapply(FUN = get_groupname, X = colnames(devs))))
+#'
+#' # Perform differential analysis
+#' tc_result <- differential_deviation_test(
+#'   deviations = devs,
+#'   groups = groups,
+#'   motifs = rownames(devs),
+#'   alternative = "two.sided",
+#'   parametric = TRUE,
+#'   padjMethod = "BH"
+#' )
 #' @export
 differential_deviation_test <- function(deviations,
                                         groups = NULL,
@@ -19,10 +37,10 @@ differential_deviation_test <- function(deviations,
                                         alternative = c("two.sided", "less", "greater"),
                                         parametric = TRUE,
                                         padjMethod = "BH") {
-  if (!any(class(deviations) %in% c("data.frame", "matrix", "methylTFRDeviation"))) {
-    stop("deviations must be a methylTFRDeviation object, or data.frame or matrix")
+  if (!any(class(deviations) %in% c("data.frame", "matrix", "methylTFRdeviations"))) {
+    stop("deviations must be a methylTFRdeviations object, or data.frame or matrix")
   }
-  if (is(deviations, "methylTFRDeviation")) {
+  if (is(deviations, "methylTFRdeviations")) {
     deviations <- deviations(deviations)
   }
   # deviations <- t(deviations)

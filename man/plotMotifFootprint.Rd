@@ -12,7 +12,8 @@ plotMotifFootprint(
   gc_dist,
   gcfreqs,
   enhancer = NULL,
-  method = "division"
+  method = "division",
+  bin_meth = NULL
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ plotMotifFootprint(
 \item{enhancer}{Specific region such as distal motif, proximal motif}
 
 \item{method}{Method to calculate the difference, either "substraction" or "division"}
+
+\item{bin_meth}{a \code{matrix} object containing GC bin with corresponding avg methylation}
 }
 \value{
 A ggplot object of TF footprint difference plot for a single sample

@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
   library(GenomicRanges)
   library(methylTFRAnnotationHg38)
   library(logger)
+  library(rtracklayer)
 })
 
 # Load the annotation
@@ -47,7 +48,7 @@ tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata
 tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/gcdist_subset.rda", "auto")
 
 ############################################################################
-# Example data for run_methyltfr and related functions
+# Example data for plotMotifFootprint and related functions
 ############################################################################
 # Load the full dataset
 msites <- read_methylome(filename,"bissnp")
@@ -59,9 +60,33 @@ tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
 gcfreq <- gcfreqs[[motif]]
 hits <- suppressWarnings(findOverlaps(msites, tfbs, type = "within", ignore.strand = TRUE))
 
+# Save bin_meth to make it faster
+bin_meth <- addGCBintoMethylome(msites, gcdist,TRUE) 
+save(bin_meth, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/bin_meth.rda")
+
 # Save the subsetted data
-msites_sub <- msites[hits@from] 
+msites_sub <- msites[hits@from]
 save(msites_sub, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/msites_sub.rda")
 
 # Compress the data
 tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/msites_sub.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/bin_meth.rda", "auto")
+
+############################################################################
+# Example deviations from Gunduz 2025 paper
+############################################################################
+
+# Load methylTFRdeviations objects
+tc_mem <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/data/sample_pseudobulks/Tc-Mem_deviations.RDS")
+tc_naive <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/data/sample_pseudobulks/Tc-Naive_deviations.RDS")
+
+# Merge the two objects
+devs <- cbind(tc_mem, tc_naive)
+
+# Save the merged object
+save(devs, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tcells_deviations.rda")
+
+# Compress the data
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tcells_deviations.rda", "auto")
+
+############################################################################
