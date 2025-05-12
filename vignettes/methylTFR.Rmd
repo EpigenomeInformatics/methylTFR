@@ -217,7 +217,9 @@ testing to identify differentially active TFs.
 
 This is how `methylTFRdeviations` object is looked like:
 ```{r methylTFRdeviations}
-load(system.file("extdata", "tcells_deviations.rda", package = "methylTFR"))
+load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+devs <- cbind(tc_mem, tc_naive)
 devs
 ```
 

@@ -4,11 +4,13 @@
 #' @param motif Motif name as a character string
 #' @param tf_bindsites Transcript Factor binding sites from the annotation package
 #' @param msites Methylation sites as a data frame
-#' @param sample_name Optional sample name as a character string, defaults to the file name if not provided
+#' @param sample_name Optional sample name as a character string, defaults
+#' to the file name if not provided
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param gcfreqs GC frequency of the genome used to compute expected methylation
 #' @param enhancer Specific region such as distal motif, proximal motif
-#' @param bin_meth a \code{matrix} object containing GC bin with corresponding avg methylation
+#' @param bin_meth a \code{matrix} object containing GC bin with corresponding
+#' avg methylation
 #' @param returnPlotData Logical indicating whether to return the plot data
 #' @return A ggplot object of TF footprint plot for a single sample
 #' @export

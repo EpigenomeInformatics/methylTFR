@@ -61,7 +61,7 @@ This function is a wrapper function to calculate the deviation in transcription 
 footprint base for all given motifs per raw samples
 }
 \examples{
-\dontrun{
+\donttest{
 library(methylTFRAnnotationHg38)
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
@@ -73,14 +73,14 @@ sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
 deviations <- run_methyltfr(sample_ann, # sample annotation file
-  sample_dir, # where the EPP files are
-  threads = 8, # number of threads
-  chunkSize = 10, # number of chunks to process
-  sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-  tf_bindsites = tf_bindsites, # TF binding sites
-  gcfreqs = gcfreqs, # GC frequency
-  gc_dist = gc_dist, # GC distribution
-  filetype = "EPP" # file type
+    sample_dir, # where the EPP files are
+    threads = 8, # number of threads
+    chunkSize = 10, # number of chunks to process
+    sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    filetype = "EPP" # file type
 )
 }
 }

@@ -51,12 +51,16 @@ tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata
 # Example data for plotMotifFootprint and related functions
 ############################################################################
 # Load the full dataset
-msites <- read_methylome(filename,"bissnp")
+msites <- read_methylome(filename,"bissnp",5)
+enhancer <- readRDS("/icbb/projects/share/annotations/methylTFRAnnotationHg38/inst/extdata/distal_regions.RDS")
+gcdist <- getGenomeGC()
+gcdist <- subsetByOverlaps(gcdist, enhancer, ignore.strand = TRUE)
 
 # Check the overlaps with gc_freqs
 motif <- "FOXF2"
 tfbs <- tf_bindsites[[motif]]
 tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
+tfbs <- subsetByOverlaps(tfbs, enhancer, ignore.strand = TRUE)
 gcfreq <- gcfreqs[[motif]]
 hits <- suppressWarnings(findOverlaps(msites, tfbs, type = "within", ignore.strand = TRUE))
 
@@ -81,12 +85,17 @@ tc_mem <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/
 tc_naive <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/data/sample_pseudobulks/Tc-Naive_deviations.RDS")
 
 # Merge the two objects
-devs <- cbind(tc_mem, tc_naive)
+#devs <- cbind(tc_mem[1:10,1:5], tc_naive[1:10,1:5])
+tc_mem <- tc_mem[1:10,1:5]
+tc_naive <- tc_naive[1:10,1:5]
 
-# Save the merged object
-save(devs, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tcells_deviations.rda")
+# Save the subsetted objects
+save(tc_mem, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_mem.rda")
+save(tc_naive, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_naive.rda")
 
 # Compress the data
-tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tcells_deviations.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_mem.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_naive.rda", "auto")
 
 ############################################################################
+

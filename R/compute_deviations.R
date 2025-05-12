@@ -36,9 +36,10 @@
 #'     bin_meth
 #' )
 #' @export
-computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
-    enhancer = NULL, ignoreStrand = TRUE,
-    binMsites) {
+computeDeviation <- function(
+        motif, msites, tf_bindsites, gcfreqs,
+        enhancer = NULL, ignoreStrand = TRUE,
+        binMsites) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
         ignoreStrand <- TRUE
@@ -62,7 +63,7 @@ computeDeviation <- function(motif, msites, tf_bindsites, gcfreqs,
     if (!is.null(enhancer)) {
         tfbs <- subsetByOverlaps(tfbs, enhancer, ignore.strand = ignoreStrand)
     }
-    hits <- suppressWarnings(findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand))
+    hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand)
     if (length(hits@from) == 0) {
         stop(paste0("No methylation sites found in the", motif, " binding sites"))
     }

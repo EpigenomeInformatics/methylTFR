@@ -23,7 +23,8 @@ plotExpectedFootprint(
 
 \item{msites}{Methylation sites as a data frame}
 
-\item{sample_name}{Optional sample name as a character string, defaults to the file name if not provided}
+\item{sample_name}{Optional sample name as a character string, defaults
+to the file name if not provided}
 
 \item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
 
@@ -33,7 +34,8 @@ plotExpectedFootprint(
 
 \item{returnPlotData}{Logical indicating whether to return the plot data}
 
-\item{bin_meth}{a \code{matrix} object containing GC bin with corresponding avg methylation}
+\item{bin_meth}{a \code{matrix} object containing GC bin with corresponding
+avg methylation}
 }
 \value{
 A ggplot object of TF footprint plot for a single sample
@@ -54,14 +56,14 @@ load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
 # Plot the expected footprint
 p <- plotExpectedFootprint(
-  motif = "FOXF2",
-  tf_bindsites = tf_bindsites,
-  msites = msites,
-  sample_name = "Sample1",
-  gc_dist = gcdist,
-  gcfreqs = gcfreqs,
-  enhancer = NULL,
-  returnPlotData = FALSE
+    motif = "FOXF2",
+    tf_bindsites = tf_bindsites,
+    msites = msites,
+    sample_name = "Sample1",
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    returnPlotData = FALSE
 )
 
 }
