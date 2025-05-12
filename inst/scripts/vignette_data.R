@@ -1,5 +1,5 @@
 # Example WGBS data downloaded from European Genome-Phenome Archive. 
-#It is converted to GRanges format, so it can be directly used as example data.
+# It is converted to GRanges format, so it can be directly used as example data.
 # source from https://ega-archive.org/studies/EGAS00001001624
 
 suppressPackageStartupMessages({
@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
   library(GenomicRanges)
   library(methylTFRAnnotationHg38)
   library(logger)
+  library(rtracklayer)
 })
 
 # Load the annotation
@@ -35,13 +36,66 @@ names(tf_bindsites) <- "FOXF2"
 gcfreqs <- gcfreqs[1]
 
 # Save the data as RDA files
-save(msites, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/example_data.rda")
-save(tf_bindsites, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda")
-save(gcfreqs, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_gcfreqs.rda")
-save(gcdist, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/gcdist_subset.rda")
+save(msites, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/example_data.rda")
+save(tf_bindsites, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda")
+save(gcfreqs, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_gcfreqs.rda")
+save(gcdist, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/gcdist_subset.rda")
 
 # Compresse the data
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/example_data.rda", "auto")
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda", "auto")
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_gcfreqs.rda", "auto")
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/gcdist_subset.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/example_data.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_gcfreqs.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/gcdist_subset.rda", "auto")
+
+############################################################################
+# Example data for plotMotifFootprint and related functions
+############################################################################
+# Load the full dataset
+msites <- read_methylome(filename,"bissnp",5)
+enhancer <- readRDS("/icbb/projects/share/annotations/methylTFRAnnotationHg38/inst/extdata/distal_regions.RDS")
+gcdist <- getGenomeGC()
+gcdist <- subsetByOverlaps(gcdist, enhancer, ignore.strand = TRUE)
+
+# Check the overlaps with gc_freqs
+motif <- "FOXF2"
+tfbs <- tf_bindsites[[motif]]
+tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
+tfbs <- subsetByOverlaps(tfbs, enhancer, ignore.strand = TRUE)
+gcfreq <- gcfreqs[[motif]]
+hits <- suppressWarnings(findOverlaps(msites, tfbs, type = "within", ignore.strand = TRUE))
+
+# Save bin_meth to make it faster
+bin_meth <- addGCBintoMethylome(msites, gcdist,TRUE) 
+save(bin_meth, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/bin_meth.rda")
+
+# Save the subsetted data
+msites_sub <- msites[hits@from]
+save(msites_sub, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/msites_sub.rda")
+
+# Compress the data
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/msites_sub.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/bin_meth.rda", "auto")
+
+############################################################################
+# Example deviations from Gunduz 2025 paper
+############################################################################
+
+# Load methylTFRdeviations objects
+tc_mem <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/data/sample_pseudobulks/Tc-Mem_deviations.RDS")
+tc_naive <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/data/sample_pseudobulks/Tc-Naive_deviations.RDS")
+
+# Merge the two objects
+#devs <- cbind(tc_mem[1:10,1:5], tc_naive[1:10,1:5])
+tc_mem <- tc_mem[1:10,1:5]
+tc_naive <- tc_naive[1:10,1:5]
+
+# Save the subsetted objects
+save(tc_mem, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_mem.rda")
+save(tc_naive, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_naive.rda")
+
+# Compress the data
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_mem.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/tc_naive.rda", "auto")
+
+############################################################################
+

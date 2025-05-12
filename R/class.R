@@ -15,13 +15,13 @@ setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 
 # Set validity function
 setValidity(
-  "methylTFRdeviations",
-  function(object) {
-    if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
-      return("The assays slot must contain 'deviations' and 'z'")
+    "methylTFRdeviations",
+    function(object) {
+        if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
+            return("The assays slot must contain 'deviations' and 'z'")
+        }
+        return(TRUE)
     }
-    return(TRUE)
-  }
 )
 
 ##########################################################################
@@ -33,6 +33,11 @@ setValidity(
 #' @param x A methylTFRdeviations object.
 #' @return A matrix of deviations.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' # Get deviations
+#' deviations(tc_mem)
 setGeneric("deviations", function(x) standardGeneric("deviations"))
 
 #' @title deviations
@@ -42,9 +47,13 @@ setGeneric("deviations", function(x) standardGeneric("deviations"))
 #' @export
 #' @importFrom SummarizedExperiment assay
 #' @importFrom methods setMethod
-# Define method for methylTFRdeviations class
+#' @examples
+#' # Load the data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' # Get deviations
+#' deviations(tc_mem)
 setMethod("deviations", "methylTFRdeviations", function(x) {
-  SummarizedExperiment::assay(x, "deviations")
+    SummarizedExperiment::assay(x, "deviations")
 })
 
 #' @title deviationZScores
@@ -52,6 +61,11 @@ setMethod("deviations", "methylTFRdeviations", function(x) {
 #' @param x A methylTFRdeviations object.
 #' @return A matrix of deviation Z-scores.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' # Get deviation Z-scores
+#' deviationZScores(tc_mem)
 setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 
 #' @title deviationZScores
@@ -61,8 +75,13 @@ setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 #' @export
 #' @importFrom SummarizedExperiment assay
 #' @importFrom methods setMethod
+#' @examples
+#' # Load the data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' # Get deviation Z-scores
+#' deviationZScores(tc_mem)
 setMethod("deviationZScores", "methylTFRdeviations", function(x) {
-  SummarizedExperiment::assay(x, "z")
+    SummarizedExperiment::assay(x, "z")
 })
 
 #' @title cbind
@@ -71,6 +90,13 @@ setMethod("deviationZScores", "methylTFRdeviations", function(x) {
 #' @param y methylTFRdeviations object
 #' @return A methylTFRdeviations object.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+#'
+#' # Combine the two objects
+#' devs <- cbind(tc_mem, tc_naive)
 setGeneric("cbind", function(x, y) standardGeneric("cbind"))
 
 #' @title rbind
@@ -79,6 +105,12 @@ setGeneric("cbind", function(x, y) standardGeneric("cbind"))
 #' @param y methylTFRdeviations object
 #' @return A methylTFRdeviations object.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#'
+#' # Combine the two objects with same column
+#' devs <- rbind(tc_mem[1:2, 1:2], tc_mem[3:4, 1:2])
 setGeneric("rbind", function(x, y) standardGeneric("rbind"))
 
 #' @title cbind
@@ -89,11 +121,17 @@ setGeneric("rbind", function(x, y) standardGeneric("rbind"))
 #' @export
 #' @importFrom BiocGenerics cbind
 #' @importFrom methods setMethod
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+#' # Combine the two objects
+#' devs <- cbind(tc_mem, tc_naive)
 setMethod(
-  "cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
-  function(x, y) {
-    BiocGenerics::cbind(x, y)
-  }
+    "cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+    function(x, y) {
+        BiocGenerics::cbind(x, y)
+    }
 )
 
 #' @title rbind
@@ -104,9 +142,14 @@ setMethod(
 #' @export
 #' @importFrom BiocGenerics rbind
 #' @importFrom methods setMethod
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' # Combine the two objects with same column
+#' devs <- rbind(tc_mem[1:2, 1:2], tc_mem[3:4, 1:2])
 setMethod(
-  "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
-  function(x, y) {
-    BiocGenerics::rbind(x, y)
-  }
+    "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+    function(x, y) {
+        BiocGenerics::rbind(x, y)
+    }
 )

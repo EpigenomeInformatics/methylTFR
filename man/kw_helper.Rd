@@ -2,7 +2,8 @@
 % Please edit documentation in R/helpers.R
 \name{kw_helper}
 \alias{kw_helper}
-\title{Kruskal-Wallis Rank Sum Test for multiple groups}
+\title{Kruskal-Wallis Rank Sum Test for
+multiple groups}
 \usage{
 kw_helper(x, groups)
 }
@@ -12,13 +13,15 @@ kw_helper(x, groups)
 }}
 
 \item{groups}{\itemize{
-\item a character vector of group names or colnames(deviations)
+\item a character vector of group
+names or colnames(deviations)
 }}
 }
 \value{
 a numeric vector of p-values
 }
 \description{
-Kruskal-Wallis Rank Sum Test for multiple groups
+Kruskal-Wallis Rank Sum Test
+for multiple groups
 }
 \keyword{internal}
