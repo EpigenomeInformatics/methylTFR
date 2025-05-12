@@ -46,6 +46,7 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
 #' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
 #' @param enhancer Specific regions such as distal motif, proximal motif
 #' @param msites Methylation data
+#' @param bin_meth Methylation data with GC content
 #' @return a \code{data.table} object to containing TF footprint
 #' @keywords internal
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
@@ -53,13 +54,13 @@ computeFootprint <- function(motif_name, tf_bindsites, msites, enhancer = NULL) 
 #' @import data.table
 computeExpectedFootprint <- function(
     motif, gcfreqs, gc_dist,
-    enhancer = NULL, msites) {
+    enhancer = NULL, msites, bin_meth) {
   gcfreq <- gcfreqs[[motif]]
 
   if (!is.null(enhancer)) {
     gc_dist <- suppressWarnings(subsetByOverlaps(gc_dist, enhancer, ignore.strand = TRUE))
   }
-  bin_meth <- addGCBintoMethylome(msites, gc_dist, TRUE)
   exp_meth <- computeExpectations(bin_meth, gcfreq)
   return(exp_meth)
 }
+

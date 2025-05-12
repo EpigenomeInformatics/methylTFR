@@ -4,7 +4,14 @@
 \alias{computeExpectedFootprint}
 \title{computeExpectedFootprint}
 \usage{
-computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer = NULL, msites)
+computeExpectedFootprint(
+  motif,
+  gcfreqs,
+  gc_dist,
+  enhancer = NULL,
+  msites,
+  bin_meth
+)
 }
 \arguments{
 \item{motif}{chracter vector containing motif name eg: GATA string}
@@ -16,6 +23,8 @@ computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer = NULL, msites)
 \item{enhancer}{Specific regions such as distal motif, proximal motif}
 
 \item{msites}{Methylation data}
+
+\item{bin_meth}{Methylation data with GC content}
 }
 \value{
 a \code{data.table} object to containing TF footprint

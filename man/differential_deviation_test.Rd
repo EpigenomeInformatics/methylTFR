@@ -36,3 +36,22 @@ adjusted p-value
 Differential analysis is to test which motifs are having significant
 deviations among different groups. Adapted from chromVAR::differential_test
 }
+\examples{
+# Load example data
+load(system.file("extdata", "tcells_deviations.rda", package = "methylTFR"))
+# Construct group labels from sample names
+get_groupname <- function(x) {
+  return(unlist(strsplit(x, split = "_"))[1])
+}
+groups <- sub(".bedGraph", "", unlist(lapply(FUN = get_groupname, X = colnames(devs))))
+
+# Perform differential analysis
+tc_result <- differential_deviation_test(
+  deviations = devs,
+  groups = groups,
+  motifs = rownames(devs),
+  alternative = "two.sided",
+  parametric = TRUE,
+  padjMethod = "BH"
+)
+}

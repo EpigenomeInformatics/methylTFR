@@ -17,9 +17,12 @@ test_that("plotExpectedFootprint", {
       motif = "FOXF2",
       tf_bindsites = tf_bindsites,
       msites = msites,
+      sample_name = NULL,
       gc_dist = gcdist,
       gcfreqs = gcfreqs,
-      returnPlotData = FALSE
+      returnPlotData = FALSE,
+      bin_meth = NULL,
+      enhancer= NULL
     )
     expect_s3_class(p, "ggplot")
   })
