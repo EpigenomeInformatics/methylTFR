@@ -53,14 +53,14 @@ load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
 # Plot the expected footprint
 p <- plotMotifFootprint(
-  motif = "FOXF2",
-  tf_bindsites = tf_bindsites,
-  msites = msites,
-  sample_name = "Sample1",
-  gc_dist = gcdist,
-  gcfreqs = gcfreqs,
-  enhancer = NULL,
-  method = "division"
+    motif = "FOXF2",
+    tf_bindsites = tf_bindsites,
+    msites = msites,
+    sample_name = "Sample1",
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    method = "division"
 )
 
 }

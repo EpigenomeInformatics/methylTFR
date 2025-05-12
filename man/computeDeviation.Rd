@@ -50,11 +50,11 @@ bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
 
 # Compute the deviation
 devs <- computeDeviation("FOXF2",
-  msites,
-  tf_bindsites,
-  gcfreqs,
-  enhancer = NULL,
-  ignoreStrand = TRUE,
-  bin_meth
+    msites,
+    tf_bindsites,
+    gcfreqs,
+    enhancer = NULL,
+    ignoreStrand = TRUE,
+    bin_meth
 )
 }

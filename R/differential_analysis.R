@@ -14,7 +14,10 @@
 #' @importFrom stats aggregate p.adjust
 #' @examples
 #' # Load example data
-#' load(system.file("extdata", "tcells_deviations.rda", package = "methylTFR"))
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+#' devs <- cbind(tc_mem, tc_naive)
+#'
 #' # Construct group labels from sample names
 #' get_groupname <- function(x) {
 #'     return(unlist(strsplit(x, split = "_"))[1])

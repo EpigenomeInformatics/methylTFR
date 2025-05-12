@@ -30,7 +30,7 @@
 #' @import logger
 #' @return a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' library(methylTFRAnnotationHg38)
 #'
 #' gcfreqs <- getGCfreq(motifSet = "jaspar2020")
@@ -53,11 +53,10 @@
 #' )
 #' }
 #' @export
-run_methyltfr <- function(
-        sample_ann, sample_dir, tf_bindsites = NULL,
-        gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-        full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
-        filetype = NULL, ignoreStrand = TRUE, cov_threshold = 5) {
+run_methyltfr <- function(sample_ann, sample_dir, tf_bindsites = NULL,
+    gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
+    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
+    filetype = NULL, ignoreStrand = TRUE, cov_threshold = 5) {
     if (!tolower(filetype) %in% c(
         "bissnp", "epp", "allc", "bismarkcytosine",
         "bismarkcov", "encode"
@@ -153,7 +152,7 @@ run_methyltfr <- function(
     z_grid <- set_grid(files_list, motif_chunks)
 
     if (!is.null(enhancer)) {
-        gc_dist <- suppressWarnings(subsetByOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand))
+        gc_dist <- subsetByOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand)
     }
 
     for (i in seq_along(files_list)) {
