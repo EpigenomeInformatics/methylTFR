@@ -1,5 +1,5 @@
 # Example WGBS data downloaded from European Genome-Phenome Archive. 
-#It is converted to GRanges format, so it can be directly used as example data.
+# It is converted to GRanges format, so it can be directly used as example data.
 # source from https://ega-archive.org/studies/EGAS00001001624
 
 suppressPackageStartupMessages({
@@ -35,13 +35,33 @@ names(tf_bindsites) <- "FOXF2"
 gcfreqs <- gcfreqs[1]
 
 # Save the data as RDA files
-save(msites, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/example_data.rda")
-save(tf_bindsites, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda")
-save(gcfreqs, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_gcfreqs.rda")
-save(gcdist, file = "/icbb/projects/igunduz/methylTFR/inst/extdata/gcdist_subset.rda")
+save(msites, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/example_data.rda")
+save(tf_bindsites, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda")
+save(gcfreqs, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_gcfreqs.rda")
+save(gcdist, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/gcdist_subset.rda")
 
 # Compresse the data
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/example_data.rda", "auto")
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda", "auto")
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/FOXF2_gcfreqs.rda", "auto")
-tools::resaveRdaFiles("/icbb/projects/igunduz/methylTFR/inst/extdata/gcdist_subset.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/example_data.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_tf_bindsites.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/FOXF2_gcfreqs.rda", "auto")
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/gcdist_subset.rda", "auto")
+
+############################################################################
+# Example data for run_methyltfr and related functions
+############################################################################
+# Load the full dataset
+msites <- read_methylome(filename,"bissnp")
+
+# Check the overlaps with gc_freqs
+motif <- "FOXF2"
+tfbs <- tf_bindsites[[motif]]
+tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
+gcfreq <- gcfreqs[[motif]]
+hits <- suppressWarnings(findOverlaps(msites, tfbs, type = "within", ignore.strand = TRUE))
+
+# Save the subsetted data
+msites_sub <- msites[hits@from] 
+save(msites_sub, file = "/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/msites_sub.rda")
+
+# Compress the data
+tools::resaveRdaFiles("/icbb/projects/igunduz/irem_github/methylTFR/inst/extdata/msites_sub.rda", "auto")
