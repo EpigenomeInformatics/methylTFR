@@ -6,10 +6,10 @@
 #' @importFrom stats aov
 #' @keywords internal
 anova_helper <- function(x, groups) {
-  tmpdf <- data.frame(groups = groups, devs = x)
-  res <- aov(devs ~ groups, tmpdf)
-  p_value <- summary(res)[[1]][["Pr(>F)"]][1]
-  return(p_value)
+    tmpdf <- data.frame(groups = groups, devs = x)
+    res <- aov(devs ~ groups, tmpdf)
+    p_value <- summary(res)[[1]][["Pr(>F)"]][1]
+    return(p_value)
 }
 
 #' @title  t-test for two groups
@@ -22,13 +22,13 @@ anova_helper <- function(x, groups) {
 #' @importFrom stats t.test
 #' @keywords internal
 t_helper <- function(x, groups, alternative) {
-  splitx <- split(x, groups)
-  return(t.test(splitx[[1]], splitx[[2]],
-    alternative = alternative,
-    paired = FALSE,
-    var.equal = FALSE,
-    exact = FALSE
-  )$p.value)
+    splitx <- split(x, groups)
+    return(t.test(splitx[[1]], splitx[[2]],
+        alternative = alternative,
+        paired = FALSE,
+        var.equal = FALSE,
+        exact = FALSE
+    )$p.value)
 }
 
 #' @title wilcoxon test for two groups
@@ -41,11 +41,11 @@ t_helper <- function(x, groups, alternative) {
 #' @importFrom stats wilcox.test
 #' @keywords internal
 wilcoxon_helper <- function(x, groups, alternative) {
-  splitx <- split(x, groups)
-  return(wilcox.test(splitx[[1]], splitx[[2]],
-    alternative = alternative,
-    paired = FALSE
-  )$p.value)
+    splitx <- split(x, groups)
+    return(wilcox.test(splitx[[1]], splitx[[2]],
+        alternative = alternative,
+        paired = FALSE
+    )$p.value)
 }
 
 #' @title Kruskal-Wallis Rank Sum Test for multiple groups
@@ -56,9 +56,9 @@ wilcoxon_helper <- function(x, groups, alternative) {
 #' @importFrom stats kruskal.test
 #' @keywords internal
 kw_helper <- function(x, groups) {
-  tmpdf <- data.frame(groups = groups, devs = x)
-  res <- kruskal.test(devs ~ groups, tmpdf)
-  return(res$p.value)
+    tmpdf <- data.frame(groups = groups, devs = x)
+    res <- kruskal.test(devs ~ groups, tmpdf)
+    return(res$p.value)
 }
 
 #' @title helper function to compute row-wise z-score of a matrix
@@ -68,9 +68,9 @@ kw_helper <- function(x, groups) {
 #' @importFrom matrixStats rowMeans2 rowSds
 #' @keywords internal
 computeRowZScore <- function(mat) {
-  mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
-  mat[base::is.nan(mat)] <- 0
-  return(mat)
+    mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
+    mat[base::is.nan(mat)] <- 0
+    return(mat)
 }
 
 #' @title Helper function to compute column-wise z-score of a matrix
@@ -80,7 +80,7 @@ computeRowZScore <- function(mat) {
 #' @importFrom matrixStats colMeans2 colSds
 #' @keywords internal
 computeColZScore <- function(mat) {
-  mat <- (mat - matrixStats::colMeans2(mat)) / matrixStats::colSds(mat)
-  mat[base::is.nan(mat)] <- 0
-  return(mat)
+    mat <- (mat - matrixStats::colMeans2(mat)) / matrixStats::colSds(mat)
+    mat[base::is.nan(mat)] <- 0
+    return(mat)
 }

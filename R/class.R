@@ -15,13 +15,13 @@ setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 
 # Set validity function
 setValidity(
-  "methylTFRdeviations",
-  function(object) {
-    if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
-      return("The assays slot must contain 'deviations' and 'z'")
+    "methylTFRdeviations",
+    function(object) {
+        if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
+            return("The assays slot must contain 'deviations' and 'z'")
+        }
+        return(TRUE)
     }
-    return(TRUE)
-  }
 )
 
 ##########################################################################
@@ -44,7 +44,7 @@ setGeneric("deviations", function(x) standardGeneric("deviations"))
 #' @importFrom methods setMethod
 # Define method for methylTFRdeviations class
 setMethod("deviations", "methylTFRdeviations", function(x) {
-  SummarizedExperiment::assay(x, "deviations")
+    SummarizedExperiment::assay(x, "deviations")
 })
 
 #' @title deviationZScores
@@ -62,7 +62,7 @@ setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 #' @importFrom SummarizedExperiment assay
 #' @importFrom methods setMethod
 setMethod("deviationZScores", "methylTFRdeviations", function(x) {
-  SummarizedExperiment::assay(x, "z")
+    SummarizedExperiment::assay(x, "z")
 })
 
 #' @title cbind
@@ -90,10 +90,10 @@ setGeneric("rbind", function(x, y) standardGeneric("rbind"))
 #' @importFrom BiocGenerics cbind
 #' @importFrom methods setMethod
 setMethod(
-  "cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
-  function(x, y) {
-    BiocGenerics::cbind(x, y)
-  }
+    "cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+    function(x, y) {
+        BiocGenerics::cbind(x, y)
+    }
 )
 
 #' @title rbind
@@ -105,8 +105,8 @@ setMethod(
 #' @importFrom BiocGenerics rbind
 #' @importFrom methods setMethod
 setMethod(
-  "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
-  function(x, y) {
-    BiocGenerics::rbind(x, y)
-  }
+    "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
+    function(x, y) {
+        BiocGenerics::rbind(x, y)
+    }
 )
