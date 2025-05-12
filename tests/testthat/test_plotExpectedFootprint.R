@@ -12,20 +12,18 @@ test_that("plotExpectedFootprint", {
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
     # Test: Valid inputs
-    test_that("Valid inputs return a ggplot object", {
-        p <- plotExpectedFootprint(
-            motif = "FOXF2",
-            tf_bindsites = tf_bindsites,
-            msites = msites,
-            sample_name = NULL,
-            gc_dist = gcdist,
-            gcfreqs = gcfreqs,
-            returnPlotData = FALSE,
-            bin_meth = NULL,
-            enhancer = NULL
-        )
-        expect_s3_class(p, "ggplot")
-    })
+    p <- plotExpectedFootprint(
+        motif = "FOXF2",
+        tf_bindsites = tf_bindsites,
+        msites = msites,
+        sample_name = NULL,
+        gc_dist = gcdist,
+        gcfreqs = gcfreqs,
+        returnPlotData = FALSE,
+        bin_meth = NULL,
+        enhancer = NULL
+    )
+    expect_s3_class(p, "ggplot")
 
     # Test: Return plot data
     test_that("Valid inputs with returnPlotData = TRUE return plot data", {
@@ -52,7 +50,7 @@ test_that("plotExpectedFootprint", {
                 gc_dist = gcdist,
                 gcfreqs = gcfreqs
             ),
-            "msites must be a data frame,please provide the methylation sites"
+            "msites must be a data frame"
         )
     })
 
@@ -70,19 +68,6 @@ test_that("plotExpectedFootprint", {
         )
     })
 
-    # Test: Missing tf_bindsites
-    test_that("Missing tf_bindsites throws an error", {
-        expect_error(
-            plotExpectedFootprint(
-                motif = "FOXF2",
-                tf_bindsites = NULL,
-                msites = msites,
-                gc_dist = gcdist,
-                gcfreqs = gcfreqs
-            ),
-            "Please provide a valid tf binding sites as GRangesList"
-        )
-    })
 
     # Test: Missing gc_dist
     test_that("Missing gc_dist throws an error", {

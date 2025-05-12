@@ -47,20 +47,20 @@ library(methylTFR)
 
 # Load the data
 load(system.file("extdata",
-  "FOXF2_tf_bindsites.rda",
-  package = "methylTFR"
+    "FOXF2_tf_bindsites.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "example_data.rda",
-  package = "methylTFR"
+    "example_data.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "FOXF2_gcfreqs.rda",
-  package = "methylTFR"
+    "FOXF2_gcfreqs.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "gcdist_subset.rda",
-  package = "methylTFR"
+    "gcdist_subset.rda",
+    package = "methylTFR"
 ))
 
 # Compute binMsites
@@ -68,11 +68,11 @@ bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
 
 # Compute the deviation
 devs <- computeDeviation("FOXF2",
-  msites,
-  tf_bindsites,
-  gcfreqs,
-  enhancer = NULL,
-  ignoreStrand = TRUE,
-  bin_meth
+    msites,
+    tf_bindsites,
+    gcfreqs,
+    enhancer = NULL,
+    ignoreStrand = TRUE,
+    bin_meth
 )
 }
