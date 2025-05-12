@@ -12,7 +12,8 @@ anova_helper(x, groups)
 }}
 
 \item{groups}{\itemize{
-\item a character vector of group names or colnames(deviations)
+\item a character vector of group
+names or colnames(deviations)
 }}
 }
 \value{

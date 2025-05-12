@@ -18,45 +18,61 @@ run_methyltfr(
   enhancer = NULL,
   filetype = NULL,
   ignoreStrand = TRUE,
-  cov_threshold = 5
+  cov_threshold = 1
 )
 }
 \arguments{
-\item{sample_ann}{A tab seperated file contains sample annotations}
+\item{sample_ann}{A tab seperated file contains
+sample annotations}
 
-\item{sample_dir}{The directory where all bed file and annotation file stored}
+\item{sample_dir}{The directory where all bed file
+and annotation file stored}
 
-\item{tf_bindsites}{a \code{GRangesList} object contains tf binding sites positions}
+\item{tf_bindsites}{a \code{GRangesList} object contains
+tf binding sites positions}
 
-\item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
+\item{gcfreqs}{a \code{list} of GC bin frequency tables
+(matrices for multiple motif)}
 
-\item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
+\item{gc_dist}{a \code{GRanges} object contains
+Genome wide GC distribution}
 
-\item{sampleColName}{column name of the sample bed file in the annotation file}
+\item{sampleColName}{column name of the sample bed
+file in the annotation file}
 
-\item{chunkSize}{Chunk size for parallel processing of motifs (default: 20)}
+\item{chunkSize}{Chunk size for parallel processing
+of motifs (default: 20)}
 
-\item{full_path}{if TRUE, the bed file path in the annotation file is full path}
+\item{full_path}{if TRUE, the bed file path in the
+annotation file is full path}
 
-\item{annfile}{if provided, the sample annotation file is not read from the sample_dir}
+\item{annfile}{if provided, the sample annotation file
+is not read from the sample_dir}
 
 \item{threads}{Thread count for parallel processing}
 
-\item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
+\item{enhancer}{a \code{GRanges} object specifying
+regions such as distal motif (optional)}
 
-\item{filetype}{file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode}
+\item{filetype}{file type of the bed file,
+currently supported:
+bissnp,epp,allc,bismarkcytosine,bismarkcov,encode}
 
 \item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
 
 \item{cov_threshold}{\itemize{
-\item numeric, coverage threshold to filter out low coverage sites,
+\item numeric, coverage threshold to
+filter out low coverage sites,
 default is 1
 }}
 }
 \value{
-a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
+a \code{methylTFRdeviations} object with
+bias-corrected deviation and Z-scores
 }
 \description{
-This function is a wrapper function to calculate the deviation in transcription factor
+This function is a wrapper function to
+calculate the deviation
+in transcription factor
 footprint base for all given motifs per raw samples
 }

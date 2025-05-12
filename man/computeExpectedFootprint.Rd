@@ -4,24 +4,39 @@
 \alias{computeExpectedFootprint}
 \title{computeExpectedFootprint}
 \usage{
-computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer = NULL, msites)
+computeExpectedFootprint(
+  motif,
+  gcfreqs,
+  gc_dist,
+  enhancer = NULL,
+  msites,
+  bin_meth
+)
 }
 \arguments{
-\item{motif}{chracter vector containing motif name eg: GATA string}
+\item{motif}{chracter vector containing motif
+name eg: GATA string}
 
-\item{gcfreqs}{GC frequency of the genome used to compute expected methylation}
+\item{gcfreqs}{GC frequency of the genome used
+to compute expected methylation}
 
-\item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
+\item{gc_dist}{a \code{GRanges} object contains
+Genome wide GC distribution}
 
-\item{enhancer}{Specific regions such as distal motif, proximal motif}
+\item{enhancer}{Specific regions such as distal
+motif, proximal motif}
 
 \item{msites}{Methylation data}
+
+\item{bin_meth}{Methylation data with GC content}
 }
 \value{
-a \code{data.table} object to containing TF footprint
+a \code{data.table} object to containing
+TF footprint
 }
 \description{
-Compute expected footprint returns a data.table required to create a transcription
+Compute expected footprint returns
+a data.table required to create a transcription
 factor footprint with label.
 }
 \keyword{internal}

@@ -15,3 +15,9 @@ A matrix of bias corrected deviations.
 \description{
 Extract bias corrected deviations from methylTFRdeviations object.
 }
+\examples{
+# Load the data
+load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+# Get deviations
+deviations(tc_mem)
+}

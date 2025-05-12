@@ -18,7 +18,7 @@ Description: methylTFR is an extensive R package designed specifically for
     data.  This package offers a variety of functions that facilitate the
     motif activity exhibiting diverse methylation patterns across distinct
     samples or cells.
-License: Artistic-2.0
+License: MIT + file LICENSE
 URL: https://github.com/EpigenomeInformatics/methylTFR
 BugReports: https://support.bioconductor.org/t/methylTFR
 Depends: 

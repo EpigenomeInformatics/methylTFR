@@ -1,0 +1,303 @@
+---
+title: "methylTFR: Quantification of DNA Methylation Signatures in Transcription Factor Binding Sites"
+author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
+date: "`r Sys.Date()`"
+package: methylTFR
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{methylTFR: Quantification of DNA Methylation Signatures in Transcription Factor Binding Sites}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(BiocStyle)
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+## Introduction
+
+DNA methylation can modulate transcription factor (TF) binding,
+ particularly when occurring within transcription factor 
+ binding sites (TFBS). 
+`methylTFR` is an R package that identifies DNA methylation 
+signatures at TFBS using whole-genome bisulfite sequencing (WGBS)
+ data.
+
+For each sample, methylation levels are first aggregated across all
+ genomic regions corresponding to TFBS. This yields the
+  **observed deviation**, which captures the raw signal of 
+  methylation enrichment or depletion for each TF.
+To account for sequence composition biases, `methylTFR` then 
+estimates an **expected deviation** using genomic background 
+models derived from TF motif GC content and genome-wide GC frequency.
+This deviation matrix provides a compact and interpretable 
+representation of TFBS methylation across samples, suitable 
+for downstream analyses such as dimensionality reduction 
+(e.g., PCA, UMAP), clustering, differential testing, and 
+visualization of TF-specific methylation footprints. 
+
+![](vignettes/overview.png){width=80%}
+
+
+## Installation
+
+You can install the stable release of **methylTFR** from 
+[Bioconductor](https://bioconductor.org/) using:
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+BiocManager::install("methylTFR")
+```
+
+To install the development version directly from GitHub:
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("EpigenomeInformatics/methylTFR")
+```
+
+## Getting Started
+To get started with **methylTFR**, load the package and its dependencies:
+
+```{r init}
+library(methylTFR)
+```
+
+### Read a Sample File
+
+The `read_methylome()` function is used to import single-sample
+ DNA methylation data into a `GRanges` object.  
+It supports several common file formats, including `EPP`, `ALLC`,
+ `BisSNP`, `bismarkCytosine`, `bismarkcov`, and `ENCODE`. 
+
+You can optionally filter out low-coverage sites using the 
+`cov_threshold` parameter (default = 1), which excludes positions
+ with insufficient read support.
+
+Below is an example of reading an example `EPP`-formatted file
+ provided in the package:
+
+```{r readmethylome}
+epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
+epp <- read_methylome(epp_path, "EPP")
+epp
+```
+
+
+## Annotation Resources
+
+We provide precomputed TFBS-based annotation data for the 
+human genome (*hg38*), which is required by `methylTFR` to 
+compute expected deviations.  
+This includes transcription factor binding sites, GC content 
+windows, and motif GC frequency models.
+
+You can download the *hg38*-compatible annotation package 
+from the following AWS-hosted archive:
+
+- **[Download methylTFRAnnotationsHg38.tar.gz](https://aws-link-here)**
+
+Optionally, you can create a customized annotation package for use with 
+`methylTFR` using the 
+[`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder) 
+package available on **GitHub**.
+
+### Input Data
+
+`methylTFR` relies on several precomputed annotation resources to estimate 
+expected methylation levels at transcription factor binding sites (TFBS). These annotations include:
+
+- **GC distribution (`gcdist_subset`)**: Genome-wide GC content distribution
+ around cytosines, used to model methylation expectations.
+- **Motif GC frequency (`FOXF2_gcfreqs`)**: GC frequency profile specific to 
+the FOXF2 motif across TFBS, used to correct for sequence composition bias.
+- **TF binding sites (`FOXF2_tf_bindsites`)**: A `GRanges` object containing 
+the genomic coordinates of FOXF2 binding sites.
+- **Example methylation data (`example_data`)**: A small subset of methylation
+ calls in EPP format, read using the `read_methylome()` function, provided for demonstration purposes.
+
+The following code loads these example datasets and displays the first few entries:
+
+```{r exdata}
+# Load the data
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+
+
+# Check the data
+head(gcdist)
+head(gcfreqs$FOXF2[, 1:5])
+head(tf_bindsites)
+head(msites)
+```
+
+## Compute Deviation Score for a Single Sample and Single Motif
+
+The `computeDeviation()` function calculates the deviation score for a specific
+ transcription factor (TF) motif in a single sample. It compares the observed
+  methylation at TF binding sites (TFBS) to the expected methylation derived
+   from GC frequency models.
+
+This example uses the `FOXF2` motif and the example methylation dataset loaded
+ earlier. The methylation data must first be binned by GC content using
+  `addGCBintoMethylome()` before computing the deviation.
+
+```{r single_deviation}
+# Add GC bins to methylation data
+bin_meth <- addGCBintoMethylome(msites, gcdist, ignoreStrand = TRUE)
+bin_meth
+
+# Compute deviation score for FOXF2 motif
+deviation_score <- computeDeviation(
+    motif = "FOXF2",
+    msites = msites,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    ignoreStrand = TRUE,
+    binMsites = bin_meth
+)
+
+# View the result
+deviation_score
+```
+
+
+## Run methylTFR on multiple samples and motifs 
+The `methylTFR` package provides a `run_methyltfr` function to run
+ the analysis on multiple samples and motif sites.
+You need to download the annotation package for the human genome
+ (*hg38*) and place it in your working directory.
+
+```{r multiple_samples, eval=FALSE}
+library(methylTFRAnnotationHg38) # annotation package for hg38
+
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+gc_dist <- getGenomeGC()
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+
+sample_dir <- file.path("samples_dir")
+sample_ann <- "samples.tsv" # should contain column name bedFile
+
+# deviation score matrix
+deviations <- run_methyltfr(sample_ann, # sample annotation file
+    sample_dir, # where the EPP files are
+    threads = 8, # number of threads
+    chunkSize = 10, # number of chunks to process
+    sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    filetype = "EPP" # file type
+)
+```
+
+## Motif Footprinting
+The `methylTFR` package provides a `plotMotifFootprint` function to visualize
+ the methylation footprint of a specific TF motif per sample.
+
+```{r footprint}
+library(ggplot2)
+load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
+load(system.file("extdata", "bin_meth.rda", package = "methylTFR"))
+
+p <- plotMotifFootprint(
+    motif = "FOXF2",
+    tf_bindsites = tf_bindsites,
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    msites = msites_sub,
+    sample_name = "ExampleSample",
+    enhancer = NULL,
+    method = "division",
+    bin_meth = bin_meth
+)
+p
+```
+
+### Expected vs Observed Footprint
+
+To visually assess how observed methylation patterns compare with expected
+ profiles at transcription factor binding sites (TFBS), `methylTFR` provides 
+ the `plotExpectedFootprint()` function. This generates a footprint plot for a 
+ given motif in a single sample, allowing you to inspect local methylation 
+ behavior relative to GC-derived expectations.
+
+In the example below, we visualize the methylation footprint for the 
+`FOXF2` motif using the included example data.
+
+```{r expfootprint}
+# Generate footprint plot for FOXF2
+p <- plotExpectedFootprint(
+    motif = "FOXF2",
+    tf_bindsites = tf_bindsites,
+    msites = msites_sub,
+    sample_name = "ExampleSample",
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    returnPlotData = FALSE,
+    bin_meth = bin_meth
+)
+
+p
+```
+
+## Differential TF Activity Analysis
+
+To assess differential TF activity between two groups of samples,
+ `methylTFR` provides the `differential_deviation_test()` function. 
+This function computes the observed and expected deviation scores 
+for each TF motif across the specified groups, enabling statistical
+testing to identify differentially active TFs.
+
+This is how `methylTFRdeviations` object is looked like:
+```{r methylTFRdeviations}
+load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+devs <- cbind(tc_mem, tc_naive)
+devs
+```
+
+```{r diffactivity}
+# Construct group labels from sample names
+get_groupname <- function(x) {
+    return(unlist(strsplit(x, split = "_"))[1])
+}
+groups <- sub(
+    ".bedGraph", "",
+    unlist(lapply(
+        FUN = get_groupname,
+        X = colnames(devs)
+    ))
+)
+table(groups)
+
+# Run the differential deviation test
+tc_result <- differential_deviation_test(
+    deviations = devs,
+    groups = groups,
+    alternative = "two.sided",
+    parametric = TRUE,
+    padjMethod = "BH"
+)
+
+# View the results
+head(tc_result)
+```
+
+## Session Information
+```{r session-info}
+sessionInfo()
+```
+

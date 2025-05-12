@@ -17,3 +17,11 @@ A methylTFRdeviations object.
 \description{
 Combine two methylTFRdeviations objects by column.
 }
+\examples{
+# Load example data
+load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+
+# Combine the two objects
+devs <- cbind(tc_mem, tc_naive)
+}

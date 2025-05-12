@@ -35,6 +35,7 @@ granges_helper(grobj, chr, mscore, cov, startP, endP)
 a \code{GenomicRanges} object with EPP format
 }
 \description{
-helper function to convert msites in EPP GRanges format
+helper function to convert
+msites in EPP GRanges format
 }
 \keyword{internal}
