@@ -13,8 +13,8 @@ vignette: >
 ```{r setup, include = FALSE}
 library(BiocStyle)
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
@@ -123,13 +123,13 @@ bin_meth
 
 # Compute deviation score for FOXF2 motif
 deviation_score <- computeDeviation(
-  motif = "FOXF2",
-  msites = msites,
-  tf_bindsites = tf_bindsites,
-  gcfreqs = gcfreqs,
-  enhancer = NULL,
-  ignoreStrand = TRUE,
-  binMsites = bin_meth
+    motif = "FOXF2",
+    msites = msites,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    ignoreStrand = TRUE,
+    binMsites = bin_meth
 )
 
 # View the result
@@ -153,14 +153,14 @@ sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
 deviations <- run_methyltfr(sample_ann, # sample annotation file
-  sample_dir, # where the EPP files are
-  threads = 8, # number of threads
-  chunkSize = 10, # number of chunks to process
-  sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-  tf_bindsites = tf_bindsites, # TF binding sites
-  gcfreqs = gcfreqs, # GC frequency
-  gc_dist = gc_dist, # GC distribution
-  filetype = "EPP" # file type
+    sample_dir, # where the EPP files are
+    threads = 8, # number of threads
+    chunkSize = 10, # number of chunks to process
+    sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    filetype = "EPP" # file type
 )
 ```
 
@@ -173,15 +173,15 @@ load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
 load(system.file("extdata", "bin_meth.rda", package = "methylTFR"))
 
 p <- plotMotifFootprint(
-  motif = "FOXF2",
-  tf_bindsites = tf_bindsites,
-  gc_dist = gcdist,
-  gcfreqs = gcfreqs,
-  msites = msites_sub,
-  sample_name = "ExampleSample",
-  enhancer = NULL,
-  method = "division",
-  bin_meth = bin_meth
+    motif = "FOXF2",
+    tf_bindsites = tf_bindsites,
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    msites = msites_sub,
+    sample_name = "ExampleSample",
+    enhancer = NULL,
+    method = "division",
+    bin_meth = bin_meth
 )
 p
 ```
@@ -195,15 +195,15 @@ In the example below, we visualize the methylation footprint for the `FOXF2` mot
 ```{r expfootprint}
 # Generate footprint plot for FOXF2
 p <- plotExpectedFootprint(
-  motif = "FOXF2",
-  tf_bindsites = tf_bindsites,
-  msites = msites_sub,
-  sample_name = "ExampleSample",
-  gc_dist = gcdist,
-  gcfreqs = gcfreqs,
-  enhancer = NULL,
-  returnPlotData = FALSE,
-  bin_meth = bin_meth
+    motif = "FOXF2",
+    tf_bindsites = tf_bindsites,
+    msites = msites_sub,
+    sample_name = "ExampleSample",
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    returnPlotData = FALSE,
+    bin_meth = bin_meth
 )
 
 p
@@ -224,18 +224,18 @@ devs
 ```{r diffactivity}
 # Construct group labels from sample names
 get_groupname <- function(x) {
-  return(unlist(strsplit(x, split = "_"))[1])
+    return(unlist(strsplit(x, split = "_"))[1])
 }
 groups <- sub(".bedGraph", "", unlist(lapply(FUN = get_groupname, X = colnames(devs))))
 table(groups)
 
 # Run the differential deviation test
 tc_result <- differential_deviation_test(
-  deviations = devs,
-  groups = groups,
-  alternative = "two.sided",
-  parametric = TRUE,
-  padjMethod = "BH"
+    deviations = devs,
+    groups = groups,
+    alternative = "two.sided",
+    parametric = TRUE,
+    padjMethod = "BH"
 )
 
 # View the results
