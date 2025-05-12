@@ -19,29 +19,38 @@ plotExpectedFootprint(
 \arguments{
 \item{motif}{Motif name as a character string}
 
-\item{tf_bindsites}{Transcript Factor binding sites from the annotation package}
+\item{tf_bindsites}{Transcript Factor binding sites
+from the annotation package}
 
 \item{msites}{Methylation sites as a data frame}
 
-\item{sample_name}{Optional sample name as a character string, defaults
+\item{sample_name}{Optional sample name as a character
+string, defaults
 to the file name if not provided}
 
-\item{gc_dist}{a \code{GRanges} object contains Genome wide GC distribution}
+\item{gc_dist}{a \code{GRanges} object contains Genome
+wide GC distribution}
 
-\item{gcfreqs}{GC frequency of the genome used to compute expected methylation}
+\item{gcfreqs}{GC frequency of the genome used to
+compute expected methylation}
 
-\item{enhancer}{Specific region such as distal motif, proximal motif}
+\item{enhancer}{Specific region such as distal motif,
+proximal motif}
 
-\item{returnPlotData}{Logical indicating whether to return the plot data}
+\item{returnPlotData}{Logical indicating whether to
+return the plot data}
 
-\item{bin_meth}{a \code{matrix} object containing GC bin with corresponding
+\item{bin_meth}{a \code{matrix} object containing GC
+bin with corresponding
 avg methylation}
 }
 \value{
-A ggplot object of TF footprint plot for a single sample
+A ggplot object of TF footprint plot for a
+single sample
 }
 \description{
-Creates a footprint plot of expected vs observed methylation
+Creates a footprint plot of expected
+vs observed methylation
 for a given motif and a single methylation site.
 }
 \examples{
@@ -49,21 +58,33 @@ library(ggplot2)
 library(methylTFR)
 
 # Load the data
-load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
-load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
-load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+load(system.file("extdata",
+  "FOXF2_tf_bindsites.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "example_data.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "FOXF2_gcfreqs.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "gcdist_subset.rda",
+  package = "methylTFR"
+))
 
 # Plot the expected footprint
 p <- plotExpectedFootprint(
-    motif = "FOXF2",
-    tf_bindsites = tf_bindsites,
-    msites = msites,
-    sample_name = "Sample1",
-    gc_dist = gcdist,
-    gcfreqs = gcfreqs,
-    enhancer = NULL,
-    returnPlotData = FALSE
+  motif = "FOXF2",
+  tf_bindsites = tf_bindsites,
+  msites = msites,
+  sample_name = "Sample1",
+  gc_dist = gcdist,
+  gcfreqs = gcfreqs,
+  enhancer = NULL,
+  returnPlotData = FALSE
 )
 
 }

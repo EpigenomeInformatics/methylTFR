@@ -1,7 +1,8 @@
 #' @title  anova test for multiple groups
 #' @description anova test for multiple groups
 #' @param x - a numeric vector of deviations
-#' @param groups - a character vector of group names or colnames(deviations)
+#' @param groups - a character vector of group
+#' names or colnames(deviations)
 #' @return a numeric vector of p-values
 #' @importFrom stats aov
 #' @keywords internal
@@ -15,8 +16,10 @@ anova_helper <- function(x, groups) {
 #' @title  t-test for two groups
 #' @description t-test for two groups
 #' @param x - a numeric vector of deviations
-#' @param groups - a character vector of group names or colnames(deviations)
-#' @param alternative - a character string specifying the alternative hypothesis,
+#' @param groups - a character vector of group
+#' names or colnames(deviations)
+#' @param alternative - a character string specifying
+#' the alternative hypothesis,
 #' must be one of "two.sided" (default), "greater" or "less".
 #' @return a numeric vector of p-values
 #' @importFrom stats t.test
@@ -34,8 +37,10 @@ t_helper <- function(x, groups, alternative) {
 #' @title wilcoxon test for two groups
 #' @description wilcoxon test for two groups
 #' @param x - a numeric vector of deviations
-#' @param groups - a character vector of group names or colnames(deviations)
-#' @param alternative - a character string specifying the alternative hypothesis,
+#' @param groups - a character vector of group
+#' names or colnames(deviations)
+#' @param alternative - a character string specifying
+#' the alternative hypothesis,
 #' must be one of "two.sided" (default), "greater" or "less".
 #' @return a numeric vector of p-values
 #' @importFrom stats wilcox.test
@@ -48,10 +53,13 @@ wilcoxon_helper <- function(x, groups, alternative) {
     )$p.value)
 }
 
-#' @title Kruskal-Wallis Rank Sum Test for multiple groups
-#' @description Kruskal-Wallis Rank Sum Test for multiple groups
+#' @title Kruskal-Wallis Rank Sum Test for
+#'  multiple groups
+#' @description Kruskal-Wallis Rank Sum Test
+#'  for multiple groups
 #' @param x - a numeric vector of deviations
-#' @param groups - a character vector of group names or colnames(deviations)
+#' @param groups - a character vector of group
+#'  names or colnames(deviations)
 #' @return a numeric vector of p-values
 #' @importFrom stats kruskal.test
 #' @keywords internal
@@ -61,26 +69,32 @@ kw_helper <- function(x, groups) {
     return(res$p.value)
 }
 
-#' @title helper function to compute row-wise z-score of a matrix
-#' @description This function takes a matrix and computes row-wise z-scores.
+#' @title helper function to compute row-wise
+#'  z-score of a matrix
+#' @description This function takes a matrix
+#'  and computes row-wise z-scores.
 #' @param mat A matrix
 #' @return A matrix with row-wise z-scores
 #' @importFrom matrixStats rowMeans2 rowSds
 #' @keywords internal
 computeRowZScore <- function(mat) {
-    mat <- (mat - matrixStats::rowMeans2(mat)) / matrixStats::rowSds(mat)
+    mat <- (mat - matrixStats::rowMeans2(mat)) /
+        matrixStats::rowSds(mat)
     mat[base::is.nan(mat)] <- 0
     return(mat)
 }
 
-#' @title Helper function to compute column-wise z-score of a matrix
-#' @description This function takes a matrix and computes column-wise z-scores.
+#' @title Helper function to compute column-wise
+#' z-score of a matrix
+#' @description This function takes a matrix and
+#' computes column-wise z-scores.
 #' @param mat A matrix
 #' @return A matrix with column-wise z-scores
 #' @importFrom matrixStats colMeans2 colSds
 #' @keywords internal
 computeColZScore <- function(mat) {
-    mat <- (mat - matrixStats::colMeans2(mat)) / matrixStats::colSds(mat)
+    mat <- (mat - matrixStats::colMeans2(mat)) /
+        matrixStats::colSds(mat)
     mat[base::is.nan(mat)] <- 0
     return(mat)
 }

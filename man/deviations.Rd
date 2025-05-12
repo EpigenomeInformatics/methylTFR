@@ -15,3 +15,9 @@ A matrix of deviations.
 \description{
 Function to get deviations from a methylTFRdeviations object.
 }
+\examples{
+# Load example data
+load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+# Get deviations
+deviations(tc_mem)
+}

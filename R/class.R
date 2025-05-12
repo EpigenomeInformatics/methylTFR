@@ -33,6 +33,11 @@ setValidity(
 #' @param x A methylTFRdeviations object.
 #' @return A matrix of deviations.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' # Get deviations
+#' deviations(tc_mem)
 setGeneric("deviations", function(x) standardGeneric("deviations"))
 
 #' @title deviations
@@ -56,6 +61,11 @@ setMethod("deviations", "methylTFRdeviations", function(x) {
 #' @param x A methylTFRdeviations object.
 #' @return A matrix of deviation Z-scores.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' # Get deviation Z-scores
+#' deviationZScores(tc_mem)
 setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 
 #' @title deviationZScores
@@ -80,6 +90,13 @@ setMethod("deviationZScores", "methylTFRdeviations", function(x) {
 #' @param y methylTFRdeviations object
 #' @return A methylTFRdeviations object.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+#'
+#' # Combine the two objects
+#' devs <- cbind(tc_mem, tc_naive)
 setGeneric("cbind", function(x, y) standardGeneric("cbind"))
 
 #' @title rbind
@@ -88,6 +105,12 @@ setGeneric("cbind", function(x, y) standardGeneric("cbind"))
 #' @param y methylTFRdeviations object
 #' @return A methylTFRdeviations object.
 #' @export
+#' @examples
+#' # Load example data
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#'
+#' # Combine the two objects with same column
+#' devs <- rbind(tc_mem[1:2, 1:2], tc_mem[3:4, 1:2])
 setGeneric("rbind", function(x, y) standardGeneric("rbind"))
 
 #' @title cbind
@@ -122,9 +145,8 @@ setMethod(
 #' @examples
 #' # Load example data
 #' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
-#' # Combine the two objects
-#' devs <- rbind(tc_mem, tc_naive)
+#' # Combine the two objects with same column
+#' devs <- rbind(tc_mem[1:2, 1:2], tc_mem[3:4, 1:2])
 setMethod(
     "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
     function(x, y) {

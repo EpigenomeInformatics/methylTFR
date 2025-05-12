@@ -15,3 +15,9 @@ A matrix of deviation Z-scores.
 \description{
 Function to get deviation Z-scores from a methylTFRdeviations object.
 }
+\examples{
+# Load example data
+load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+# Get deviation Z-scores
+deviationZScores(tc_mem)
+}

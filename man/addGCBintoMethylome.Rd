@@ -7,27 +7,38 @@
 addGCBintoMethylome(msites, gcdist, ignoreStrand = TRUE)
 }
 \arguments{
-\item{msites}{Imported methylation sites using \code{read_methylome} function}
+\item{msites}{Imported methylation sites using
+\code{read_methylome} function}
 
-\item{gcdist}{a \code{GRanges} object contains Genome wide GC distribution}
+\item{gcdist}{a \code{GRanges} object contains
+Genome wide GC distribution}
 
 \item{ignoreStrand}{\itemize{
-\item if TRUE, it ignores strand info from annotation
+\item if TRUE, it ignores strand
+info from annotation
 }}
 }
 \value{
-a \code{matrix} object with GC bin with corresponding avg methylation
+a \code{matrix} object with GC bin with
+corresponding avg methylation
 }
 \description{
-This function is used to add GC bin to the methylation sites
+This function is used to add GC bin
+to the methylation sites
 and calculate the average methylation for each bin.
 }
 \examples{
 library(methylTFR)
 
 # Load the data
-load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata",
+  "gcdist_subset.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "example_data.rda",
+  package = "methylTFR"
+))
 
 # Add GC bin
 bin_meth <- addGCBintoMethylome(msites, gcdist)
