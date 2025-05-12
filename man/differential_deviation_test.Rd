@@ -14,47 +14,65 @@ differential_deviation_test(
 )
 }
 \arguments{
-\item{deviations}{a \code{data.frame} contains deviations for each motif}
+\item{deviations}{a \code{data.frame} contains deviations
+for each motif}
 
-\item{groups}{a character vector of group names or colnames(deviations)}
+\item{groups}{a character vector of group names or
+colnames(deviations)}
 
-\item{motifs}{a character vector of motif names used in analysis or rownames(deviations)}
+\item{motifs}{a character vector of motif names used
+in analysis or rownames(deviations)}
 
-\item{alternative}{a character string specifying the alternative hypothesis,
+\item{alternative}{a character string specifying the
+alternative hypothesis,
 must be one of "two.sided" (default), "greater" or "less".}
 
-\item{parametric}{logical, if TRUE, parametric tests are used,
+\item{parametric}{logical, if TRUE, parametric tests
+are used,
 otherwise non-parametric tests are used.}
 
-\item{padjMethod}{method for p-value adjustment, default is "BH"}
+\item{padjMethod}{method for p-value adjustment,
+default is "BH"}
 }
 \value{
-a \code{data.frame} contains motifs with corresponding p-value and
+a \code{data.frame} contains motifs with
+corresponding p-value and
 adjusted p-value
 }
 \description{
-Differential analysis is to test which motifs are having significant
-deviations among different groups. Adapted from chromVAR::differential_test
+Differential analysis is to test which
+motifs are having significant
+deviations among different groups. Adapted from
+chromVAR::differential_test
 }
 \examples{
 # Load example data
-load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+load(system.file("extdata",
+  "tc_mem.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "tc_naive.rda",
+  package = "methylTFR"
+))
 devs <- cbind(tc_mem, tc_naive)
 
 # Construct group labels from sample names
 get_groupname <- function(x) {
-    return(unlist(strsplit(x, split = "_"))[1])
+  return(unlist(strsplit(x, split = "_"))[1])
 }
-groups <- sub(".bedGraph", "", unlist(lapply(FUN = get_groupname, X = colnames(devs))))
+groups <- sub(".bedGraph", "", unlist(lapply(
+  FUN = get_groupname,
+  X = colnames(devs)
+)))
 
 # Perform differential analysis
 tc_result <- differential_deviation_test(
-    deviations = devs,
-    groups = groups,
-    motifs = rownames(devs),
-    alternative = "two.sided",
-    parametric = TRUE,
-    padjMethod = "BH"
+  deviations = devs,
+  groups = groups,
+  motifs = rownames(devs),
+  alternative = "two.sided",
+  parametric = TRUE,
+  padjMethod = "BH"
 )
 }

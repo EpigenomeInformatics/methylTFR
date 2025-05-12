@@ -2,7 +2,8 @@
 % Please edit documentation in R/helpers.R
 \name{computeRowZScore}
 \alias{computeRowZScore}
-\title{helper function to compute row-wise z-score of a matrix}
+\title{helper function to compute row-wise
+z-score of a matrix}
 \usage{
 computeRowZScore(mat)
 }
@@ -13,6 +14,7 @@ computeRowZScore(mat)
 A matrix with row-wise z-scores
 }
 \description{
-This function takes a matrix and computes row-wise z-scores.
+This function takes a matrix
+and computes row-wise z-scores.
 }
 \keyword{internal}

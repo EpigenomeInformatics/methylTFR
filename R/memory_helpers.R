@@ -10,9 +10,8 @@
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info
 #' @keywords internal
-create_sink <- function(
-        files_list, motifs, temp_dir = "methylTFR_tmp", pattern = "methylTFR",
-        fileext = ".h5", verbose = TRUE) {
+create_sink <- function(files_list, motifs, temp_dir = "methylTFR_tmp", pattern = "methylTFR",
+    fileext = ".h5", verbose = TRUE) {
     # Create a temp sink
     if (!dir.exists(temp_dir)) {
         dir.create(temp_dir)

@@ -1,13 +1,19 @@
 #' @title computeDeviation
-#' @description computeDeviation is a function to calculate the deviation in transcription factor
+#' @description computeDeviation is a function to calculate
+#'  the deviation in transcription factor
 #' binding sites for a given motif
 #' @param motif A character vector containing motif name
 #' @param msites imported methylation sites
-#' @param tf_bindsites a \code{GRangesList} object contains tf binding sites positions
-#' @param enhancer  a \code{GRanges} object specifying regions such as distal motif (optional)
-#' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param binMsites A matrix object with GC bin with corresponding avg methylation
-#' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
+#' @param tf_bindsites a \code{GRangesList} object contains
+#'  tf binding sites positions
+#' @param enhancer  a \code{GRanges} object specifying regions
+#' such as distal motif (optional)
+#' @param ignoreStrand if TRUE, it ignores strand info from
+#' annotation
+#' @param binMsites A matrix object with GC bin with corresponding
+#'  avg methylation
+#' @param gcfreqs a \code{list} of GC bin frequency tables
+#'  (matrices for multiple motif)
 #' @return a \code{numeric} deviation score for a given motif
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom data.table data.table setDT
@@ -18,10 +24,22 @@
 #' library(methylTFR)
 #'
 #' # Load the data
-#' load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
-#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-#' load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
-#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+#' load(system.file("extdata",
+#'     "FOXF2_tf_bindsites.rda",
+#'     package = "methylTFR"
+#' ))
+#' load(system.file("extdata",
+#'     "example_data.rda",
+#'     package = "methylTFR"
+#' ))
+#' load(system.file("extdata",
+#'     "FOXF2_gcfreqs.rda",
+#'     package = "methylTFR"
+#' ))
+#' load(system.file("extdata",
+#'     "gcdist_subset.rda",
+#'     package = "methylTFR"
+#' ))
 #'
 #' # Compute binMsites
 #' bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
@@ -48,10 +66,12 @@ computeDeviation <- function(
         stop("Please provide a valid motif name")
     }
     if (is.null(msites) || !is(msites, "GRanges")) {
-        stop("Please provide a valid methylation sites with read_methylome function")
+        stop("Please provide a valid methylation
+        sites with read_methylome function")
     }
-    if (is.null(tf_bindsites) || !any(c(!is(tf_bindsites, "GRangesList") ||
-        !is.list(tf_bindsites)))) {
+    if (is.null(tf_bindsites) ||
+        !any(c(!is(tf_bindsites, "GRangesList") ||
+            !is.list(tf_bindsites)))) {
         stop("Please provide a valid tf binding sites as GRangesList")
     }
     if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
@@ -61,15 +81,24 @@ computeDeviation <- function(
     tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
     gcfreq <- gcfreqs[[motif]]
     if (!is.null(enhancer)) {
-        tfbs <- subsetByOverlaps(tfbs, enhancer, ignore.strand = ignoreStrand)
+        tfbs <- subsetByOverlaps(tfbs, enhancer,
+            ignore.strand = ignoreStrand
+        )
     }
-    hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = ignoreStrand)
+    hits <- findOverlaps(msites, tfbs,
+        type = "within",
+        ignore.strand = ignoreStrand
+    )
     if (length(hits@from) == 0) {
-        stop(paste0("No methylation sites found in the", motif, " binding sites"))
+        stop(paste0(
+            "No methylation sites found in the",
+            motif, " binding sites"
+        ))
     }
     exp_meth <- computeExpectations(binMsites, gcfreq)
 
-    S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) + ((start(tfbs) - end(tfbs)) / 2))
+    S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) +
+        ((start(tfbs) - end(tfbs)) / 2))
     sum_meth <- data.table(
         x = start(msites[hits@from]) - tfbs[hits@to]$mid_point,
         avg_methyl = msites[hits@from]$score

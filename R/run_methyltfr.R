@@ -1,20 +1,35 @@
 #' @title run_methyltfr
-#' @description This function is a wrapper function to calculate the deviation in transcription factor
+#' @description This function is a wrapper function to
+#' calculate the deviation
+#' in transcription factor
 #' footprint base for all given motifs per raw samples
-#' @param sample_ann A tab seperated file contains sample annotations
-#' @param sample_dir The directory where all bed file and annotation file stored
+#' @param sample_ann A tab seperated file contains
+#' sample annotations
+#' @param sample_dir The directory where all bed file
+#'  and annotation file stored
 #' @param threads Thread count for parallel processing
-#' @param enhancer a \code{GRanges} object specifying regions such as distal motif (optional)
-#' @param tf_bindsites a \code{GRangesList} object contains tf binding sites positions
-#' @param gcfreqs a \code{list} of GC bin frequency tables (matrices for multiple motif)
-#' @param gc_dist a \code{GRanges} object contains Genome wide GC distribution
-#' @param sampleColName column name of the sample bed file in the annotation file
-#' @param chunkSize Chunk size for parallel processing of motifs (default: 20)
-#' @param full_path if TRUE, the bed file path in the annotation file is full path
-#' @param annfile if provided, the sample annotation file is not read from the sample_dir
-#' @param filetype file type of the bed file, currently supported: bissnp,epp,allc,bismarkcytosine,bismarkcov,encode
+#' @param enhancer a \code{GRanges} object specifying
+#' regions such as distal motif (optional)
+#' @param tf_bindsites a \code{GRangesList} object contains
+#'  tf binding sites positions
+#' @param gcfreqs a \code{list} of GC bin frequency tables
+#'  (matrices for multiple motif)
+#' @param gc_dist a \code{GRanges} object contains
+#' Genome wide GC distribution
+#' @param sampleColName column name of the sample bed
+#'  file in the annotation file
+#' @param chunkSize Chunk size for parallel processing
+#'  of motifs (default: 20)
+#' @param full_path if TRUE, the bed file path in the
+#' annotation file is full path
+#' @param annfile if provided, the sample annotation file
+#'  is not read from the sample_dir
+#' @param filetype file type of the bed file,
+#' currently supported:
+#'  bissnp,epp,allc,bismarkcytosine,bismarkcov,encode
 #' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param cov_threshold - numeric, coverage threshold to filter out low coverage sites,
+#' @param cov_threshold - numeric, coverage threshold to
+#'  filter out low coverage sites,
 #' default is 1
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom IRanges subsetByOverlaps
@@ -28,35 +43,16 @@
 #' @importFrom methods as new
 #' @importFrom stats sd
 #' @import logger
-#' @return a \code{methylTFRdeviations} object with bias-corrected deviation and Z-scores
-#' @examples
-#' \donttest{
-#' library(methylTFRAnnotationHg38)
-#'
-#' gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-#' gc_dist <- getGenomeGC()
-#' tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
-#'
-#' sample_dir <- file.path("samples_dir")
-#' sample_ann <- "samples.tsv" # should contain column name bedFile
-#'
-#' # deviation score matrix
-#' deviations <- run_methyltfr(sample_ann, # sample annotation file
-#'     sample_dir, # where the EPP files are
-#'     threads = 8, # number of threads
-#'     chunkSize = 10, # number of chunks to process
-#'     sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-#'     tf_bindsites = tf_bindsites, # TF binding sites
-#'     gcfreqs = gcfreqs, # GC frequency
-#'     gc_dist = gc_dist, # GC distribution
-#'     filetype = "EPP" # file type
-#' )
-#' }
+#' @return a \code{methylTFRdeviations} object with
+#' bias-corrected deviation and Z-scores
 #' @export
-run_methyltfr <- function(sample_ann, sample_dir, tf_bindsites = NULL,
-    gcfreqs = NULL, gc_dist = NULL, sampleColName = "bedFile", chunkSize = 20,
-    full_path = FALSE, annfile = NULL, threads = 1, enhancer = NULL,
-    filetype = NULL, ignoreStrand = TRUE, cov_threshold = 5) {
+run_methyltfr <- function(
+        sample_ann, sample_dir, tf_bindsites = NULL,
+        gcfreqs = NULL, gc_dist = NULL,
+        sampleColName = "bedFile", chunkSize = 20,
+        full_path = FALSE, annfile = NULL, threads = 1,
+        enhancer = NULL, filetype = NULL,
+        ignoreStrand = TRUE, cov_threshold = 1) {
     if (!tolower(filetype) %in% c(
         "bissnp", "epp", "allc", "bismarkcytosine",
         "bismarkcov", "encode"
@@ -97,41 +93,55 @@ run_methyltfr <- function(sample_ann, sample_dir, tf_bindsites = NULL,
             stop("Please provide a valid sample directory")
         }
         if (!dir.exists(sample_dir)) {
-            stop("Sample directory does not exist, please check the directory path")
+            stop("Sample directory does not exist,
+            please check the directory path")
         }
     }
     if (!is.numeric(threads) || threads < 1) {
-        warning("Invalid thread count detected, using default thread count")
+        warning("Invalid thread count detected,
+        using default thread count")
         threads <- 1
     }
     if (!is.numeric(cov_threshold)) {
-        warning("Invalid cov_threshold detected, using default cov_threshold")
+        warning("Invalid cov_threshold detected,
+         using default cov_threshold")
         cov_threshold <- 5
     }
     if (!is.logical(full_path)) {
-        stop("Invalid full path flag detected, please provide a valid logical value")
+        stop("Invalid full path flag detected,
+        please provide a valid logical value")
     }
     if (is.null(annfile) || !is.character(annfile)) {
         annfile <- file.path(sample_dir, sample_ann)
     }
     if (!file.exists(annfile)) {
-        stop(" %s does not exist, please check the file path !!", annfile)
+        stop(" %s does not exist, please check
+        the file path !!", annfile)
     }
     if (endsWith(annfile, ".csv")) {
-        samples <- read.table(annfile, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+        samples <- read.table(annfile,
+            header = TRUE, sep = ",", stringsAsFactors = FALSE
+        )
     }
     if (endsWith(annfile, ".tsv")) {
-        samples <- read.table(annfile, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+        samples <- read.table(annfile,
+            header = TRUE, sep = "\t", stringsAsFactors = FALSE
+        )
     } else {
-        stop("Please provide a valid annotation file with .csv or .tsv extension")
+        stop("Please provide a valid annotation
+         file with .csv or .tsv extension")
     }
     if (full_path) {
         files_list <- samples[, sampleColName]
     } else {
-        files_list <- file.path(sample_dir, samples[, sampleColName])
+        files_list <- file.path(
+            sample_dir,
+            samples[, sampleColName]
+        )
     }
     if (!all(file.exists(files_list))) {
-        stop("Some of the files does not exist, please check the file path!")
+        stop("Some of the files does not exist,
+        please check the file path!")
     }
     log_success("The samples are successfully located")
 
@@ -152,15 +162,23 @@ run_methyltfr <- function(sample_ann, sample_dir, tf_bindsites = NULL,
     z_grid <- set_grid(files_list, motif_chunks)
 
     if (!is.null(enhancer)) {
-        gc_dist <- subsetByOverlaps(gc_dist, enhancer, ignore.strand = ignoreStrand)
+        gc_dist <- subsetByOverlaps(gc_dist,
+            enhancer,
+            ignore.strand = ignoreStrand
+        )
     }
 
     for (i in seq_along(files_list)) {
         bedfile <- files_list[i]
         sample_name <- basename(bedfile)
-        msites <- read_methylome(bedfile, type = filetype, cov_threshold)
+        msites <- read_methylome(bedfile,
+            type = filetype, cov_threshold
+        )
         log_info("Processing ", sample_name)
-        bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
+        bin_meth <- addGCBintoMethylome(
+            msites,
+            gc_dist, ignoreStrand
+        )
 
         # Process motifs in chunks
         for (j in seq_along(motif_chunks)) {
@@ -205,10 +223,12 @@ run_methyltfr <- function(sample_ann, sample_dir, tf_bindsites = NULL,
     # Compute the sd and normalize the deviation
     se <- SummarizedExperiment(
         assays = list(
-            deviations = deviation, z = computeRowZScore(deviation) # ,
+            deviations = deviation,
+            z = computeRowZScore(deviation) # ,
             # exp_dev = exp_dev
         ),
-        colData = samples, rowData = DataFrame(motifs = row.names(deviation))
+        colData = samples,
+        rowData = DataFrame(motifs = row.names(deviation))
     )
     return(new("methylTFRdeviations", se))
 }

@@ -19,42 +19,60 @@ computeDeviation(
 
 \item{msites}{imported methylation sites}
 
-\item{tf_bindsites}{a \code{GRangesList} object contains tf binding sites positions}
+\item{tf_bindsites}{a \code{GRangesList} object contains
+tf binding sites positions}
 
-\item{gcfreqs}{a \code{list} of GC bin frequency tables (matrices for multiple motif)}
+\item{gcfreqs}{a \code{list} of GC bin frequency tables
+(matrices for multiple motif)}
 
-\item{enhancer}{a \code{GRanges} object specifying regions such as distal motif (optional)}
+\item{enhancer}{a \code{GRanges} object specifying regions
+such as distal motif (optional)}
 
-\item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
+\item{ignoreStrand}{if TRUE, it ignores strand info from
+annotation}
 
-\item{binMsites}{A matrix object with GC bin with corresponding avg methylation}
+\item{binMsites}{A matrix object with GC bin with corresponding
+avg methylation}
 }
 \value{
 a \code{numeric} deviation score for a given motif
 }
 \description{
-computeDeviation is a function to calculate the deviation in transcription factor
+computeDeviation is a function to calculate
+the deviation in transcription factor
 binding sites for a given motif
 }
 \examples{
 library(methylTFR)
 
 # Load the data
-load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
-load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
-load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+load(system.file("extdata",
+  "FOXF2_tf_bindsites.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "example_data.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "FOXF2_gcfreqs.rda",
+  package = "methylTFR"
+))
+load(system.file("extdata",
+  "gcdist_subset.rda",
+  package = "methylTFR"
+))
 
 # Compute binMsites
 bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
 
 # Compute the deviation
 devs <- computeDeviation("FOXF2",
-    msites,
-    tf_bindsites,
-    gcfreqs,
-    enhancer = NULL,
-    ignoreStrand = TRUE,
-    bin_meth
+  msites,
+  tf_bindsites,
+  gcfreqs,
+  enhancer = NULL,
+  ignoreStrand = TRUE,
+  bin_meth
 )
 }

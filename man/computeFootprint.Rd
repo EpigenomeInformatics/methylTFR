@@ -7,9 +7,11 @@
 computeFootprint(motif_name, tf_bindsites, msites, enhancer = NULL)
 }
 \arguments{
-\item{motif_name}{chracter vector containing motif name eg: GATA string}
+\item{motif_name}{chracter vector containing motif
+name eg: GATA string}
 
-\item{tf_bindsites}{TF binding sites positions from methTFRannotation package}
+\item{tf_bindsites}{TF binding sites positions
+from methTFRannotation package}
 
 \item{msites}{Methylation data}
 
@@ -19,7 +21,8 @@ computeFootprint(motif_name, tf_bindsites, msites, enhancer = NULL)
 a list containing plot.data and tfbs
 }
 \description{
-Compute footprint returns a data.table required to create a transcription
+Compute footprint returns a data.table
+required to create a transcription
 factor footprint with label.
 }
 \keyword{internal}
