@@ -13,7 +13,8 @@ plotMotifFootprint(
   gcfreqs,
   enhancer = NULL,
   method = "division",
-  bin_meth = NULL
+  bin_meth = NULL,
+  flankNorm = 50
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ either "substraction" or "division"}
 
 \item{bin_meth}{a \code{matrix} object containing GC bin with
 corresponding avg methylation}
+
+\item{flankNorm}{Numeric value indicating the flank normalization
+distance, default is 50}
 }
 \value{
 A ggplot object of TF footprint difference plot

@@ -173,6 +173,8 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
 #' either "substraction" or "division"
 #' @param bin_meth a \code{matrix} object containing GC bin with
 #'  corresponding avg methylation
+#' @param flankNorm Numeric value indicating the flank normalization
+#' distance, default is 50
 #' @return A ggplot object of TF footprint difference plot
 #'  for a single sample
 #' @importFrom methods is
@@ -218,7 +220,7 @@ plotMotifFootprint <- function(
         tf_bindsites, msites,
         sample_name = NULL, gc_dist, gcfreqs,
         enhancer = NULL, method = "division",
-        bin_meth = NULL) {
+        bin_meth = NULL,flankNorm=50) {
     if (is.null(method) ||
         !method %in% c("substraction", "division")) {
         method <- "division"
@@ -259,6 +261,13 @@ plotMotifFootprint <- function(
             sample_name
         )]
         lab <- "(Observed / Expected)"
+    }
+    if(!is.null(flankNorm) || flankNorm > 0){
+        # Now normalize the ratio by flanking region
+        flank <- max(abs(difference_data$x), na.rm = TRUE)
+        idx <- abs(difference_data$x) >= flank - flankNorm
+        norm_factor <- mean(difference_data$avg_methyl[idx], na.rm = TRUE)
+        difference_data[, avg_methyl := avg_methyl / norm_factor]
     }
 
     p_combined <- ggplot(difference_data, aes(
