@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_helpers.R
 \name{computeFootprint}
 \alias{computeFootprint}
-\title{computeFootprint}
+\title{computeFootprint (Corrected)}
 \usage{
 computeFootprint(motif_name, tf_bindsites, msites, enhancer = NULL)
 }

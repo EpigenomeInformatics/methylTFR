@@ -1,4 +1,4 @@
-#' @title computeFootprint
+#' @title computeFootprint (Corrected)
 #' @description Compute footprint returns a data.table
 #' required to create a transcription
 #' factor footprint with label.
@@ -21,10 +21,13 @@ computeFootprint <- function(motif_name,
     tfbs <- resize(tfbs, w + 130, fix = "center")
 
     if (!is.null(enhancer)) {
-        subsetByOverlaps(tfbs, enhancer,
+        # --- FIX: Re-assign the 'tfbs' variable ---
+        tfbs <- subsetByOverlaps(tfbs, enhancer,
             ignore.strand = TRUE
         )
     }
+    
+    # Find overlaps
     hits <- findOverlaps(msites, tfbs,
         type = "within", ignore.strand = TRUE
     )
@@ -64,7 +67,6 @@ computeFootprint <- function(motif_name,
 #' @param enhancer Specific regions such as distal
 #' motif, proximal motif
 #' @param msites Methylation data
-#' @param bin_meth Methylation data with GC content
 #' @return a \code{data.table} object to containing
 #' TF footprint
 #' @keywords internal
@@ -74,7 +76,7 @@ computeFootprint <- function(motif_name,
 #' @import data.table
 computeExpectedFootprint <- function(
         motif, gcfreqs, gc_dist,
-        enhancer = NULL, msites, bin_meth) {
+        enhancer = NULL, msites) {
     gcfreq <- gcfreqs[[motif]]
 
     if (!is.null(enhancer)) {
@@ -82,6 +84,7 @@ computeExpectedFootprint <- function(
             ignore.strand = TRUE
         )
     }
+    bin_meth <- addGCBintoMethylome(msites, gc_dist)
     exp_meth <- computeExpectations(bin_meth, gcfreq)
     return(exp_meth)
 }
