@@ -13,7 +13,6 @@ plotMotifFootprint(
   gcfreqs,
   enhancer = NULL,
   method = "division",
-  bin_meth = NULL,
   flankNorm = 50
 )
 }
@@ -39,9 +38,6 @@ proximal motif}
 
 \item{method}{Method to calculate the difference,
 either "substraction" or "division"}
-
-\item{bin_meth}{a \code{matrix} object containing GC bin with
-corresponding avg methylation}
 
 \item{flankNorm}{Numeric value indicating the flank normalization
 distance, default is 50}

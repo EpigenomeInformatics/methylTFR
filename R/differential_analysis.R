@@ -108,10 +108,19 @@ differential_deviation_test <- function(deviations,
     p_adj <- p.adjust(p_val,
         method = padjMethod
     )
+    # Compute group means
+    group_means <- sapply(levels(groups), function(g) rowMeans(deviations[, groups == g, drop=FALSE]))
+    mean_diff <-  if (nlevels(groups) == 2) {
+        abs(group_means[, 1] - group_means[, 2])
+    } else {
+        apply(group_means, 1, function(x) max(x) - min(x))
+    }
+
 
     return(data.frame(
         motifs = motifs,
         p_value = p_val,
-        p_value_adjusted = p_adj
+        p_value_adjusted = p_adj,
+        mean_difference = mean_diff
     ))
 }

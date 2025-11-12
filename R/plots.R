@@ -15,9 +15,6 @@
 #' compute expected methylation
 #' @param enhancer Specific region such as distal motif,
 #'  proximal motif
-#' @param bin_meth a \code{matrix} object containing GC
-#' bin with corresponding
-#' avg methylation
 #' @param returnPlotData Logical indicating whether to
 #'  return the plot data
 #' @return A ggplot object of TF footprint plot for a
@@ -62,8 +59,7 @@
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotExpectedFootprint <- function(motif, tf_bindsites, msites,
     sample_name = NULL, gc_dist, gcfreqs,
-    enhancer = NULL, returnPlotData = FALSE,
-    bin_meth = NULL) {
+    enhancer = NULL, returnPlotData = FALSE) {
     if (is.null(msites)) {
         stop("msites must be a data frame,
         please provide the methylation sites")
@@ -103,10 +99,6 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
         stop("Please provide a valid methylatio
         n sites with read_methylome function")
     }
-    # Check if bin_meth is a matrix
-    if (is.null(bin_meth) || !is.matrix(bin_meth)) {
-        bin_meth <- addGCBintoMethylome(msites, gc_dist, TRUE)
-    }
     # Compute footprint for the motif
     plot_data <- computeFootprint(
         motif,
@@ -116,7 +108,7 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
     # Compute expected footprint for the motif
     exp_data <- computeExpectedFootprint(
         motif,
-        gcfreqs, gc_dist, enhancer, msites, bin_meth
+        gcfreqs, gc_dist, enhancer, msites
     )
 
     # Add a new column to indicate whether the data is expected or observed
@@ -171,8 +163,6 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
 #'  proximal motif
 #' @param method Method to calculate the difference,
 #' either "substraction" or "division"
-#' @param bin_meth a \code{matrix} object containing GC bin with
-#'  corresponding avg methylation
 #' @param flankNorm Numeric value indicating the flank normalization
 #' distance, default is 50
 #' @return A ggplot object of TF footprint difference plot
@@ -220,7 +210,7 @@ plotMotifFootprint <- function(
         tf_bindsites, msites,
         sample_name = NULL, gc_dist, gcfreqs,
         enhancer = NULL, method = "division",
-        bin_meth = NULL,flankNorm=50) {
+        flankNorm=50) {
     if (is.null(method) ||
         !method %in% c("substraction", "division")) {
         method <- "division"
@@ -231,8 +221,7 @@ plotMotifFootprint <- function(
         motif, tf_bindsites, msites,
         sample_name = sample_name,
         gc_dist = gc_dist, gcfreqs = gcfreqs,
-        enhancer = enhancer, returnPlotData = TRUE,
-        bin_meth = bin_meth
+        enhancer = enhancer, returnPlotData = TRUE
     )$plotDF
 
     if (method == "substraction") {

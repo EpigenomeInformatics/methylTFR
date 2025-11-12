@@ -4,14 +4,7 @@
 \alias{computeExpectedFootprint}
 \title{computeExpectedFootprint}
 \usage{
-computeExpectedFootprint(
-  motif,
-  gcfreqs,
-  gc_dist,
-  enhancer = NULL,
-  msites,
-  bin_meth
-)
+computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer = NULL, msites)
 }
 \arguments{
 \item{motif}{chracter vector containing motif
@@ -27,8 +20,6 @@ Genome wide GC distribution}
 motif, proximal motif}
 
 \item{msites}{Methylation data}
-
-\item{bin_meth}{Methylation data with GC content}
 }
 \value{
 a \code{data.table} object to containing

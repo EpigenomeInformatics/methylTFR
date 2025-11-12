@@ -12,8 +12,7 @@ plotExpectedFootprint(
   gc_dist,
   gcfreqs,
   enhancer = NULL,
-  returnPlotData = FALSE,
-  bin_meth = NULL
+  returnPlotData = FALSE
 )
 }
 \arguments{
@@ -39,10 +38,6 @@ proximal motif}
 
 \item{returnPlotData}{Logical indicating whether to
 return the plot data}
-
-\item{bin_meth}{a \code{matrix} object containing GC
-bin with corresponding
-avg methylation}
 }
 \value{
 A ggplot object of TF footprint plot for a

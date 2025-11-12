@@ -105,11 +105,6 @@ computeDeviation <- function(
     )
 
     # GC bias correction
-    # colnames(exp_meth) <- c("x", "avg_exp_methyl")
-    # sum_meth <- merge(sum_meth, exp_meth, by = "x")
-    # sum_meth[, diff := abs(avg_methyl - avg_exp_methyl)]
-    # sum_meth <- sum_meth[,c("x","diff")]
-    # colnames(sum_meth) <- c("x","avg_methyl")
     obs_dev <- dev_helper(sum_meth)
     exp_dev <- dev_helper(exp_meth)
     dev <- obs_dev - exp_dev
