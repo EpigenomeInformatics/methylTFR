@@ -6,14 +6,14 @@ library(ggplot2)
 
 test_that("plotMotifFootprint", {
     # Load example data
-    load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+    load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-    load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+    load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
     # Test with valid inputs
     p <- plotMotifFootprint(
-        motif = "FOXF2",
+        motif = "BATF",
         tf_bindsites = tf_bindsites,
         msites = msites,
         sample_name = "Sample1",
@@ -28,7 +28,7 @@ test_that("plotMotifFootprint", {
 
     # Test with method = "substraction"
     p_sub <- plotMotifFootprint(
-        motif = "FOXF2",
+        motif = "BATF",
         tf_bindsites = tf_bindsites,
         msites = msites,
         sample_name = "Sample1",

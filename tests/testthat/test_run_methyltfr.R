@@ -5,8 +5,8 @@ library(methylTFR)
 test_that("run_methyltfr", {
     # Load test data
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-    load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
-    load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+    load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+    load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 
     # Test invalid inputs
     expect_error(run_methyltfr(

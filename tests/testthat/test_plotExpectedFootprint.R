@@ -6,14 +6,14 @@ library(ggplot2)
 
 test_that("plotExpectedFootprint", {
     # Load example data
-    load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+    load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-    load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
+    load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
     # Test: Valid inputs
     p <- plotExpectedFootprint(
-        motif = "FOXF2",
+        motif = "BATF",
         tf_bindsites = tf_bindsites,
         msites = msites,
         sample_name = NULL,
@@ -27,7 +27,7 @@ test_that("plotExpectedFootprint", {
     # Test: Return plot data
     test_that("Valid inputs with returnPlotData = TRUE return plot data", {
         result <- plotExpectedFootprint(
-            motif = "FOXF2",
+            motif = "BATF",
             tf_bindsites = tf_bindsites,
             msites = msites,
             gc_dist = gcdist,
@@ -43,7 +43,7 @@ test_that("plotExpectedFootprint", {
     test_that("Missing msites throws an error", {
         expect_error(
             plotExpectedFootprint(
-                motif = "FOXF2",
+                motif = "BATF",
                 tf_bindsites = tf_bindsites,
                 msites = NULL,
                 gc_dist = gcdist,
@@ -72,7 +72,7 @@ test_that("plotExpectedFootprint", {
     test_that("Missing gc_dist throws an error", {
         expect_error(
             plotExpectedFootprint(
-                motif = "FOXF2",
+                motif = "BATF",
                 tf_bindsites = tf_bindsites,
                 msites = msites,
                 gc_dist = NULL,
@@ -86,7 +86,7 @@ test_that("plotExpectedFootprint", {
     test_that("Missing gcfreqs throws an error", {
         expect_error(
             plotExpectedFootprint(
-                motif = "FOXF2",
+                motif = "BATF",
                 tf_bindsites = tf_bindsites,
                 msites = msites,
                 gc_dist = gcdist,

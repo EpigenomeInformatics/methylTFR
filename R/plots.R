@@ -28,7 +28,7 @@
 #'
 #' # Load the data
 #' load(system.file("extdata",
-#'     "FOXF2_tf_bindsites.rda",
+#'     "BATF_tf_bindsites.rda",
 #'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
@@ -36,7 +36,7 @@
 #'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'     "FOXF2_gcfreqs.rda",
+#'     "BATF_gcfreqs.rda",
 #'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
@@ -46,7 +46,7 @@
 #'
 #' # Plot the expected footprint
 #' p <- plotExpectedFootprint(
-#'     motif = "FOXF2",
+#'     motif = "BATF",
 #'     tf_bindsites = tf_bindsites,
 #'     msites = msites,
 #'     sample_name = "Sample1",
@@ -176,7 +176,7 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
 #'
 #' # Load the data
 #' load(system.file("extdata",
-#'     "FOXF2_tf_bindsites.rda",
+#'     "BATF_tf_bindsites.rda",
 #'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
@@ -184,7 +184,7 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
 #'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'     "FOXF2_gcfreqs.rda",
+#'     "BATF_gcfreqs.rda",
 #'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
@@ -194,7 +194,7 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
 #'
 #' # Plot the expected footprint
 #' p <- plotMotifFootprint(
-#'     motif = "FOXF2",
+#'     motif = "BATF",
 #'     tf_bindsites = tf_bindsites,
 #'     msites = msites,
 #'     sample_name = "Sample1",
