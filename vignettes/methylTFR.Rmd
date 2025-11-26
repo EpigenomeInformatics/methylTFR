@@ -117,10 +117,10 @@ expected methylation levels at transcription factor binding sites (TFBS). These 
 
 - **GC distribution (`gcdist_subset`)**: Genome-wide GC content distribution
  around cytosines, used to model methylation expectations.
-- **Motif GC frequency (`FOXF2_gcfreqs`)**: GC frequency profile specific to 
-the FOXF2 motif across TFBS, used to correct for sequence composition bias.
-- **TF binding sites (`FOXF2_tf_bindsites`)**: A `GRanges` object containing 
-the genomic coordinates of FOXF2 binding sites.
+- **Motif GC frequency (`BATF_gcfreqs`)**: GC frequency profile specific to 
+the BATF motif across TFBS, used to correct for sequence composition bias.
+- **TF binding sites (`BATF_tf_bindsites`)**: A `GRanges` object containing 
+the genomic coordinates of BATF binding sites.
 - **Example methylation data (`example_data`)**: A small subset of methylation
  calls in EPP format, read using the `read_methylome()` function, provided for demonstration purposes.
 
@@ -129,14 +129,14 @@ The following code loads these example datasets and displays the first few entri
 ```{r exdata}
 # Load the data
 load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-load(system.file("extdata", "FOXF2_gcfreqs.rda", package = "methylTFR"))
-load(system.file("extdata", "FOXF2_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
 
 # Check the data
 head(gcdist)
-head(gcfreqs$FOXF2[, 1:5])
+head(gcfreqs$BATF[, 1:5])
 head(tf_bindsites)
 head(msites)
 ```
@@ -148,7 +148,7 @@ The `computeDeviation()` function calculates the deviation score for a specific
   methylation at TF binding sites (TFBS) to the expected methylation derived
    from GC frequency models.
 
-This example uses the `FOXF2` motif and the example methylation dataset loaded
+This example uses the `BATF` motif and the example methylation dataset loaded
  earlier. The methylation data must first be binned by GC content using
   `addGCBintoMethylome()` before computing the deviation.
 
@@ -157,9 +157,9 @@ This example uses the `FOXF2` motif and the example methylation dataset loaded
 bin_meth <- addGCBintoMethylome(msites, gcdist, ignoreStrand = TRUE)
 bin_meth
 
-# Compute deviation score for FOXF2 motif
+# Compute deviation score for BATF motif
 deviation_score <- computeDeviation(
-    motif = "FOXF2",
+    motif = "BATF",
     msites = msites,
     tf_bindsites = tf_bindsites,
     gcfreqs = gcfreqs,
@@ -183,7 +183,7 @@ You need to download the annotation package for the human genome
 library(methylTFRAnnotationHg38) # annotation package for hg38
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC()
+gc_dist <- getGenomeGC("hg38")
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 sample_dir <- file.path("samples_dir")
@@ -209,18 +209,17 @@ The `methylTFR` package provides a `plotMotifFootprint` function to visualize
 ```{r footprint}
 library(ggplot2)
 load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
-load(system.file("extdata", "bin_meth.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_BATF.rda", package = "methylTFR"))
 
 p <- plotMotifFootprint(
-    motif = "FOXF2",
+    motif = "BATF",
     tf_bindsites = tf_bindsites,
     gc_dist = gcdist,
     gcfreqs = gcfreqs,
     msites = msites_sub,
     sample_name = "ExampleSample",
     enhancer = NULL,
-    method = "division",
-    bin_meth = bin_meth
+    method = "division"
 )
 p
 ```
@@ -234,20 +233,19 @@ To visually assess how observed methylation patterns compare with expected
  behavior relative to GC-derived expectations.
 
 In the example below, we visualize the methylation footprint for the 
-`FOXF2` motif using the included example data.
+`BATF` motif using the included example data.
 
 ```{r expfootprint}
-# Generate footprint plot for FOXF2
+# Generate footprint plot for BATF
 p <- plotExpectedFootprint(
-    motif = "FOXF2",
+    motif = "BATF",
     tf_bindsites = tf_bindsites,
     msites = msites_sub,
     sample_name = "ExampleSample",
     gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
-    returnPlotData = FALSE,
-    bin_meth = bin_meth
+    returnPlotData = FALSE
 )
 
 p

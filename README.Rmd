@@ -58,7 +58,7 @@ library(methylTFRAnnotationHg38) # annotation package for hg38
 library(methylTFR)
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC()
+gc_dist <- getGenomeGC("hg38")
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 sample_dir <- file.path("samples_dir")
