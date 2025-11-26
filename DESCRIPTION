@@ -39,6 +39,7 @@ Imports:
     S4Vectors,
     stats,
     stringr,
+    GenomeInfoDb,
     SummarizedExperiment,
     utils
 Suggests: 
