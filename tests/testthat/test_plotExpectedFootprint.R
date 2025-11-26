@@ -20,7 +20,6 @@ test_that("plotExpectedFootprint", {
         gc_dist = gcdist,
         gcfreqs = gcfreqs,
         returnPlotData = FALSE,
-        bin_meth = NULL,
         enhancer = NULL
     )
     expect_s3_class(p, "ggplot")
