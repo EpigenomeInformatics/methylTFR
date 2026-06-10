@@ -19,7 +19,7 @@ downstream analyses such as dimensionality reduction (e.g., PCA, UMAP),
 clustering, differential testing, and visualization of TF-specific
 methylation footprints.
 
-![](articles/overview.png)
+![](../reference/figures/overview.png)
 
 ## Installation
 
