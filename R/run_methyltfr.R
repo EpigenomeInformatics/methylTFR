@@ -146,6 +146,25 @@ run_methyltfr <- function(
     log_success("The samples are successfully located")
 
     motifs <- names(gcfreqs)
+
+    # Validate motifs: discard if TFBS is empty or matrix is missing
+    valid_motifs <- vapply(motifs, function(m) {
+        has_tfbs <- !is.null(tf_bindsites[[m]]) && length(tf_bindsites[[m]]) > 0
+        has_matrix <- !is.null(gcfreqs[[m]])
+        return(has_tfbs && has_matrix)
+    }, logical(1))
+
+    if (any(!valid_motifs)) {
+        num_discarded <- sum(!valid_motifs)
+        log_info(paste("Discarding", num_discarded, 
+                       "motifs due to empty TFBS or missing matrix."))
+        motifs <- motifs[valid_motifs]
+    }
+
+    if (length(motifs) == 0) {
+        stop("No valid motifs remaining after validation.")
+    }
+
     # Split the motifs into chunks
     numChunks <- ceiling(length(motifs) / chunkSize)
     motif_chunks <- split(motifs, rep(1:numChunks,
