@@ -40,8 +40,7 @@ for downstream analyses such as dimensionality reduction
 (e.g., PCA, UMAP), clustering, differential testing, and 
 visualization of TF-specific methylation footprints. 
 
-![](vignettes/overview.png){width=80%}
-
+![](../man/figures/overview.png){width=80%}
 
 ## Installation
 
