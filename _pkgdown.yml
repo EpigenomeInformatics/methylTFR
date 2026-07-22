@@ -2,3 +2,21 @@ url: https://epigenomeinformatics.github.io/methylTFR/
 template:
   bootstrap: 5
 
+navbar:
+  structure:
+    left: [intro, articles, reference, news]
+  components:
+    articles:
+      text: Articles
+      menu:
+        - text: Get started
+          href: articles/methylTFR.html
+        - text: "Case study: memory vs. naive T cells"
+          href: articles/memTcells.html
+
+articles:
+  - title: Vignettes
+    navbar: ~
+    contents:
+      - methylTFR
+      - memTcells

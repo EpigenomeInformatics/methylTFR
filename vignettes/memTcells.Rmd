@@ -1,0 +1,136 @@
+---
+title: "Case study: TF activity in memory vs. naive T cells"
+author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
+date: "`r Sys.Date()`"
+package: methylTFR
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Case study: TF activity in memory vs. naive T cells}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(BiocStyle)
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+## Overview
+
+CD4+ T cells reshape their regulatory programs as they differentiate from
+a naive to a memory state. This case study uses `methylTFR` deviation
+scores to ask a focused question: **which transcription factors show
+differential activity between memory and naive T cells?**
+
+We reuse deviation matrices bundled with the package (`tc_mem`, `tc_naive`),
+so the analysis runs end-to-end without downloading the *hg38* annotation.
+See the [Get started](methylTFR.html) vignette for how deviations are
+computed from raw WGBS data.
+
+```{r init}
+library(methylTFR)
+library(ggplot2)
+```
+
+## Deviation data
+
+Each object is a `methylTFRdeviations` matrix of motifs (rows) by
+samples (columns). We combine the two groups into a single matrix.
+
+```{r load}
+load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+
+devs <- cbind(tc_mem, tc_naive)
+devs
+```
+
+Group labels are taken from the sample names (the prefix before `_`).
+
+```{r groups}
+get_groupname <- function(x) unlist(strsplit(x, split = "_"))[1]
+groups <- sub(
+    ".bedGraph", "",
+    vapply(colnames(devs), get_groupname, character(1))
+)
+table(groups)
+```
+
+## Differential TF activity
+
+`differential_deviation_test()` compares deviation scores between the two
+groups per motif. With two groups and `parametric = TRUE` this is a
+t-test, followed by Benjamini-Hochberg correction.
+
+```{r difftest}
+tc_result <- differential_deviation_test(
+    deviations = devs,
+    groups = groups,
+    alternative = "two.sided",
+    parametric = TRUE,
+    padjMethod = "BH"
+)
+
+tc_result <- tc_result[order(tc_result$p_value_adjusted), ]
+tc_result
+```
+
+The `mean_difference` column is the absolute difference in mean deviation
+between memory and naive cells: larger values flag TFs whose binding-site
+methylation shifts most with differentiation.
+
+## Ranking the top TFs
+
+We visualise motifs by effect size, highlighting those passing an FDR
+cutoff of 0.05.
+
+```{r rankplot, fig.width = 6, fig.height = 4}
+tc_result$motifs <- factor(
+    tc_result$motifs,
+    levels = tc_result$motifs[order(tc_result$mean_difference)]
+)
+tc_result$significant <- ifelse(
+    tc_result$p_value_adjusted < 0.05,
+    "FDR < 0.05", "n.s."
+)
+
+ggplot(tc_result, aes(x = mean_difference, y = motifs, colour = significant)) +
+    ggplot2::geom_segment(
+        aes(x = 0, xend = mean_difference, yend = motifs),
+        colour = "grey70"
+    ) +
+    ggplot2::geom_point(size = 3) +
+    ggplot2::scale_colour_manual(
+        values = c("FDR < 0.05" = "#E66100", "n.s." = "grey50")
+    ) +
+    ggplot2::labs(
+        x = "Mean deviation difference (memory vs. naive)",
+        y = NULL, colour = NULL,
+        title = "Differential TF activity"
+    ) +
+    theme_classic() +
+    theme(legend.position = "bottom")
+```
+
+## Interpretation
+
+TFs at the top of the ranking are the strongest candidates for driving
+memory-specific regulatory changes: their binding sites lose or gain
+methylation as cells transition out of the naive state. These hits are a
+natural starting point for footprint inspection
+(`plotExpectedFootprint()`, shown in the main vignette) or for follow-up
+in a larger cohort.
+
+Because the bundled data is a small subset (10 motifs, 5 samples per
+group), the values here are illustrative. On the full BLUEPRINT memory
+T-cell panel the same workflow scales to thousands of motifs via
+`run_methyltfr()`.
+
+## Session Information
+
+```{r session-info}
+sessionInfo()
+```

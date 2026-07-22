@@ -47,6 +47,14 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 }
 remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
+## Documentation
+
+Full documentation and vignettes are hosted at
+[epigenomeinformatics.github.io/methylTFR](https://epigenomeinformatics.github.io/methylTFR/):
+
+- [Get started](https://epigenomeinformatics.github.io/methylTFR/articles/methylTFR.html) — reading data, computing deviations, and footprints.
+- [Case study: memory vs. naive T cells](https://epigenomeinformatics.github.io/methylTFR/articles/memTcells.html) — differential TF activity on bundled example data.
+
 ## Quick Start
 
 This is a basic example which shows you how to run `methylTFR` :
