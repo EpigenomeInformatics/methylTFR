@@ -7,3 +7,5 @@ archive/
 dev/
 /icbb/projects/igunduz/methylTFR/R/annotation.R
 methylTFR.BiocCheck/*
+/doc/
+/Meta/
