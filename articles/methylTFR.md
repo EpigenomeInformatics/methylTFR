@@ -410,7 +410,7 @@ head(tc_result)
 ``` r
 
 sessionInfo()
-#> R version 4.6.0 (2026-04-24)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
 #> Running under: Ubuntu 24.04.4 LTS
 #> 
@@ -435,29 +435,29 @@ sessionInfo()
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] SummarizedExperiment_1.42.0 gtable_0.3.6               
-#>  [3] xfun_0.58                   bslib_0.11.0               
+#>  [3] xfun_0.60                   bslib_0.11.0               
 #>  [5] rhdf5_2.56.0                Biobase_2.72.0             
 #>  [7] lattice_0.22-9              rhdf5filters_1.24.0        
-#>  [9] vctrs_0.7.3                 tools_4.6.0                
-#> [11] generics_0.1.4              stats4_4.6.0               
-#> [13] parallel_4.6.0              R.oo_1.27.1                
+#>  [9] vctrs_0.7.3                 tools_4.6.1                
+#> [11] generics_0.1.4              stats4_4.6.1               
+#> [13] parallel_4.6.1              R.oo_1.27.1                
 #> [15] Matrix_1.7-5                RColorBrewer_1.1-3         
 #> [17] S7_0.2.2                    desc_1.4.3                 
 #> [19] S4Vectors_0.50.1            lifecycle_1.0.5            
-#> [21] compiler_4.6.0              farver_2.1.2               
+#> [21] compiler_4.6.1              farver_2.1.2               
 #> [23] stringr_1.6.0               textshaping_1.0.5          
 #> [25] Seqinfo_1.2.0               GenomeInfoDb_1.48.0        
 #> [27] htmltools_0.5.9             sass_0.4.10                
-#> [29] yaml_2.3.12                 pkgdown_2.2.0              
+#> [29] yaml_2.3.12                 pkgdown_2.2.1              
 #> [31] jquerylib_0.1.4             R.utils_2.13.0             
 #> [33] DelayedArray_0.38.2         cachem_1.1.0               
 #> [35] abind_1.4-8                 digest_0.6.39              
-#> [37] stringi_1.8.7               bookdown_0.46              
+#> [37] stringi_1.8.7               bookdown_0.47              
 #> [39] labeling_0.4.3              fastmap_1.2.0              
-#> [41] grid_4.6.0                  cli_3.6.6                  
+#> [41] grid_4.6.1                  cli_3.6.6                  
 #> [43] SparseArray_1.12.2          logger_0.4.2               
 #> [45] magrittr_2.0.5              S4Arrays_1.12.0            
-#> [47] h5mread_1.4.0               withr_3.0.2                
+#> [47] h5mread_1.4.0               withr_3.0.3                
 #> [49] scales_1.4.0                UCSC.utils_1.8.0           
 #> [51] httr_1.4.8                  rmarkdown_2.31             
 #> [53] XVector_0.52.0              matrixStats_1.5.0          
@@ -465,7 +465,7 @@ sessionInfo()
 #> [57] R.methodsS3_1.8.2           HDF5Array_1.40.0           
 #> [59] evaluate_1.0.5              knitr_1.51                 
 #> [61] GenomicRanges_1.64.0        IRanges_2.46.0             
-#> [63] rlang_1.2.0                 glue_1.8.1                 
+#> [63] rlang_1.3.0                 glue_1.8.1                 
 #> [65] BiocManager_1.30.27         BiocGenerics_0.58.1        
 #> [67] jsonlite_2.0.0              R6_2.6.1                   
 #> [69] Rhdf5lib_2.0.0              MatrixGenerics_1.24.0      
