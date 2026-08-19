@@ -23,8 +23,17 @@ methylation footprints.
 
 ## Installation
 
-You can install the stable release of **methylTFR** from
-[Bioconductor](https://bioconductor.org/) using:
+`methylTFR` is currently under review for Bioconductor. Until it is
+accepted, install the development version from GitHub:
+
+``` r
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("EpigenomeInformatics/methylTFR")
+```
+
+Once accepted, it will be installable with:
 
 ``` r
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -32,15 +41,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 }
 
 BiocManager::install("methylTFR")
-```
-
-To install the development version directly from GitHub:
-
-``` r
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
-remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
 
 ## Getting Started
@@ -51,18 +51,84 @@ dependencies:
 ``` r
 library(methylTFR)
 #> Loading required package: data.table
+#> Loading required package: SummarizedExperiment
+#> Loading required package: MatrixGenerics
+#> Loading required package: matrixStats
+#> 
+#> Attaching package: 'MatrixGenerics'
+#> The following objects are masked from 'package:matrixStats':
+#> 
+#>     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+#>     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+#>     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+#>     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+#>     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+#>     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+#>     colWeightedMeans, colWeightedMedians, colWeightedSds,
+#>     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+#>     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+#>     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+#>     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+#>     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+#>     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+#>     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+#>     rowWeightedSds, rowWeightedVars
+#> Loading required package: GenomicRanges
+#> Loading required package: stats4
+#> Loading required package: BiocGenerics
+#> 
+#> Attaching package: 'BiocGenerics'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     IQR, mad, sd, var, xtabs
+#> The following objects are masked from 'package:base':
+#> 
+#>     anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+#>     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+#>     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+#>     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+#>     Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+#>     table, tapply, union, unique, unsplit, which.max, which.min
+#> Loading required package: S4Vectors
 #> Warning: multiple methods tables found for 'sort'
+#> 
+#> Attaching package: 'S4Vectors'
+#> The following objects are masked from 'package:data.table':
+#> 
+#>     first, second
+#> The following object is masked from 'package:utils':
+#> 
+#>     findMatches
+#> The following objects are masked from 'package:base':
+#> 
+#>     expand.grid, I, unname
+#> Loading required package: IRanges
+#> 
+#> Attaching package: 'IRanges'
+#> The following object is masked from 'package:data.table':
+#> 
+#>     shift
+#> Loading required package: GenomeInfoDb
 #> Warning: multiple methods tables found for 'sort'
-#> Warning: replacing previous import 'S4Arrays::read_block' by
-#> 'DelayedArray::read_block' when loading 'HDF5Array'
+#> Loading required package: Biobase
+#> Welcome to Bioconductor
+#> 
+#>     Vignettes contain introductory material; view with
+#>     'browseVignettes()'. To cite Bioconductor, see
+#>     'citation("Biobase")', and for packages 'citation("pkgname")'.
+#> 
+#> Attaching package: 'Biobase'
+#> The following object is masked from 'package:MatrixGenerics':
+#> 
+#>     rowMedians
+#> The following objects are masked from 'package:matrixStats':
+#> 
+#>     anyMissing, rowMedians
 #> Warning: replacing previous import 'S4Arrays::read_block' by
 #> 'DelayedArray::read_block' when loading 'SummarizedExperiment'
 #> Warning: multiple methods tables found for 'sort'
-#> 
-#> Attaching package: 'methylTFR'
-#> The following objects are masked from 'package:base':
-#> 
-#>     cbind, rbind
+#> Warning: replacing previous import 'S4Arrays::read_block' by
+#> 'DelayedArray::read_block' when loading 'HDF5Array'
 ```
 
 ### Read a Sample File
@@ -100,21 +166,28 @@ epp
 
 ## Annotation Resources
 
-We provide precomputed TFBS-based annotation data for the human genome
-(*hg38*), which is required by `methylTFR` to compute expected
-deviations.  
-This includes transcription factor binding sites, GC content windows,
-and motif GC frequency models.
+Computing expected deviations requires precomputed annotations for the
+genome of interest: transcription factor binding sites, a genome-wide GC
+distribution, and per-motif GC frequency tables. These are distributed
+separately from `methylTFR`, in an annotation package named after the
+assembly, for example `methylTFRAnnotationHg38`. Keeping them out of the
+package is a practical necessity: the binding sites alone run to several
+gigabytes for a full motif set.
 
-You can download the *hg38*-compatible annotation package from the
-following AWS-hosted archive:
+With the annotation package installed, the three resources are retrieved
+with
+[`getTFbindsites()`](https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getTFbindsites.html),
+[`getGenomeGC()`](https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getGenomeGC.html)
+and
+[`getGCfreq()`](https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getGCfreq.html),
+as shown in the multi-sample section below.
 
-- **[Download methylTFRAnnotationsHg38.tar.gz](https://aws-link-here)**
+To build annotations for a different assembly, motif set, or region
+restriction, use
+[`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder).
 
-Optionally, you can create a customized annotation package for use with
-`methylTFR` using the
-[`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder)
-package available on **GitHub**.
+The examples in this section instead use a small `BATF` subset bundled
+with `methylTFR`, so they run without any annotation package.
 
 ### Input Data
 
@@ -271,129 +344,65 @@ deviations <- run_methyltfr(sample_ann, # sample annotation file
 )
 ```
 
-## Motif Footprinting
+## Run methylTFR directly on an RnBeads object
 
-The `methylTFR` package provides a `plotMotifFootprint` function to
-visualize the methylation footprint of a specific TF motif per sample.
+If the methylation data has already been imported and preprocessed with
+[`RnBeads`](https://bioconductor.org/packages/RnBeads), there is no need
+to export per-sample files first.
+[`run_methylTFR_RnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)
+takes the `RnBSet` object directly and returns the same
+`methylTFRdeviations` object as
+[`run_methyltfr()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methyltfr.md).
+
+Methylation levels are read one sample column at a time, so disk-backed
+sets created with `disk.dump.big.matrices = TRUE` are never loaded into
+memory in full.
 
 ``` r
-library(ggplot2)
-load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
-load(system.file("extdata", "gcdist_BATF.rda", package = "methylTFR"))
+library(RnBeads)
+library(methylTFRAnnotationHg38)
 
-p <- plotMotifFootprint(
-    motif = "BATF",
+rnb_set <- load.rnb.set("reports/data_import_data/rnb.set_preprocessed")
+
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+gc_dist <- getGenomeGC("hg38")
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+
+deviations <- run_methylTFR_RnBeads(
+    rnb_set = rnb_set, # preprocessed RnBeads object
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    threads = 8, # number of threads
+    chunkSize = 10, # number of motifs per chunk
+    cov_threshold = 1 # minimum coverage per site
+)
+```
+
+Methylation calls are always read at single-cytosine resolution. Region
+summaries such as `tiling1kb` or `distal` cannot be used, because a
+footprint needs base-resolution calls. To restrict the analysis to a set
+of regulatory regions, pass them through the `enhancer` argument:
+
+``` r
+distal <- readRDS("distal_regions.RDS") # a GRanges of distal regions
+
+deviations_distal <- run_methylTFR_RnBeads(
+    rnb_set = rnb_set,
     tf_bindsites = tf_bindsites,
-    gc_dist = gcdist,
-    gcfreqs = gcfreqs,
-    msites = msites_sub,
-    sample_name = "ExampleSample",
-    enhancer = NULL,
-    method = "division"
+    gcfreqs = getGCfreq(motifSet = "jaspar2020_distal"),
+    gc_dist = gc_dist,
+    enhancer = distal,
+    threads = 8
 )
-p
-#> Warning: Removed 112 rows containing missing values or values outside the scale range
-#> (`geom_line()`).
 ```
 
-![](methylTFR_files/figure-html/footprint-1.png)
+Coverage filtering applies only to sequencing-based sets (`RnBiseqSet`),
+which carry coverage information. For array-based sets `cov_threshold`
+is ignored and a message is emitted.
 
-### Expected vs Observed Footprint
-
-To visually assess how observed methylation patterns compare with
-expected profiles at transcription factor binding sites (TFBS),
-`methylTFR` provides the
-[`plotExpectedFootprint()`](https://epigenomeinformatics.github.io/methylTFR/reference/plotExpectedFootprint.md)
-function. This generates a footprint plot for a given motif in a single
-sample, allowing you to inspect local methylation behavior relative to
-GC-derived expectations.
-
-In the example below, we visualize the methylation footprint for the
-`BATF` motif using the included example data.
-
-``` r
-# Generate footprint plot for BATF
-p <- plotExpectedFootprint(
-    motif = "BATF",
-    tf_bindsites = tf_bindsites,
-    msites = msites_sub,
-    sample_name = "ExampleSample",
-    gc_dist = gcdist,
-    gcfreqs = gcfreqs,
-    enhancer = NULL,
-    returnPlotData = FALSE
-)
-
-p
-```
-
-![](methylTFR_files/figure-html/expfootprint-1.png)
-
-## Differential TF Activity Analysis
-
-To assess differential TF activity between two groups of samples,
-`methylTFR` provides the
-[`differential_deviation_test()`](https://epigenomeinformatics.github.io/methylTFR/reference/differential_deviation_test.md)
-function. This function computes the observed and expected deviation
-scores for each TF motif across the specified groups, enabling
-statistical testing to identify differentially active TFs.
-
-This is how `methylTFRdeviations` object is looked like:
-
-``` r
-load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
-devs <- cbind(tc_mem, tc_naive)
-devs
-#> class: methylTFRdeviations 
-#> dim: 10 10 
-#> metadata(0):
-#> assays(2): deviations z
-#> rownames(10): FOXF2 FOXD1 ... RORA RORA(var.2)
-#> rowData names(1): motifs
-#> colnames(10): Tc-Mem_OP_S5_Long_D1.bedGraph.bed
-#>   Tc-Mem_OP_S4_Long_D60.bedGraph.bed ...
-#>   Tc-Naive_OP_S4_Long_D1.bedGraph.bed
-#>   Tc-Naive_OP_S3_High_D1.bedGraph.bed
-#> colData names(4): CommonMinID condition cell_type bedFile
-```
-
-``` r
-# Construct group labels from sample names
-get_groupname <- function(x) {
-    return(unlist(strsplit(x, split = "_"))[1])
-}
-groups <- sub(
-    ".bedGraph", "",
-    unlist(lapply(
-        FUN = get_groupname,
-        X = colnames(devs)
-    ))
-)
-table(groups)
-#> groups
-#>   Tc-Mem Tc-Naive 
-#>        5        5
-
-# Run the differential deviation test
-tc_result <- differential_deviation_test(
-    deviations = devs,
-    groups = groups,
-    alternative = "two.sided",
-    parametric = TRUE,
-    padjMethod = "BH"
-)
-
-# View the results
-head(tc_result)
-#>                  motifs      p_value p_value_adjusted mean_difference
-#> FOXF2             FOXF2 1.694736e-02     0.0355317162      0.02920759
-#> FOXD1             FOXD1 3.644010e-01     0.4555013119      0.01081636
-#> IRF2               IRF2 1.873667e-03     0.0093683362      0.03414276
-#> MZF1(var.2) MZF1(var.2) 1.776586e-02     0.0355317162      0.01850831
-#> MAX::MYC       MAX::MYC 1.078111e-05     0.0001078111      0.09341429
-#> PPARG             PPARG 3.996324e-03     0.0133210805      0.03428684
-```
+`RnBeads` is a suggested dependency rather than a required one, so it is
+only needed if this entry point is used.
 
 ## Session Information
 
@@ -418,51 +427,40 @@ sessionInfo()
 #> tzcode source: system (glibc)
 #> 
 #> attached base packages:
-#> [1] stats     graphics  grDevices utils     datasets  methods   base     
+#> [1] stats4    stats     graphics  grDevices utils     datasets  methods  
+#> [8] base     
 #> 
 #> other attached packages:
-#> [1] ggplot2_4.0.1     methylTFR_0.99.1  data.table_1.17.2 BiocStyle_2.34.0 
+#>  [1] methylTFR_0.99.1            SummarizedExperiment_1.32.0
+#>  [3] Biobase_2.62.0              GenomicRanges_1.54.1       
+#>  [5] GenomeInfoDb_1.42.3         IRanges_2.36.0             
+#>  [7] S4Vectors_0.40.1            BiocGenerics_0.52.0        
+#>  [9] MatrixGenerics_1.14.0       matrixStats_1.1.0          
+#> [11] data.table_1.17.2           BiocStyle_2.34.0           
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] SummarizedExperiment_1.32.0 gtable_0.3.6               
-#>  [3] xfun_0.52                   bslib_0.9.0                
-#>  [5] htmlwidgets_1.6.4           rhdf5_2.46.1               
-#>  [7] Biobase_2.62.0              lattice_0.22-5             
-#>  [9] generics_0.1.4              rhdf5filters_1.14.1        
-#> [11] vctrs_0.6.5                 tools_4.4.1                
-#> [13] bitops_1.0-9                parallel_4.4.1             
-#> [15] stats4_4.4.1                tibble_3.2.1               
-#> [17] pkgconfig_2.0.3             R.oo_1.27.1                
-#> [19] Matrix_1.6-1.1              RColorBrewer_1.1-3         
-#> [21] S7_0.2.0                    desc_1.4.3                 
-#> [23] S4Vectors_0.40.1            lifecycle_1.0.4            
-#> [25] GenomeInfoDbData_1.2.13     stringr_1.5.1              
-#> [27] compiler_4.4.1              farver_2.1.2               
-#> [29] textshaping_0.4.0           GenomeInfoDb_1.42.3        
-#> [31] htmltools_0.5.8.1           sass_0.4.10                
-#> [33] RCurl_1.98-1.13             yaml_2.3.10                
-#> [35] pillar_1.10.2               pkgdown_2.2.0              
-#> [37] crayon_1.5.3                jquerylib_0.1.4            
-#> [39] R.utils_2.13.0              DelayedArray_0.28.0        
-#> [41] cachem_1.1.0                abind_1.4-8                
-#> [43] tidyselect_1.2.1            digest_0.6.37              
-#> [45] stringi_1.8.4               dplyr_1.1.3                
-#> [47] bookdown_0.43               labeling_0.4.3             
-#> [49] fastmap_1.2.0               grid_4.4.1                 
-#> [51] cli_3.6.3                   SparseArray_1.2.4          
-#> [53] magrittr_2.0.3              logger_0.4.0               
-#> [55] S4Arrays_1.6.0              dichromat_2.0-0.1          
-#> [57] withr_3.0.2                 UCSC.utils_1.2.0           
-#> [59] scales_1.4.0                rmarkdown_2.29             
-#> [61] XVector_0.42.0              httr_1.4.7                 
-#> [63] matrixStats_1.1.0           ragg_1.3.3                 
-#> [65] R.methodsS3_1.8.2           HDF5Array_1.30.1           
-#> [67] evaluate_1.0.3              knitr_1.50                 
-#> [69] GenomicRanges_1.54.1        IRanges_2.36.0             
-#> [71] rlang_1.1.4                 glue_1.7.0                 
-#> [73] BiocManager_1.30.25         BiocGenerics_0.52.0        
-#> [75] jsonlite_2.0.0              R6_2.6.1                   
-#> [77] Rhdf5lib_1.28.0             MatrixGenerics_1.14.0      
-#> [79] systemfonts_1.2.3           fs_1.6.6                   
-#> [81] zlibbioc_1.52.0
+#>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            
+#>  [4] ggplot2_4.0.1           htmlwidgets_1.6.4       rhdf5_2.46.1           
+#>  [7] lattice_0.22-5          generics_0.1.4          vctrs_0.6.5            
+#> [10] rhdf5filters_1.14.1     tools_4.4.1             bitops_1.0-9           
+#> [13] parallel_4.4.1          tibble_3.2.1            pkgconfig_2.0.3        
+#> [16] R.oo_1.27.1             Matrix_1.6-1.1          RColorBrewer_1.1-3     
+#> [19] S7_0.2.0                desc_1.4.3              lifecycle_1.0.4        
+#> [22] GenomeInfoDbData_1.2.13 stringr_1.5.1           compiler_4.4.1         
+#> [25] farver_2.1.2            textshaping_0.4.0       htmltools_0.5.8.1      
+#> [28] sass_0.4.10             RCurl_1.98-1.13         yaml_2.3.10            
+#> [31] pillar_1.10.2           pkgdown_2.2.0           crayon_1.5.3           
+#> [34] jquerylib_0.1.4         R.utils_2.13.0          DelayedArray_0.28.0    
+#> [37] cachem_1.1.0            abind_1.4-8             tidyselect_1.2.1       
+#> [40] digest_0.6.37           stringi_1.8.4           dplyr_1.1.3            
+#> [43] bookdown_0.43           fastmap_1.2.0           grid_4.4.1             
+#> [46] cli_3.6.3               SparseArray_1.2.4       magrittr_2.0.3         
+#> [49] logger_0.4.0            S4Arrays_1.6.0          dichromat_2.0-0.1      
+#> [52] UCSC.utils_1.2.0        scales_1.4.0            rmarkdown_2.29         
+#> [55] XVector_0.42.0          httr_1.4.7              ragg_1.3.3             
+#> [58] R.methodsS3_1.8.2       HDF5Array_1.30.1        evaluate_1.0.3         
+#> [61] knitr_1.50              rlang_1.1.4             glue_1.7.0             
+#> [64] BiocManager_1.30.25     jsonlite_2.0.0          R6_2.6.1               
+#> [67] Rhdf5lib_1.28.0         systemfonts_1.2.3       fs_1.6.6               
+#> [70] zlibbioc_1.52.0
 ```

@@ -60,7 +60,7 @@
 
       <h1>Case study: TF activity in memory vs. naive T cells</h1>
                         <h4 data-toc-skip class="author">Irem B. Gündüz,
-Sarath Kumar Murugan, Fabian Müller</h4>
+Sarath Kumar Murugan, Fabian Muller</h4>
             
             <h4 data-toc-skip class="date">2026-08-19</h4>
       
@@ -127,10 +127,10 @@ their output.</p>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
 <span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
-<span><span class="co">#&gt; 'DelayedArray::read_block' when loading 'HDF5Array'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
 <span><span class="co">#&gt; 'DelayedArray::read_block' when loading 'SummarizedExperiment'</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
+<span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
+<span><span class="co">#&gt; 'DelayedArray::read_block' when loading 'HDF5Array'</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
 <p>A single palette is used for the seven cell types throughout, so that
@@ -469,7 +469,7 @@ two compartments identify the same motifs.</p>
 <code class="sourceCode R"><span><span class="co"># Label the extremes at both ends: the strongest motifs cluster tightly,</span></span>
 <span><span class="co"># so ranking by magnitude alone places every label in one corner.</span></span>
 <span><span class="va">ranked</span> <span class="op">&lt;-</span> <span class="va">agree</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">tc</span> <span class="op">+</span> <span class="va">agree</span><span class="op">$</span><span class="va">th</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">labelled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rbind.html">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">labelled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">agree</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">tc</span>, <span class="va">th</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -509,11 +509,19 @@ the motif annotation. This section therefore uses the small
 <code>BATF</code> example data bundled with the package rather than the
 pseudobulk object above. <code>BATF</code> is an AP-1 family factor and
 appears among the motifs identified in the comparisons above.</p>
+<p>The bundled methylome is a single memory T helper sample, so the
+observed curve is drawn in that subset’s colour from the palette used
+throughout this vignette, while the expected curve is kept neutral.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_tf_bindsites.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_gcfreqs.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gcdist_BATF.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"msites_sub.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"msites_sub.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The bundled methylome is a single sample of one subset, so it is</span></span>
+<span><span class="co"># labelled and coloured with the same palette used above.</span></span>
+<span><span class="va">batf_cell_type</span> <span class="op">&lt;-</span> <span class="st">"Th-Mem"</span></span>
+<span><span class="va">batf_colour</span> <span class="op">&lt;-</span> <span class="va">cell_type_colors</span><span class="op">[[</span><span class="va">batf_cell_type</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="observed-and-expected-profiles">Observed and expected profiles<a class="anchor" aria-label="anchor" href="#observed-and-expected-profiles"></a>
 </h3>
@@ -526,12 +534,15 @@ quantity the deviation score captures.</p>
 <span>    motif <span class="op">=</span> <span class="st">"BATF"</span>,</span>
 <span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
 <span>    msites <span class="op">=</span> <span class="va">msites_sub</span>,</span>
-<span>    sample_name <span class="op">=</span> <span class="st">"ExampleSample"</span>,</span>
+<span>    sample_name <span class="op">=</span> <span class="va">batf_cell_type</span>,</span>
 <span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
 <span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
 <span>    enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    returnPlotData <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>        Observed <span class="op">=</span> <span class="va">batf_colour</span>, Expected <span class="op">=</span> <span class="st">"grey55"</span></span>
+<span>    <span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="memTcells_files/figure-html/expfootprint-1.png" class="r-plt" width="576"></p>
 </div>
 <div class="section level3">
@@ -547,13 +558,14 @@ ratio.</p>
 <span>    motif <span class="op">=</span> <span class="st">"BATF"</span>,</span>
 <span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
 <span>    msites <span class="op">=</span> <span class="va">msites_sub</span>,</span>
-<span>    sample_name <span class="op">=</span> <span class="st">"ExampleSample"</span>,</span>
+<span>    sample_name <span class="op">=</span> <span class="va">batf_cell_type</span>,</span>
 <span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
 <span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
 <span>    enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    method <span class="op">=</span> <span class="st">"substraction"</span>,</span>
 <span>    flankNorm <span class="op">=</span> <span class="fl">50</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">batf_colour</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Removed 112 rows containing missing values or values outside the scale range</span></span>
 <span><span class="co">#&gt; (`geom_line()`).</span></span></code></pre></div>
 <p><img src="memTcells_files/figure-html/fpdiff-1.png" class="r-plt" width="576"></p>
@@ -601,18 +613,18 @@ chemical exposure by multimodal single-cell profiling. <em>bioRxiv</em>
 <span><span class="co">#&gt; [8] base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt;  [1] ggplot2_4.0.1               SummarizedExperiment_1.32.0</span></span>
-<span><span class="co">#&gt;  [3] Biobase_2.62.0              GenomicRanges_1.54.1       </span></span>
-<span><span class="co">#&gt;  [5] GenomeInfoDb_1.42.3         IRanges_2.36.0             </span></span>
-<span><span class="co">#&gt;  [7] S4Vectors_0.40.1            BiocGenerics_0.52.0        </span></span>
-<span><span class="co">#&gt;  [9] MatrixGenerics_1.14.0       matrixStats_1.1.0          </span></span>
-<span><span class="co">#&gt; [11] methylTFR_0.99.1            data.table_1.17.2          </span></span>
+<span><span class="co">#&gt;  [1] ggplot2_4.0.1               methylTFR_0.99.1           </span></span>
+<span><span class="co">#&gt;  [3] SummarizedExperiment_1.32.0 Biobase_2.62.0             </span></span>
+<span><span class="co">#&gt;  [5] GenomicRanges_1.54.1        GenomeInfoDb_1.42.3        </span></span>
+<span><span class="co">#&gt;  [7] IRanges_2.36.0              S4Vectors_0.40.1           </span></span>
+<span><span class="co">#&gt;  [9] BiocGenerics_0.52.0         MatrixGenerics_1.14.0      </span></span>
+<span><span class="co">#&gt; [11] matrixStats_1.1.0           data.table_1.17.2          </span></span>
 <span><span class="co">#&gt; [13] BiocStyle_2.34.0           </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            </span></span>
 <span><span class="co">#&gt;  [4] htmlwidgets_1.6.4       rhdf5_2.46.1            lattice_0.22-5         </span></span>
-<span><span class="co">#&gt;  [7] generics_0.1.4          rhdf5filters_1.14.1     vctrs_0.6.5            </span></span>
+<span><span class="co">#&gt;  [7] generics_0.1.4          vctrs_0.6.5             rhdf5filters_1.14.1    </span></span>
 <span><span class="co">#&gt; [10] tools_4.4.1             bitops_1.0-9            parallel_4.4.1         </span></span>
 <span><span class="co">#&gt; [13] tibble_3.2.1            pkgconfig_2.0.3         R.oo_1.27.1            </span></span>
 <span><span class="co">#&gt; [16] Matrix_1.6-1.1          RColorBrewer_1.1-3      S7_0.2.0               </span></span>

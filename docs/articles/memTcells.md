@@ -40,10 +40,10 @@ library(methylTFR)
 #> Warning: multiple methods tables found for 'sort'
 #> Warning: multiple methods tables found for 'sort'
 #> Warning: replacing previous import 'S4Arrays::read_block' by
-#> 'DelayedArray::read_block' when loading 'HDF5Array'
-#> Warning: replacing previous import 'S4Arrays::read_block' by
 #> 'DelayedArray::read_block' when loading 'SummarizedExperiment'
 #> Warning: multiple methods tables found for 'sort'
+#> Warning: replacing previous import 'S4Arrays::read_block' by
+#> 'DelayedArray::read_block' when loading 'HDF5Array'
 library(SummarizedExperiment)
 library(ggplot2)
 ```
@@ -452,11 +452,20 @@ example data bundled with the package rather than the pseudobulk object
 above. `BATF` is an AP-1 family factor and appears among the motifs
 identified in the comparisons above.
 
+The bundled methylome is a single memory T helper sample, so the
+observed curve is drawn in that subset’s colour from the palette used
+throughout this vignette, while the expected curve is kept neutral.
+
 ``` r
 load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "gcdist_BATF.rda", package = "methylTFR"))
 load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
+
+# The bundled methylome is a single sample of one subset, so it is
+# labelled and coloured with the same palette used above.
+batf_cell_type <- "Th-Mem"
+batf_colour <- cell_type_colors[[batf_cell_type]]
 ```
 
 ### Observed and expected profiles
@@ -471,12 +480,15 @@ plotExpectedFootprint(
     motif = "BATF",
     tf_bindsites = tf_bindsites,
     msites = msites_sub,
-    sample_name = "ExampleSample",
+    sample_name = batf_cell_type,
     gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     returnPlotData = FALSE
-)
+) +
+    scale_colour_manual(values = c(
+        Observed = batf_colour, Expected = "grey55"
+    ))
 ```
 
 ![](memTcells_files/figure-html/expfootprint-1.png)
@@ -494,13 +506,14 @@ plotMotifFootprint(
     motif = "BATF",
     tf_bindsites = tf_bindsites,
     msites = msites_sub,
-    sample_name = "ExampleSample",
+    sample_name = batf_cell_type,
     gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     method = "substraction",
     flankNorm = 50
-)
+) +
+    scale_colour_manual(values = batf_colour)
 #> Warning: Removed 112 rows containing missing values or values outside the scale range
 #> (`geom_line()`).
 ```
@@ -549,18 +562,18 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] ggplot2_4.0.1               SummarizedExperiment_1.32.0
-#>  [3] Biobase_2.62.0              GenomicRanges_1.54.1       
-#>  [5] GenomeInfoDb_1.42.3         IRanges_2.36.0             
-#>  [7] S4Vectors_0.40.1            BiocGenerics_0.52.0        
-#>  [9] MatrixGenerics_1.14.0       matrixStats_1.1.0          
-#> [11] methylTFR_0.99.1            data.table_1.17.2          
+#>  [1] ggplot2_4.0.1               methylTFR_0.99.1           
+#>  [3] SummarizedExperiment_1.32.0 Biobase_2.62.0             
+#>  [5] GenomicRanges_1.54.1        GenomeInfoDb_1.42.3        
+#>  [7] IRanges_2.36.0              S4Vectors_0.40.1           
+#>  [9] BiocGenerics_0.52.0         MatrixGenerics_1.14.0      
+#> [11] matrixStats_1.1.0           data.table_1.17.2          
 #> [13] BiocStyle_2.34.0           
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            
 #>  [4] htmlwidgets_1.6.4       rhdf5_2.46.1            lattice_0.22-5         
-#>  [7] generics_0.1.4          rhdf5filters_1.14.1     vctrs_0.6.5            
+#>  [7] generics_0.1.4          vctrs_0.6.5             rhdf5filters_1.14.1    
 #> [10] tools_4.4.1             bitops_1.0-9            parallel_4.4.1         
 #> [13] tibble_3.2.1            pkgconfig_2.0.3         R.oo_1.27.1            
 #> [16] Matrix_1.6-1.1          RColorBrewer_1.1-3      S7_0.2.0               

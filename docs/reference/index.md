@@ -4,10 +4,6 @@
 
 - [`addGCBintoMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/addGCBintoMethylome.md)
   : addGCBintoMethylome
-- [`cbind(`*`<methylTFRdeviations>`*`,`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-methylTFRdeviations-method.md)
-  : cbind
-- [`cbind()`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind.md)
-  : cbind
 - [`computeDeviation()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeDeviation.md)
   : computeDeviation
 - [`computeZScoreVariability()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeZScoreVariability.md)
@@ -28,10 +24,6 @@
   : plotExpectedFootprint
 - [`plotMotifFootprint()`](https://epigenomeinformatics.github.io/methylTFR/reference/plotMotifFootprint.md)
   : plotMotifFootprint
-- [`rbind(`*`<methylTFRdeviations>`*`,`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/rbind-methylTFRdeviations-methylTFRdeviations-method.md)
-  : rbind
-- [`rbind()`](https://epigenomeinformatics.github.io/methylTFR/reference/rbind.md)
-  : rbind
 - [`read_methylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.md)
   : read_methylome
 - [`run_methylTFR_RnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)

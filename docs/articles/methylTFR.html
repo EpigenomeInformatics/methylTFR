@@ -94,20 +94,20 @@ visualization of TF-specific methylation footprints.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the stable release of <strong>methylTFR</strong> from
-<a href="https://bioconductor.org/" class="external-link">Bioconductor</a> using:</p>
+<p><code>methylTFR</code> is currently under review for Bioconductor.
+Until it is accepted, install the development version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"EpigenomeInformatics/methylTFR"</span><span class="op">)</span></span></code></pre></div>
+<p>Once accepted, it will be installable with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"methylTFR"</span><span class="op">)</span></span></code></pre></div>
-<p>To install the development version directly from GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"EpigenomeInformatics/methylTFR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
@@ -117,18 +117,84 @@ its dependencies:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/EpigenomeInformatics/methylTFR" class="external-link">methylTFR</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: data.table</span></span>
+<span><span class="co">#&gt; Loading required package: SummarizedExperiment</span></span>
+<span><span class="co">#&gt; Loading required package: MatrixGenerics</span></span>
+<span><span class="co">#&gt; Loading required package: matrixStats</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'MatrixGenerics'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,</span></span>
+<span><span class="co">#&gt;     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,</span></span>
+<span><span class="co">#&gt;     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,</span></span>
+<span><span class="co">#&gt;     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,</span></span>
+<span><span class="co">#&gt;     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,</span></span>
+<span><span class="co">#&gt;     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,</span></span>
+<span><span class="co">#&gt;     colWeightedMeans, colWeightedMedians, colWeightedSds,</span></span>
+<span><span class="co">#&gt;     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,</span></span>
+<span><span class="co">#&gt;     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,</span></span>
+<span><span class="co">#&gt;     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,</span></span>
+<span><span class="co">#&gt;     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,</span></span>
+<span><span class="co">#&gt;     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,</span></span>
+<span><span class="co">#&gt;     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,</span></span>
+<span><span class="co">#&gt;     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,</span></span>
+<span><span class="co">#&gt;     rowWeightedSds, rowWeightedVars</span></span>
+<span><span class="co">#&gt; Loading required package: GenomicRanges</span></span>
+<span><span class="co">#&gt; Loading required package: stats4</span></span>
+<span><span class="co">#&gt; Loading required package: BiocGenerics</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'BiocGenerics'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     IQR, mad, sd, var, xtabs</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     anyDuplicated, aperm, append, as.data.frame, basename, cbind,</span></span>
+<span><span class="co">#&gt;     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,</span></span>
+<span><span class="co">#&gt;     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,</span></span>
+<span><span class="co">#&gt;     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,</span></span>
+<span><span class="co">#&gt;     Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,</span></span>
+<span><span class="co">#&gt;     table, tapply, union, unique, unsplit, which.max, which.min</span></span>
+<span><span class="co">#&gt; Loading required package: S4Vectors</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'S4Vectors'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     first, second</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:utils':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     findMatches</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     expand.grid, I, unname</span></span>
+<span><span class="co">#&gt; Loading required package: IRanges</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'IRanges'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     shift</span></span>
+<span><span class="co">#&gt; Loading required package: GenomeInfoDb</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
-<span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
-<span><span class="co">#&gt; 'DelayedArray::read_block' when loading 'HDF5Array'</span></span>
+<span><span class="co">#&gt; Loading required package: Biobase</span></span>
+<span><span class="co">#&gt; Welcome to Bioconductor</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Vignettes contain introductory material; view with</span></span>
+<span><span class="co">#&gt;     'browseVignettes()'. To cite Bioconductor, see</span></span>
+<span><span class="co">#&gt;     'citation("Biobase")', and for packages 'citation("pkgname")'.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'Biobase'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:MatrixGenerics':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     rowMedians</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     anyMissing, rowMedians</span></span>
 <span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
 <span><span class="co">#&gt; 'DelayedArray::read_block' when loading 'SummarizedExperiment'</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'methylTFR'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     cbind, rbind</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
+<span><span class="co">#&gt; 'DelayedArray::read_block' when loading 'HDF5Array'</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="read-a-sample-file">Read a Sample File<a class="anchor" aria-label="anchor" href="#read-a-sample-file"></a>
 </h3>
@@ -163,20 +229,23 @@ file provided in the package:</p>
 <div class="section level2">
 <h2 id="annotation-resources">Annotation Resources<a class="anchor" aria-label="anchor" href="#annotation-resources"></a>
 </h2>
-<p>We provide precomputed TFBS-based annotation data for the human
-genome (<em>hg38</em>), which is required by <code>methylTFR</code> to
-compute expected deviations.<br>
-This includes transcription factor binding sites, GC content windows,
-and motif GC frequency models.</p>
-<p>You can download the <em>hg38</em>-compatible annotation package from
-the following AWS-hosted archive:</p>
-<ul>
-<li><strong><a href="https://aws-link-here" class="external-link">Download
-methylTFRAnnotationsHg38.tar.gz</a></strong></li>
-</ul>
-<p>Optionally, you can create a customized annotation package for use
-with <code>methylTFR</code> using the <a href="https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder" class="external-link"><code>methylTFRAnnotationBuilder</code></a>
-package available on <strong>GitHub</strong>.</p>
+<p>Computing expected deviations requires precomputed annotations for
+the genome of interest: transcription factor binding sites, a
+genome-wide GC distribution, and per-motif GC frequency tables. These
+are distributed separately from <code>methylTFR</code>, in an annotation
+package named after the assembly, for example
+<code>methylTFRAnnotationHg38</code>. Keeping them out of the package is
+a practical necessity: the binding sites alone run to several gigabytes
+for a full motif set.</p>
+<p>With the annotation package installed, the three resources are
+retrieved with <code><a href="https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getTFbindsites.html" class="external-link">getTFbindsites()</a></code>, <code><a href="https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getGenomeGC.html" class="external-link">getGenomeGC()</a></code>
+and <code><a href="https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getGCfreq.html" class="external-link">getGCfreq()</a></code>, as shown in the multi-sample section
+below.</p>
+<p>To build annotations for a different assembly, motif set, or region
+restriction, use <a href="https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder" class="external-link"><code>methylTFRAnnotationBuilder</code></a>.</p>
+<p>The examples in this section instead use a small <code>BATF</code>
+subset bundled with <code>methylTFR</code>, so they run without any
+annotation package.</p>
 <div class="section level3">
 <h3 id="input-data">Input Data<a class="anchor" aria-label="anchor" href="#input-data"></a>
 </h3>
@@ -334,125 +403,63 @@ directory.</p>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="motif-footprinting">Motif Footprinting<a class="anchor" aria-label="anchor" href="#motif-footprinting"></a>
+<h2 id="run-methyltfr-directly-on-an-rnbeads-object">Run methylTFR directly on an RnBeads object<a class="anchor" aria-label="anchor" href="#run-methyltfr-directly-on-an-rnbeads-object"></a>
 </h2>
-<p>The <code>methylTFR</code> package provides a
-<code>plotMotifFootprint</code> function to visualize the methylation
-footprint of a specific TF motif per sample.</p>
+<p>If the methylation data has already been imported and preprocessed
+with <a href="https://bioconductor.org/packages/RnBeads" class="external-link"><code>RnBeads</code></a>,
+there is no need to export per-sample files first.
+<code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code> takes the <code>RnBSet</code>
+object directly and returns the same <code>methylTFRdeviations</code>
+object as <code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code>.</p>
+<p>Methylation levels are read one sample column at a time, so
+disk-backed sets created with <code>disk.dump.big.matrices = TRUE</code>
+are never loaded into memory in full.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"msites_sub.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gcdist_BATF.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RnBeads</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">methylTFRAnnotationHg38</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotMotifFootprint.html">plotMotifFootprint</a></span><span class="op">(</span></span>
-<span>    motif <span class="op">=</span> <span class="st">"BATF"</span>,</span>
-<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
-<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
-<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
-<span>    msites <span class="op">=</span> <span class="va">msites_sub</span>,</span>
-<span>    sample_name <span class="op">=</span> <span class="st">"ExampleSample"</span>,</span>
-<span>    enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    method <span class="op">=</span> <span class="st">"division"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">p</span></span>
-<span><span class="co">#&gt; Warning: Removed 112 rows containing missing values or values outside the scale range</span></span>
-<span><span class="co">#&gt; (`geom_line()`).</span></span></code></pre></div>
-<p><img src="methylTFR_files/figure-html/footprint-1.png" class="r-plt" width="700"></p>
-<div class="section level3">
-<h3 id="expected-vs-observed-footprint">Expected vs Observed Footprint<a class="anchor" aria-label="anchor" href="#expected-vs-observed-footprint"></a>
-</h3>
-<p>To visually assess how observed methylation patterns compare with
-expected profiles at transcription factor binding sites (TFBS),
-<code>methylTFR</code> provides the <code><a href="../reference/plotExpectedFootprint.html">plotExpectedFootprint()</a></code>
-function. This generates a footprint plot for a given motif in a single
-sample, allowing you to inspect local methylation behavior relative to
-GC-derived expectations.</p>
-<p>In the example below, we visualize the methylation footprint for the
-<code>BATF</code> motif using the included example data.</p>
+<span><span class="va">rnb_set</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/load.rnb.set.html" class="external-link">load.rnb.set</a></span><span class="op">(</span><span class="st">"reports/data_import_data/rnb.set_preprocessed"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">gcfreqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getGCfreq.html" class="external-link">getGCfreq</a></span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
+<span><span class="va">gc_dist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getGenomeGC.html" class="external-link">getGenomeGC</a></span><span class="op">(</span><span class="st">"hg38"</span><span class="op">)</span></span>
+<span><span class="va">tf_bindsites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getTFbindsites.html" class="external-link">getTFbindsites</a></span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">deviations</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads</a></span><span class="op">(</span></span>
+<span>    rnb_set <span class="op">=</span> <span class="va">rnb_set</span>, <span class="co"># preprocessed RnBeads object</span></span>
+<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>, <span class="co"># TF binding sites</span></span>
+<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>, <span class="co"># GC frequency</span></span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gc_dist</span>, <span class="co"># GC distribution</span></span>
+<span>    threads <span class="op">=</span> <span class="fl">8</span>, <span class="co"># number of threads</span></span>
+<span>    chunkSize <span class="op">=</span> <span class="fl">10</span>, <span class="co"># number of motifs per chunk</span></span>
+<span>    cov_threshold <span class="op">=</span> <span class="fl">1</span> <span class="co"># minimum coverage per site</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Methylation calls are always read at single-cytosine resolution.
+Region summaries such as <code>tiling1kb</code> or <code>distal</code>
+cannot be used, because a footprint needs base-resolution calls. To
+restrict the analysis to a set of regulatory regions, pass them through
+the <code>enhancer</code> argument:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Generate footprint plot for BATF</span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotExpectedFootprint.html">plotExpectedFootprint</a></span><span class="op">(</span></span>
-<span>    motif <span class="op">=</span> <span class="st">"BATF"</span>,</span>
+<code class="sourceCode R"><span><span class="va">distal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"distal_regions.RDS"</span><span class="op">)</span> <span class="co"># a GRanges of distal regions</span></span>
+<span></span>
+<span><span class="va">deviations_distal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads</a></span><span class="op">(</span></span>
+<span>    rnb_set <span class="op">=</span> <span class="va">rnb_set</span>,</span>
 <span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
-<span>    msites <span class="op">=</span> <span class="va">msites_sub</span>,</span>
-<span>    sample_name <span class="op">=</span> <span class="st">"ExampleSample"</span>,</span>
-<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
-<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
-<span>    enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    returnPlotData <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">p</span></span></code></pre></div>
-<p><img src="methylTFR_files/figure-html/expfootprint-1.png" class="r-plt" width="700"></p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="differential-tf-activity-analysis">Differential TF Activity Analysis<a class="anchor" aria-label="anchor" href="#differential-tf-activity-analysis"></a>
-</h2>
-<p>To assess differential TF activity between two groups of samples,
-<code>methylTFR</code> provides the
-<code><a href="../reference/differential_deviation_test.html">differential_deviation_test()</a></code> function. This function
-computes the observed and expected deviation scores for each TF motif
-across the specified groups, enabling statistical testing to identify
-differentially active TFs.</p>
-<p>This is how <code>methylTFRdeviations</code> object is looked
-like:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tc_mem.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tc_naive.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">devs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cbind.html">cbind</a></span><span class="op">(</span><span class="va">tc_mem</span>, <span class="va">tc_naive</span><span class="op">)</span></span>
-<span><span class="va">devs</span></span>
-<span><span class="co">#&gt; class: methylTFRdeviations </span></span>
-<span><span class="co">#&gt; dim: 10 10 </span></span>
-<span><span class="co">#&gt; metadata(0):</span></span>
-<span><span class="co">#&gt; assays(2): deviations z</span></span>
-<span><span class="co">#&gt; rownames(10): FOXF2 FOXD1 ... RORA RORA(var.2)</span></span>
-<span><span class="co">#&gt; rowData names(1): motifs</span></span>
-<span><span class="co">#&gt; colnames(10): Tc-Mem_OP_S5_Long_D1.bedGraph.bed</span></span>
-<span><span class="co">#&gt;   Tc-Mem_OP_S4_Long_D60.bedGraph.bed ...</span></span>
-<span><span class="co">#&gt;   Tc-Naive_OP_S4_Long_D1.bedGraph.bed</span></span>
-<span><span class="co">#&gt;   Tc-Naive_OP_S3_High_D1.bedGraph.bed</span></span>
-<span><span class="co">#&gt; colData names(4): CommonMinID condition cell_type bedFile</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Construct group labels from sample names</span></span>
-<span><span class="va">get_groupname</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="va">x</span>, split <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span></span>
-<span>    <span class="st">".bedGraph"</span>, <span class="st">""</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
-<span>        FUN <span class="op">=</span> <span class="va">get_groupname</span>,</span>
-<span>        X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">devs</span><span class="op">)</span></span>
-<span>    <span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">groups</span><span class="op">)</span></span>
-<span><span class="co">#&gt; groups</span></span>
-<span><span class="co">#&gt;   Tc-Mem Tc-Naive </span></span>
-<span><span class="co">#&gt;        5        5</span></span>
-<span></span>
-<span><span class="co"># Run the differential deviation test</span></span>
-<span><span class="va">tc_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/differential_deviation_test.html">differential_deviation_test</a></span><span class="op">(</span></span>
-<span>    deviations <span class="op">=</span> <span class="va">devs</span>,</span>
-<span>    groups <span class="op">=</span> <span class="va">groups</span>,</span>
-<span>    alternative <span class="op">=</span> <span class="st">"two.sided"</span>,</span>
-<span>    parametric <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    padjMethod <span class="op">=</span> <span class="st">"BH"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># View the results</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tc_result</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                  motifs      p_value p_value_adjusted mean_difference</span></span>
-<span><span class="co">#&gt; FOXF2             FOXF2 1.694736e-02     0.0355317162      0.02920759</span></span>
-<span><span class="co">#&gt; FOXD1             FOXD1 3.644010e-01     0.4555013119      0.01081636</span></span>
-<span><span class="co">#&gt; IRF2               IRF2 1.873667e-03     0.0093683362      0.03414276</span></span>
-<span><span class="co">#&gt; MZF1(var.2) MZF1(var.2) 1.776586e-02     0.0355317162      0.01850831</span></span>
-<span><span class="co">#&gt; MAX::MYC       MAX::MYC 1.078111e-05     0.0001078111      0.09341429</span></span>
-<span><span class="co">#&gt; PPARG             PPARG 3.996324e-03     0.0133210805      0.03428684</span></span></code></pre></div>
+<span>    gcfreqs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/methylTFRAnnotationHg38/man/getGCfreq.html" class="external-link">getGCfreq</a></span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020_distal"</span><span class="op">)</span>,</span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gc_dist</span>,</span>
+<span>    enhancer <span class="op">=</span> <span class="va">distal</span>,</span>
+<span>    threads <span class="op">=</span> <span class="fl">8</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Coverage filtering applies only to sequencing-based sets
+(<code>RnBiseqSet</code>), which carry coverage information. For
+array-based sets <code>cov_threshold</code> is ignored and a message is
+emitted.</p>
+<p><code>RnBeads</code> is a suggested dependency rather than a required
+one, so it is only needed if this entry point is used.</p>
 </div>
 <div class="section level2">
 <h2 id="session-information">Session Information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.4.1 (2024-06-14)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-conda-linux-gnu</span></span>
@@ -473,53 +480,42 @@ like:</p>
 <span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attached base packages:</span></span>
-<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">#&gt; [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
+<span><span class="co">#&gt; [8] base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ggplot2_4.0.1     methylTFR_0.99.1  data.table_1.17.2 BiocStyle_2.34.0 </span></span>
+<span><span class="co">#&gt;  [1] methylTFR_0.99.1            SummarizedExperiment_1.32.0</span></span>
+<span><span class="co">#&gt;  [3] Biobase_2.62.0              GenomicRanges_1.54.1       </span></span>
+<span><span class="co">#&gt;  [5] GenomeInfoDb_1.42.3         IRanges_2.36.0             </span></span>
+<span><span class="co">#&gt;  [7] S4Vectors_0.40.1            BiocGenerics_0.52.0        </span></span>
+<span><span class="co">#&gt;  [9] MatrixGenerics_1.14.0       matrixStats_1.1.0          </span></span>
+<span><span class="co">#&gt; [11] data.table_1.17.2           BiocStyle_2.34.0           </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] SummarizedExperiment_1.32.0 gtable_0.3.6               </span></span>
-<span><span class="co">#&gt;  [3] xfun_0.52                   bslib_0.9.0                </span></span>
-<span><span class="co">#&gt;  [5] htmlwidgets_1.6.4           rhdf5_2.46.1               </span></span>
-<span><span class="co">#&gt;  [7] Biobase_2.62.0              lattice_0.22-5             </span></span>
-<span><span class="co">#&gt;  [9] generics_0.1.4              rhdf5filters_1.14.1        </span></span>
-<span><span class="co">#&gt; [11] vctrs_0.6.5                 tools_4.4.1                </span></span>
-<span><span class="co">#&gt; [13] bitops_1.0-9                parallel_4.4.1             </span></span>
-<span><span class="co">#&gt; [15] stats4_4.4.1                tibble_3.2.1               </span></span>
-<span><span class="co">#&gt; [17] pkgconfig_2.0.3             R.oo_1.27.1                </span></span>
-<span><span class="co">#&gt; [19] Matrix_1.6-1.1              RColorBrewer_1.1-3         </span></span>
-<span><span class="co">#&gt; [21] S7_0.2.0                    desc_1.4.3                 </span></span>
-<span><span class="co">#&gt; [23] S4Vectors_0.40.1            lifecycle_1.0.4            </span></span>
-<span><span class="co">#&gt; [25] GenomeInfoDbData_1.2.13     stringr_1.5.1              </span></span>
-<span><span class="co">#&gt; [27] compiler_4.4.1              farver_2.1.2               </span></span>
-<span><span class="co">#&gt; [29] textshaping_0.4.0           GenomeInfoDb_1.42.3        </span></span>
-<span><span class="co">#&gt; [31] htmltools_0.5.8.1           sass_0.4.10                </span></span>
-<span><span class="co">#&gt; [33] RCurl_1.98-1.13             yaml_2.3.10                </span></span>
-<span><span class="co">#&gt; [35] pillar_1.10.2               pkgdown_2.2.0              </span></span>
-<span><span class="co">#&gt; [37] crayon_1.5.3                jquerylib_0.1.4            </span></span>
-<span><span class="co">#&gt; [39] R.utils_2.13.0              DelayedArray_0.28.0        </span></span>
-<span><span class="co">#&gt; [41] cachem_1.1.0                abind_1.4-8                </span></span>
-<span><span class="co">#&gt; [43] tidyselect_1.2.1            digest_0.6.37              </span></span>
-<span><span class="co">#&gt; [45] stringi_1.8.4               dplyr_1.1.3                </span></span>
-<span><span class="co">#&gt; [47] bookdown_0.43               labeling_0.4.3             </span></span>
-<span><span class="co">#&gt; [49] fastmap_1.2.0               grid_4.4.1                 </span></span>
-<span><span class="co">#&gt; [51] cli_3.6.3                   SparseArray_1.2.4          </span></span>
-<span><span class="co">#&gt; [53] magrittr_2.0.3              logger_0.4.0               </span></span>
-<span><span class="co">#&gt; [55] S4Arrays_1.6.0              dichromat_2.0-0.1          </span></span>
-<span><span class="co">#&gt; [57] withr_3.0.2                 UCSC.utils_1.2.0           </span></span>
-<span><span class="co">#&gt; [59] scales_1.4.0                rmarkdown_2.29             </span></span>
-<span><span class="co">#&gt; [61] XVector_0.42.0              httr_1.4.7                 </span></span>
-<span><span class="co">#&gt; [63] matrixStats_1.1.0           ragg_1.3.3                 </span></span>
-<span><span class="co">#&gt; [65] R.methodsS3_1.8.2           HDF5Array_1.30.1           </span></span>
-<span><span class="co">#&gt; [67] evaluate_1.0.3              knitr_1.50                 </span></span>
-<span><span class="co">#&gt; [69] GenomicRanges_1.54.1        IRanges_2.36.0             </span></span>
-<span><span class="co">#&gt; [71] rlang_1.1.4                 glue_1.7.0                 </span></span>
-<span><span class="co">#&gt; [73] BiocManager_1.30.25         BiocGenerics_0.52.0        </span></span>
-<span><span class="co">#&gt; [75] jsonlite_2.0.0              R6_2.6.1                   </span></span>
-<span><span class="co">#&gt; [77] Rhdf5lib_1.28.0             MatrixGenerics_1.14.0      </span></span>
-<span><span class="co">#&gt; [79] systemfonts_1.2.3           fs_1.6.6                   </span></span>
-<span><span class="co">#&gt; [81] zlibbioc_1.52.0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            </span></span>
+<span><span class="co">#&gt;  [4] ggplot2_4.0.1           htmlwidgets_1.6.4       rhdf5_2.46.1           </span></span>
+<span><span class="co">#&gt;  [7] lattice_0.22-5          generics_0.1.4          vctrs_0.6.5            </span></span>
+<span><span class="co">#&gt; [10] rhdf5filters_1.14.1     tools_4.4.1             bitops_1.0-9           </span></span>
+<span><span class="co">#&gt; [13] parallel_4.4.1          tibble_3.2.1            pkgconfig_2.0.3        </span></span>
+<span><span class="co">#&gt; [16] R.oo_1.27.1             Matrix_1.6-1.1          RColorBrewer_1.1-3     </span></span>
+<span><span class="co">#&gt; [19] S7_0.2.0                desc_1.4.3              lifecycle_1.0.4        </span></span>
+<span><span class="co">#&gt; [22] GenomeInfoDbData_1.2.13 stringr_1.5.1           compiler_4.4.1         </span></span>
+<span><span class="co">#&gt; [25] farver_2.1.2            textshaping_0.4.0       htmltools_0.5.8.1      </span></span>
+<span><span class="co">#&gt; [28] sass_0.4.10             RCurl_1.98-1.13         yaml_2.3.10            </span></span>
+<span><span class="co">#&gt; [31] pillar_1.10.2           pkgdown_2.2.0           crayon_1.5.3           </span></span>
+<span><span class="co">#&gt; [34] jquerylib_0.1.4         R.utils_2.13.0          DelayedArray_0.28.0    </span></span>
+<span><span class="co">#&gt; [37] cachem_1.1.0            abind_1.4-8             tidyselect_1.2.1       </span></span>
+<span><span class="co">#&gt; [40] digest_0.6.37           stringi_1.8.4           dplyr_1.1.3            </span></span>
+<span><span class="co">#&gt; [43] bookdown_0.43           fastmap_1.2.0           grid_4.4.1             </span></span>
+<span><span class="co">#&gt; [46] cli_3.6.3               SparseArray_1.2.4       magrittr_2.0.3         </span></span>
+<span><span class="co">#&gt; [49] logger_0.4.0            S4Arrays_1.6.0          dichromat_2.0-0.1      </span></span>
+<span><span class="co">#&gt; [52] UCSC.utils_1.2.0        scales_1.4.0            rmarkdown_2.29         </span></span>
+<span><span class="co">#&gt; [55] XVector_0.42.0          httr_1.4.7              ragg_1.3.3             </span></span>
+<span><span class="co">#&gt; [58] R.methodsS3_1.8.2       HDF5Array_1.30.1        evaluate_1.0.3         </span></span>
+<span><span class="co">#&gt; [61] knitr_1.50              rlang_1.1.4             glue_1.7.0             </span></span>
+<span><span class="co">#&gt; [64] BiocManager_1.30.25     jsonlite_2.0.0          R6_2.6.1               </span></span>
+<span><span class="co">#&gt; [67] Rhdf5lib_1.28.0         systemfonts_1.2.3       fs_1.6.6               </span></span>
+<span><span class="co">#&gt; [70] zlibbioc_1.52.0</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
