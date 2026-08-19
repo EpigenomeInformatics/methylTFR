@@ -68,9 +68,21 @@ differential_deviation_test <- function(deviations,
     }
     # deviations <- t(deviations)
     if (is.null(groups)) {
-        groups <- colnames(groups)
+        groups <- colnames(deviations)
+    }
+    if (is.null(groups)) {
+        stop(
+            "No group labels found. Provide 'groups', or supply deviations ",
+            "with column names identifying the groups."
+        )
     }
     groups <- as.factor(groups)
+    if (length(groups) != ncol(deviations)) {
+        stop("'groups' must have one entry per column of 'deviations'")
+    }
+    if (nlevels(groups) < 2) {
+        stop("'groups' must contain at least two distinct groups")
+    }
     if (length(alternative) > 1) {
         stop(
             "Please indicate one of the alternatives only."
