@@ -28,11 +28,14 @@
 # four T cell subsets only, and the most variable N motifs among them.
 #
 # Run from the package root:
+#     Rscript inst/scripts/tcell_data.R
+# or, to point it somewhere else:
 #     MTFR_PSEUDOBULK_DIR=/path/to/pseudobulks \
 #       Rscript inst/scripts/tcell_data.R
 #
 # Environment variables:
-#     MTFR_PSEUDOBULK_DIR  directory holding *_deviations.RDS (required)
+#     MTFR_PSEUDOBULK_DIR  directory holding *_deviations.RDS
+#                          (defaults to the cluster path below)
 #     MTFR_N_MOTIFS        number of motifs to retain (default 200)
 #     MTFR_EXTDATA_DIR     output directory (default inst/extdata)
 #####################################################################
@@ -47,11 +50,18 @@ suppressPackageStartupMessages({
 ## Configuration
 ## ------------------------------------------------------------------
 
-pseudobulk_dir <- Sys.getenv("MTFR_PSEUDOBULK_DIR", "")
-if (!nzchar(pseudobulk_dir)) {
+# Defaults to the cluster location of the per-sample pseudobulks used in
+# 10_zdiff.R. Override with MTFR_PSEUDOBULK_DIR to run it anywhere else.
+default_pseudobulk_dir <- file.path(
+    "/icbb/projects/igunduz/mTFR_bias_fix_v3",
+    "all_pseudobulks_310824", "jaspar2020_distal"
+)
+pseudobulk_dir <- Sys.getenv("MTFR_PSEUDOBULK_DIR", default_pseudobulk_dir)
+if (!nzchar(pseudobulk_dir) || !dir.exists(pseudobulk_dir)) {
     stop(
-        "Set MTFR_PSEUDOBULK_DIR to the directory holding the ",
-        "*_deviations.RDS pseudobulk files."
+        "Pseudobulk directory not found: ", pseudobulk_dir,
+        ". Set MTFR_PSEUDOBULK_DIR to the directory holding the ",
+        "*_deviations.RDS files."
     )
 }
 n_motifs <- as.integer(Sys.getenv("MTFR_N_MOTIFS", "200"))
@@ -229,6 +239,10 @@ for (nm in names(subset_pairs)) {
     ))
 }
 
+## ------------------------------------------------------------------
+## 6. Assemble a methylTFRdeviations object
+## ------------------------------------------------------------------
+
 se <- SummarizedExperiment(
     assays = list(deviations = dev_mat, z = z_mat),
     colData = S4Vectors::DataFrame(sample_annot),
@@ -247,7 +261,7 @@ metadata(tcellMemory) <- list(
 )
 
 ## ------------------------------------------------------------------
-## 6. Save
+## 7. Save
 ## ------------------------------------------------------------------
 
 out_file <- file.path(extdata_dir, "tcellMemory.rda")
@@ -259,3 +273,4 @@ message(sprintf(
     file.size(out_file) / 1024
 ))
 print(table(colData(tcellMemory)$cell_type))
+
