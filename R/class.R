@@ -84,72 +84,18 @@ setMethod("deviationZScores", "methylTFRdeviations", function(x) {
     SummarizedExperiment::assay(x, "z")
 })
 
-#' @title cbind
-#' @description Combine two methylTFRdeviations objects by column.
-#' @param x methylTFRdeviations object
-#' @param y methylTFRdeviations object
-#' @return A methylTFRdeviations object.
-#' @export
-#' @examples
-#' # Load example data
-#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
-#'
-#' # Combine the two objects
-#' devs <- cbind(tc_mem, tc_naive)
-setGeneric("cbind", function(x, y) standardGeneric("cbind"))
-
-#' @title rbind
-#' @description Combine two methylTFRdeviations objects by row.
-#' @param x methylTFRdeviations object
-#' @param y methylTFRdeviations object
-#' @return A methylTFRdeviations object.
-#' @export
-#' @examples
-#' # Load example data
-#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-#'
-#' # Combine the two objects with same column
-#' devs <- rbind(tc_mem[1:2, 1:2], tc_mem[3:4, 1:2])
-setGeneric("rbind", function(x, y) standardGeneric("rbind"))
-
-#' @title cbind
-#' @description Combine two methylTFRdeviations objects by column.
-#' @param x methylTFRdeviations object
-#' @param y methylTFRdeviations object
-#' @return A methylTFRdeviations object.
-#' @export
-#' @importFrom BiocGenerics cbind
-#' @importFrom methods setMethod
-#' @examples
-#' # Load example data
-#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
-#' # Combine the two objects
-#' devs <- cbind(tc_mem, tc_naive)
-setMethod(
-    "cbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
-    function(x, y) {
-        BiocGenerics::cbind(x, y)
-    }
-)
-
-#' @title rbind
-#' @description Combine two methylTFRdeviations objects by row.
-#' @param x methylTFRdeviations object
-#' @param y methylTFRdeviations object
-#' @return A methylTFRdeviations object.
-#' @export
-#' @importFrom BiocGenerics rbind
-#' @importFrom methods setMethod
-#' @examples
-#' # Load example data
-#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-#' # Combine the two objects with same column
-#' devs <- rbind(tc_mem[1:2, 1:2], tc_mem[3:4, 1:2])
-setMethod(
-    "rbind", signature(x = "methylTFRdeviations", y = "methylTFRdeviations"),
-    function(x, y) {
-        BiocGenerics::rbind(x, y)
-    }
-)
+# cbind() and rbind() are deliberately not defined here.
+#
+# methylTFRdeviations extends SummarizedExperiment, which already
+# provides both, and those methods return an object of the subclass with
+# all assays intact. Defining setGeneric("cbind", function(x, y)) shadowed
+# the base generic, which made R CMD INSTALL emit
+#   Creating a new generic function for 'cbind' in package 'methylTFR'
+# and restricted the call to exactly two arguments. Relying on the
+# inherited methods removes the warning and allows cbind(a, b, c).
+#
+# This requires SummarizedExperiment to be attached rather than merely
+# imported: the bindCOLS and bindROWS methods it defines are only
+# reachable for a subclass when its namespace is on the search path.
+# SummarizedExperiment is therefore in Depends, as it is for other
+# packages whose central class extends it.
