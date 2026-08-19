@@ -90,10 +90,10 @@ computeDeviation <- function(
         ignore.strand = ignoreStrand
     )
     if (length(hits@from) == 0) {
-        stop(paste0(
-            "No methylation sites found in the",
+        stop(
+            "No methylation sites found in the ",
             motif, " binding sites"
-        ))
+        )
     }
     exp_meth <- computeExpectations(binMsites, gcfreq)
 
