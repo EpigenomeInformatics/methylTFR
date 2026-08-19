@@ -251,12 +251,20 @@ plotMotifFootprint <- function(
         )]
         lab <- "(Observed / Expected)"
     }
-    if(!is.null(flankNorm) || flankNorm > 0){
-        # Now normalize the ratio by flanking region
+    if (!is.null(flankNorm) && flankNorm > 0) {
+        # Normalise against the outer flanking windows, on the same scale
+        # as the statistic itself. Dividing a difference by its flank mean
+        # would rescale it by an arbitrary factor, because that mean is
+        # near zero: for a typical footprint it inflates the curve by an
+        # order of magnitude and can invert its sign.
         flank <- max(abs(difference_data$x), na.rm = TRUE)
         idx <- abs(difference_data$x) >= flank - flankNorm
         norm_factor <- mean(difference_data$avg_methyl[idx], na.rm = TRUE)
-        difference_data[, avg_methyl := avg_methyl / norm_factor]
+        if (method == "substraction") {
+            difference_data[, avg_methyl := avg_methyl - norm_factor]
+        } else {
+            difference_data[, avg_methyl := avg_methyl / norm_factor]
+        }
     }
 
     p_combined <- ggplot(difference_data, aes(

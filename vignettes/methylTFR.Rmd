@@ -44,8 +44,17 @@ visualization of TF-specific methylation footprints.
 
 ## Installation
 
-You can install the stable release of **methylTFR** from 
-[Bioconductor](https://bioconductor.org/) using:
+`methylTFR` is currently under review for Bioconductor. Until it is
+accepted, install the development version from GitHub:
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("EpigenomeInformatics/methylTFR")
+```
+
+Once accepted, it will be installable with:
 
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -53,14 +62,6 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 }
 
 BiocManager::install("methylTFR")
-```
-
-To install the development version directly from GitHub:
-```r
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
-remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
 
 ## Getting Started
@@ -93,21 +94,24 @@ epp
 
 ## Annotation Resources
 
-We provide precomputed TFBS-based annotation data for the 
-human genome (*hg38*), which is required by `methylTFR` to 
-compute expected deviations.  
-This includes transcription factor binding sites, GC content 
-windows, and motif GC frequency models.
+Computing expected deviations requires precomputed annotations for the
+genome of interest: transcription factor binding sites, a genome-wide GC
+distribution, and per-motif GC frequency tables. These are distributed
+separately from `methylTFR`, in an annotation package named after the
+assembly, for example `methylTFRAnnotationHg38`. Keeping them out of the
+package is a practical necessity: the binding sites alone run to several
+gigabytes for a full motif set.
 
-You can download the *hg38*-compatible annotation package 
-from the following AWS-hosted archive:
+With the annotation package installed, the three resources are retrieved
+with `getTFbindsites()`, `getGenomeGC()` and `getGCfreq()`, as shown in
+the multi-sample section below.
 
-- **[Download methylTFRAnnotationsHg38.tar.gz](https://aws-link-here)**
+To build annotations for a different assembly, motif set, or region
+restriction, use
+[`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder).
 
-Optionally, you can create a customized annotation package for use with 
-`methylTFR` using the 
-[`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder) 
-package available on **GitHub**.
+The examples in this section instead use a small `BATF` subset bundled
+with `methylTFR`, so they run without any annotation package.
 
 ### Input Data
 
@@ -264,3 +268,4 @@ only needed if this entry point is used.
 ```{r session-info}
 sessionInfo()
 ```
+

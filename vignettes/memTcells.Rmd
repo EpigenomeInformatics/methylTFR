@@ -1,6 +1,6 @@
 ---
 title: "Case study: TF activity in memory vs. naive T cells"
-author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Müller"
+author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
 date: "`r Sys.Date()`"
 package: methylTFR
 output: BiocStyle::html_document
@@ -191,7 +191,7 @@ Optional bootstrap confidence bounds are available via
 
 `differential_deviation_test()` tests each motif for a difference in
 deviation scores between two groups. With two groups and
-`parametric = TRUE` the test is a t-test; p-values are adjusted
+`parametric = TRUE` the test is a Welch t-test; p-values are adjusted
 with the Benjamini-Hochberg procedure.
 
 The returned `mean_difference` column is unsigned, so the direction of
@@ -378,11 +378,20 @@ example data bundled with the package rather than the pseudobulk object
 above. `BATF` is an AP-1 family factor and appears among the motifs
 identified in the comparisons above.
 
+The bundled methylome is a single memory T helper sample, so the
+observed curve is drawn in that subset's colour from the palette used
+throughout this vignette, while the expected curve is kept neutral.
+
 ```{r fpdata}
 load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "gcdist_BATF.rda", package = "methylTFR"))
 load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
+
+# The bundled methylome is a single sample of one subset, so it is
+# labelled and coloured with the same palette used above.
+batf_cell_type <- "Th-Mem"
+batf_colour <- cell_type_colors[[batf_cell_type]]
 ```
 
 ## Observed and expected profiles
@@ -392,17 +401,20 @@ around the motif, and the level expected from the GC content of the same
 windows. The difference between them is the quantity the deviation score
 captures.
 
-```{r expfootprint, fig.height = 4.2}
+```{r expfootprint, fig.height = 4.2, message = FALSE}
 plotExpectedFootprint(
     motif = "BATF",
     tf_bindsites = tf_bindsites,
     msites = msites_sub,
-    sample_name = "ExampleSample",
+    sample_name = batf_cell_type,
     gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     returnPlotData = FALSE
-)
+) +
+    scale_colour_manual(values = c(
+        Observed = batf_colour, Expected = "grey55"
+    ))
 ```
 
 ## Bias-corrected footprint
@@ -412,18 +424,19 @@ curve, normalised against the outer flanking windows. With
 `method = "substraction"` the curve is the observed minus the expected
 profile; `method = "division"` uses their ratio.
 
-```{r fpdiff, fig.height = 4.2}
+```{r fpdiff, fig.height = 4.2, message = FALSE}
 plotMotifFootprint(
     motif = "BATF",
     tf_bindsites = tf_bindsites,
     msites = msites_sub,
-    sample_name = "ExampleSample",
+    sample_name = batf_cell_type,
     gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     method = "substraction",
     flankNorm = 50
-)
+) +
+    scale_colour_manual(values = batf_colour)
 ```
 
 A depression at the motif centre indicates methylation below the level
