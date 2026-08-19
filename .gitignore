@@ -26,3 +26,5 @@ methylTFR.BiocCheck/*
 .Ruserdata
 .Rproj.user/
 *.Rproj
+.DS_Store
+._*
