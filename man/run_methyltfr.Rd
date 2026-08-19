@@ -76,3 +76,7 @@ calculate the deviation
 in transcription factor
 footprint base for all given motifs per raw samples
 }
+\seealso{
+\code{\link{run_methylTFR_RnBeads}} for running methylTFR
+directly on a preprocessed RnBeads object.
+}
