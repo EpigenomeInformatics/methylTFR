@@ -68,9 +68,21 @@ differential_deviation_test <- function(deviations,
     }
     # deviations <- t(deviations)
     if (is.null(groups)) {
-        groups <- colnames(groups)
+        groups <- colnames(deviations)
+    }
+    if (is.null(groups)) {
+        stop(
+            "No group labels found. Provide 'groups', or supply deviations ",
+            "with column names identifying the groups."
+        )
     }
     groups <- as.factor(groups)
+    if (length(groups) != ncol(deviations)) {
+        stop("'groups' must have one entry per column of 'deviations'")
+    }
+    if (nlevels(groups) < 2) {
+        stop("'groups' must contain at least two distinct groups")
+    }
     if (length(alternative) > 1) {
         stop(
             "Please indicate one of the alternatives only."
@@ -109,8 +121,12 @@ differential_deviation_test <- function(deviations,
         method = padjMethod
     )
     # Compute group means
-    group_means <- sapply(levels(groups), function(g) rowMeans(deviations[, groups == g, drop=FALSE]))
-    mean_diff <-  if (nlevels(groups) == 2) {
+    group_means <- vapply(
+        levels(groups),
+        function(g) rowMeans(deviations[, groups == g, drop = FALSE]),
+        numeric(nrow(deviations))
+    )
+    mean_diff <- if (nlevels(groups) == 2) {
         abs(group_means[, 1] - group_means[, 2])
     } else {
         apply(group_means, 1, function(x) max(x) - min(x))
