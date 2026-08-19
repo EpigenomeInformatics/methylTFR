@@ -201,100 +201,66 @@ deviations <- run_methyltfr(sample_ann, # sample annotation file
 )
 ```
 
-## Motif Footprinting
-The `methylTFR` package provides a `plotMotifFootprint` function to visualize
- the methylation footprint of a specific TF motif per sample.
 
-```{r footprint}
-library(ggplot2)
-load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
-load(system.file("extdata", "gcdist_BATF.rda", package = "methylTFR"))
+## Run methylTFR directly on an RnBeads object
 
-p <- plotMotifFootprint(
-    motif = "BATF",
+If the methylation data has already been imported and preprocessed with
+[`RnBeads`](https://bioconductor.org/packages/RnBeads), there is no need
+to export per-sample files first. `run_methylTFR_RnBeads()` takes the
+`RnBSet` object directly and returns the same `methylTFRdeviations`
+object as `run_methyltfr()`.
+
+Methylation levels are read one sample column at a time, so disk-backed
+sets created with `disk.dump.big.matrices = TRUE` are never loaded into
+memory in full.
+
+```{r rnbeads, eval=FALSE}
+library(RnBeads)
+library(methylTFRAnnotationHg38)
+
+rnb_set <- load.rnb.set("reports/data_import_data/rnb.set_preprocessed")
+
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+gc_dist <- getGenomeGC("hg38")
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+
+deviations <- run_methylTFR_RnBeads(
+    rnb_set = rnb_set, # preprocessed RnBeads object
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    threads = 8, # number of threads
+    chunkSize = 10, # number of motifs per chunk
+    cov_threshold = 1 # minimum coverage per site
+)
+```
+
+Methylation calls are always read at single-cytosine resolution. Region
+summaries such as `tiling1kb` or `distal` cannot be used, because a
+footprint needs base-resolution calls. To restrict the analysis to a set
+of regulatory regions, pass them through the `enhancer` argument:
+
+```{r rnbeads_distal, eval=FALSE}
+distal <- readRDS("distal_regions.RDS") # a GRanges of distal regions
+
+deviations_distal <- run_methylTFR_RnBeads(
+    rnb_set = rnb_set,
     tf_bindsites = tf_bindsites,
-    gc_dist = gcdist,
-    gcfreqs = gcfreqs,
-    msites = msites_sub,
-    sample_name = "ExampleSample",
-    enhancer = NULL,
-    method = "division"
+    gcfreqs = getGCfreq(motifSet = "jaspar2020_distal"),
+    gc_dist = gc_dist,
+    enhancer = distal,
+    threads = 8
 )
-p
 ```
 
-### Expected vs Observed Footprint
+Coverage filtering applies only to sequencing-based sets
+(`RnBiseqSet`), which carry coverage information. For array-based sets
+`cov_threshold` is ignored and a message is emitted.
 
-To visually assess how observed methylation patterns compare with expected
- profiles at transcription factor binding sites (TFBS), `methylTFR` provides 
- the `plotExpectedFootprint()` function. This generates a footprint plot for a 
- given motif in a single sample, allowing you to inspect local methylation 
- behavior relative to GC-derived expectations.
-
-In the example below, we visualize the methylation footprint for the 
-`BATF` motif using the included example data.
-
-```{r expfootprint}
-# Generate footprint plot for BATF
-p <- plotExpectedFootprint(
-    motif = "BATF",
-    tf_bindsites = tf_bindsites,
-    msites = msites_sub,
-    sample_name = "ExampleSample",
-    gc_dist = gcdist,
-    gcfreqs = gcfreqs,
-    enhancer = NULL,
-    returnPlotData = FALSE
-)
-
-p
-```
-
-## Differential TF Activity Analysis
-
-To assess differential TF activity between two groups of samples,
- `methylTFR` provides the `differential_deviation_test()` function. 
-This function computes the observed and expected deviation scores 
-for each TF motif across the specified groups, enabling statistical
-testing to identify differentially active TFs.
-
-This is how `methylTFRdeviations` object is looked like:
-```{r methylTFRdeviations}
-load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
-devs <- cbind(tc_mem, tc_naive)
-devs
-```
-
-```{r diffactivity}
-# Construct group labels from sample names
-get_groupname <- function(x) {
-    return(unlist(strsplit(x, split = "_"))[1])
-}
-groups <- sub(
-    ".bedGraph", "",
-    unlist(lapply(
-        FUN = get_groupname,
-        X = colnames(devs)
-    ))
-)
-table(groups)
-
-# Run the differential deviation test
-tc_result <- differential_deviation_test(
-    deviations = devs,
-    groups = groups,
-    alternative = "two.sided",
-    parametric = TRUE,
-    padjMethod = "BH"
-)
-
-# View the results
-head(tc_result)
-```
+`RnBeads` is a suggested dependency rather than a required one, so it is
+only needed if this entry point is used.
 
 ## Session Information
 ```{r session-info}
 sessionInfo()
 ```
-
