@@ -65,8 +65,8 @@ suppressPackageStartupMessages({
 # Defaults to the cluster location of the per-sample pseudobulks used in
 # 10_zdiff.R. Override with MTFR_PSEUDOBULK_DIR to run it anywhere else.
 default_pseudobulk_dir <- file.path(
-    "/icbb/projects/igunduz/mTFR_bias_fix_v3",
-    "all_pseudobulks_310824", "jaspar2020_distal"
+    "/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/",
+    "data", "sample_pseudobulks"
 )
 pseudobulk_dir <- Sys.getenv("MTFR_PSEUDOBULK_DIR", default_pseudobulk_dir)
 if (!nzchar(pseudobulk_dir) || !dir.exists(pseudobulk_dir)) {
