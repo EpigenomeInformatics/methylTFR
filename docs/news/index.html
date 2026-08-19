@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,11 +39,28 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.99.1" id="methyltfr-0991">methylTFR 0.99.1<a class="anchor" aria-label="anchor" href="#methyltfr-0991"></a></h2>
+<p>NEW FEATURES</p>
+<ul><li>Added <code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code>, which runs the methylTFR workflow directly on a preprocessed RnBeads object instead of per-sample BED files. Samples are read one column at a time, so disk-backed RnBeads sets are never loaded into memory in full.</li>
+<li>Added <code><a href="../reference/computeZScoreVariability.html">computeZScoreVariability()</a></code>, which ranks TF motifs by how much their activity varies across samples and tests each motif against a chi-squared null. Deviation scores are first calibrated against a within-sample null estimated across motifs, so that a variability above 1 is interpretable as “more variable than background”.</li>
+<li>
+<code>methylTFRdeviations</code> objects returned by <code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code> and <code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code> now carry a third assay, <code>expected</code>, holding the GC-derived expected deviations. These were previously computed and then discarded.</li>
+</ul><p>BUG FIXES</p>
+<ul><li>
+<code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code> no longer rejects <code>.csv</code> sample annotation files. The <code>.tsv</code> branch’s <code>else</code> clause caught every <code>.csv</code> file and raised an error after the file had already been read.</li>
+<li>
+<code><a href="../reference/differential_deviation_test.html">differential_deviation_test()</a></code> now falls back to <code>colnames(deviations)</code> when <code>groups</code> is NULL, instead of <code>colnames(groups)</code>, which was always NULL. Group labels are also validated against the number of columns.</li>
+<li>The invalid-input fallback for <code>cov_threshold</code> in <code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code> now sets the documented default of 1 rather than 5.</li>
+</ul><p>INTERNAL</p>
+<ul><li>The per-sample deviation loop shared by both entry points was factored out into <code><a href="../reference/methyltfr_core.html">methyltfr_core()</a></code>, so the file-based and RnBeads-based workflows are guaranteed to produce identical results for the same methylation calls.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.99.0" id="methyltfr-0990">methylTFR 0.99.0<a class="anchor" aria-label="anchor" href="#methyltfr-0990"></a></h2>
 <p>NEW FEATURES</p>
 <ul><li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

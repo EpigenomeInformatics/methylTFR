@@ -1,6 +1,6 @@
 ---
 title: "Case study: TF activity in memory vs. naive T cells"
-author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
+author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Müller"
 date: "`r Sys.Date()`"
 package: methylTFR
 output: BiocStyle::html_document
@@ -14,122 +14,434 @@ vignette: >
 library(BiocStyle)
 knitr::opts_chunk$set(
     collapse = TRUE,
-    comment = "#>"
+    comment = "#>",
+    fig.width = 6,
+    fig.height = 4
 )
 ```
 
-## Overview
+# Introduction
 
-CD4+ T cells reshape their regulatory programs as they differentiate from
-a naive to a memory state. This case study uses `methylTFR` deviation
-scores to ask a focused question: **which transcription factors show
-differential activity between memory and naive T cells?**
+This vignette demonstrates a complete downstream analysis of
+`r Biocpkg("methylTFR")` deviation scores, starting from a precomputed
+`methylTFRdeviations` object. It covers dimensionality reduction,
+differential activity testing between two groups, comparison of two
+independent contrasts, and inspection of the motif footprints that the
+deviation scores summarise.
 
-We reuse deviation matrices bundled with the package (`tc_mem`, `tc_naive`),
-so the analysis runs end-to-end without downloading the *hg38* annotation.
-See the [Get started](methylTFR.html) vignette for how deviations are
-computed from raw WGBS data.
+The biological setting is the naive-to-memory transition in human T
+cells, in the cytotoxic (CD8, `Tc`) and helper (CD4, `Th`) compartments.
+All quantities are derived from DNA methylation.
 
-```{r init}
+The following `r Biocpkg("methylTFR")` functionality is demonstrated:
+
+| Step | Function |
+|------|----------|
+| Access bias-corrected deviation scores | `deviations()` |
+| Access row-wise deviation Z-scores | `deviationZScores()` |
+| Rank motifs by activity variability | `computeZScoreVariability()` |
+| Test motifs between two groups | `differential_deviation_test()` |
+| Plot observed and expected methylation | `plotExpectedFootprint()` |
+| Plot the bias-corrected footprint | `plotMotifFootprint()` |
+
+Deviation scores themselves are computed with `run_methyltfr()` from
+per-sample methylation files, or with `run_methylTFR_RnBeads()` directly
+from a preprocessed `RnBeads` object. Both are covered in the
+[Get started](methylTFR.html) vignette; this one begins from their
+output.
+
+```{r init, message = FALSE}
 library(methylTFR)
+library(SummarizedExperiment)
 library(ggplot2)
 ```
 
-## Deviation data
+A single palette is used for the seven cell types throughout, so that a
+colour denotes the same cell type in every figure.
 
-Each object is a `methylTFRdeviations` matrix of motifs (rows) by
-samples (columns). We combine the two groups into a single matrix.
+```{r palette}
+cell_type_colors <- c(
+    "Th-Mem"   = "#41B6C4",
+    "Tc-Mem"   = "#4292C6",
+    "Tc-Naive" = "#888FB5",
+    "Th-Naive" = "#C7E9B4",
+    "B-cell"   = "#AE017E",
+    "NK-cell"  = "#A65628",
+    "Monocyte" = "#CC4C02"
+)
+```
+
+# The example dataset
+
+`immuneDeviations` contains bias-corrected deviation scores for
+pseudobulk methylomes of seven human immune cell types, with one column
+per donor sample and one row per JASPAR2020 motif. Four of the seven are
+T cell subsets, naive and memory in the cytotoxic and helper
+compartments; the remaining three provide a lineage contrast.
+
+The underlying methylomes are from Gündüz *et al.* (2025); see the
+References section.
 
 ```{r load}
-load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
-load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
+load(system.file("extdata", "immuneDeviations.rda", package = "methylTFR"))
+immuneDeviations
 
-devs <- cbind(tc_mem, tc_naive)
-devs
+table(colData(immuneDeviations)$cell_type)
 ```
 
-Group labels are taken from the sample names (the prefix before `_`).
+Provenance is stored in the object metadata.
 
-```{r groups}
-get_groupname <- function(x) unlist(strsplit(x, split = "_"))[1]
-groups <- sub(
-    ".bedGraph", "",
-    vapply(colnames(devs), get_groupname, character(1))
-)
-table(groups)
+```{r provenance}
+metadata(immuneDeviations)
 ```
 
-## Differential TF activity
+The source dataset provides 38 donor samples per cell type. To limit the
+package size it was reduced on the sample axis only, to 15 samples per
+cell type; every motif is retained. Subsetting motifs would be the more
+obvious reduction, but selecting motifs by variability and then
+demonstrating `computeZScoreVariability()` on the result would be
+circular. The script used to generate the object is
+`inst/scripts/tcell_data.R`.
 
-`differential_deviation_test()` compares deviation scores between the two
-groups per motif. With two groups and `parametric = TRUE` this is a
-t-test, followed by Benjamini-Hochberg correction.
+## Accessing the two assays
 
-```{r difftest}
-tc_result <- differential_deviation_test(
-    deviations = devs,
-    groups = groups,
-    alternative = "two.sided",
-    parametric = TRUE,
-    padjMethod = "BH"
-)
+A `methylTFRdeviations` object stores two matrices. `deviations()`
+returns the bias-corrected deviation scores. `deviationZScores()`
+returns the same values standardised row-wise across samples.
 
-tc_result <- tc_result[order(tc_result$p_value_adjusted), ]
-tc_result
+```{r assays}
+dev_mat <- deviations(immuneDeviations)
+z_mat <- deviationZScores(immuneDeviations)
+
+round(dev_mat[seq_len(3), seq_len(4)], 4)
 ```
 
-The `mean_difference` column is the absolute difference in mean deviation
-between memory and naive cells: larger values flag TFs whose binding-site
-methylation shifts most with differentiation.
+The two assays serve different purposes. Deviation scores are the
+quantitative estimate of motif activity and are the correct input to
+statistical tests. Row-wise Z-scores rescale every motif to a common
+spread, which makes rows comparable in a heatmap, but by construction
+the standard deviation of each row is 1.
 
-## Ranking the top TFs
+```{r zscale}
+summary(as.vector(dev_mat))
+summary(apply(z_mat, 1, sd))
+```
 
-We visualise motifs by effect size, highlighting those passing an FDR
-cutoff of 0.05.
+# 1. Dimensionality reduction
 
-```{r rankplot, fig.width = 6, fig.height = 4}
-tc_result$motifs <- factor(
-    tc_result$motifs,
-    levels = tc_result$motifs[order(tc_result$mean_difference)]
+Deviation scores form a low-dimensional feature set, so principal
+component analysis can be applied to the matrix directly.
+
+```{r pca, fig.height = 4.2}
+pca <- prcomp(t(dev_mat), center = TRUE, scale. = FALSE)
+var_expl <- round(100 * pca$sdev^2 / sum(pca$sdev^2), 1)
+
+pca_df <- data.frame(
+    PC1 = pca$x[, 1], PC2 = pca$x[, 2],
+    cell_type = colData(immuneDeviations)$cell_type
 )
-tc_result$significant <- ifelse(
-    tc_result$p_value_adjusted < 0.05,
-    "FDR < 0.05", "n.s."
-)
 
-ggplot(tc_result, aes(x = mean_difference, y = motifs, colour = significant)) +
-    ggplot2::geom_segment(
-        aes(x = 0, xend = mean_difference, yend = motifs),
-        colour = "grey70"
+ggplot(pca_df, aes(PC1, PC2, colour = cell_type)) +
+    geom_point(size = 2, alpha = 0.85) +
+    scale_colour_manual(values = cell_type_colors, name = NULL) +
+    labs(
+        x = sprintf("PC1 (%.1f%%)", var_expl[1]),
+        y = sprintf("PC2 (%.1f%%)", var_expl[2])
     ) +
-    ggplot2::geom_point(size = 3) +
-    ggplot2::scale_colour_manual(
-        values = c("FDR < 0.05" = "#E66100", "n.s." = "grey50")
+    theme_classic()
+```
+
+PC1 separates the myeloid samples from the lymphoid ones. PC2 resolves
+the T cell subsets by differentiation state: the two naive subsets group
+together, as do the two memory subsets, while the CD8 and CD4
+compartments overlap. Differentiation state therefore accounts for more
+of the variation in motif activity than the CD8/CD4 distinction does.
+
+# 2. Differential TF activity
+
+## Ranking motifs by variability
+
+Before testing a specific contrast, `computeZScoreVariability()` ranks
+motifs by how much their activity varies across the dataset, without
+requiring group labels. Each sample is calibrated against a null
+estimated across motifs, so a variability above 1 indicates a motif
+varying more than the background spread of that sample. P-values come
+from a chi-squared test against that null.
+
+```{r variability}
+variability <- computeZScoreVariability(immuneDeviations, method = "robust")
+variability <- variability[order(-variability$variability), ]
+
+head(variability, 8)
+```
+
+The highest-ranking motifs belong to the CEBP family, which distinguish
+the myeloid lineage from the lymphoid ones. This is a screen across all
+cell types and requires no group labels, which makes it complementary to
+the two-group test used below.
+
+This function reads the `deviations` assay. Supplying row-wise Z-scores
+instead would be uninformative, because their per-row standard deviation
+is 1 for every motif, as shown above.
+
+Optional bootstrap confidence bounds are available via
+`bootstrap = TRUE`.
+
+## Testing between two groups
+
+`differential_deviation_test()` tests each motif for a difference in
+deviation scores between two groups. With two groups and
+`parametric = TRUE` the test is a t-test; p-values are adjusted
+with the Benjamini-Hochberg procedure.
+
+The returned `mean_difference` column is unsigned, so the direction of
+each change is computed separately. Differences below are oriented as
+naive minus memory, so that a positive value indicates a higher
+deviation score in the naive state.
+
+```{r helper}
+compare_subsets <- function(object, naive, memory) {
+    grp_all <- colData(object)$cell_type
+    keep <- grp_all %in% c(naive, memory)
+    grp <- factor(as.character(grp_all[keep]), levels = c(naive, memory))
+
+    dev_sub <- deviations(object)[, keep, drop = FALSE]
+    z_sub <- deviationZScores(object)[, keep, drop = FALSE]
+    is_naive <- grp == naive
+
+    res <- differential_deviation_test(
+        deviations = dev_sub,
+        groups = grp,
+        alternative = "two.sided",
+        parametric = TRUE,
+        padjMethod = "BH"
+    )
+    res$diff <- rowMeans(dev_sub[, is_naive, drop = FALSE]) -
+        rowMeans(dev_sub[, !is_naive, drop = FALSE])
+    res$zdiff <- rowMeans(z_sub[, is_naive, drop = FALSE]) -
+        rowMeans(z_sub[, !is_naive, drop = FALSE])
+    res[order(res$p_value_adjusted), ]
+}
+
+tc_res <- compare_subsets(immuneDeviations, "Tc-Naive", "Tc-Mem")
+th_res <- compare_subsets(immuneDeviations, "Th-Naive", "Th-Mem")
+
+head(tc_res, 8)
+```
+
+## Choosing an effect-size threshold
+
+The helper above returns two effect sizes on different scales. `diff` is
+the difference in raw deviation scores; `zdiff` is the same contrast
+expressed in Z-score units. A threshold must be applied on the scale it
+was defined for, since the two ranges differ by an order of magnitude.
+
+```{r scales}
+range(tc_res$diff)
+range(tc_res$zdiff)
+
+sum(tc_res$p_value_adjusted < 0.05)
+sum(tc_res$p_value_adjusted < 0.05 & abs(tc_res$zdiff) > 0.5)
+```
+
+## Visualising the differential motifs
+
+The motifs with the strongest change in the CD8 comparison are shown as
+row-wise Z-scores across all four subsets. Samples are ordered by
+subset, and the annotation row uses the palette defined above. The fill
+scale is diverging and encodes the Z-score, which is a property of the
+motif rather than of the subset.
+
+```{r heatmap, fig.height = 6.8, fig.width = 7}
+top_motifs <- head(
+    tc_res$motifs[
+        tc_res$p_value_adjusted < 0.05 & abs(tc_res$zdiff) > 0.5
+    ], 25
+)
+
+sample_order <- order(colData(immuneDeviations)$cell_type)
+z_top <- z_mat[top_motifs, sample_order, drop = FALSE]
+sample_levels <- colnames(z_top)
+subset_of <- colData(immuneDeviations)$cell_type[sample_order]
+
+heat_df <- data.frame(
+    motif = factor(
+        rep(rownames(z_top), times = ncol(z_top)),
+        levels = rev(top_motifs)
+    ),
+    sample = factor(
+        rep(sample_levels, each = nrow(z_top)), levels = sample_levels
+    ),
+    z = as.vector(z_top)
+)
+
+ann_df <- data.frame(
+    sample = factor(sample_levels, levels = sample_levels),
+    cell_type = subset_of
+)
+
+ggplot() +
+    geom_tile(data = heat_df, aes(sample, motif, fill = z)) +
+    geom_point(
+        data = ann_df,
+        aes(sample, y = length(top_motifs) + 1.2, colour = cell_type),
+        shape = 15, size = 2.4
     ) +
-    ggplot2::labs(
-        x = "Mean deviation difference (memory vs. naive)",
-        y = NULL, colour = NULL,
-        title = "Differential TF activity"
+    scale_fill_gradient2(
+        low = "#2166AC", mid = "white", high = "#B2182B",
+        midpoint = 0, name = "Z-score"
+    ) +
+    scale_colour_manual(values = cell_type_colors, name = NULL) +
+    labs(x = NULL, y = NULL) +
+    theme_classic() +
+    theme(
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y = element_text(size = 7),
+        legend.position = "right"
+    )
+```
+
+Most of the selected motifs belong to the AP-1 family. Their pattern is
+consistent across both T compartments, high in the naive subsets and low
+in the memory subsets, and lowest of all in monocytes. The T-box motifs
+`EOMES`, `TBR1` and `TBX2` follow a different pattern, low in cytotoxic
+memory T cells and in NK cells, which is where those factors are active.
+Including the non-T lineages makes clear that the memory signature is
+not simply a general lymphoid-myeloid contrast.
+
+# 3. Comparing the two compartments
+
+The CD8 and CD4 contrasts are computed from disjoint sets of samples.
+Plotting the Z-score differences against each other shows whether the
+two compartments identify the same motifs.
+
+```{r agreement}
+shared <- intersect(tc_res$motifs, th_res$motifs)
+agree <- data.frame(
+    motifs = shared,
+    tc = tc_res$zdiff[match(shared, tc_res$motifs)],
+    th = th_res$zdiff[match(shared, th_res$motifs)]
+)
+agree$sig_both <-
+    tc_res$p_value_adjusted[match(shared, tc_res$motifs)] < 0.05 &
+        th_res$p_value_adjusted[match(shared, th_res$motifs)] < 0.05
+
+rho <- cor(agree$tc, agree$th)
+round(rho, 3)
+sum(agree$sig_both)
+```
+
+```{r agreeplot, fig.height = 4.6}
+# Label the extremes at both ends: the strongest motifs cluster tightly,
+# so ranking by magnitude alone places every label in one corner.
+ranked <- agree[order(agree$tc + agree$th), ]
+labelled <- rbind(head(ranked, 4), tail(ranked, 4))
+
+ggplot(agree, aes(tc, th)) +
+    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
+    geom_vline(xintercept = 0, linetype = "dashed", colour = "grey60") +
+    geom_point(aes(colour = sig_both), size = 1.8, alpha = 0.85) +
+    geom_text(
+        data = labelled, aes(label = motifs),
+        size = 3, vjust = -0.8, check_overlap = TRUE
+    ) +
+    scale_colour_manual(
+        values = c("FALSE" = "grey75", "TRUE" = "#4292C6"),
+        name = "significant in both"
+    ) +
+    labs(
+        x = "CD8: Z-score difference (naive - memory)",
+        y = "CD4: Z-score difference (naive - memory)",
+        title = sprintf("Pearson r = %.2f", rho)
     ) +
     theme_classic() +
-    theme(legend.position = "bottom")
+    theme(
+        legend.position = "bottom",
+        axis.title.x = element_text(colour = cell_type_colors[["Tc-Mem"]]),
+        axis.title.y = element_text(colour = cell_type_colors[["Th-Mem"]])
+    )
 ```
 
-## Interpretation
+The effect sizes are correlated and share sign for most motifs, so the
+same factors are recovered in both compartments.
 
-TFs at the top of the ranking are the strongest candidates for driving
-memory-specific regulatory changes: their binding sites lose or gain
-methylation as cells transition out of the naive state. These hits are a
-natural starting point for footprint inspection
-(`plotExpectedFootprint()`, shown in the main vignette) or for follow-up
-in a larger cohort.
+# 4. Motif footprints
 
-Because the bundled data is a small subset (10 motifs, 5 samples per
-group), the values here are illustrative. On the full BLUEPRINT memory
-T-cell panel the same workflow scales to thousands of motifs via
-`run_methyltfr()`.
+A deviation score summarises a footprint: methylation at the motif
+centre relative to its flanking regions, corrected for GC content.
+Plotting the footprint shows the profile the score is derived from.
 
-## Session Information
+The footprint functions require base-resolution methylation calls and
+the motif annotation. This section therefore uses the small `BATF`
+example data bundled with the package rather than the pseudobulk object
+above. `BATF` is an AP-1 family factor and appears among the motifs
+identified in the comparisons above.
+
+```{r fpdata}
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_BATF.rda", package = "methylTFR"))
+load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
+```
+
+## Observed and expected profiles
+
+`plotExpectedFootprint()` draws two curves: the methylation observed
+around the motif, and the level expected from the GC content of the same
+windows. The difference between them is the quantity the deviation score
+captures.
+
+```{r expfootprint, fig.height = 4.2}
+plotExpectedFootprint(
+    motif = "BATF",
+    tf_bindsites = tf_bindsites,
+    msites = msites_sub,
+    sample_name = "ExampleSample",
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    returnPlotData = FALSE
+)
+```
+
+## Bias-corrected footprint
+
+`plotMotifFootprint()` combines the two profiles into a single corrected
+curve, normalised against the outer flanking windows. With
+`method = "substraction"` the curve is the observed minus the expected
+profile; `method = "division"` uses their ratio.
+
+```{r fpdiff, fig.height = 4.2}
+plotMotifFootprint(
+    motif = "BATF",
+    tf_bindsites = tf_bindsites,
+    msites = msites_sub,
+    sample_name = "ExampleSample",
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    method = "substraction",
+    flankNorm = 50
+)
+```
+
+A depression at the motif centre indicates methylation below the level
+predicted by GC content, which corresponds to a negative deviation
+score.
+
+# References
+
+Gündüz IB, Wei B, Chen DC, Wang W, Hariharan M, Norell T, Broderick TJ,
+McClain MT, Satterwhite LL, Burke TW, Petzold EA, Shen X, Woods CW,
+Fowler VG Jr, Ruffin F, Panuwet P, Barr DB, Wilk AJ, Lee MJ, Blish C,
+Castellino F, Walley AM, Evans T, Ecker JR, Müller F, Greenleaf WJ.
+Dissecting epigenome dynamics in human immune cells upon viral and
+chemical exposure by multimodal single-cell profiling. *bioRxiv*
+2025.09.09.675101. doi:
+[10.1101/2025.09.09.675101](https://doi.org/10.1101/2025.09.09.675101)
+
+# Session Information
 
 ```{r session-info}
 sessionInfo()

@@ -10,6 +10,8 @@
   : cbind
 - [`computeDeviation()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeDeviation.md)
   : computeDeviation
+- [`computeZScoreVariability()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeZScoreVariability.md)
+  : computeZScoreVariability
 - [`deviationZScores(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores-methylTFRdeviations-method.md)
   : deviationZScores
 - [`deviationZScores()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores.md)
@@ -32,5 +34,7 @@
   : rbind
 - [`read_methylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.md)
   : read_methylome
+- [`run_methylTFR_RnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)
+  : run_methylTFR_RnBeads
 - [`run_methyltfr()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methyltfr.md)
   : run_methyltfr

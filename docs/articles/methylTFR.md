@@ -421,7 +421,7 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] ggplot2_4.0.1     methylTFR_0.99.0  data.table_1.17.2 BiocStyle_2.34.0 
+#> [1] ggplot2_4.0.1     methylTFR_0.99.1  data.table_1.17.2 BiocStyle_2.34.0 
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] SummarizedExperiment_1.32.0 gtable_0.3.6               

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,9 +60,9 @@
 
       <h1>Case study: TF activity in memory vs. naive T cells</h1>
                         <h4 data-toc-skip class="author">Irem B. Gündüz,
-Sarath Kumar Murugan, Fabian Muller</h4>
+Sarath Kumar Murugan, Fabian Müller</h4>
             
-            <h4 data-toc-skip class="date">2026-07-22</h4>
+            <h4 data-toc-skip class="date">2026-08-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/HEAD/vignettes/memTcells.Rmd" class="external-link"><code>vignettes/memTcells.Rmd</code></a></small>
       <div class="d-none name"><code>memTcells.Rmd</code></div>
@@ -71,20 +71,59 @@ Sarath Kumar Murugan, Fabian Muller</h4>
     
     
 <div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>CD4+ T cells reshape their regulatory programs as they differentiate
-from a naive to a memory state. This case study uses
-<code>methylTFR</code> deviation scores to ask a focused question:
-<strong>which transcription factors show differential activity between
-memory and naive T cells?</strong></p>
-<p>We reuse deviation matrices bundled with the package
-(<code>tc_mem</code>, <code>tc_naive</code>), so the analysis runs
-end-to-end without downloading the <em>hg38</em> annotation. See the <a href="methylTFR.html">Get started</a> vignette for how deviations are
-computed from raw WGBS data.</p>
+<p>This vignette demonstrates a complete downstream analysis of <em><a href="https://bioconductor.org/packages/3.20/methylTFR" class="external-link">methylTFR</a></em>
+deviation scores, starting from a precomputed
+<code>methylTFRdeviations</code> object. It covers dimensionality
+reduction, differential activity testing between two groups, comparison
+of two independent contrasts, and inspection of the motif footprints
+that the deviation scores summarise.</p>
+<p>The biological setting is the naive-to-memory transition in human T
+cells, in the cytotoxic (CD8, <code>Tc</code>) and helper (CD4,
+<code>Th</code>) compartments. All quantities are derived from DNA
+methylation.</p>
+<p>The following <em><a href="https://bioconductor.org/packages/3.20/methylTFR" class="external-link">methylTFR</a></em>
+functionality is demonstrated:</p>
+<table class="table">
+<thead><tr class="header">
+<th>Step</th>
+<th>Function</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Access bias-corrected deviation scores</td>
+<td><code><a href="../reference/deviations.html">deviations()</a></code></td>
+</tr>
+<tr class="even">
+<td>Access row-wise deviation Z-scores</td>
+<td><code><a href="../reference/deviationZScores.html">deviationZScores()</a></code></td>
+</tr>
+<tr class="odd">
+<td>Rank motifs by activity variability</td>
+<td><code><a href="../reference/computeZScoreVariability.html">computeZScoreVariability()</a></code></td>
+</tr>
+<tr class="even">
+<td>Test motifs between two groups</td>
+<td><code><a href="../reference/differential_deviation_test.html">differential_deviation_test()</a></code></td>
+</tr>
+<tr class="odd">
+<td>Plot observed and expected methylation</td>
+<td><code><a href="../reference/plotExpectedFootprint.html">plotExpectedFootprint()</a></code></td>
+</tr>
+<tr class="even">
+<td>Plot the bias-corrected footprint</td>
+<td><code><a href="../reference/plotMotifFootprint.html">plotMotifFootprint()</a></code></td>
+</tr>
+</tbody>
+</table>
+<p>Deviation scores themselves are computed with
+<code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code> from per-sample methylation files, or with
+<code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code> directly from a preprocessed
+<code>RnBeads</code> object. Both are covered in the <a href="methylTFR.html">Get started</a> vignette; this one begins from
+their output.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/EpigenomeInformatics/methylTFR" class="external-link">methylTFR</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: data.table</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
 <span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
@@ -92,133 +131,452 @@ computed from raw WGBS data.</p>
 <span><span class="co">#&gt; Warning: replacing previous import 'S4Arrays::read_block' by</span></span>
 <span><span class="co">#&gt; 'DelayedArray::read_block' when loading 'SummarizedExperiment'</span></span>
 <span><span class="co">#&gt; Warning: multiple methods tables found for 'sort'</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'methylTFR'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     cbind, rbind</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="deviation-data">Deviation data<a class="anchor" aria-label="anchor" href="#deviation-data"></a>
-</h2>
-<p>Each object is a <code>methylTFRdeviations</code> matrix of motifs
-(rows) by samples (columns). We combine the two groups into a single
-matrix.</p>
+<p>A single palette is used for the seven cell types throughout, so that
+a colour denotes the same cell type in every figure.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tc_mem.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tc_naive.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">devs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/cbind.html">cbind</a></span><span class="op">(</span><span class="va">tc_mem</span>, <span class="va">tc_naive</span><span class="op">)</span></span>
-<span><span class="va">devs</span></span>
-<span><span class="co">#&gt; class: methylTFRdeviations </span></span>
-<span><span class="co">#&gt; dim: 10 10 </span></span>
-<span><span class="co">#&gt; metadata(0):</span></span>
-<span><span class="co">#&gt; assays(2): deviations z</span></span>
-<span><span class="co">#&gt; rownames(10): FOXF2 FOXD1 ... RORA RORA(var.2)</span></span>
-<span><span class="co">#&gt; rowData names(1): motifs</span></span>
-<span><span class="co">#&gt; colnames(10): Tc-Mem_OP_S5_Long_D1.bedGraph.bed</span></span>
-<span><span class="co">#&gt;   Tc-Mem_OP_S4_Long_D60.bedGraph.bed ...</span></span>
-<span><span class="co">#&gt;   Tc-Naive_OP_S4_Long_D1.bedGraph.bed</span></span>
-<span><span class="co">#&gt;   Tc-Naive_OP_S3_High_D1.bedGraph.bed</span></span>
-<span><span class="co">#&gt; colData names(4): CommonMinID condition cell_type bedFile</span></span></code></pre></div>
-<p>Group labels are taken from the sample names (the prefix before
-<code>_</code>).</p>
+<code class="sourceCode R"><span><span class="va">cell_type_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Th-Mem"</span>   <span class="op">=</span> <span class="st">"#41B6C4"</span>,</span>
+<span>    <span class="st">"Tc-Mem"</span>   <span class="op">=</span> <span class="st">"#4292C6"</span>,</span>
+<span>    <span class="st">"Tc-Naive"</span> <span class="op">=</span> <span class="st">"#888FB5"</span>,</span>
+<span>    <span class="st">"Th-Naive"</span> <span class="op">=</span> <span class="st">"#C7E9B4"</span>,</span>
+<span>    <span class="st">"B-cell"</span>   <span class="op">=</span> <span class="st">"#AE017E"</span>,</span>
+<span>    <span class="st">"NK-cell"</span>  <span class="op">=</span> <span class="st">"#A65628"</span>,</span>
+<span>    <span class="st">"Monocyte"</span> <span class="op">=</span> <span class="st">"#CC4C02"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="the-example-dataset">The example dataset<a class="anchor" aria-label="anchor" href="#the-example-dataset"></a>
+</h2>
+<p><code>immuneDeviations</code> contains bias-corrected deviation
+scores for pseudobulk methylomes of seven human immune cell types, with
+one column per donor sample and one row per JASPAR2020 motif. Four of
+the seven are T cell subsets, naive and memory in the cytotoxic and
+helper compartments; the remaining three provide a lineage contrast.</p>
+<p>The underlying methylomes are from Gündüz <em>et al.</em> (2025); see
+the References section.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">get_groupname</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="va">x</span>, split <span class="op">=</span> <span class="st">"_"</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
-<span><span class="va">groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span></span>
-<span>    <span class="st">".bedGraph"</span>, <span class="st">""</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">devs</span><span class="op">)</span>, <span class="va">get_groupname</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">groups</span><span class="op">)</span></span>
-<span><span class="co">#&gt; groups</span></span>
-<span><span class="co">#&gt;   Tc-Mem Tc-Naive </span></span>
-<span><span class="co">#&gt;        5        5</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="differential-tf-activity">Differential TF activity<a class="anchor" aria-label="anchor" href="#differential-tf-activity"></a>
-</h2>
-<p><code><a href="../reference/differential_deviation_test.html">differential_deviation_test()</a></code> compares deviation scores
-between the two groups per motif. With two groups and
-<code>parametric = TRUE</code> this is a t-test, followed by
-Benjamini-Hochberg correction.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"immuneDeviations.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">immuneDeviations</span></span>
+<span><span class="co">#&gt; class: methylTFRdeviations </span></span>
+<span><span class="co">#&gt; dim: 629 105 </span></span>
+<span><span class="co">#&gt; metadata(5): motifSet genome source citation contrastOrientation</span></span>
+<span><span class="co">#&gt; assays(2): deviations z</span></span>
+<span><span class="co">#&gt; rownames(629): FOXF2 FOXD1 ... ZNF263 CREM</span></span>
+<span><span class="co">#&gt; rowData names(1): motifs</span></span>
+<span><span class="co">#&gt; colnames(105): Tc-Naive_OP_S5_Long_D1.bedGraph.bed</span></span>
+<span><span class="co">#&gt;   Tc-Naive_OP_S4_Long_D1.bedGraph.bed ...</span></span>
+<span><span class="co">#&gt;   Monocyte_HIV_S3_Pre.bedGraph.bed Monocyte_HIV_S2_Pre.bedGraph.bed</span></span>
+<span><span class="co">#&gt; colData names(3): CommonMinID condition cell_type</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span><span class="op">$</span><span class="va">cell_type</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Tc-Naive   Tc-Mem Th-Naive   Th-Mem   B-cell  NK-cell Monocyte </span></span>
+<span><span class="co">#&gt;       15       15       15       15       15       15       15</span></span></code></pre></div>
+<p>Provenance is stored in the object metadata.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tc_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/differential_deviation_test.html">differential_deviation_test</a></span><span class="op">(</span></span>
-<span>    deviations <span class="op">=</span> <span class="va">devs</span>,</span>
-<span>    groups <span class="op">=</span> <span class="va">groups</span>,</span>
-<span>    alternative <span class="op">=</span> <span class="st">"two.sided"</span>,</span>
-<span>    parametric <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    padjMethod <span class="op">=</span> <span class="st">"BH"</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Annotated-class.html" class="external-link">metadata</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $motifSet</span></span>
+<span><span class="co">#&gt; [1] "jaspar2020_distal"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $genome</span></span>
+<span><span class="co">#&gt; [1] "hg38"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $source</span></span>
+<span><span class="co">#&gt; [1] "Pseudobulk single-cell methylomes of human immune cells; see inst/scripts/tcell_data.R"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $citation</span></span>
+<span><span class="co">#&gt; [1] "Gunduz IB, Wei B, Chen DC, Wang W, Hariharan M, Norell T, et al. Dissecting epigenome dynamics in human immune cells upon viral and chemical exposure by multimodal single-cell profiling. bioRxiv 2025.09.09.675101. doi:10.1101/2025.09.09.675101"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $contrastOrientation</span></span>
+<span><span class="co">#&gt; [1] "naive minus memory"</span></span></code></pre></div>
+<p>The source dataset provides 38 donor samples per cell type. To limit
+the package size it was reduced on the sample axis only, to 15 samples
+per cell type; every motif is retained. Subsetting motifs would be the
+more obvious reduction, but selecting motifs by variability and then
+demonstrating <code><a href="../reference/computeZScoreVariability.html">computeZScoreVariability()</a></code> on the result
+would be circular. The script used to generate the object is
+<code>inst/scripts/tcell_data.R</code>.</p>
+<div class="section level3">
+<h3 id="accessing-the-two-assays">Accessing the two assays<a class="anchor" aria-label="anchor" href="#accessing-the-two-assays"></a>
+</h3>
+<p>A <code>methylTFRdeviations</code> object stores two matrices.
+<code><a href="../reference/deviations.html">deviations()</a></code> returns the bias-corrected deviation scores.
+<code><a href="../reference/deviationZScores.html">deviationZScores()</a></code> returns the same values standardised
+row-wise across samples.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dev_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deviations.html">deviations</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span></span>
+<span><span class="va">z_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deviationZScores.html">deviationZScores</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">tc_result</span> <span class="op">&lt;-</span> <span class="va">tc_result</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">tc_result</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">tc_result</span></span>
-<span><span class="co">#&gt;                  motifs      p_value p_value_adjusted mean_difference</span></span>
-<span><span class="co">#&gt; MAX::MYC       MAX::MYC 1.078111e-05     0.0001078111     0.093414294</span></span>
-<span><span class="co">#&gt; IRF2               IRF2 1.873667e-03     0.0093683362     0.034142762</span></span>
-<span><span class="co">#&gt; PPARG             PPARG 3.996324e-03     0.0133210805     0.034286836</span></span>
-<span><span class="co">#&gt; FOXF2             FOXF2 1.694736e-02     0.0355317162     0.029207590</span></span>
-<span><span class="co">#&gt; MZF1(var.2) MZF1(var.2) 1.776586e-02     0.0355317162     0.018508308</span></span>
-<span><span class="co">#&gt; PAX6               PAX6 7.709712e-02     0.1284951966     0.021013722</span></span>
-<span><span class="co">#&gt; RORA               RORA 2.084783e-01     0.2978261195     0.017159124</span></span>
-<span><span class="co">#&gt; FOXD1             FOXD1 3.644010e-01     0.4555013119     0.010816363</span></span>
-<span><span class="co">#&gt; RORA(var.2) RORA(var.2) 5.172906e-01     0.5747672942     0.007677473</span></span>
-<span><span class="co">#&gt; PBX1               PBX1 6.785692e-01     0.6785692148     0.003544582</span></span></code></pre></div>
-<p>The <code>mean_difference</code> column is the absolute difference in
-mean deviation between memory and naive cells: larger values flag TFs
-whose binding-site methylation shifts most with differentiation.</p>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">dev_mat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       Tc-Naive_OP_S5_Long_D1.bedGraph.bed Tc-Naive_OP_S4_Long_D1.bedGraph.bed</span></span>
+<span><span class="co">#&gt; FOXF2                             -0.0184                             -0.0467</span></span>
+<span><span class="co">#&gt; FOXD1                             -0.0226                             -0.0562</span></span>
+<span><span class="co">#&gt; IRF2                              -0.0862                             -0.0703</span></span>
+<span><span class="co">#&gt;       Tc-Naive_OP_S3_High_D1.bedGraph.bed Tc-Naive_OP_S1_Long_D60.bedGraph.bed</span></span>
+<span><span class="co">#&gt; FOXF2                             -0.0069                              -0.0262</span></span>
+<span><span class="co">#&gt; FOXD1                             -0.0459                              -0.0590</span></span>
+<span><span class="co">#&gt; IRF2                              -0.0727                              -0.0662</span></span></code></pre></div>
+<p>The two assays serve different purposes. Deviation scores are the
+quantitative estimate of motif activity and are the correct input to
+statistical tests. Row-wise Z-scores rescale every motif to a common
+spread, which makes rows comparable in a heatmap, but by construction
+the standard deviation of each row is 1.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">dev_mat</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. </span></span>
+<span><span class="co">#&gt; -0.59307 -0.07932 -0.04501 -0.05839 -0.01590  0.25059</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">z_mat</span>, <span class="fl">1</span>, <span class="va">sd</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span><span class="co">#&gt;       1       1       1       1       1       1</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
-<h2 id="ranking-the-top-tfs">Ranking the top TFs<a class="anchor" aria-label="anchor" href="#ranking-the-top-tfs"></a>
+<h2 id="dimensionality-reduction">1. Dimensionality reduction<a class="anchor" aria-label="anchor" href="#dimensionality-reduction"></a>
 </h2>
-<p>We visualise motifs by effect size, highlighting those passing an FDR
-cutoff of 0.05.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tc_result</span><span class="op">$</span><span class="va">motifs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
-<span>    <span class="va">tc_result</span><span class="op">$</span><span class="va">motifs</span>,</span>
-<span>    levels <span class="op">=</span> <span class="va">tc_result</span><span class="op">$</span><span class="va">motifs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">tc_result</span><span class="op">$</span><span class="va">mean_difference</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">tc_result</span><span class="op">$</span><span class="va">significant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span></span>
-<span>    <span class="va">tc_result</span><span class="op">$</span><span class="va">p_value_adjusted</span> <span class="op">&lt;</span> <span class="fl">0.05</span>,</span>
-<span>    <span class="st">"FDR &lt; 0.05"</span>, <span class="st">"n.s."</span></span>
+<p>Deviation scores form a low-dimensional feature set, so principal
+component analysis can be applied to the matrix directly.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">dev_mat</span><span class="op">)</span>, center <span class="op">=</span> <span class="cn">TRUE</span>, scale. <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">var_expl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">pca</span><span class="op">$</span><span class="va">sdev</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pca</span><span class="op">$</span><span class="va">sdev</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pca_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    PC1 <span class="op">=</span> <span class="va">pca</span><span class="op">$</span><span class="va">x</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, PC2 <span class="op">=</span> <span class="va">pca</span><span class="op">$</span><span class="va">x</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>,</span>
+<span>    cell_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span><span class="op">$</span><span class="va">cell_type</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">tc_result</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mean_difference</span>, y <span class="op">=</span> <span class="va">motifs</span>, colour <span class="op">=</span> <span class="va">significant</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html" class="external-link">geom_segment</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0</span>, xend <span class="op">=</span> <span class="va">mean_difference</span>, yend <span class="op">=</span> <span class="va">motifs</span><span class="op">)</span>,</span>
-<span>        colour <span class="op">=</span> <span class="st">"grey70"</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pca_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">PC1</span>, <span class="va">PC2</span>, colour <span class="op">=</span> <span class="va">cell_type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span>, alpha <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">cell_type_colors</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>        x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"PC1 (%.1f%%)"</span>, <span class="va">var_expl</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>        y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"PC2 (%.1f%%)"</span>, <span class="va">var_expl</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span></span>
-<span>        values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FDR &lt; 0.05"</span> <span class="op">=</span> <span class="st">"#E66100"</span>, <span class="st">"n.s."</span> <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="memTcells_files/figure-html/pca-1.png" class="r-plt" width="576"></p>
+<p>PC1 separates the myeloid samples from the lymphoid ones. PC2
+resolves the T cell subsets by differentiation state: the two naive
+subsets group together, as do the two memory subsets, while the CD8 and
+CD4 compartments overlap. Differentiation state therefore accounts for
+more of the variation in motif activity than the CD8/CD4 distinction
+does.</p>
+</div>
+<div class="section level2">
+<h2 id="differential-tf-activity">2. Differential TF activity<a class="anchor" aria-label="anchor" href="#differential-tf-activity"></a>
+</h2>
+<div class="section level3">
+<h3 id="ranking-motifs-by-variability">Ranking motifs by variability<a class="anchor" aria-label="anchor" href="#ranking-motifs-by-variability"></a>
+</h3>
+<p>Before testing a specific contrast,
+<code><a href="../reference/computeZScoreVariability.html">computeZScoreVariability()</a></code> ranks motifs by how much their
+activity varies across the dataset, without requiring group labels. Each
+sample is calibrated against a null estimated across motifs, so a
+variability above 1 indicates a motif varying more than the background
+spread of that sample. P-values come from a chi-squared test against
+that null.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">variability</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeZScoreVariability.html">computeZScoreVariability</a></span><span class="op">(</span><span class="va">immuneDeviations</span>, method <span class="op">=</span> <span class="st">"robust"</span><span class="op">)</span></span>
+<span><span class="va">variability</span> <span class="op">&lt;-</span> <span class="va">variability</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">variability</span><span class="op">$</span><span class="va">variability</span><span class="op">)</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">variability</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     motifs variability      p_value p_value_adjusted</span></span>
+<span><span class="co">#&gt; 251  CEBPB    2.385501 2.555694e-69     1.607532e-66</span></span>
+<span><span class="co">#&gt; 252  CEBPE    2.334669 7.513492e-65     2.362993e-62</span></span>
+<span><span class="co">#&gt; 253  CEBPG    2.280077 3.323940e-60     6.969193e-58</span></span>
+<span><span class="co">#&gt; 553  CEBPA    2.017053 4.419411e-40     6.949523e-38</span></span>
+<span><span class="co">#&gt; 554  CEBPD    1.975119 3.170841e-37     3.988918e-35</span></span>
+<span><span class="co">#&gt; 269  GMEB2    1.947420 2.154569e-35     2.258706e-33</span></span>
+<span><span class="co">#&gt; 69     DBP    1.866374 2.780146e-30     2.498160e-28</span></span>
+<span><span class="co">#&gt; 256    TEF    1.790718 7.481124e-26     5.882034e-24</span></span></code></pre></div>
+<p>The highest-ranking motifs belong to the CEBP family, which
+distinguish the myeloid lineage from the lymphoid ones. This is a screen
+across all cell types and requires no group labels, which makes it
+complementary to the two-group test used below.</p>
+<p>This function reads the <code>deviations</code> assay. Supplying
+row-wise Z-scores instead would be uninformative, because their per-row
+standard deviation is 1 for every motif, as shown above.</p>
+<p>Optional bootstrap confidence bounds are available via
+<code>bootstrap = TRUE</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="testing-between-two-groups">Testing between two groups<a class="anchor" aria-label="anchor" href="#testing-between-two-groups"></a>
+</h3>
+<p><code><a href="../reference/differential_deviation_test.html">differential_deviation_test()</a></code> tests each motif for a
+difference in deviation scores between two groups. With two groups and
+<code>parametric = TRUE</code> the test is a Welch t-test; p-values are
+adjusted with the Benjamini-Hochberg procedure.</p>
+<p>The returned <code>mean_difference</code> column is unsigned, so the
+direction of each change is computed separately. Differences below are
+oriented as naive minus memory, so that a positive value indicates a
+higher deviation score in the naive state.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">compare_subsets</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">naive</span>, <span class="va">memory</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">grp_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span><span class="op">$</span><span class="va">cell_type</span></span>
+<span>    <span class="va">keep</span> <span class="op">&lt;-</span> <span class="va">grp_all</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">naive</span>, <span class="va">memory</span><span class="op">)</span></span>
+<span>    <span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">grp_all</span><span class="op">[</span><span class="va">keep</span><span class="op">]</span><span class="op">)</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">naive</span>, <span class="va">memory</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span>    <span class="va">dev_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deviations.html">deviations</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span><span class="op">[</span>, <span class="va">keep</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span>    <span class="va">z_sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/deviationZScores.html">deviationZScores</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span><span class="op">[</span>, <span class="va">keep</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span>    <span class="va">is_naive</span> <span class="op">&lt;-</span> <span class="va">grp</span> <span class="op">==</span> <span class="va">naive</span></span>
+<span></span>
+<span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/differential_deviation_test.html">differential_deviation_test</a></span><span class="op">(</span></span>
+<span>        deviations <span class="op">=</span> <span class="va">dev_sub</span>,</span>
+<span>        groups <span class="op">=</span> <span class="va">grp</span>,</span>
+<span>        alternative <span class="op">=</span> <span class="st">"two.sided"</span>,</span>
+<span>        parametric <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        padjMethod <span class="op">=</span> <span class="st">"BH"</span></span>
+<span>    <span class="op">)</span></span>
+<span>    <span class="va">res</span><span class="op">$</span><span class="va">diff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">dev_sub</span><span class="op">[</span>, <span class="va">is_naive</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">dev_sub</span><span class="op">[</span>, <span class="op">!</span><span class="va">is_naive</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">res</span><span class="op">$</span><span class="va">zdiff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">z_sub</span><span class="op">[</span>, <span class="va">is_naive</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/pkg/MatrixGenerics/man/rowMeans.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">z_sub</span><span class="op">[</span>, <span class="op">!</span><span class="va">is_naive</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">res</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">tc_res</span> <span class="op">&lt;-</span> <span class="fu">compare_subsets</span><span class="op">(</span><span class="va">immuneDeviations</span>, <span class="st">"Tc-Naive"</span>, <span class="st">"Tc-Mem"</span><span class="op">)</span></span>
+<span><span class="va">th_res</span> <span class="op">&lt;-</span> <span class="fu">compare_subsets</span><span class="op">(</span><span class="va">immuneDeviations</span>, <span class="st">"Th-Naive"</span>, <span class="st">"Th-Mem"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tc_res</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                  motifs      p_value p_value_adjusted mean_difference</span></span>
+<span><span class="co">#&gt; BATF3             BATF3 8.849438e-20     5.566296e-17      0.11777405</span></span>
+<span><span class="co">#&gt; BATF::JUN     BATF::JUN 2.282248e-19     7.177671e-17      0.11601928</span></span>
+<span><span class="co">#&gt; BATF               BATF 5.255967e-19     1.102001e-16      0.11884510</span></span>
+<span><span class="co">#&gt; JUN(var.2)   JUN(var.2) 1.529002e-18     2.404355e-16      0.11285040</span></span>
+<span><span class="co">#&gt; JUNB               JUNB 4.117214e-17     5.179456e-15      0.12884298</span></span>
+<span><span class="co">#&gt; FOSL2             FOSL2 5.469143e-17     5.733484e-15      0.08754993</span></span>
+<span><span class="co">#&gt; FOSL1::JUND FOSL1::JUND 6.586962e-17     5.918856e-15      0.10381391</span></span>
+<span><span class="co">#&gt; TBR1               TBR1 1.071089e-16     8.421438e-15      0.07404221</span></span>
+<span><span class="co">#&gt;                   diff    zdiff</span></span>
+<span><span class="co">#&gt; BATF3       0.11777405 2.033917</span></span>
+<span><span class="co">#&gt; BATF::JUN   0.11601928 2.011964</span></span>
+<span><span class="co">#&gt; BATF        0.11884510 2.027036</span></span>
+<span><span class="co">#&gt; JUN(var.2)  0.11285040 2.036036</span></span>
+<span><span class="co">#&gt; JUNB        0.12884298 1.913842</span></span>
+<span><span class="co">#&gt; FOSL2       0.08754993 1.681151</span></span>
+<span><span class="co">#&gt; FOSL1::JUND 0.10381391 1.684212</span></span>
+<span><span class="co">#&gt; TBR1        0.07404221 1.889798</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="choosing-an-effect-size-threshold">Choosing an effect-size threshold<a class="anchor" aria-label="anchor" href="#choosing-an-effect-size-threshold"></a>
+</h3>
+<p>The helper above returns two effect sizes on different scales.
+<code>diff</code> is the difference in raw deviation scores;
+<code>zdiff</code> is the same contrast expressed in Z-score units. A
+threshold must be applied on the scale it was defined for, since the two
+ranges differ by an order of magnitude.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">diff</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -0.08801462  0.12884298</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -2.019887  2.394668</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">p_value_adjusted</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 340</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">p_value_adjusted</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 312</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualising-the-differential-motifs">Visualising the differential motifs<a class="anchor" aria-label="anchor" href="#visualising-the-differential-motifs"></a>
+</h3>
+<p>The motifs with the strongest change in the CD8 comparison are shown
+as row-wise Z-scores across all four subsets. Samples are ordered by
+subset, and the annotation row uses the palette defined above. The fill
+scale is diverging and encodes the Z-score, which is a property of the
+motif rather than of the subset.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">top_motifs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span></span>
+<span>    <span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">[</span></span>
+<span>        <span class="va">tc_res</span><span class="op">$</span><span class="va">p_value_adjusted</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.5</span></span>
+<span>    <span class="op">]</span>, <span class="fl">25</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sample_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span><span class="op">$</span><span class="va">cell_type</span><span class="op">)</span></span>
+<span><span class="va">z_top</span> <span class="op">&lt;-</span> <span class="va">z_mat</span><span class="op">[</span><span class="va">top_motifs</span>, <span class="va">sample_order</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span><span class="va">sample_levels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span></span>
+<span><span class="va">subset_of</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span><span class="op">$</span><span class="va">cell_type</span><span class="op">[</span><span class="va">sample_order</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">heat_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    motif <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">top_motifs</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">sample_levels</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span><span class="op">)</span>, levels <span class="op">=</span> <span class="va">sample_levels</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ann_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample_levels</span>, levels <span class="op">=</span> <span class="va">sample_levels</span><span class="op">)</span>,</span>
+<span>    cell_type <span class="op">=</span> <span class="va">subset_of</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">heat_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sample</span>, <span class="va">motif</span>, fill <span class="op">=</span> <span class="va">z</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
+<span>        data <span class="op">=</span> <span class="va">ann_df</span>,</span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sample</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">top_motifs</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1.2</span>, colour <span class="op">=</span> <span class="va">cell_type</span><span class="op">)</span>,</span>
+<span>        shape <span class="op">=</span> <span class="fl">15</span>, size <span class="op">=</span> <span class="fl">2.4</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>        x <span class="op">=</span> <span class="st">"Mean deviation difference (memory vs. naive)"</span>,</span>
-<span>        y <span class="op">=</span> <span class="cn">NULL</span>, colour <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>        title <span class="op">=</span> <span class="st">"Differential TF activity"</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_fill_gradient2</a></span><span class="op">(</span></span>
+<span>        low <span class="op">=</span> <span class="st">"#2166AC"</span>, mid <span class="op">=</span> <span class="st">"white"</span>, high <span class="op">=</span> <span class="st">"#B2182B"</span>,</span>
+<span>        midpoint <span class="op">=</span> <span class="fl">0</span>, name <span class="op">=</span> <span class="st">"Z-score"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">cell_type_colors</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>        axis.ticks.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>        axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>,</span>
+<span>        legend.position <span class="op">=</span> <span class="st">"right"</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
+<p><img src="memTcells_files/figure-html/heatmap-1.png" class="r-plt" width="672"></p>
+<p>Most of the selected motifs belong to the AP-1 family. Their pattern
+is consistent across both T compartments, high in the naive subsets and
+low in the memory subsets, and lowest of all in monocytes. The T-box
+motifs <code>EOMES</code>, <code>TBR1</code> and <code>TBX2</code>
+follow a different pattern, low in cytotoxic memory T cells and in NK
+cells, which is where those factors are active. Including the non-T
+lineages makes clear that the memory signature is not simply a general
+lymphoid-myeloid contrast.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="comparing-the-two-compartments">3. Comparing the two compartments<a class="anchor" aria-label="anchor" href="#comparing-the-two-compartments"></a>
+</h2>
+<p>The CD8 and CD4 contrasts are computed from disjoint sets of samples.
+Plotting the Z-score differences against each other shows whether the
+two compartments identify the same motifs.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span></span>
+<span><span class="va">agree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    motifs <span class="op">=</span> <span class="va">shared</span>,</span>
+<span>    tc <span class="op">=</span> <span class="va">tc_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>    th <span class="op">=</span> <span class="va">th_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">agree</span><span class="op">$</span><span class="va">sig_both</span> <span class="op">&lt;-</span></span>
+<span>    <span class="va">tc_res</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span></span>
+<span>        <span class="va">th_res</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span></span>
+<span></span>
+<span><span class="va">rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">tc</span>, <span class="va">agree</span><span class="op">$</span><span class="va">th</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">rho</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.864</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">sig_both</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 268</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Label the extremes at both ends: the strongest motifs cluster tightly,</span></span>
+<span><span class="co"># so ranking by magnitude alone places every label in one corner.</span></span>
+<span><span class="va">ranked</span> <span class="op">&lt;-</span> <span class="va">agree</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">tc</span> <span class="op">+</span> <span class="va">agree</span><span class="op">$</span><span class="va">th</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">labelled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rbind.html">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">agree</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">tc</span>, <span class="va">th</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">sig_both</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">1.8</span>, alpha <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span></span>
+<span>        data <span class="op">=</span> <span class="va">labelled</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">motifs</span><span class="op">)</span>,</span>
+<span>        size <span class="op">=</span> <span class="fl">3</span>, vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.8</span>, check_overlap <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span></span>
+<span>        values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FALSE"</span> <span class="op">=</span> <span class="st">"grey75"</span>, <span class="st">"TRUE"</span> <span class="op">=</span> <span class="st">"#4292C6"</span><span class="op">)</span>,</span>
+<span>        name <span class="op">=</span> <span class="st">"significant in both"</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
+<span>        x <span class="op">=</span> <span class="st">"CD8: Z-score difference (naive - memory)"</span>,</span>
+<span>        y <span class="op">=</span> <span class="st">"CD4: Z-score difference (naive - memory)"</span>,</span>
+<span>        title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Pearson r = %.2f"</span>, <span class="va">rho</span><span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="memTcells_files/figure-html/rankplot-1.png" class="r-plt" width="576"></p>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>        legend.position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
+<span>        axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">cell_type_colors</span><span class="op">[[</span><span class="st">"Tc-Mem"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>        axis.title.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">cell_type_colors</span><span class="op">[[</span><span class="st">"Th-Mem"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
+<p><img src="memTcells_files/figure-html/agreeplot-1.png" class="r-plt" width="576"></p>
+<p>The effect sizes are correlated and share sign for most motifs, so
+the same factors are recovered in both compartments.</p>
 </div>
 <div class="section level2">
-<h2 id="interpretation">Interpretation<a class="anchor" aria-label="anchor" href="#interpretation"></a>
+<h2 id="motif-footprints">4. Motif footprints<a class="anchor" aria-label="anchor" href="#motif-footprints"></a>
 </h2>
-<p>TFs at the top of the ranking are the strongest candidates for
-driving memory-specific regulatory changes: their binding sites lose or
-gain methylation as cells transition out of the naive state. These hits
-are a natural starting point for footprint inspection
-(<code><a href="../reference/plotExpectedFootprint.html">plotExpectedFootprint()</a></code>, shown in the main vignette) or
-for follow-up in a larger cohort.</p>
-<p>Because the bundled data is a small subset (10 motifs, 5 samples per
-group), the values here are illustrative. On the full BLUEPRINT memory
-T-cell panel the same workflow scales to thousands of motifs via
-<code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code>.</p>
+<p>A deviation score summarises a footprint: methylation at the motif
+centre relative to its flanking regions, corrected for GC content.
+Plotting the footprint shows the profile the score is derived from.</p>
+<p>The footprint functions require base-resolution methylation calls and
+the motif annotation. This section therefore uses the small
+<code>BATF</code> example data bundled with the package rather than the
+pseudobulk object above. <code>BATF</code> is an AP-1 family factor and
+appears among the motifs identified in the comparisons above.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_tf_bindsites.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_gcfreqs.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gcdist_BATF.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"msites_sub.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="observed-and-expected-profiles">Observed and expected profiles<a class="anchor" aria-label="anchor" href="#observed-and-expected-profiles"></a>
+</h3>
+<p><code><a href="../reference/plotExpectedFootprint.html">plotExpectedFootprint()</a></code> draws two curves: the
+methylation observed around the motif, and the level expected from the
+GC content of the same windows. The difference between them is the
+quantity the deviation score captures.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotExpectedFootprint.html">plotExpectedFootprint</a></span><span class="op">(</span></span>
+<span>    motif <span class="op">=</span> <span class="st">"BATF"</span>,</span>
+<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
+<span>    msites <span class="op">=</span> <span class="va">msites_sub</span>,</span>
+<span>    sample_name <span class="op">=</span> <span class="st">"ExampleSample"</span>,</span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
+<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
+<span>    enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    returnPlotData <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="memTcells_files/figure-html/expfootprint-1.png" class="r-plt" width="576"></p>
+</div>
+<div class="section level3">
+<h3 id="bias-corrected-footprint">Bias-corrected footprint<a class="anchor" aria-label="anchor" href="#bias-corrected-footprint"></a>
+</h3>
+<p><code><a href="../reference/plotMotifFootprint.html">plotMotifFootprint()</a></code> combines the two profiles into a
+single corrected curve, normalised against the outer flanking windows.
+With <code>method = "substraction"</code> the curve is the observed
+minus the expected profile; <code>method = "division"</code> uses their
+ratio.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotMotifFootprint.html">plotMotifFootprint</a></span><span class="op">(</span></span>
+<span>    motif <span class="op">=</span> <span class="st">"BATF"</span>,</span>
+<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
+<span>    msites <span class="op">=</span> <span class="va">msites_sub</span>,</span>
+<span>    sample_name <span class="op">=</span> <span class="st">"ExampleSample"</span>,</span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
+<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
+<span>    enhancer <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    method <span class="op">=</span> <span class="st">"substraction"</span>,</span>
+<span>    flankNorm <span class="op">=</span> <span class="fl">50</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Removed 112 rows containing missing values or values outside the scale range</span></span>
+<span><span class="co">#&gt; (`geom_line()`).</span></span></code></pre></div>
+<p><img src="memTcells_files/figure-html/fpdiff-1.png" class="r-plt" width="576"></p>
+<p>A depression at the motif centre indicates methylation below the
+level predicted by GC content, which corresponds to a negative deviation
+score.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<p>Gündüz IB, Wei B, Chen DC, Wang W, Hariharan M, Norell T, Broderick
+TJ, McClain MT, Satterwhite LL, Burke TW, Petzold EA, Shen X, Woods CW,
+Fowler VG Jr, Ruffin F, Panuwet P, Barr DB, Wilk AJ, Lee MJ, Blish C,
+Castellino F, Walley AM, Evans T, Ecker JR, Müller F, Greenleaf WJ.
+Dissecting epigenome dynamics in human immune cells upon viral and
+chemical exposure by multimodal single-cell profiling. <em>bioRxiv</em>
+2025.09.09.675101. doi: <a href="https://doi.org/10.1101/2025.09.09.675101" class="external-link">10.1101/2025.09.09.675101</a></p>
 </div>
 <div class="section level2">
 <h2 id="session-information">Session Information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.4.1 (2024-06-14)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-conda-linux-gnu</span></span>
@@ -239,53 +597,43 @@ T-cell panel the same workflow scales to thousands of motifs via
 <span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attached base packages:</span></span>
-<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">#&gt; [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
+<span><span class="co">#&gt; [8] base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ggplot2_4.0.1     methylTFR_0.99.0  data.table_1.17.2 BiocStyle_2.34.0 </span></span>
+<span><span class="co">#&gt;  [1] ggplot2_4.0.1               SummarizedExperiment_1.32.0</span></span>
+<span><span class="co">#&gt;  [3] Biobase_2.62.0              GenomicRanges_1.54.1       </span></span>
+<span><span class="co">#&gt;  [5] GenomeInfoDb_1.42.3         IRanges_2.36.0             </span></span>
+<span><span class="co">#&gt;  [7] S4Vectors_0.40.1            BiocGenerics_0.52.0        </span></span>
+<span><span class="co">#&gt;  [9] MatrixGenerics_1.14.0       matrixStats_1.1.0          </span></span>
+<span><span class="co">#&gt; [11] methylTFR_0.99.1            data.table_1.17.2          </span></span>
+<span><span class="co">#&gt; [13] BiocStyle_2.34.0           </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] SummarizedExperiment_1.32.0 gtable_0.3.6               </span></span>
-<span><span class="co">#&gt;  [3] xfun_0.52                   bslib_0.9.0                </span></span>
-<span><span class="co">#&gt;  [5] htmlwidgets_1.6.4           rhdf5_2.46.1               </span></span>
-<span><span class="co">#&gt;  [7] Biobase_2.62.0              lattice_0.22-5             </span></span>
-<span><span class="co">#&gt;  [9] generics_0.1.4              rhdf5filters_1.14.1        </span></span>
-<span><span class="co">#&gt; [11] vctrs_0.6.5                 tools_4.4.1                </span></span>
-<span><span class="co">#&gt; [13] bitops_1.0-9                parallel_4.4.1             </span></span>
-<span><span class="co">#&gt; [15] stats4_4.4.1                tibble_3.2.1               </span></span>
-<span><span class="co">#&gt; [17] pkgconfig_2.0.3             R.oo_1.27.1                </span></span>
-<span><span class="co">#&gt; [19] Matrix_1.6-1.1              RColorBrewer_1.1-3         </span></span>
-<span><span class="co">#&gt; [21] S7_0.2.0                    desc_1.4.3                 </span></span>
-<span><span class="co">#&gt; [23] S4Vectors_0.40.1            lifecycle_1.0.4            </span></span>
-<span><span class="co">#&gt; [25] GenomeInfoDbData_1.2.13     stringr_1.5.1              </span></span>
-<span><span class="co">#&gt; [27] compiler_4.4.1              farver_2.1.2               </span></span>
-<span><span class="co">#&gt; [29] textshaping_0.4.0           GenomeInfoDb_1.42.3        </span></span>
-<span><span class="co">#&gt; [31] htmltools_0.5.8.1           sass_0.4.10                </span></span>
-<span><span class="co">#&gt; [33] RCurl_1.98-1.13             yaml_2.3.10                </span></span>
-<span><span class="co">#&gt; [35] pillar_1.10.2               pkgdown_2.2.0              </span></span>
-<span><span class="co">#&gt; [37] crayon_1.5.3                jquerylib_0.1.4            </span></span>
-<span><span class="co">#&gt; [39] R.utils_2.13.0              DelayedArray_0.28.0        </span></span>
-<span><span class="co">#&gt; [41] cachem_1.1.0                abind_1.4-8                </span></span>
-<span><span class="co">#&gt; [43] tidyselect_1.2.1            digest_0.6.37              </span></span>
-<span><span class="co">#&gt; [45] stringi_1.8.4               dplyr_1.1.3                </span></span>
-<span><span class="co">#&gt; [47] bookdown_0.43               labeling_0.4.3             </span></span>
-<span><span class="co">#&gt; [49] fastmap_1.2.0               grid_4.4.1                 </span></span>
-<span><span class="co">#&gt; [51] cli_3.6.3                   SparseArray_1.2.4          </span></span>
-<span><span class="co">#&gt; [53] magrittr_2.0.3              logger_0.4.0               </span></span>
-<span><span class="co">#&gt; [55] S4Arrays_1.6.0              dichromat_2.0-0.1          </span></span>
-<span><span class="co">#&gt; [57] withr_3.0.2                 UCSC.utils_1.2.0           </span></span>
-<span><span class="co">#&gt; [59] scales_1.4.0                rmarkdown_2.29             </span></span>
-<span><span class="co">#&gt; [61] XVector_0.42.0              httr_1.4.7                 </span></span>
-<span><span class="co">#&gt; [63] matrixStats_1.1.0           ragg_1.3.3                 </span></span>
-<span><span class="co">#&gt; [65] R.methodsS3_1.8.2           HDF5Array_1.30.1           </span></span>
-<span><span class="co">#&gt; [67] evaluate_1.0.3              knitr_1.50                 </span></span>
-<span><span class="co">#&gt; [69] GenomicRanges_1.54.1        IRanges_2.36.0             </span></span>
-<span><span class="co">#&gt; [71] rlang_1.1.4                 glue_1.7.0                 </span></span>
-<span><span class="co">#&gt; [73] BiocManager_1.30.25         BiocGenerics_0.52.0        </span></span>
-<span><span class="co">#&gt; [75] jsonlite_2.0.0              R6_2.6.1                   </span></span>
-<span><span class="co">#&gt; [77] Rhdf5lib_1.28.0             MatrixGenerics_1.14.0      </span></span>
-<span><span class="co">#&gt; [79] systemfonts_1.2.3           fs_1.6.6                   </span></span>
-<span><span class="co">#&gt; [81] zlibbioc_1.52.0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            </span></span>
+<span><span class="co">#&gt;  [4] htmlwidgets_1.6.4       rhdf5_2.46.1            lattice_0.22-5         </span></span>
+<span><span class="co">#&gt;  [7] generics_0.1.4          rhdf5filters_1.14.1     vctrs_0.6.5            </span></span>
+<span><span class="co">#&gt; [10] tools_4.4.1             bitops_1.0-9            parallel_4.4.1         </span></span>
+<span><span class="co">#&gt; [13] tibble_3.2.1            pkgconfig_2.0.3         R.oo_1.27.1            </span></span>
+<span><span class="co">#&gt; [16] Matrix_1.6-1.1          RColorBrewer_1.1-3      S7_0.2.0               </span></span>
+<span><span class="co">#&gt; [19] desc_1.4.3              lifecycle_1.0.4         GenomeInfoDbData_1.2.13</span></span>
+<span><span class="co">#&gt; [22] stringr_1.5.1           compiler_4.4.1          farver_2.1.2           </span></span>
+<span><span class="co">#&gt; [25] textshaping_0.4.0       htmltools_0.5.8.1       sass_0.4.10            </span></span>
+<span><span class="co">#&gt; [28] RCurl_1.98-1.13         yaml_2.3.10             pillar_1.10.2          </span></span>
+<span><span class="co">#&gt; [31] pkgdown_2.2.0           crayon_1.5.3            jquerylib_0.1.4        </span></span>
+<span><span class="co">#&gt; [34] R.utils_2.13.0          DelayedArray_0.28.0     cachem_1.1.0           </span></span>
+<span><span class="co">#&gt; [37] abind_1.4-8             tidyselect_1.2.1        digest_0.6.37          </span></span>
+<span><span class="co">#&gt; [40] stringi_1.8.4           dplyr_1.1.3             bookdown_0.43          </span></span>
+<span><span class="co">#&gt; [43] labeling_0.4.3          fastmap_1.2.0           grid_4.4.1             </span></span>
+<span><span class="co">#&gt; [46] cli_3.6.3               SparseArray_1.2.4       magrittr_2.0.3         </span></span>
+<span><span class="co">#&gt; [49] logger_0.4.0            S4Arrays_1.6.0          dichromat_2.0-0.1      </span></span>
+<span><span class="co">#&gt; [52] withr_3.0.2             UCSC.utils_1.2.0        scales_1.4.0           </span></span>
+<span><span class="co">#&gt; [55] rmarkdown_2.29          XVector_0.42.0          httr_1.4.7             </span></span>
+<span><span class="co">#&gt; [58] ragg_1.3.3              R.methodsS3_1.8.2       HDF5Array_1.30.1       </span></span>
+<span><span class="co">#&gt; [61] evaluate_1.0.3          knitr_1.50              rlang_1.1.4            </span></span>
+<span><span class="co">#&gt; [64] glue_1.7.0              BiocManager_1.30.25     jsonlite_2.0.0         </span></span>
+<span><span class="co">#&gt; [67] R6_2.6.1                Rhdf5lib_1.28.0         systemfonts_1.2.3      </span></span>
+<span><span class="co">#&gt; [70] fs_1.6.6                zlibbioc_1.52.0</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
