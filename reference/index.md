@@ -4,12 +4,12 @@
 
 - [`addGCBintoMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/addGCBintoMethylome.md)
   : addGCBintoMethylome
-- [`cbind(`*`<methylTFRdeviations>`*`,`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-methylTFRdeviations-method.md)
-  : cbind
-- [`cbind()`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind.md)
+- [`cbind(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-method.md)
   : cbind
 - [`computeDeviation()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeDeviation.md)
   : computeDeviation
+- [`computeZScoreVariability()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeZScoreVariability.md)
+  : computeZScoreVariability
 - [`deviationZScores(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores-methylTFRdeviations-method.md)
   : deviationZScores
 - [`deviationZScores()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores.md)
@@ -26,11 +26,11 @@
   : plotExpectedFootprint
 - [`plotMotifFootprint()`](https://epigenomeinformatics.github.io/methylTFR/reference/plotMotifFootprint.md)
   : plotMotifFootprint
-- [`rbind(`*`<methylTFRdeviations>`*`,`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/rbind-methylTFRdeviations-methylTFRdeviations-method.md)
-  : rbind
-- [`rbind()`](https://epigenomeinformatics.github.io/methylTFR/reference/rbind.md)
+- [`rbind(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/rbind-methylTFRdeviations-method.md)
   : rbind
 - [`read_methylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.md)
   : read_methylome
+- [`run_methylTFR_RnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)
+  : run_methylTFR_RnBeads
 - [`run_methyltfr()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methyltfr.md)
   : run_methyltfr

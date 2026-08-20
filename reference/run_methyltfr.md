@@ -89,3 +89,8 @@ run_methyltfr(
 
 a `methylTFRdeviations` object with bias-corrected deviation and
 Z-scores
+
+## See also
+
+[`run_methylTFR_RnBeads`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)
+for running methylTFR directly on a preprocessed RnBeads object.
