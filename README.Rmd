@@ -12,17 +12,11 @@ knitr::opts_chunk$set(
 # *methylTFR* : Quantification of DNA Methylation Patterns in TFBS
 
 <!-- badges: start -->
+[![Test R-universe](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe-test.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml)
 [![R-CMD-check-bioc](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml)
 [![R-CMD-check](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml)
 [![GitHub issues](https://img.shields.io/github/issues/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/issues)
 [![GitHub pulls](https://img.shields.io/github/issues-pr/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/pulls)
-[![Bioc release status](http://www.bioconductor.org/shields/build/release/bioc/methylTFR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/methylTFR)
-[![Bioc devel status](http://www.bioconductor.org/shields/build/devel/bioc/methylTFR.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/methylTFR)
-[![Bioc downloads rank](https://bioconductor.org/shields/downloads/release/methylTFR.svg)](http://bioconductor.org/packages/stats/bioc/methylTFR/)
-[![Bioc support](https://bioconductor.org/shields/posts/methylTFR.svg)](https://support.bioconductor.org/tag/methylTFR)
-[![Bioc history](https://bioconductor.org/shields/years-in-bioc/methylTFR.svg)](https://bioconductor.org/packages/release/bioc/html/methylTFR.html#since)
-[![Bioc last commit](https://bioconductor.org/shields/lastcommit/devel/bioc/methylTFR.svg)](http://bioconductor.org/checkResults/devel/bioc-LATEST/methylTFR/)
-[![Bioc dependencies](https://bioconductor.org/shields/dependencies/release/methylTFR.svg)](https://bioconductor.org/packages/release/bioc/html/methylTFR.html#since)
 <!-- badges: end -->
 
 `methylTFR` is an R-package to analyze DNA methylation signatures in transcription factor binding sites in each individual cells or samples.
