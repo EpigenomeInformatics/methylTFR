@@ -11,6 +11,7 @@
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/anova_helper.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/calculate_expmeth.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/calibrateDeviations.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-method.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-methylTFRdeviations-method.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/cbind.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/check_annotation_inputs.html</loc></url>
@@ -40,6 +41,7 @@
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/plotExpectedFootprint.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/plotMotifFootprint.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/plot_footprint.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rbind-methylTFRdeviations-method.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rbind-methylTFRdeviations-methylTFRdeviations-method.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rbind.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.html</loc></url>
