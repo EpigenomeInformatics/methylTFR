@@ -1,10 +1,9 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-
-
 # *methylTFR* : Quantification of DNA Methylation Patterns in TFBS
 
 <!-- badges: start -->
+[![Test R-universe](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe-test.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml)
 [![R-CMD-check-bioc](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/check-bioc.yml)
 [![R-CMD-check](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/R-CMD-check.yaml)
 [![GitHub issues](https://img.shields.io/github/issues/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/issues)
