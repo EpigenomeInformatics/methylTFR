@@ -13,7 +13,8 @@ deviations(x)
 A matrix of deviations.
 }
 \description{
-Function to get deviations from a methylTFRdeviations object.
+Function to get deviations from a
+methylTFRdeviations object.
 }
 \examples{
 # Load example data

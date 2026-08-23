@@ -7,32 +7,25 @@
 read_methylome(filename, type, cov_threshold = 1)
 }
 \arguments{
-\item{filename}{\itemize{
-\item filename which contains methylation data
-}}
+\item{filename}{filename which contains methylation data}
 
-\item{type}{Type of file format. Currently supported
-epp, bissnp, bismarkCytosine,
-bismarkcov,allc and encode}
+\item{type}{Type of file format. Currently supported epp, bissnp,
+bismarkCytosine, bismarkcov, allc and encode}
 
-\item{cov_threshold}{\itemize{
-\item numeric, coverage threshold to
-filter out low coverage sites,
-default is 1
-}}
+\item{cov_threshold}{numeric, coverage threshold to filter out low coverage
+sites, default is 1}
 }
 \value{
-a \code{GenomicRange} object with methylation,
-coverage information
+a \code{GenomicRange} object with methylation, coverage information
 }
 \description{
-read_methylome is a function to import
-methylation data into a GRanges
-object. Bed file should be in EPP,ALLC or BisSNP format.
+read_methylome is a function to import methylation data into
+a GRanges object. Bed file should be in EPP, ALLC or BisSNP format.
 }
 \examples{
 # Read bissnp file
-bissnp_path <- system.file("extdata",
+bissnp_path <- system.file(
+  "extdata",
   "bissnp.tsv.gz",
   package = "methylTFR"
 )

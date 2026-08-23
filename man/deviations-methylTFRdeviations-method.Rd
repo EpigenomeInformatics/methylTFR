@@ -13,7 +13,8 @@
 A matrix of bias corrected deviations.
 }
 \description{
-Extract bias corrected deviations from methylTFRdeviations object.
+Extract bias corrected deviations from
+methylTFRdeviations object.
 }
 \examples{
 # Load the data
