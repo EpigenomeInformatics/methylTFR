@@ -28,32 +28,32 @@
 #'
 #' # Load the data
 #' load(system.file("extdata",
-#'   "BATF_tf_bindsites.rda",
-#'   package = "methylTFR"
+#'     "BATF_tf_bindsites.rda",
+#'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'   "example_data.rda",
-#'   package = "methylTFR"
+#'     "example_data.rda",
+#'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'   "BATF_gcfreqs.rda",
-#'   package = "methylTFR"
+#'     "BATF_gcfreqs.rda",
+#'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'   "gcdist_subset.rda",
-#'   package = "methylTFR"
+#'     "gcdist_subset.rda",
+#'     package = "methylTFR"
 #' ))
 #'
 #' # Plot the expected footprint
 #' p <- plotExpectedFootprint(
-#'   motif = "BATF",
-#'   tf_bindsites = tf_bindsites,
-#'   msites = msites,
-#'   sample_name = "Sample1",
-#'   gc_dist = gcdist,
-#'   gcfreqs = gcfreqs,
-#'   enhancer = NULL,
-#'   returnPlotData = FALSE
+#'     motif = "BATF",
+#'     tf_bindsites = tf_bindsites,
+#'     msites = msites,
+#'     sample_name = "Sample1",
+#'     gc_dist = gcdist,
+#'     gcfreqs = gcfreqs,
+#'     enhancer = NULL,
+#'     returnPlotData = FALSE
 #' )
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
@@ -62,90 +62,93 @@ plotExpectedFootprint <- function(
   sample_name = NULL, gc_dist, gcfreqs,
   enhancer = NULL, returnPlotData = FALSE
 ) {
-  if (is.null(msites)) {
-    stop("msites must be a data frame,
-        please provide the methylation sites")
-  }
-  # If sample label is not provided, use file name as label
-  if (is.null(sample_name)) {
-    sample_name <- "sample"
-  }
-  # Check if motif is valid
-  if (is.null(motif) || !is.character(motif)) {
-    stop("Please provide a valid motif name")
-  }
+    if (is.null(msites)) {
+        stop(
+            "msites must be a data frame, ",
+            "please provide the methylation sites"
+        )
+    }
+    # If sample label is not provided, use file name as label
+    if (is.null(sample_name)) {
+        sample_name <- "sample"
+    }
+    # Check if motif is valid
+    if (is.null(motif) || !is.character(motif)) {
+        stop("Please provide a valid motif name")
+    }
 
-  # Check if tf_bindsites is a GRangesList
-  if (is.null(tf_bindsites) ||
-    !any(c(!is(tf_bindsites, "GRangesList") ||
-      !is.list(tf_bindsites)))) {
-    stop("Please provide a valid tf
-        binding sites as GRangesList")
-  }
-  # Check if enhancer is a GRanges
-  if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
-    stop("Please provide a valid enhancer regions")
-  }
+    # Check if tf_bindsites is a GRangesList
+    if (is.null(tf_bindsites) ||
+        !any(c(!is(tf_bindsites, "GRangesList") ||
+            !is.list(tf_bindsites)))) {
+        stop("Please provide a valid tf binding sites as GRangesList")
+    }
+    # Check if enhancer is a GRanges
+    if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
+        stop("Please provide a valid enhancer regions")
+    }
 
-  # Check if gc_dist is a GRanges
-  if (is.null(gc_dist) || !is(gc_dist, "GRanges")) {
-    stop("Please provide a valid gc_dist as GRanges")
-  }
+    # Check if gc_dist is a GRanges
+    if (is.null(gc_dist) || !is(gc_dist, "GRanges")) {
+        stop("Please provide a valid gc_dist as GRanges")
+    }
 
-  # Check if gcfreqs is a list
-  if (is.null(gcfreqs) || !is(gcfreqs, "list")) {
-    stop("Please provide a valid gcfreqs as list")
-  }
-  # Check if msites is a GRanges
-  if (is.null(msites) || !is(msites, "GRanges")) {
-    stop("Please provide a valid methylatio
-        n sites with read_methylome function")
-  }
-  # Compute footprint for the motif
-  plot_data <- computeFootprint(
-    motif,
-    tf_bindsites, msites, enhancer
-  )
+    # Check if gcfreqs is a list
+    if (is.null(gcfreqs) || !is(gcfreqs, "list")) {
+        stop("Please provide a valid gcfreqs as list")
+    }
+    # Check if msites is a GRanges
+    if (is.null(msites) || !is(msites, "GRanges")) {
+        stop(
+            "Please provide a valid methylation ",
+            "sites with read_methylome function"
+        )
+    }
+    # Compute footprint for the motif
+    plot_data <- computeFootprint(
+        motif,
+        tf_bindsites, msites, enhancer
+    )
 
-  # Compute expected footprint for the motif
-  exp_data <- computeExpectedFootprint(
-    motif,
-    gcfreqs, gc_dist, enhancer, msites
-  )
+    # Compute expected footprint for the motif
+    exp_data <- computeExpectedFootprint(
+        motif,
+        gcfreqs, gc_dist, enhancer, msites
+    )
 
-  # Add a new column to indicate whether the data is expected or observed
-  exp_data[, type := "Expected"]
-  plot_data[, type := "Observed"]
-  combined_data <- rbindlist(list(
-    exp_data[, .(x, avg_methyl, type)],
-    plot_data[, .(x, avg_methyl, type)]
-  ))
+    # Add a new column to indicate whether the data is expected or observed
+    exp_data[, type := "Expected"]
+    plot_data[, type := "Observed"]
+    combined_data <- rbindlist(list(
+        exp_data[, .(x, avg_methyl, type)],
+        plot_data[, .(x, avg_methyl, type)]
+    ))
 
-  # Generate the footprint plot
-  p1 <- ggplot(combined_data, aes(
-    x = x,
-    y = avg_methyl,
-    color = type
-  )) +
-    geom_line() +
-    geom_point() +
-    xlab("Distance from motif center") +
-    ylab("Methylation level") +
-    theme_classic() +
-    ggtitle(paste(
-      "TF footprint for", motif, "in",
-      sample_name
+    # Generate the footprint plot
+    p1 <- ggplot(combined_data, aes(
+        x = x,
+        y = avg_methyl,
+        color = type
     )) +
-    scale_color_manual(values = c(
-      "Expected" = "blue",
-      "Observed" = "red"
-    )) +
-    theme(legend.position = "bottom")
-  if (returnPlotData) {
-    return(list(plot = p1, plotDF = combined_data))
-  } else {
-    return(p1)
-  }
+        geom_line() +
+        geom_point() +
+        xlab("Distance from motif center") +
+        ylab("Methylation level") +
+        theme_classic() +
+        ggtitle(paste(
+            "TF footprint for", motif, "in",
+            sample_name
+        )) +
+        scale_color_manual(values = c(
+            "Expected" = "blue",
+            "Observed" = "red"
+        )) +
+        theme(legend.position = "bottom")
+    if (returnPlotData) {
+        return(list(plot = p1, plotDF = combined_data))
+    } else {
+        return(p1)
+    }
 }
 
 #' @title plotMotifFootprint
@@ -178,112 +181,114 @@ plotExpectedFootprint <- function(
 #'
 #' # Load the data
 #' load(system.file("extdata",
-#'   "BATF_tf_bindsites.rda",
-#'   package = "methylTFR"
+#'     "BATF_tf_bindsites.rda",
+#'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'   "example_data.rda",
-#'   package = "methylTFR"
+#'     "example_data.rda",
+#'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'   "BATF_gcfreqs.rda",
-#'   package = "methylTFR"
+#'     "BATF_gcfreqs.rda",
+#'     package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'   "gcdist_subset.rda",
-#'   package = "methylTFR"
+#'     "gcdist_subset.rda",
+#'     package = "methylTFR"
 #' ))
 #'
 #' # Plot the expected footprint
 #' p <- plotMotifFootprint(
-#'   motif = "BATF",
-#'   tf_bindsites = tf_bindsites,
-#'   msites = msites,
-#'   sample_name = "Sample1",
-#'   gc_dist = gcdist,
-#'   gcfreqs = gcfreqs,
-#'   enhancer = NULL,
-#'   method = "division"
+#'     motif = "BATF",
+#'     tf_bindsites = tf_bindsites,
+#'     msites = msites,
+#'     sample_name = "Sample1",
+#'     gc_dist = gcdist,
+#'     gcfreqs = gcfreqs,
+#'     enhancer = NULL,
+#'     method = "division"
 #' )
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
-plotMotifFootprint <- function(motif,
-                               tf_bindsites, msites,
-                               sample_name = NULL, gc_dist, gcfreqs,
-                               enhancer = NULL, method = "division",
-                               flankNorm = 50) {
-  if (is.null(method) ||
-    !method %in% c("substraction", "division")) {
-    method <- "division"
-    warning("method is not provided,using default method substraction.")
-  }
-  # Get the expected methylation for the motif
-  plot_data <- plotExpectedFootprint(
-    motif, tf_bindsites, msites,
-    sample_name = sample_name,
-    gc_dist = gc_dist, gcfreqs = gcfreqs,
-    enhancer = enhancer, returnPlotData = TRUE
-  )$plotDF
-
-  if (method == "substraction") {
-    # Calculate observed - expected methylation
-    difference_data <- plot_data[, .(
-      avg_methyl =
-        avg_methyl[type == "Observed"] - avg_methyl[type == "Expected"]
-    ),
-    by = x
-    ]
-    difference_data[, type := paste(
-      "Observed substraction Expected",
-      sample_name
-    )]
-    lab <- "(Observed - Expected)"
-  } else if (method == "division") {
-    # Calculate observed / expected methylation
-    difference_data <- plot_data[, .(
-      avg_methyl =
-        avg_methyl[type == "Observed"] / avg_methyl[type == "Expected"]
-    ),
-    by = x
-    ]
-    difference_data[, type := paste(
-      "Observed divided Expected",
-      sample_name
-    )]
-    lab <- "(Observed / Expected)"
-  }
-  if (!is.null(flankNorm) && flankNorm > 0) {
-    # Normalise against the outer flanking windows, on the same scale
-    # as the statistic itself. Dividing a difference by its flank mean
-    # would rescale it by an arbitrary factor, because that mean is
-    # near zero: for a typical footprint it inflates the curve by an
-    # order of magnitude and can invert its sign.
-    flank <- max(abs(difference_data$x), na.rm = TRUE)
-    idx <- abs(difference_data$x) >= flank - flankNorm
-    norm_factor <- mean(difference_data$avg_methyl[idx], na.rm = TRUE)
-    if (method == "substraction") {
-      difference_data[, avg_methyl := avg_methyl - norm_factor]
-    } else {
-      difference_data[, avg_methyl := avg_methyl / norm_factor]
+plotMotifFootprint <- function(
+  motif,
+  tf_bindsites, msites,
+  sample_name = NULL, gc_dist, gcfreqs,
+  enhancer = NULL, method = "division",
+  flankNorm = 50
+) {
+    if (is.null(method) ||
+        !method %in% c("substraction", "division")) {
+        method <- "division"
+        warning("method is not provided,using default method substraction.")
     }
-  }
+    # Get the expected methylation for the motif
+    plot_data <- plotExpectedFootprint(
+        motif, tf_bindsites, msites,
+        sample_name = sample_name,
+        gc_dist = gc_dist, gcfreqs = gcfreqs,
+        enhancer = enhancer, returnPlotData = TRUE
+    )$plotDF
 
-  p_combined <- ggplot(difference_data, aes(
-    x = x,
-    y = avg_methyl,
-    color = type
-  )) +
-    geom_line() + # Add lines for each type
-    xlab("Distance from motif center") +
-    ylab(paste0("Methylation difference ", lab)) +
-    theme_classic() +
-    ggtitle(paste(
-      "TF footprint difference for",
-      motif, "in ",
-      sample_name
+    if (method == "substraction") {
+        # Calculate observed - expected methylation
+        difference_data <- plot_data[, .(
+            avg_methyl =
+                avg_methyl[type == "Observed"] - avg_methyl[type == "Expected"]
+        ),
+        by = x
+        ]
+        difference_data[, type := paste(
+            "Obs. sub. Exp.",
+            sample_name
+        )]
+        lab <- "(Observed - Expected)"
+    } else if (method == "division") {
+        # Calculate observed / expected methylation
+        difference_data <- plot_data[, .(
+            avg_methyl =
+                avg_methyl[type == "Observed"] / avg_methyl[type == "Expected"]
+        ),
+        by = x
+        ]
+        difference_data[, type := paste(
+            "Obs. div. Exp.",
+            sample_name
+        )]
+        lab <- "(Observed / Expected)"
+    }
+    if (!is.null(flankNorm) && flankNorm > 0) {
+        # Normalise against the outer flanking windows, on the same scale
+        # as the statistic itself. Dividing a difference by its flank mean
+        # would rescale it by an arbitrary factor, because that mean is
+        # near zero: for a typical footprint it inflates the curve by an
+        # order of magnitude and can invert its sign.
+        flank <- max(abs(difference_data$x), na.rm = TRUE)
+        idx <- abs(difference_data$x) >= flank - flankNorm
+        norm_factor <- mean(difference_data$avg_methyl[idx], na.rm = TRUE)
+        if (method == "substraction") {
+            difference_data[, avg_methyl := avg_methyl - norm_factor]
+        } else {
+            difference_data[, avg_methyl := avg_methyl / norm_factor]
+        }
+    }
+
+    p_combined <- ggplot(difference_data, aes(
+        x = x,
+        y = avg_methyl,
+        color = type
     )) +
-    theme(legend.position = "bottom") +
-    xlim(-200, 200) # Set the x-axis limits
+        geom_line() + # Add lines for each type
+        xlab("Distance from motif center") +
+        ylab(paste0("Methylation difference ", lab)) +
+        theme_classic() +
+        ggtitle(paste(
+            "TF footprint difference for",
+            motif, "in ",
+            sample_name
+        )) +
+        theme(legend.position = "bottom") +
+        xlim(-200, 200) # Set the x-axis limits
 
-  return(p_combined)
+    return(p_combined)
 }

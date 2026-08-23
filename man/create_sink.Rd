@@ -22,7 +22,8 @@ create_sink(
 
 \item{pattern}{A character vector specifying the pattern for the temp file}
 
-\item{fileext}{A character vector specifying the file extension for the temp file}
+\item{fileext}{A character vector specifying the file extension
+for the temp file}
 
 \item{verbose}{A logical indicating whether to print messages}
 }

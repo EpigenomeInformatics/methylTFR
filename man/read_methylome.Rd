@@ -25,9 +25,9 @@ a GRanges object. Bed file should be in EPP, ALLC or BisSNP format.
 \examples{
 # Read bissnp file
 bissnp_path <- system.file(
-  "extdata",
-  "bissnp.tsv.gz",
-  package = "methylTFR"
+    "extdata",
+    "bissnp.tsv.gz",
+    package = "methylTFR"
 )
 bissnp <- read_methylome(bissnp_path, "bissnp")
 }

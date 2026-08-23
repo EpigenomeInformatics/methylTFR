@@ -32,12 +32,12 @@ library(methylTFR)
 
 # Load the data
 load(system.file("extdata",
-  "gcdist_subset.rda",
-  package = "methylTFR"
+    "gcdist_subset.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "example_data.rda",
-  package = "methylTFR"
+    "example_data.rda",
+    package = "methylTFR"
 ))
 
 # Add GC bin

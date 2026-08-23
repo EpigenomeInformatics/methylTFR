@@ -4,7 +4,8 @@
 #' @param motifs A character vector of motifs
 #' @param temp_dir A character vector specifying the temp directory
 #' @param pattern A character vector specifying the pattern for the temp file
-#' @param fileext A character vector specifying the file extension for the temp file
+#' @param fileext A character vector specifying the file extension
+#' for the temp file
 #' @param verbose A logical indicating whether to print messages
 #' @return A methylTFR sink
 #' @importFrom HDF5Array HDF5RealizationSink
@@ -14,26 +15,26 @@ create_sink <- function(
   files_list, motifs, temp_dir = "methylTFR_tmp", pattern = "methylTFR",
   fileext = ".h5", verbose = TRUE
 ) {
-  # Create a temp sink
-  if (!dir.exists(temp_dir)) {
-    dir.create(temp_dir)
-  }
-  tempfile <- tempfile(pattern = pattern, tmpdir = temp_dir, fileext = fileext)
+    # Create a temp sink
+    if (!dir.exists(temp_dir)) {
+        dir.create(temp_dir)
+    }
+    tempfile <- tempfile(pattern = pattern, tmpdir = temp_dir, fileext = fileext)
 
-  # Create a sink for each region type
-  sink <- HDF5Array::HDF5RealizationSink(
-    dim = c(length(files_list), length(motifs)),
-    dimnames = list(basename(files_list), motifs),
-    type = "double",
-    filepath = tempfile,
-    name = paste0("methylTFRmat"), level = 6
-  )
+    # Create a sink for each region type
+    sink <- HDF5Array::HDF5RealizationSink(
+        dim = c(length(files_list), length(motifs)),
+        dimnames = list(basename(files_list), motifs),
+        type = "double",
+        filepath = tempfile,
+        name = paste0("methylTFRmat"), level = 6
+    )
 
-  if (verbose) {
-    logger::log_info(paste0("Initializing the temp sink: ", tempfile))
-  }
+    if (verbose) {
+        logger::log_info(paste0("Initializing the temp sink: ", tempfile))
+    }
 
-  return(sink)
+    return(sink)
 }
 
 #' @title set_grid
@@ -44,13 +45,13 @@ create_sink <- function(
 #' @keywords internal
 #' @importFrom DelayedArray ArbitraryArrayGrid
 set_grid <- function(files_list, motif_chunks) {
-  # set the grid
-  grid <- DelayedArray::ArbitraryArrayGrid(list(
-    cumsum(lengths(files_list)),
-    cumsum(lengths(motif_chunks))
-  ))
+    # set the grid
+    grid <- DelayedArray::ArbitraryArrayGrid(list(
+        cumsum(lengths(files_list)),
+        cumsum(lengths(motif_chunks))
+    ))
 
-  return(grid)
+    return(grid)
 }
 
 #' @title write_block_to_sink
@@ -64,14 +65,14 @@ set_grid <- function(files_list, motif_chunks) {
 #' @return sink
 #' @keywords internal
 write_block_to_sink <- function(dev_values, grid, i, j, sink) {
-  # Write the block to the sink
-  sink <- DelayedArray::write_block(
-    block = as.matrix(t(unlist(dev_values))),
-    viewport = grid[[as.integer(i), as.integer(j)]],
-    sink = sink
-  )
-  rm(dev_values)
-  cleanMem()
+    # Write the block to the sink
+    sink <- DelayedArray::write_block(
+        block = as.matrix(t(unlist(dev_values))),
+        viewport = grid[[as.integer(i), as.integer(j)]],
+        sink = sink
+    )
+    rm(dev_values)
+    cleanMem()
 }
 
 #' @title cleanMem
@@ -80,8 +81,8 @@ write_block_to_sink <- function(dev_values, grid, i, j, sink) {
 #' @return invisible NULL
 #' @keywords internal
 cleanMem <- function(iter.gc = 1L) {
-  for (i in seq_along(iter.gc)) {
-    gc()
-  }
-  invisible(NULL)
+    for (i in seq_along(iter.gc)) {
+        gc()
+    }
+    invisible(NULL)
 }

@@ -54,32 +54,32 @@ library(methylTFR)
 
 # Load the data
 load(system.file("extdata",
-  "BATF_tf_bindsites.rda",
-  package = "methylTFR"
+    "BATF_tf_bindsites.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "example_data.rda",
-  package = "methylTFR"
+    "example_data.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "BATF_gcfreqs.rda",
-  package = "methylTFR"
+    "BATF_gcfreqs.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "gcdist_subset.rda",
-  package = "methylTFR"
+    "gcdist_subset.rda",
+    package = "methylTFR"
 ))
 
 # Plot the expected footprint
 p <- plotExpectedFootprint(
-  motif = "BATF",
-  tf_bindsites = tf_bindsites,
-  msites = msites,
-  sample_name = "Sample1",
-  gc_dist = gcdist,
-  gcfreqs = gcfreqs,
-  enhancer = NULL,
-  returnPlotData = FALSE
+    motif = "BATF",
+    tf_bindsites = tf_bindsites,
+    msites = msites,
+    sample_name = "Sample1",
+    gc_dist = gcdist,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    returnPlotData = FALSE
 )
 
 }
