@@ -73,6 +73,6 @@ devs <- computeDeviation("BATF",
     gcfreqs,
     enhancer = NULL,
     ignoreStrand = TRUE,
-    bin_meth
+    binMsites = bin_meth
 )
 }

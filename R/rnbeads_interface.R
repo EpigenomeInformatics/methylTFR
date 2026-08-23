@@ -81,17 +81,17 @@
 #' }
 #' @export
 run_methylTFR_RnBeads <- function(
-        rnb_set, tf_bindsites = NULL,
-        gcfreqs = NULL, gc_dist = NULL,
-        chunkSize = 20, threads = 1,
-        enhancer = NULL, ignoreStrand = TRUE,
-        cov_threshold = 1, sample_ann = NULL) {
+  rnb_set, tf_bindsites = NULL,
+  gcfreqs = NULL, gc_dist = NULL,
+  chunkSize = 20, threads = 1,
+  enhancer = NULL, ignoreStrand = TRUE,
+  cov_threshold = 1, sample_ann = NULL
+) {
     if (!requireNamespace("RnBeads", quietly = TRUE)) {
         stop(
             "The RnBeads package is required for run_methylTFR_RnBeads(). ",
-            "Install it with ",
-            "BiocManager::install('RnBeads'), or export your samples and use ",
-            "run_methyltfr() instead."
+            "Install it with BiocManager::install('RnBeads'), or export ",
+            "your samples and use run_methyltfr() instead."
         )
     }
     if (is.null(rnb_set) || !is(rnb_set, "RnBSet")) {
@@ -267,8 +267,10 @@ rnb_has_coverage <- function(rnb_set) {
 #' metadata columns, restricted to sites with a non-missing methylation call.
 #' @importFrom logger log_warn
 #' @keywords internal
-rnb_sample_msites <- function(rnb_set, sites_gr, index,
-    cov_threshold = 1, has_covg = TRUE) {
+rnb_sample_msites <- function(
+  rnb_set, sites_gr, index,
+  cov_threshold = 1, has_covg = TRUE
+) {
     index <- as.integer(index)
     mvals <- rnb_column(RnBeads::meth, rnb_set, index)
     if (length(mvals) != length(sites_gr)) {

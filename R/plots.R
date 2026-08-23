@@ -57,12 +57,16 @@
 #' )
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
-plotExpectedFootprint <- function(motif, tf_bindsites, msites,
-    sample_name = NULL, gc_dist, gcfreqs,
-    enhancer = NULL, returnPlotData = FALSE) {
+plotExpectedFootprint <- function(
+  motif, tf_bindsites, msites,
+  sample_name = NULL, gc_dist, gcfreqs,
+  enhancer = NULL, returnPlotData = FALSE
+) {
     if (is.null(msites)) {
-        stop("msites must be a data frame,
-        please provide the methylation sites")
+        stop(
+            "msites must be a data frame, ",
+            "please provide the methylation sites"
+        )
     }
     # If sample label is not provided, use file name as label
     if (is.null(sample_name)) {
@@ -77,8 +81,7 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
     if (is.null(tf_bindsites) ||
         !any(c(!is(tf_bindsites, "GRangesList") ||
             !is.list(tf_bindsites)))) {
-        stop("Please provide a valid tf
-        binding sites as GRangesList")
+        stop("Please provide a valid tf binding sites as GRangesList")
     }
     # Check if enhancer is a GRanges
     if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
@@ -96,8 +99,10 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
     }
     # Check if msites is a GRanges
     if (is.null(msites) || !is(msites, "GRanges")) {
-        stop("Please provide a valid methylatio
-        n sites with read_methylome function")
+        stop(
+            "Please provide a valid methylation ",
+            "sites with read_methylome function"
+        )
     }
     # Compute footprint for the motif
     plot_data <- computeFootprint(
@@ -206,11 +211,12 @@ plotExpectedFootprint <- function(motif, tf_bindsites, msites,
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotMotifFootprint <- function(
-        motif,
-        tf_bindsites, msites,
-        sample_name = NULL, gc_dist, gcfreqs,
-        enhancer = NULL, method = "division",
-        flankNorm=50) {
+  motif,
+  tf_bindsites, msites,
+  sample_name = NULL, gc_dist, gcfreqs,
+  enhancer = NULL, method = "division",
+  flankNorm = 50
+) {
     if (is.null(method) ||
         !method %in% c("substraction", "division")) {
         method <- "division"
@@ -233,7 +239,7 @@ plotMotifFootprint <- function(
         by = x
         ]
         difference_data[, type := paste(
-            "Observed substraction Expected",
+            "Obs. sub. Exp.",
             sample_name
         )]
         lab <- "(Observed - Expected)"
@@ -246,7 +252,7 @@ plotMotifFootprint <- function(
         by = x
         ]
         difference_data[, type := paste(
-            "Observed divided Expected",
+            "Obs. div. Exp.",
             sample_name
         )]
         lab <- "(Observed / Expected)"

@@ -270,7 +270,8 @@ heat_df <- data.frame(
         levels = rev(top_motifs)
     ),
     sample = factor(
-        rep(sample_levels, each = nrow(z_top)), levels = sample_levels
+        rep(sample_levels, each = nrow(z_top)),
+        levels = sample_levels
     ),
     z = as.vector(z_top)
 )

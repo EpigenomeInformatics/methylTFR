@@ -4,14 +4,17 @@
 #' @param motifs A character vector of motifs
 #' @param temp_dir A character vector specifying the temp directory
 #' @param pattern A character vector specifying the pattern for the temp file
-#' @param fileext A character vector specifying the file extension for the temp file
+#' @param fileext A character vector specifying the file extension
+#' for the temp file
 #' @param verbose A logical indicating whether to print messages
 #' @return A methylTFR sink
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info
 #' @keywords internal
-create_sink <- function(files_list, motifs, temp_dir = "methylTFR_tmp", pattern = "methylTFR",
-    fileext = ".h5", verbose = TRUE) {
+create_sink <- function(
+  files_list, motifs, temp_dir = "methylTFR_tmp", pattern = "methylTFR",
+  fileext = ".h5", verbose = TRUE
+) {
     # Create a temp sink
     if (!dir.exists(temp_dir)) {
         dir.create(temp_dir)

@@ -13,7 +13,8 @@ deviationZScores(x)
 A matrix of deviation Z-scores.
 }
 \description{
-Function to get deviation Z-scores from a methylTFRdeviations object.
+Function to get deviation Z-scores from a
+methylTFRdeviations object.
 }
 \examples{
 # Load example data

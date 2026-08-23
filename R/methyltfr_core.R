@@ -9,8 +9,10 @@
 #' @return invisible TRUE, called for the side effect of signalling errors.
 #' @importFrom methods is
 #' @keywords internal
-check_annotation_inputs <- function(tf_bindsites, gcfreqs, gc_dist,
-    enhancer = NULL) {
+check_annotation_inputs <- function(
+  tf_bindsites, gcfreqs, gc_dist,
+  enhancer = NULL
+) {
     if (any(vapply(
         list(tf_bindsites, gcfreqs, gc_dist), is.null, logical(1)
     ))) {
@@ -41,8 +43,10 @@ check_annotation_inputs <- function(tf_bindsites, gcfreqs, gc_dist,
 #' @param cov_threshold numeric coverage threshold.
 #' @return A named list with the validated values.
 #' @keywords internal
-check_run_options <- function(chunkSize = 20, threads = 1,
-    ignoreStrand = TRUE, cov_threshold = 1) {
+check_run_options <- function(
+  chunkSize = 20, threads = 1,
+  ignoreStrand = TRUE, cov_threshold = 1
+) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
         ignoreStrand <- TRUE
@@ -142,16 +146,18 @@ read_sample_annotation <- function(annfile, sampleColName) {
 #' @importFrom DelayedArray DelayedArray close
 #' @importFrom methods as new is
 #' @keywords internal
-methyltfr_core <- function(sample_ids,
-    msites_fun,
-    samples,
-    tf_bindsites,
-    gcfreqs,
-    gc_dist,
-    chunkSize = 20,
-    threads = 1,
-    enhancer = NULL,
-    ignoreStrand = TRUE) {
+methyltfr_core <- function(
+  sample_ids,
+  msites_fun,
+  samples,
+  tf_bindsites,
+  gcfreqs,
+  gc_dist,
+  chunkSize = 20,
+  threads = 1,
+  enhancer = NULL,
+  ignoreStrand = TRUE
+) {
     if (!is.character(sample_ids) || length(sample_ids) == 0) {
         stop("No samples to process.")
     }
