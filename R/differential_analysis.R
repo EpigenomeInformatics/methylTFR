@@ -52,21 +52,24 @@
 #'     padjMethod = "BH"
 #' )
 #' @export
-differential_deviation_test <- function(deviations,
-    groups = NULL,
-    motifs = rownames(deviations),
-    alternative = c("two.sided", "less", "greater"),
-    parametric = TRUE,
-    padjMethod = "BH") {
+differential_deviation_test <- function(
+  deviations,
+  groups = NULL,
+  motifs = rownames(deviations),
+  alternative = c("two.sided", "less", "greater"),
+  parametric = TRUE,
+  padjMethod = "BH"
+) {
     if (!any(class(deviations) %in%
         c("data.frame", "matrix", "methylTFRdeviations"))) {
-        stop("deviations must be a methylTFRdeviations
-        object, or data.frame or matrix")
+        stop(
+            "deviations must be a methylTFRdeviations ",
+            "object, or data.frame or matrix"
+        )
     }
     if (is(deviations, "methylTFRdeviations")) {
         deviations <- deviations(deviations)
     }
-    # deviations <- t(deviations)
     if (is.null(groups)) {
         groups <- colnames(deviations)
     }
@@ -131,7 +134,6 @@ differential_deviation_test <- function(deviations,
     } else {
         apply(group_means, 1, function(x) max(x) - min(x))
     }
-
 
     return(data.frame(
         motifs = motifs,

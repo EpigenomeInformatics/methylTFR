@@ -30,9 +30,11 @@
 #' # Add GC bin
 #' bin_meth <- addGCBintoMethylome(msites, gcdist)
 #' @author Irem Gunduz
-addGCBintoMethylome <- function(msites,
-    gcdist,
-    ignoreStrand = TRUE) {
+addGCBintoMethylome <- function(
+  msites,
+  gcdist,
+  ignoreStrand = TRUE
+) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option,
          using the default")

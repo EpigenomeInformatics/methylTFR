@@ -1,4 +1,4 @@
-#' @title computeFootprint (Corrected)
+#' @title computeFootprint
 #' @description Compute footprint returns a data.table
 #' required to create a transcription
 #' factor footprint with label.
@@ -13,20 +13,21 @@
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom S4Vectors mcols
 #' @import data.table
-computeFootprint <- function(motif_name,
-    tf_bindsites,
-    msites, enhancer = NULL) {
+computeFootprint <- function(
+  motif_name,
+  tf_bindsites,
+  msites, enhancer = NULL
+) {
     tfbs <- tf_bindsites[[motif_name]]
     w <- width(tfbs)[1]
     tfbs <- resize(tfbs, w + 130, fix = "center")
 
     if (!is.null(enhancer)) {
-        # --- FIX: Re-assign the 'tfbs' variable ---
         tfbs <- subsetByOverlaps(tfbs, enhancer,
             ignore.strand = TRUE
         )
     }
-    
+
     # Find overlaps
     hits <- findOverlaps(msites, tfbs,
         type = "within", ignore.strand = TRUE
@@ -75,8 +76,9 @@ computeFootprint <- function(motif_name,
 #' @importFrom S4Vectors mcols
 #' @import data.table
 computeExpectedFootprint <- function(
-        motif, gcfreqs, gc_dist,
-        enhancer = NULL, msites) {
+  motif, gcfreqs, gc_dist,
+  enhancer = NULL, msites
+) {
     gcfreq <- gcfreqs[[motif]]
 
     if (!is.null(enhancer)) {

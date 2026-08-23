@@ -13,7 +13,8 @@
 A matrix of deviation Z-scores.
 }
 \description{
-Extract deviation Z-scores from methylTFRdeviations object.
+Extract deviation Z-scores from
+methylTFRdeviations object.
 }
 \examples{
 # Load the data

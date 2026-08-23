@@ -118,12 +118,14 @@ calibrateDeviations <- function(devs, method = c("robust", "gaussian")) {
 #' head(var_res[order(-var_res$variability), ])
 #' @author Irem Gunduz
 #' @export
-computeZScoreVariability <- function(object,
-    method = c("robust", "gaussian"),
-    bootstrap = FALSE,
-    niterations = 1000L,
-    conf_level = 0.95,
-    padjMethod = "BH") {
+computeZScoreVariability <- function(
+  object,
+  method = c("robust", "gaussian"),
+  bootstrap = FALSE,
+  niterations = 1000L,
+  conf_level = 0.95,
+  padjMethod = "BH"
+) {
     method <- match.arg(method)
     if (is(object, "methylTFRdeviations")) {
         devs <- deviations(object)
@@ -196,10 +198,12 @@ computeZScoreVariability <- function(object,
             matrixStats::rowSds(z[, idx, drop = FALSE], na.rm = TRUE)
         }, numeric(nrow(z)))
         alpha <- (1 - conf_level) / 2
-        res$bootstrap_lower_bound <- apply(boot, 1, stats::quantile,
+        res$bootstrap_lower_bound <- apply(
+            boot, 1, stats::quantile,
             probs = alpha, na.rm = TRUE
         )
-        res$bootstrap_upper_bound <- apply(boot, 1, stats::quantile,
+        res$bootstrap_upper_bound <- apply(
+            boot, 1, stats::quantile,
             probs = 1 - alpha, na.rm = TRUE
         )
     }

@@ -49,12 +49,13 @@
 #' directly on a preprocessed RnBeads object.
 #' @export
 run_methyltfr <- function(
-        sample_ann, sample_dir, tf_bindsites = NULL,
-        gcfreqs = NULL, gc_dist = NULL,
-        sampleColName = "bedFile", chunkSize = 20,
-        full_path = FALSE, annfile = NULL, threads = 1,
-        enhancer = NULL, filetype = NULL,
-        ignoreStrand = TRUE, cov_threshold = 1) {
+  sample_ann, sample_dir, tf_bindsites = NULL,
+  gcfreqs = NULL, gc_dist = NULL,
+  sampleColName = "bedFile", chunkSize = 20,
+  full_path = FALSE, annfile = NULL, threads = 1,
+  enhancer = NULL, filetype = NULL,
+  ignoreStrand = TRUE, cov_threshold = 1
+) {
     if (!tolower(filetype) %in% c(
         "bissnp", "epp", "allc", "bismarkcytosine",
         "bismarkcov", "encode"
@@ -71,7 +72,9 @@ run_methyltfr <- function(
         )
     }
     check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
-    opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
+    opts <- check_run_options(
+        chunkSize, threads, ignoreStrand, cov_threshold
+    )
 
     if (is.null(annfile) || !is.character(annfile)) {
         if (is.null(sample_ann) || !is.character(sample_ann)) {

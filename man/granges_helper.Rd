@@ -7,35 +7,22 @@
 granges_helper(grobj, chr, mscore, cov, startP, endP)
 }
 \arguments{
-\item{grobj}{\itemize{
-\item GRanges object
-}}
+\item{grobj}{GRanges object}
 
-\item{chr}{\itemize{
-\item chromosome
-}}
+\item{chr}{chromosome}
 
-\item{mscore}{\itemize{
-\item methylation score
-}}
+\item{mscore}{methylation score}
 
-\item{cov}{\itemize{
-\item methylation coverage
-}}
+\item{cov}{methylation coverage}
 
-\item{startP}{\itemize{
-\item start position
-}}
+\item{startP}{start position}
 
-\item{endP}{\itemize{
-\item end position
-}}
+\item{endP}{end position}
 }
 \value{
 a \code{GenomicRanges} object with EPP format
 }
 \description{
-helper function to convert
-msites in EPP GRanges format
+helper function to convert msites in EPP GRanges format
 }
 \keyword{internal}
