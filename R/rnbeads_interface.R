@@ -64,91 +64,90 @@
 #' # preprocessed RnBeads set.
 #' \donttest{
 #' if (requireNamespace("RnBeads", quietly = TRUE)) {
-#'     # rnb_set <- RnBeads::load.rnb.set("reports/rnb.set_preprocessed")
-#'     # gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-#'     # gc_dist <- getGenomeGC("hg38")
-#'     # tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
-#'     #
-#'     # deviations <- run_methylTFR_RnBeads(
-#'     #     rnb_set = rnb_set,
-#'     #     tf_bindsites = tf_bindsites,
-#'     #     gcfreqs = gcfreqs,
-#'     #     gc_dist = gc_dist,
-#'     #     threads = 8,
-#'     #     chunkSize = 15
-#'     # )
+#'   # rnb_set <- RnBeads::load.rnb.set("reports/rnb.set_preprocessed")
+#'   # gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+#'   # gc_dist <- getGenomeGC("hg38")
+#'   # tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+#'   #
+#'   # deviations <- run_methylTFR_RnBeads(
+#'   #     rnb_set = rnb_set,
+#'   #     tf_bindsites = tf_bindsites,
+#'   #     gcfreqs = gcfreqs,
+#'   #     gc_dist = gc_dist,
+#'   #     threads = 8,
+#'   #     chunkSize = 15
+#'   # )
 #' }
 #' }
 #' @export
-run_methylTFR_RnBeads <- function(
-        rnb_set, tf_bindsites = NULL,
-        gcfreqs = NULL, gc_dist = NULL,
-        chunkSize = 20, threads = 1,
-        enhancer = NULL, ignoreStrand = TRUE,
-        cov_threshold = 1, sample_ann = NULL) {
-    if (!requireNamespace("RnBeads", quietly = TRUE)) {
-        stop(
-            "The RnBeads package is required for run_methylTFR_RnBeads(). ",
-            "Install it with ",
-            "BiocManager::install('RnBeads'), or export your samples and use ",
-            "run_methyltfr() instead."
-        )
-    }
-    if (is.null(rnb_set) || !is(rnb_set, "RnBSet")) {
-        stop("Please provide a valid RnBSet object")
-    }
-    check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
-    opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
-
-    sample_ids <- rnb_sample_ids(rnb_set)
-
-    if (is.null(sample_ann)) {
-        sample_ann <- as.data.frame(RnBeads::pheno(rnb_set),
-            stringsAsFactors = FALSE
-        )
-    }
-    if (!is.data.frame(sample_ann)) {
-        stop("sample_ann must be a data.frame")
-    }
-    if (nrow(sample_ann) != length(sample_ids)) {
-        stop("sample_ann must have one row per sample in the RnBSet object")
-    }
-
-    sites_gr <- rnb_sites_to_granges(rnb_set, opts$ignoreStrand)
-    has_covg <- rnb_has_coverage(rnb_set)
-    if (!has_covg) {
-        log_warn(
-            "The RnBSet object does not carry coverage information; ",
-            "cov_threshold is ignored."
-        )
-    }
-    log_info(
-        "Found ", length(sites_gr), " sites across ",
-        length(sample_ids), " samples"
+run_methylTFR_RnBeads <- function(rnb_set, tf_bindsites = NULL,
+                                  gcfreqs = NULL, gc_dist = NULL,
+                                  chunkSize = 20, threads = 1,
+                                  enhancer = NULL, ignoreStrand = TRUE,
+                                  cov_threshold = 1, sample_ann = NULL) {
+  if (!requireNamespace("RnBeads", quietly = TRUE)) {
+    stop(
+      "The RnBeads package is required for run_methylTFR_RnBeads(). ",
+      "Install it with ",
+      "BiocManager::install('RnBeads'), or export your samples and use ",
+      "run_methyltfr() instead."
     )
+  }
+  if (is.null(rnb_set) || !is(rnb_set, "RnBSet")) {
+    stop("Please provide a valid RnBSet object")
+  }
+  check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
+  opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
 
-    msites_fun <- function(i) {
-        rnb_sample_msites(
-            rnb_set = rnb_set,
-            sites_gr = sites_gr,
-            index = i,
-            cov_threshold = opts$cov_threshold,
-            has_covg = has_covg
-        )
-    }
+  sample_ids <- rnb_sample_ids(rnb_set)
 
-    methyltfr_core(
-        sample_ids = sample_ids,
-        msites_fun = msites_fun,
-        samples = sample_ann,
-        tf_bindsites = tf_bindsites,
-        gcfreqs = gcfreqs,
-        gc_dist = gc_dist,
-        chunkSize = opts$chunkSize,
-        threads = opts$threads,
-        enhancer = enhancer,
-        ignoreStrand = opts$ignoreStrand
+  if (is.null(sample_ann)) {
+    sample_ann <- as.data.frame(RnBeads::pheno(rnb_set),
+      stringsAsFactors = FALSE
     )
+  }
+  if (!is.data.frame(sample_ann)) {
+    stop("sample_ann must be a data.frame")
+  }
+  if (nrow(sample_ann) != length(sample_ids)) {
+    stop("sample_ann must have one row per sample in the RnBSet object")
+  }
+
+  sites_gr <- rnb_sites_to_granges(rnb_set, opts$ignoreStrand)
+  has_covg <- rnb_has_coverage(rnb_set)
+  if (!has_covg) {
+    log_warn(
+      "The RnBSet object does not carry coverage information; ",
+      "cov_threshold is ignored."
+    )
+  }
+  log_info(
+    "Found ", length(sites_gr), " sites across ",
+    length(sample_ids), " samples"
+  )
+
+  msites_fun <- function(i) {
+    rnb_sample_msites(
+      rnb_set = rnb_set,
+      sites_gr = sites_gr,
+      index = i,
+      cov_threshold = opts$cov_threshold,
+      has_covg = has_covg
+    )
+  }
+
+  methyltfr_core(
+    sample_ids = sample_ids,
+    msites_fun = msites_fun,
+    samples = sample_ann,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    gc_dist = gc_dist,
+    chunkSize = opts$chunkSize,
+    threads = opts$threads,
+    enhancer = enhancer,
+    ignoreStrand = opts$ignoreStrand
+  )
 }
 
 
@@ -164,30 +163,30 @@ run_methylTFR_RnBeads <- function(
 #' @return A character vector of sample identifiers.
 #' @keywords internal
 rnb_sample_ids <- function(rnb_set) {
-    ids <- tryCatch(
-        colnames(RnBeads::meth(rnb_set, type = "sites", i = 1L)),
-        error = function(e) NULL
+  ids <- tryCatch(
+    colnames(RnBeads::meth(rnb_set, type = "sites", i = 1L)),
+    error = function(e) NULL
+  )
+  if (is.null(ids) || length(ids) == 0) {
+    ids <- tryCatch(rownames(RnBeads::pheno(rnb_set)),
+      error = function(e) NULL
     )
-    if (is.null(ids) || length(ids) == 0) {
-        ids <- tryCatch(rownames(RnBeads::pheno(rnb_set)),
-            error = function(e) NULL
-        )
+  }
+  if (is.null(ids) || length(ids) == 0) {
+    nsamples <- tryCatch(nrow(RnBeads::pheno(rnb_set)),
+      error = function(e) 0L
+    )
+    if (!is.null(nsamples) && nsamples > 0) {
+      ids <- paste0("sample_", seq_len(nsamples))
     }
-    if (is.null(ids) || length(ids) == 0) {
-        nsamples <- tryCatch(nrow(RnBeads::pheno(rnb_set)),
-            error = function(e) 0L
-        )
-        if (!is.null(nsamples) && nsamples > 0) {
-            ids <- paste0("sample_", seq_len(nsamples))
-        }
-    }
-    if (is.null(ids) || length(ids) == 0) {
-        stop(
-            "Could not determine sample identifiers from the RnBSet object; ",
-            "pass them explicitly via sample_ann."
-        )
-    }
-    return(as.character(ids))
+  }
+  if (is.null(ids) || length(ids) == 0) {
+    stop(
+      "Could not determine sample identifiers from the RnBSet object; ",
+      "pass them explicitly via sample_ann."
+    )
+  }
+  return(as.character(ids))
 }
 
 
@@ -202,32 +201,32 @@ rnb_sample_ids <- function(rnb_set) {
 #' @importFrom IRanges IRanges
 #' @keywords internal
 rnb_sites_to_granges <- function(rnb_set, ignoreStrand = TRUE) {
-    ann <- RnBeads::annotation(rnb_set, type = "sites")
-    if (is.null(ann) || nrow(ann) == 0) {
-        stop("The RnBSet object does not contain any site annotation")
-    }
-    required <- c("Chromosome", "Start")
-    missing_cols <- setdiff(required, colnames(ann))
-    if (length(missing_cols) > 0) {
-        stop(
-            "Unexpected RnBeads site annotation, missing column(s): ",
-            paste(missing_cols, collapse = ", ")
-        )
-    }
-    ends <- if ("End" %in% colnames(ann)) ann$End else ann$Start
-    strands <- "*"
-    if (!ignoreStrand && "Strand" %in% colnames(ann)) {
-        strands <- as.character(ann$Strand)
-        strands[is.na(strands) | !strands %in% c("+", "-")] <- "*"
-    }
-    GenomicRanges::GRanges(
-        seqnames = as.character(ann$Chromosome),
-        ranges = IRanges::IRanges(
-            start = as.integer(ann$Start),
-            end = as.integer(ends)
-        ),
-        strand = strands
+  ann <- RnBeads::annotation(rnb_set, type = "sites")
+  if (is.null(ann) || nrow(ann) == 0) {
+    stop("The RnBSet object does not contain any site annotation")
+  }
+  required <- c("Chromosome", "Start")
+  missing_cols <- setdiff(required, colnames(ann))
+  if (length(missing_cols) > 0) {
+    stop(
+      "Unexpected RnBeads site annotation, missing column(s): ",
+      paste(missing_cols, collapse = ", ")
     )
+  }
+  ends <- if ("End" %in% colnames(ann)) ann$End else ann$Start
+  strands <- "*"
+  if (!ignoreStrand && "Strand" %in% colnames(ann)) {
+    strands <- as.character(ann$Strand)
+    strands[is.na(strands) | !strands %in% c("+", "-")] <- "*"
+  }
+  GenomicRanges::GRanges(
+    seqnames = as.character(ann$Chromosome),
+    ranges = IRanges::IRanges(
+      start = as.integer(ann$Start),
+      end = as.integer(ends)
+    ),
+    strand = strands
+  )
 }
 
 
@@ -237,19 +236,19 @@ rnb_sites_to_granges <- function(rnb_set, ignoreStrand = TRUE) {
 #' @return A logical scalar.
 #' @keywords internal
 rnb_has_coverage <- function(rnb_set) {
-    # Try the subsetting form first so that large disk-backed sets are not
-    # materialised, then fall back for RnBeads versions without the j argument.
+  # Try the subsetting form first so that large disk-backed sets are not
+  # materialised, then fall back for RnBeads versions without the j argument.
+  res <- tryCatch(
+    !is.null(RnBeads::covg(rnb_set, type = "sites", j = 1L)),
+    error = function(e) NULL
+  )
+  if (is.null(res)) {
     res <- tryCatch(
-        !is.null(RnBeads::covg(rnb_set, type = "sites", j = 1L)),
-        error = function(e) NULL
+      !is.null(RnBeads::covg(rnb_set, type = "sites")),
+      error = function(e) FALSE
     )
-    if (is.null(res)) {
-        res <- tryCatch(
-            !is.null(RnBeads::covg(rnb_set, type = "sites")),
-            error = function(e) FALSE
-        )
-    }
-    return(isTRUE(res))
+  }
+  return(isTRUE(res))
 }
 
 
@@ -267,38 +266,40 @@ rnb_has_coverage <- function(rnb_set) {
 #' metadata columns, restricted to sites with a non-missing methylation call.
 #' @importFrom logger log_warn
 #' @keywords internal
-rnb_sample_msites <- function(rnb_set, sites_gr, index,
-    cov_threshold = 1, has_covg = TRUE) {
-    index <- as.integer(index)
-    mvals <- rnb_column(RnBeads::meth, rnb_set, index)
-    if (length(mvals) != length(sites_gr)) {
-        stop(
-            "The number of methylation values does not match the number of ",
-            "annotated sites; the RnBSet object appears to be inconsistent."
-        )
+rnb_sample_msites <- function(
+  rnb_set, sites_gr, index,
+  cov_threshold = 1, has_covg = TRUE
+) {
+  index <- as.integer(index)
+  mvals <- rnb_column(RnBeads::meth, rnb_set, index)
+  if (length(mvals) != length(sites_gr)) {
+    stop(
+      "The number of methylation values does not match the number of ",
+      "annotated sites; the RnBSet object appears to be inconsistent."
+    )
+  }
+  keep <- !is.na(mvals)
+  if (has_covg) {
+    cvals <- rnb_column(RnBeads::covg, rnb_set, index)
+    if (length(cvals) != length(sites_gr)) {
+      stop(
+        "The number of coverage values does not match the number of ",
+        "annotated sites."
+      )
     }
-    keep <- !is.na(mvals)
-    if (has_covg) {
-        cvals <- rnb_column(RnBeads::covg, rnb_set, index)
-        if (length(cvals) != length(sites_gr)) {
-            stop(
-                "The number of coverage values does not match the number of ",
-                "annotated sites."
-            )
-        }
-        keep <- keep & !is.na(cvals) & cvals >= cov_threshold
-    } else {
-        cvals <- rep(NA_real_, length(sites_gr))
-    }
-    if (!any(keep)) {
-        stop(
-            "No sites passed the coverage threshold for sample index ", index
-        )
-    }
-    gr <- sites_gr[keep]
-    gr$score <- as.numeric(mvals[keep])
-    gr$coverage <- as.numeric(cvals[keep])
-    return(gr)
+    keep <- keep & !is.na(cvals) & cvals >= cov_threshold
+  } else {
+    cvals <- rep(NA_real_, length(sites_gr))
+  }
+  if (!any(keep)) {
+    stop(
+      "No sites passed the coverage threshold for sample index ", index
+    )
+  }
+  gr <- sites_gr[keep]
+  gr$score <- as.numeric(mvals[keep])
+  gr$coverage <- as.numeric(cvals[keep])
+  return(gr)
 }
 
 
@@ -313,15 +314,15 @@ rnb_sample_msites <- function(rnb_set, sites_gr, index,
 #' @return A numeric vector with one value per site.
 #' @keywords internal
 rnb_column <- function(accessor, rnb_set, index) {
-    vals <- tryCatch(
-        accessor(rnb_set, type = "sites", j = index),
-        error = function(e) NULL
-    )
-    if (is.null(vals)) {
-        vals <- accessor(rnb_set, type = "sites")
-        if (is.matrix(vals) || is.data.frame(vals)) {
-            vals <- vals[, index]
-        }
+  vals <- tryCatch(
+    accessor(rnb_set, type = "sites", j = index),
+    error = function(e) NULL
+  )
+  if (is.null(vals)) {
+    vals <- accessor(rnb_set, type = "sites")
+    if (is.matrix(vals) || is.data.frame(vals)) {
+      vals <- vals[, index]
     }
-    return(as.numeric(as.vector(vals)))
+  }
+  return(as.numeric(as.vector(vals)))
 }

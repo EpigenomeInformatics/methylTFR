@@ -24,119 +24,121 @@
 #' @examples
 #' # Load example data
 #' load(system.file("extdata",
-#'     "tc_mem.rda",
-#'     package = "methylTFR"
+#'   "tc_mem.rda",
+#'   package = "methylTFR"
 #' ))
 #' load(system.file("extdata",
-#'     "tc_naive.rda",
-#'     package = "methylTFR"
+#'   "tc_naive.rda",
+#'   package = "methylTFR"
 #' ))
 #' devs <- cbind(tc_mem, tc_naive)
 #'
 #' # Construct group labels from sample names
 #' get_groupname <- function(x) {
-#'     return(unlist(strsplit(x, split = "_"))[1])
+#'   return(unlist(strsplit(x, split = "_"))[1])
 #' }
 #' groups <- sub(".bedGraph", "", unlist(lapply(
-#'     FUN = get_groupname,
-#'     X = colnames(devs)
+#'   FUN = get_groupname,
+#'   X = colnames(devs)
 #' )))
 #'
 #' # Perform differential analysis
 #' tc_result <- differential_deviation_test(
-#'     deviations = devs,
-#'     groups = groups,
-#'     motifs = rownames(devs),
-#'     alternative = "two.sided",
-#'     parametric = TRUE,
-#'     padjMethod = "BH"
+#'   deviations = devs,
+#'   groups = groups,
+#'   motifs = rownames(devs),
+#'   alternative = "two.sided",
+#'   parametric = TRUE,
+#'   padjMethod = "BH"
 #' )
 #' @export
-differential_deviation_test <- function(deviations,
-    groups = NULL,
-    motifs = rownames(deviations),
-    alternative = c("two.sided", "less", "greater"),
-    parametric = TRUE,
-    padjMethod = "BH") {
-    if (!any(class(deviations) %in%
-        c("data.frame", "matrix", "methylTFRdeviations"))) {
-        stop("deviations must be a methylTFRdeviations
+differential_deviation_test <- function(
+  deviations,
+  groups = NULL,
+  motifs = rownames(deviations),
+  alternative = c("two.sided", "less", "greater"),
+  parametric = TRUE,
+  padjMethod = "BH"
+) {
+  if (!any(class(deviations) %in%
+    c("data.frame", "matrix", "methylTFRdeviations"))) {
+    stop("deviations must be a methylTFRdeviations
         object, or data.frame or matrix")
-    }
-    if (is(deviations, "methylTFRdeviations")) {
-        deviations <- deviations(deviations)
-    }
-    # deviations <- t(deviations)
-    if (is.null(groups)) {
-        groups <- colnames(deviations)
-    }
-    if (is.null(groups)) {
-        stop(
-            "No group labels found. Provide 'groups', or supply deviations ",
-            "with column names identifying the groups."
-        )
-    }
-    groups <- as.factor(groups)
-    if (length(groups) != ncol(deviations)) {
-        stop("'groups' must have one entry per column of 'deviations'")
-    }
-    if (nlevels(groups) < 2) {
-        stop("'groups' must contain at least two distinct groups")
-    }
-    if (length(alternative) > 1) {
-        stop(
-            "Please indicate one of the alternatives only."
-        )
-    }
-    if (parametric) {
-        if (nlevels(groups) == 2) {
-            # t-test
-            p_val <- apply(
-                deviations, 1,
-                t_helper, groups, alternative
-            )
-        } else {
-            # anova
-            p_val <- apply(
-                deviations, 1,
-                anova_helper, groups
-            )
-        }
-    } else {
-        if (nlevels(groups) == 2) {
-            # wilcoxon
-            p_val <- apply(
-                deviations, 1,
-                wilcoxon_helper, groups, alternative
-            )
-        } else {
-            # kruskal-wallis
-            p_val <- apply(
-                deviations, 1,
-                kw_helper, groups
-            )
-        }
-    }
-    p_adj <- p.adjust(p_val,
-        method = padjMethod
+  }
+  if (is(deviations, "methylTFRdeviations")) {
+    deviations <- deviations(deviations)
+  }
+  # deviations <- t(deviations)
+  if (is.null(groups)) {
+    groups <- colnames(deviations)
+  }
+  if (is.null(groups)) {
+    stop(
+      "No group labels found. Provide 'groups', or supply deviations ",
+      "with column names identifying the groups."
     )
-    # Compute group means
-    group_means <- vapply(
-        levels(groups),
-        function(g) rowMeans(deviations[, groups == g, drop = FALSE]),
-        numeric(nrow(deviations))
+  }
+  groups <- as.factor(groups)
+  if (length(groups) != ncol(deviations)) {
+    stop("'groups' must have one entry per column of 'deviations'")
+  }
+  if (nlevels(groups) < 2) {
+    stop("'groups' must contain at least two distinct groups")
+  }
+  if (length(alternative) > 1) {
+    stop(
+      "Please indicate one of the alternatives only."
     )
-    mean_diff <- if (nlevels(groups) == 2) {
-        abs(group_means[, 1] - group_means[, 2])
+  }
+  if (parametric) {
+    if (nlevels(groups) == 2) {
+      # t-test
+      p_val <- apply(
+        deviations, 1,
+        t_helper, groups, alternative
+      )
     } else {
-        apply(group_means, 1, function(x) max(x) - min(x))
+      # anova
+      p_val <- apply(
+        deviations, 1,
+        anova_helper, groups
+      )
     }
+  } else {
+    if (nlevels(groups) == 2) {
+      # wilcoxon
+      p_val <- apply(
+        deviations, 1,
+        wilcoxon_helper, groups, alternative
+      )
+    } else {
+      # kruskal-wallis
+      p_val <- apply(
+        deviations, 1,
+        kw_helper, groups
+      )
+    }
+  }
+  p_adj <- p.adjust(p_val,
+    method = padjMethod
+  )
+  # Compute group means
+  group_means <- vapply(
+    levels(groups),
+    function(g) rowMeans(deviations[, groups == g, drop = FALSE]),
+    numeric(nrow(deviations))
+  )
+  mean_diff <- if (nlevels(groups) == 2) {
+    abs(group_means[, 1] - group_means[, 2])
+  } else {
+    apply(group_means, 1, function(x) max(x) - min(x))
+  }
 
 
-    return(data.frame(
-        motifs = motifs,
-        p_value = p_val,
-        p_value_adjusted = p_adj,
-        mean_difference = mean_diff
-    ))
+  return(data.frame(
+    motifs = motifs,
+    p_value = p_val,
+    p_value_adjusted = p_adj,
+    mean_difference = mean_diff
+  ))
 }

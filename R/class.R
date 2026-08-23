@@ -15,13 +15,13 @@ setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 
 # Set validity function
 setValidity(
-    "methylTFRdeviations",
-    function(object) {
-        if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
-            return("The assays slot must contain 'deviations' and 'z'")
-        }
-        return(TRUE)
+  "methylTFRdeviations",
+  function(object) {
+    if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
+      return("The assays slot must contain 'deviations' and 'z'")
     }
+    return(TRUE)
+  }
 )
 
 ##########################################################################
@@ -53,7 +53,7 @@ setGeneric("deviations", function(x) standardGeneric("deviations"))
 #' # Get deviations
 #' deviations(tc_mem)
 setMethod("deviations", "methylTFRdeviations", function(x) {
-    SummarizedExperiment::assay(x, "deviations")
+  SummarizedExperiment::assay(x, "deviations")
 })
 
 #' @title deviationZScores
@@ -81,7 +81,7 @@ setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 #' # Get deviation Z-scores
 #' deviationZScores(tc_mem)
 setMethod("deviationZScores", "methylTFRdeviations", function(x) {
-    SummarizedExperiment::assay(x, "z")
+  SummarizedExperiment::assay(x, "z")
 })
 
 #' @title cbind
@@ -111,15 +111,15 @@ setMethod("deviationZScores", "methylTFRdeviations", function(x) {
 #' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
 #' devs <- cbind(tc_mem, tc_naive)
 setMethod("cbind", "methylTFRdeviations", function(..., deparse.level = 1) {
-    args <- list(...)
-    if (length(args) == 1L) {
-        return(args[[1L]])
-    }
-    combined <- do.call(
-        BiocGenerics::cbind,
-        lapply(args, function(x) as(x, "SummarizedExperiment"))
-    )
-    new("methylTFRdeviations", combined)
+  args <- list(...)
+  if (length(args) == 1L) {
+    return(args[[1L]])
+  }
+  combined <- do.call(
+    BiocGenerics::cbind,
+    lapply(args, function(x) as(x, "SummarizedExperiment"))
+  )
+  new("methylTFRdeviations", combined)
 })
 
 
@@ -137,13 +137,13 @@ setMethod("cbind", "methylTFRdeviations", function(..., deparse.level = 1) {
 #' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
 #' devs <- rbind(tc_mem[seq_len(2), ], tc_mem[3:4, ])
 setMethod("rbind", "methylTFRdeviations", function(..., deparse.level = 1) {
-    args <- list(...)
-    if (length(args) == 1L) {
-        return(args[[1L]])
-    }
-    combined <- do.call(
-        BiocGenerics::rbind,
-        lapply(args, function(x) as(x, "SummarizedExperiment"))
-    )
-    new("methylTFRdeviations", combined)
+  args <- list(...)
+  if (length(args) == 1L) {
+    return(args[[1L]])
+  }
+  combined <- do.call(
+    BiocGenerics::rbind,
+    lapply(args, function(x) as(x, "SummarizedExperiment"))
+  )
+  new("methylTFRdeviations", combined)
 })

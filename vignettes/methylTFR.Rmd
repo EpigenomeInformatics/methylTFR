@@ -13,8 +13,8 @@ vignette: >
 ```{r setup, include = FALSE}
 library(BiocStyle)
 knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>"
+  collapse = TRUE,
+  comment = "#>"
 )
 ```
 
@@ -162,13 +162,13 @@ bin_meth
 
 # Compute deviation score for BATF motif
 deviation_score <- computeDeviation(
-    motif = "BATF",
-    msites = msites,
-    tf_bindsites = tf_bindsites,
-    gcfreqs = gcfreqs,
-    enhancer = NULL,
-    ignoreStrand = TRUE,
-    binMsites = bin_meth
+  motif = "BATF",
+  msites = msites,
+  tf_bindsites = tf_bindsites,
+  gcfreqs = gcfreqs,
+  enhancer = NULL,
+  ignoreStrand = TRUE,
+  binMsites = bin_meth
 )
 
 # View the result
@@ -194,14 +194,14 @@ sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
 deviations <- run_methyltfr(sample_ann, # sample annotation file
-    sample_dir, # where the EPP files are
-    threads = 8, # number of threads
-    chunkSize = 10, # number of chunks to process
-    sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-    tf_bindsites = tf_bindsites, # TF binding sites
-    gcfreqs = gcfreqs, # GC frequency
-    gc_dist = gc_dist, # GC distribution
-    filetype = "EPP" # file type
+  sample_dir, # where the EPP files are
+  threads = 8, # number of threads
+  chunkSize = 10, # number of chunks to process
+  sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+  tf_bindsites = tf_bindsites, # TF binding sites
+  gcfreqs = gcfreqs, # GC frequency
+  gc_dist = gc_dist, # GC distribution
+  filetype = "EPP" # file type
 )
 ```
 
@@ -229,13 +229,13 @@ gc_dist <- getGenomeGC("hg38")
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 deviations <- run_methylTFR_RnBeads(
-    rnb_set = rnb_set, # preprocessed RnBeads object
-    tf_bindsites = tf_bindsites, # TF binding sites
-    gcfreqs = gcfreqs, # GC frequency
-    gc_dist = gc_dist, # GC distribution
-    threads = 8, # number of threads
-    chunkSize = 10, # number of motifs per chunk
-    cov_threshold = 1 # minimum coverage per site
+  rnb_set = rnb_set, # preprocessed RnBeads object
+  tf_bindsites = tf_bindsites, # TF binding sites
+  gcfreqs = gcfreqs, # GC frequency
+  gc_dist = gc_dist, # GC distribution
+  threads = 8, # number of threads
+  chunkSize = 10, # number of motifs per chunk
+  cov_threshold = 1 # minimum coverage per site
 )
 ```
 
@@ -248,12 +248,12 @@ of regulatory regions, pass them through the `enhancer` argument:
 distal <- readRDS("distal_regions.RDS") # a GRanges of distal regions
 
 deviations_distal <- run_methylTFR_RnBeads(
-    rnb_set = rnb_set,
-    tf_bindsites = tf_bindsites,
-    gcfreqs = getGCfreq(motifSet = "jaspar2020_distal"),
-    gc_dist = gc_dist,
-    enhancer = distal,
-    threads = 8
+  rnb_set = rnb_set,
+  tf_bindsites = tf_bindsites,
+  gcfreqs = getGCfreq(motifSet = "jaspar2020_distal"),
+  gc_dist = gc_dist,
+  enhancer = distal,
+  threads = 8
 )
 ```
 
