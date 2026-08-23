@@ -48,80 +48,79 @@
 #' @seealso \code{\link{run_methylTFR_RnBeads}} for running methylTFR
 #' directly on a preprocessed RnBeads object.
 #' @export
-run_methyltfr <- function(
-        sample_ann, sample_dir, tf_bindsites = NULL,
-        gcfreqs = NULL, gc_dist = NULL,
-        sampleColName = "bedFile", chunkSize = 20,
-        full_path = FALSE, annfile = NULL, threads = 1,
-        enhancer = NULL, filetype = NULL,
-        ignoreStrand = TRUE, cov_threshold = 1) {
-    if (!tolower(filetype) %in% c(
-        "bissnp", "epp", "allc", "bismarkcytosine",
-        "bismarkcov", "encode"
-    )) {
-        stop("Please provide a valid file type")
-    }
-    if (is.null(sampleColName) || !is.character(sampleColName)) {
-        stop("Please provide a valid sample column name")
-    }
-    if (!is.logical(full_path)) {
-        stop(
-            "Invalid full path flag detected, ",
-            "please provide a valid logical value"
-        )
-    }
-    check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
-    opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
-
-    if (is.null(annfile) || !is.character(annfile)) {
-        if (is.null(sample_ann) || !is.character(sample_ann)) {
-            stop("Please provide a valid sample annotation file")
-        }
-        if (is.null(sample_dir) || !is.character(sample_dir)) {
-            stop("Please provide a valid sample directory")
-        }
-        if (!dir.exists(sample_dir)) {
-            stop(
-                "Sample directory does not exist, ",
-                "please check the directory path"
-            )
-        }
-        annfile <- file.path(sample_dir, sample_ann)
-    }
-
-    samples <- read_sample_annotation(annfile, sampleColName)
-
-    if (full_path) {
-        files_list <- samples[, sampleColName]
-    } else {
-        files_list <- file.path(sample_dir, samples[, sampleColName])
-    }
-    if (!all(file.exists(files_list))) {
-        stop(
-            "Some of the files does not exist, ",
-            "please check the file path!"
-        )
-    }
-    log_success("The samples are successfully located")
-
-    # Per-sample reader handed to the shared engine
-    msites_fun <- function(i) {
-        read_methylome(files_list[i],
-            type = filetype,
-            cov_threshold = opts$cov_threshold
-        )
-    }
-
-    methyltfr_core(
-        sample_ids = basename(files_list),
-        msites_fun = msites_fun,
-        samples = samples,
-        tf_bindsites = tf_bindsites,
-        gcfreqs = gcfreqs,
-        gc_dist = gc_dist,
-        chunkSize = opts$chunkSize,
-        threads = opts$threads,
-        enhancer = enhancer,
-        ignoreStrand = opts$ignoreStrand
+run_methyltfr <- function(sample_ann, sample_dir, tf_bindsites = NULL,
+                          gcfreqs = NULL, gc_dist = NULL,
+                          sampleColName = "bedFile", chunkSize = 20,
+                          full_path = FALSE, annfile = NULL, threads = 1,
+                          enhancer = NULL, filetype = NULL,
+                          ignoreStrand = TRUE, cov_threshold = 1) {
+  if (!tolower(filetype) %in% c(
+    "bissnp", "epp", "allc", "bismarkcytosine",
+    "bismarkcov", "encode"
+  )) {
+    stop("Please provide a valid file type")
+  }
+  if (is.null(sampleColName) || !is.character(sampleColName)) {
+    stop("Please provide a valid sample column name")
+  }
+  if (!is.logical(full_path)) {
+    stop(
+      "Invalid full path flag detected, ",
+      "please provide a valid logical value"
     )
+  }
+  check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
+  opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
+
+  if (is.null(annfile) || !is.character(annfile)) {
+    if (is.null(sample_ann) || !is.character(sample_ann)) {
+      stop("Please provide a valid sample annotation file")
+    }
+    if (is.null(sample_dir) || !is.character(sample_dir)) {
+      stop("Please provide a valid sample directory")
+    }
+    if (!dir.exists(sample_dir)) {
+      stop(
+        "Sample directory does not exist, ",
+        "please check the directory path"
+      )
+    }
+    annfile <- file.path(sample_dir, sample_ann)
+  }
+
+  samples <- read_sample_annotation(annfile, sampleColName)
+
+  if (full_path) {
+    files_list <- samples[, sampleColName]
+  } else {
+    files_list <- file.path(sample_dir, samples[, sampleColName])
+  }
+  if (!all(file.exists(files_list))) {
+    stop(
+      "Some of the files does not exist, ",
+      "please check the file path!"
+    )
+  }
+  log_success("The samples are successfully located")
+
+  # Per-sample reader handed to the shared engine
+  msites_fun <- function(i) {
+    read_methylome(files_list[i],
+      type = filetype,
+      cov_threshold = opts$cov_threshold
+    )
+  }
+
+  methyltfr_core(
+    sample_ids = basename(files_list),
+    msites_fun = msites_fun,
+    samples = samples,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    gc_dist = gc_dist,
+    chunkSize = opts$chunkSize,
+    threads = opts$threads,
+    enhancer = enhancer,
+    ignoreStrand = opts$ignoreStrand
+  )
 }

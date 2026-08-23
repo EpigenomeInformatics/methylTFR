@@ -13,10 +13,10 @@ vignette: >
 ```{r setup, include = FALSE}
 library(BiocStyle)
 knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>",
-    fig.width = 6,
-    fig.height = 4
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4
 )
 ```
 
@@ -61,13 +61,13 @@ colour denotes the same cell type in every figure.
 
 ```{r palette}
 cell_type_colors <- c(
-    "Th-Mem"   = "#41B6C4",
-    "Tc-Mem"   = "#4292C6",
-    "Tc-Naive" = "#888FB5",
-    "Th-Naive" = "#C7E9B4",
-    "B-cell"   = "#AE017E",
-    "NK-cell"  = "#A65628",
-    "Monocyte" = "#CC4C02"
+  "Th-Mem"   = "#41B6C4",
+  "Tc-Mem"   = "#4292C6",
+  "Tc-Naive" = "#888FB5",
+  "Th-Naive" = "#C7E9B4",
+  "B-cell"   = "#AE017E",
+  "NK-cell"  = "#A65628",
+  "Monocyte" = "#CC4C02"
 )
 ```
 
@@ -137,18 +137,18 @@ pca <- prcomp(t(dev_mat), center = TRUE, scale. = FALSE)
 var_expl <- round(100 * pca$sdev^2 / sum(pca$sdev^2), 1)
 
 pca_df <- data.frame(
-    PC1 = pca$x[, 1], PC2 = pca$x[, 2],
-    cell_type = colData(immuneDeviations)$cell_type
+  PC1 = pca$x[, 1], PC2 = pca$x[, 2],
+  cell_type = colData(immuneDeviations)$cell_type
 )
 
 ggplot(pca_df, aes(PC1, PC2, colour = cell_type)) +
-    geom_point(size = 2, alpha = 0.85) +
-    scale_colour_manual(values = cell_type_colors, name = NULL) +
-    labs(
-        x = sprintf("PC1 (%.1f%%)", var_expl[1]),
-        y = sprintf("PC2 (%.1f%%)", var_expl[2])
-    ) +
-    theme_classic()
+  geom_point(size = 2, alpha = 0.85) +
+  scale_colour_manual(values = cell_type_colors, name = NULL) +
+  labs(
+    x = sprintf("PC1 (%.1f%%)", var_expl[1]),
+    y = sprintf("PC2 (%.1f%%)", var_expl[2])
+  ) +
+  theme_classic()
 ```
 
 PC1 separates the myeloid samples from the lymphoid ones. PC2 resolves
@@ -201,26 +201,26 @@ deviation score in the naive state.
 
 ```{r helper}
 compare_subsets <- function(object, naive, memory) {
-    grp_all <- colData(object)$cell_type
-    keep <- grp_all %in% c(naive, memory)
-    grp <- factor(as.character(grp_all[keep]), levels = c(naive, memory))
+  grp_all <- colData(object)$cell_type
+  keep <- grp_all %in% c(naive, memory)
+  grp <- factor(as.character(grp_all[keep]), levels = c(naive, memory))
 
-    dev_sub <- deviations(object)[, keep, drop = FALSE]
-    z_sub <- deviationZScores(object)[, keep, drop = FALSE]
-    is_naive <- grp == naive
+  dev_sub <- deviations(object)[, keep, drop = FALSE]
+  z_sub <- deviationZScores(object)[, keep, drop = FALSE]
+  is_naive <- grp == naive
 
-    res <- differential_deviation_test(
-        deviations = dev_sub,
-        groups = grp,
-        alternative = "two.sided",
-        parametric = TRUE,
-        padjMethod = "BH"
-    )
-    res$diff <- rowMeans(dev_sub[, is_naive, drop = FALSE]) -
-        rowMeans(dev_sub[, !is_naive, drop = FALSE])
-    res$zdiff <- rowMeans(z_sub[, is_naive, drop = FALSE]) -
-        rowMeans(z_sub[, !is_naive, drop = FALSE])
-    res[order(res$p_value_adjusted), ]
+  res <- differential_deviation_test(
+    deviations = dev_sub,
+    groups = grp,
+    alternative = "two.sided",
+    parametric = TRUE,
+    padjMethod = "BH"
+  )
+  res$diff <- rowMeans(dev_sub[, is_naive, drop = FALSE]) -
+    rowMeans(dev_sub[, !is_naive, drop = FALSE])
+  res$zdiff <- rowMeans(z_sub[, is_naive, drop = FALSE]) -
+    rowMeans(z_sub[, !is_naive, drop = FALSE])
+  res[order(res$p_value_adjusted), ]
 }
 
 tc_res <- compare_subsets(immuneDeviations, "Tc-Naive", "Tc-Mem")
@@ -254,9 +254,9 @@ motif rather than of the subset.
 
 ```{r heatmap, fig.height = 6.8, fig.width = 7}
 top_motifs <- head(
-    tc_res$motifs[
-        tc_res$p_value_adjusted < 0.05 & abs(tc_res$zdiff) > 0.5
-    ], 25
+  tc_res$motifs[
+    tc_res$p_value_adjusted < 0.05 & abs(tc_res$zdiff) > 0.5
+  ], 25
 )
 
 sample_order <- order(colData(immuneDeviations)$cell_type)
@@ -265,41 +265,42 @@ sample_levels <- colnames(z_top)
 subset_of <- colData(immuneDeviations)$cell_type[sample_order]
 
 heat_df <- data.frame(
-    motif = factor(
-        rep(rownames(z_top), times = ncol(z_top)),
-        levels = rev(top_motifs)
-    ),
-    sample = factor(
-        rep(sample_levels, each = nrow(z_top)), levels = sample_levels
-    ),
-    z = as.vector(z_top)
+  motif = factor(
+    rep(rownames(z_top), times = ncol(z_top)),
+    levels = rev(top_motifs)
+  ),
+  sample = factor(
+    rep(sample_levels, each = nrow(z_top)),
+    levels = sample_levels
+  ),
+  z = as.vector(z_top)
 )
 
 ann_df <- data.frame(
-    sample = factor(sample_levels, levels = sample_levels),
-    cell_type = subset_of
+  sample = factor(sample_levels, levels = sample_levels),
+  cell_type = subset_of
 )
 
 ggplot() +
-    geom_tile(data = heat_df, aes(sample, motif, fill = z)) +
-    geom_point(
-        data = ann_df,
-        aes(sample, y = length(top_motifs) + 1.2, colour = cell_type),
-        shape = 15, size = 2.4
-    ) +
-    scale_fill_gradient2(
-        low = "#2166AC", mid = "white", high = "#B2182B",
-        midpoint = 0, name = "Z-score"
-    ) +
-    scale_colour_manual(values = cell_type_colors, name = NULL) +
-    labs(x = NULL, y = NULL) +
-    theme_classic() +
-    theme(
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.text.y = element_text(size = 7),
-        legend.position = "right"
-    )
+  geom_tile(data = heat_df, aes(sample, motif, fill = z)) +
+  geom_point(
+    data = ann_df,
+    aes(sample, y = length(top_motifs) + 1.2, colour = cell_type),
+    shape = 15, size = 2.4
+  ) +
+  scale_fill_gradient2(
+    low = "#2166AC", mid = "white", high = "#B2182B",
+    midpoint = 0, name = "Z-score"
+  ) +
+  scale_colour_manual(values = cell_type_colors, name = NULL) +
+  labs(x = NULL, y = NULL) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.text.y = element_text(size = 7),
+    legend.position = "right"
+  )
 ```
 
 Most of the selected motifs belong to the AP-1 family. Their pattern is
@@ -319,13 +320,13 @@ two compartments identify the same motifs.
 ```{r agreement}
 shared <- intersect(tc_res$motifs, th_res$motifs)
 agree <- data.frame(
-    motifs = shared,
-    tc = tc_res$zdiff[match(shared, tc_res$motifs)],
-    th = th_res$zdiff[match(shared, th_res$motifs)]
+  motifs = shared,
+  tc = tc_res$zdiff[match(shared, tc_res$motifs)],
+  th = th_res$zdiff[match(shared, th_res$motifs)]
 )
 agree$sig_both <-
-    tc_res$p_value_adjusted[match(shared, tc_res$motifs)] < 0.05 &
-        th_res$p_value_adjusted[match(shared, th_res$motifs)] < 0.05
+  tc_res$p_value_adjusted[match(shared, tc_res$motifs)] < 0.05 &
+    th_res$p_value_adjusted[match(shared, th_res$motifs)] < 0.05
 
 rho <- cor(agree$tc, agree$th)
 round(rho, 3)
@@ -339,28 +340,28 @@ ranked <- agree[order(agree$tc + agree$th), ]
 labelled <- rbind(head(ranked, 4), tail(ranked, 4))
 
 ggplot(agree, aes(tc, th)) +
-    geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
-    geom_vline(xintercept = 0, linetype = "dashed", colour = "grey60") +
-    geom_point(aes(colour = sig_both), size = 1.8, alpha = 0.85) +
-    geom_text(
-        data = labelled, aes(label = motifs),
-        size = 3, vjust = -0.8, check_overlap = TRUE
-    ) +
-    scale_colour_manual(
-        values = c("FALSE" = "grey75", "TRUE" = "#4292C6"),
-        name = "significant in both"
-    ) +
-    labs(
-        x = "CD8: Z-score difference (naive - memory)",
-        y = "CD4: Z-score difference (naive - memory)",
-        title = sprintf("Pearson r = %.2f", rho)
-    ) +
-    theme_classic() +
-    theme(
-        legend.position = "bottom",
-        axis.title.x = element_text(colour = cell_type_colors[["Tc-Mem"]]),
-        axis.title.y = element_text(colour = cell_type_colors[["Th-Mem"]])
-    )
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey60") +
+  geom_point(aes(colour = sig_both), size = 1.8, alpha = 0.85) +
+  geom_text(
+    data = labelled, aes(label = motifs),
+    size = 3, vjust = -0.8, check_overlap = TRUE
+  ) +
+  scale_colour_manual(
+    values = c("FALSE" = "grey75", "TRUE" = "#4292C6"),
+    name = "significant in both"
+  ) +
+  labs(
+    x = "CD8: Z-score difference (naive - memory)",
+    y = "CD4: Z-score difference (naive - memory)",
+    title = sprintf("Pearson r = %.2f", rho)
+  ) +
+  theme_classic() +
+  theme(
+    legend.position = "bottom",
+    axis.title.x = element_text(colour = cell_type_colors[["Tc-Mem"]]),
+    axis.title.y = element_text(colour = cell_type_colors[["Th-Mem"]])
+  )
 ```
 
 The effect sizes are correlated and share sign for most motifs, so the
@@ -403,18 +404,18 @@ captures.
 
 ```{r expfootprint, fig.height = 4.2, message = FALSE}
 plotExpectedFootprint(
-    motif = "BATF",
-    tf_bindsites = tf_bindsites,
-    msites = msites_sub,
-    sample_name = batf_cell_type,
-    gc_dist = gcdist,
-    gcfreqs = gcfreqs,
-    enhancer = NULL,
-    returnPlotData = FALSE
+  motif = "BATF",
+  tf_bindsites = tf_bindsites,
+  msites = msites_sub,
+  sample_name = batf_cell_type,
+  gc_dist = gcdist,
+  gcfreqs = gcfreqs,
+  enhancer = NULL,
+  returnPlotData = FALSE
 ) +
-    scale_colour_manual(values = c(
-        Observed = batf_colour, Expected = "grey55"
-    ))
+  scale_colour_manual(values = c(
+    Observed = batf_colour, Expected = "grey55"
+  ))
 ```
 
 ## Bias-corrected footprint
@@ -426,17 +427,17 @@ profile; `method = "division"` uses their ratio.
 
 ```{r fpdiff, fig.height = 4.2, message = FALSE}
 plotMotifFootprint(
-    motif = "BATF",
-    tf_bindsites = tf_bindsites,
-    msites = msites_sub,
-    sample_name = batf_cell_type,
-    gc_dist = gcdist,
-    gcfreqs = gcfreqs,
-    enhancer = NULL,
-    method = "substraction",
-    flankNorm = 50
+  motif = "BATF",
+  tf_bindsites = tf_bindsites,
+  msites = msites_sub,
+  sample_name = batf_cell_type,
+  gc_dist = gcdist,
+  gcfreqs = gcfreqs,
+  enhancer = NULL,
+  method = "substraction",
+  flankNorm = 50
 ) +
-    scale_colour_manual(values = batf_colour)
+  scale_colour_manual(values = batf_colour)
 ```
 
 A depression at the motif centre indicates methylation below the level
