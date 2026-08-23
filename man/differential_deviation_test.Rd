@@ -48,31 +48,31 @@ chromVAR::differential_test
 \examples{
 # Load example data
 load(system.file("extdata",
-  "tc_mem.rda",
-  package = "methylTFR"
+    "tc_mem.rda",
+    package = "methylTFR"
 ))
 load(system.file("extdata",
-  "tc_naive.rda",
-  package = "methylTFR"
+    "tc_naive.rda",
+    package = "methylTFR"
 ))
 devs <- cbind(tc_mem, tc_naive)
 
 # Construct group labels from sample names
 get_groupname <- function(x) {
-  return(unlist(strsplit(x, split = "_"))[1])
+    return(unlist(strsplit(x, split = "_"))[1])
 }
 groups <- sub(".bedGraph", "", unlist(lapply(
-  FUN = get_groupname,
-  X = colnames(devs)
+    FUN = get_groupname,
+    X = colnames(devs)
 )))
 
 # Perform differential analysis
 tc_result <- differential_deviation_test(
-  deviations = devs,
-  groups = groups,
-  motifs = rownames(devs),
-  alternative = "two.sided",
-  parametric = TRUE,
-  padjMethod = "BH"
+    deviations = devs,
+    groups = groups,
+    motifs = rownames(devs),
+    alternative = "two.sided",
+    parametric = TRUE,
+    padjMethod = "BH"
 )
 }

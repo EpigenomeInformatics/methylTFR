@@ -90,19 +90,19 @@ insensitive to a uniform single-base shift.
 # preprocessed RnBeads set.
 \donttest{
 if (requireNamespace("RnBeads", quietly = TRUE)) {
-  # rnb_set <- RnBeads::load.rnb.set("reports/rnb.set_preprocessed")
-  # gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-  # gc_dist <- getGenomeGC("hg38")
-  # tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
-  #
-  # deviations <- run_methylTFR_RnBeads(
-  #     rnb_set = rnb_set,
-  #     tf_bindsites = tf_bindsites,
-  #     gcfreqs = gcfreqs,
-  #     gc_dist = gc_dist,
-  #     threads = 8,
-  #     chunkSize = 15
-  # )
+    # rnb_set <- RnBeads::load.rnb.set("reports/rnb.set_preprocessed")
+    # gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+    # gc_dist <- getGenomeGC("hg38")
+    # tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+    #
+    # deviations <- run_methylTFR_RnBeads(
+    #     rnb_set = rnb_set,
+    #     tf_bindsites = tf_bindsites,
+    #     gcfreqs = gcfreqs,
+    #     gc_dist = gc_dist,
+    #     threads = 8,
+    #     chunkSize = 15
+    # )
 }
 }
 }

@@ -23,32 +23,32 @@
 #' @importFrom matrixStats colMedians colMads colMeans2 colSds
 #' @keywords internal
 calibrateDeviations <- function(devs, method = c("robust", "gaussian")) {
-  method <- match.arg(method)
-  devs <- as.matrix(devs)
-  if (method == "robust") {
-    centre <- matrixStats::colMedians(devs, na.rm = TRUE)
-    scale <- matrixStats::colMads(devs, na.rm = TRUE)
-  } else {
-    centre <- matrixStats::colMeans2(devs, na.rm = TRUE)
-    scale <- matrixStats::colSds(devs, na.rm = TRUE)
-  }
-  bad <- !is.finite(scale) | scale <= 0
-  if (any(bad)) {
-    if (all(bad)) {
-      stop(
-        "The null scale could not be estimated for any sample. ",
-        "Check that the deviation matrix is not constant."
-      )
+    method <- match.arg(method)
+    devs <- as.matrix(devs)
+    if (method == "robust") {
+        centre <- matrixStats::colMedians(devs, na.rm = TRUE)
+        scale <- matrixStats::colMads(devs, na.rm = TRUE)
+    } else {
+        centre <- matrixStats::colMeans2(devs, na.rm = TRUE)
+        scale <- matrixStats::colSds(devs, na.rm = TRUE)
     }
-    warning(
-      sum(bad), " sample(s) had a degenerate null scale; ",
-      "substituting the median scale of the remaining samples."
-    )
-    scale[bad] <- stats::median(scale[!bad])
-  }
-  z <- sweep(devs, 2, centre, FUN = "-")
-  z <- sweep(z, 2, scale, FUN = "/")
-  return(z)
+    bad <- !is.finite(scale) | scale <= 0
+    if (any(bad)) {
+        if (all(bad)) {
+            stop(
+                "The null scale could not be estimated for any sample. ",
+                "Check that the deviation matrix is not constant."
+            )
+        }
+        warning(
+            sum(bad), " sample(s) had a degenerate null scale; ",
+            "substituting the median scale of the remaining samples."
+        )
+        scale[bad] <- stats::median(scale[!bad])
+    }
+    z <- sweep(devs, 2, centre, FUN = "-")
+    z <- sweep(z, 2, scale, FUN = "/")
+    return(z)
 }
 
 
@@ -126,85 +126,87 @@ computeZScoreVariability <- function(
   conf_level = 0.95,
   padjMethod = "BH"
 ) {
-  method <- match.arg(method)
-  if (is(object, "methylTFRdeviations")) {
-    devs <- deviations(object)
-  } else if (is.matrix(object) || is.data.frame(object)) {
-    devs <- as.matrix(object)
-  } else {
-    stop(
-      "object must be a methylTFRdeviations object, ",
-      "a matrix or a data.frame"
-    )
-  }
-  if (!is.numeric(devs)) {
-    stop("The deviation scores must be numeric")
-  }
-  if (ncol(devs) < 3) {
-    stop(
-      "At least three samples are required to estimate variability; ",
-      "found ", ncol(devs), "."
-    )
-  }
-  if (!is.logical(bootstrap) || length(bootstrap) != 1) {
-    stop("bootstrap must be a single logical value")
-  }
-  if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-    stop("conf_level must be a number between 0 and 1")
-  }
-
-  if (nrow(devs) < 50) {
-    message(
-      "Only ", nrow(devs), " motifs supplied. The within-sample null is ",
-      "estimated across motifs, so variability estimates from small ",
-      "motif sets should be treated as indicative only."
-    )
-  }
-
-  motif_names <- rownames(devs)
-  if (is.null(motif_names)) {
-    motif_names <- paste0("motif_", seq_len(nrow(devs)))
-  }
-
-  z <- calibrateDeviations(devs, method = method)
-  variability <- matrixStats::rowSds(z, na.rm = TRUE)
-  n_obs <- rowSums(!is.na(z))
-
-  p_value <- rep(NA_real_, length(variability))
-  testable <- is.finite(variability) & n_obs > 1
-  p_value[testable] <- stats::pchisq(
-    variability[testable]^2 * (n_obs[testable] - 1),
-    df = n_obs[testable] - 1,
-    lower.tail = FALSE
-  )
-  p_adj <- stats::p.adjust(p_value, method = padjMethod)
-
-  res <- data.frame(
-    motifs = motif_names,
-    variability = variability,
-    p_value = p_value,
-    p_value_adjusted = p_adj,
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
-
-  if (bootstrap) {
-    if (!is.numeric(niterations) || niterations < 2) {
-      stop("niterations must be a number greater than 1")
+    method <- match.arg(method)
+    if (is(object, "methylTFRdeviations")) {
+        devs <- deviations(object)
+    } else if (is.matrix(object) || is.data.frame(object)) {
+        devs <- as.matrix(object)
+    } else {
+        stop(
+            "object must be a methylTFRdeviations object, ",
+            "a matrix or a data.frame"
+        )
     }
-    niterations <- as.integer(niterations)
-    boot <- vapply(seq_len(niterations), function(k) {
-      idx <- sample.int(ncol(z), ncol(z), replace = TRUE)
-      matrixStats::rowSds(z[, idx, drop = FALSE], na.rm = TRUE)
-    }, numeric(nrow(z)))
-    alpha <- (1 - conf_level) / 2
-    res$bootstrap_lower_bound <- apply(boot, 1, stats::quantile,
-      probs = alpha, na.rm = TRUE
-    )
-    res$bootstrap_upper_bound <- apply(boot, 1, stats::quantile,
-      probs = 1 - alpha, na.rm = TRUE
-    )
-  }
+    if (!is.numeric(devs)) {
+        stop("The deviation scores must be numeric")
+    }
+    if (ncol(devs) < 3) {
+        stop(
+            "At least three samples are required to estimate variability; ",
+            "found ", ncol(devs), "."
+        )
+    }
+    if (!is.logical(bootstrap) || length(bootstrap) != 1) {
+        stop("bootstrap must be a single logical value")
+    }
+    if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
+        stop("conf_level must be a number between 0 and 1")
+    }
 
-  return(res)
+    if (nrow(devs) < 50) {
+        message(
+            "Only ", nrow(devs), " motifs supplied. The within-sample null is ",
+            "estimated across motifs, so variability estimates from small ",
+            "motif sets should be treated as indicative only."
+        )
+    }
+
+    motif_names <- rownames(devs)
+    if (is.null(motif_names)) {
+        motif_names <- paste0("motif_", seq_len(nrow(devs)))
+    }
+
+    z <- calibrateDeviations(devs, method = method)
+    variability <- matrixStats::rowSds(z, na.rm = TRUE)
+    n_obs <- rowSums(!is.na(z))
+
+    p_value <- rep(NA_real_, length(variability))
+    testable <- is.finite(variability) & n_obs > 1
+    p_value[testable] <- stats::pchisq(
+        variability[testable]^2 * (n_obs[testable] - 1),
+        df = n_obs[testable] - 1,
+        lower.tail = FALSE
+    )
+    p_adj <- stats::p.adjust(p_value, method = padjMethod)
+
+    res <- data.frame(
+        motifs = motif_names,
+        variability = variability,
+        p_value = p_value,
+        p_value_adjusted = p_adj,
+        stringsAsFactors = FALSE,
+        row.names = NULL
+    )
+
+    if (bootstrap) {
+        if (!is.numeric(niterations) || niterations < 2) {
+            stop("niterations must be a number greater than 1")
+        }
+        niterations <- as.integer(niterations)
+        boot <- vapply(seq_len(niterations), function(k) {
+            idx <- sample.int(ncol(z), ncol(z), replace = TRUE)
+            matrixStats::rowSds(z[, idx, drop = FALSE], na.rm = TRUE)
+        }, numeric(nrow(z)))
+        alpha <- (1 - conf_level) / 2
+        res$bootstrap_lower_bound <- apply(
+            boot, 1, stats::quantile,
+            probs = alpha, na.rm = TRUE
+        )
+        res$bootstrap_upper_bound <- apply(
+            boot, 1, stats::quantile,
+            probs = 1 - alpha, na.rm = TRUE
+        )
+    }
+
+    return(res)
 }

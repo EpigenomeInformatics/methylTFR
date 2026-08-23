@@ -2,10 +2,10 @@
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%"
 )
 ```
 
@@ -25,7 +25,7 @@ Get the latest release `methylTFR` from [Bioconductor](http://bioconductor.org/)
 
 ```{r 'install', eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 
 BiocManager::install("methylTFR")
@@ -35,7 +35,7 @@ And the development version from [GitHub](https://github.com/EpigenomeInformatic
 
 ```{r 'install_dev', eval = FALSE}
 if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
+    install.packages("remotes")
 }
 remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
@@ -66,14 +66,14 @@ sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
 deviations <- run_methyltfr(sample_ann, # sample annotation file
-  sample_dir, # where the EPP files are
-  threads = 8, # number of threads
-  chunkSize = 10, # number of chunks to process
-  sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-  tf_bindsites = tf_bindsites, # TF binding sites
-  gcfreqs = gcfreqs, # GC frequency
-  gc_dist = gc_dist, # GC distribution
-  filetype = "EPP" # file type
+    sample_dir, # where the EPP files are
+    threads = 8, # number of threads
+    chunkSize = 10, # number of chunks to process
+    sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    filetype = "EPP" # file type
 )
 ```
 

@@ -1,11 +1,11 @@
 ---
-title: "methylTFR: Quantification of DNA Methylation Signatures in Transcription Factor Binding Sites"
+title: "methylTFR: DNA Methylation Signatures in Transcription Factor Binding Sites"
 author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
 date: "`r Sys.Date()`"
 package: methylTFR
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{methylTFR: Quantification of DNA Methylation Signatures in Transcription Factor Binding Sites}
+  %\VignetteIndexEntry{methylTFR: DNA Methylation Signatures in TFBS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,32 +13,28 @@ vignette: >
 ```{r setup, include = FALSE}
 library(BiocStyle)
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
 ## Introduction
 
-DNA methylation can modulate transcription factor (TF) binding,
- particularly when occurring within transcription factor 
- binding sites (TFBS). 
-`methylTFR` is an R package that identifies DNA methylation 
-signatures at TFBS using whole-genome bisulfite sequencing (WGBS)
- data.
+DNA methylation can modulate transcription factor (TF) binding, particularly
+when occurring within transcription factor binding sites (TFBS). `methylTFR`
+is an R package that identifies DNA methylation signatures at TFBS using
+whole-genome bisulfite sequencing (WGBS) data.
 
-For each sample, methylation levels are first aggregated across all
- genomic regions corresponding to TFBS. This yields the
-  **observed deviation**, which captures the raw signal of 
-  methylation enrichment or depletion for each TF.
-To account for sequence composition biases, `methylTFR` then 
-estimates an **expected deviation** using genomic background 
-models derived from TF motif GC content and genome-wide GC frequency.
-This deviation matrix provides a compact and interpretable 
-representation of TFBS methylation across samples, suitable 
-for downstream analyses such as dimensionality reduction 
-(e.g., PCA, UMAP), clustering, differential testing, and 
-visualization of TF-specific methylation footprints. 
+For each sample, methylation levels are first aggregated across all genomic
+regions corresponding to TFBS. This yields the **observed deviation**, which
+captures the raw signal of methylation enrichment or depletion for each TF.
+To account for sequence composition biases, `methylTFR` then estimates an
+**expected deviation** using genomic background models derived from TF motif
+GC content and genome-wide GC frequency. This deviation matrix provides a
+compact and interpretable representation of TFBS methylation across samples,
+suitable for downstream analyses such as dimensionality reduction (e.g., PCA,
+UMAP), clustering, differential testing, and visualization of TF-specific
+methylation footprints. 
 
 ![](../man/figures/overview.png){width=80%}
 
@@ -49,7 +45,7 @@ accepted, install the development version from GitHub:
 
 ```r
 if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
+    install.packages("remotes")
 }
 remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
@@ -58,7 +54,7 @@ Once accepted, it will be installable with:
 
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 
 BiocManager::install("methylTFR")
@@ -73,17 +69,17 @@ library(methylTFR)
 
 ### Read a Sample File
 
-The `read_methylome()` function is used to import single-sample
- DNA methylation data into a `GRanges` object.  
-It supports several common file formats, including `EPP`, `ALLC`,
- `BisSNP`, `bismarkCytosine`, `bismarkcov`, and `ENCODE`. 
+The `read_methylome()` function is used to import single-sample DNA
+methylation data into a `GRanges` object. It supports several common file
+formats, including `EPP`, `ALLC`, `BisSNP`, `bismarkCytosine`, `bismarkcov`,
+and `ENCODE`. 
 
-You can optionally filter out low-coverage sites using the 
-`cov_threshold` parameter (default = 1), which excludes positions
- with insufficient read support.
+You can optionally filter out low-coverage sites using the `cov_threshold`
+parameter (default = 1), which excludes positions with insufficient read
+support.
 
-Below is an example of reading an example `EPP`-formatted file
- provided in the package:
+Below is an example of reading an example `EPP`-formatted file provided
+in the package:
 
 ```{r readmethylome}
 epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
@@ -107,7 +103,7 @@ with `getTFbindsites()`, `getGenomeGC()` and `getGCfreq()`, as shown in
 the multi-sample section below.
 
 To build annotations for a different assembly, motif set, or region
-restriction, use
+restriction, use 
 [`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder).
 
 The examples in this section instead use a small `BATF` subset bundled
@@ -116,18 +112,21 @@ with `methylTFR`, so they run without any annotation package.
 ### Input Data
 
 `methylTFR` relies on several precomputed annotation resources to estimate 
-expected methylation levels at transcription factor binding sites (TFBS). These annotations include:
+expected methylation levels at transcription factor binding sites (TFBS).
+These annotations include:
 
 - **GC distribution (`gcdist_subset`)**: Genome-wide GC content distribution
- around cytosines, used to model methylation expectations.
+    around cytosines, used to model methylation expectations.
 - **Motif GC frequency (`BATF_gcfreqs`)**: GC frequency profile specific to 
-the BATF motif across TFBS, used to correct for sequence composition bias.
+    the BATF motif across TFBS, used to correct for sequence composition bias.
 - **TF binding sites (`BATF_tf_bindsites`)**: A `GRanges` object containing 
-the genomic coordinates of BATF binding sites.
+    the genomic coordinates of BATF binding sites.
 - **Example methylation data (`example_data`)**: A small subset of methylation
- calls in EPP format, read using the `read_methylome()` function, provided for demonstration purposes.
+    calls in EPP format, read using the `read_methylome()` function, provided
+    for demonstration purposes.
 
-The following code loads these example datasets and displays the first few entries:
+The following code loads these example datasets and displays the first few
+entries:
 
 ```{r exdata}
 # Load the data
@@ -135,7 +134,6 @@ load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-
 
 # Check the data
 head(gcdist)
@@ -147,13 +145,13 @@ head(msites)
 ## Compute Deviation Score for a Single Sample and Single Motif
 
 The `computeDeviation()` function calculates the deviation score for a specific
- transcription factor (TF) motif in a single sample. It compares the observed
-  methylation at TF binding sites (TFBS) to the expected methylation derived
-   from GC frequency models.
+transcription factor (TF) motif in a single sample. It compares the observed
+methylation at TF binding sites (TFBS) to the expected methylation derived
+from GC frequency models.
 
 This example uses the `BATF` motif and the example methylation dataset loaded
- earlier. The methylation data must first be binned by GC content using
-  `addGCBintoMethylome()` before computing the deviation.
+earlier. The methylation data must first be binned by GC content using
+`addGCBintoMethylome()` before computing the deviation.
 
 ```{r single_deviation}
 # Add GC bins to methylation data
@@ -162,13 +160,13 @@ bin_meth
 
 # Compute deviation score for BATF motif
 deviation_score <- computeDeviation(
-  motif = "BATF",
-  msites = msites,
-  tf_bindsites = tf_bindsites,
-  gcfreqs = gcfreqs,
-  enhancer = NULL,
-  ignoreStrand = TRUE,
-  binMsites = bin_meth
+    motif = "BATF",
+    msites = msites,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    enhancer = NULL,
+    ignoreStrand = TRUE,
+    binMsites = bin_meth
 )
 
 # View the result
@@ -177,10 +175,11 @@ deviation_score
 
 
 ## Run methylTFR on multiple samples and motifs 
+
 The `methylTFR` package provides a `run_methyltfr` function to run
- the analysis on multiple samples and motif sites.
-You need to download the annotation package for the human genome
- (*hg38*) and place it in your working directory.
+the analysis on multiple samples and motif sites. You need to download
+the annotation package for the human genome (*hg38*) and place it in
+your working directory.
 
 ```{r multiple_samples, eval=FALSE}
 library(methylTFRAnnotationHg38) # annotation package for hg38
@@ -193,15 +192,16 @@ sample_dir <- file.path("samples_dir")
 sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
-deviations <- run_methyltfr(sample_ann, # sample annotation file
-  sample_dir, # where the EPP files are
-  threads = 8, # number of threads
-  chunkSize = 10, # number of chunks to process
-  sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-  tf_bindsites = tf_bindsites, # TF binding sites
-  gcfreqs = gcfreqs, # GC frequency
-  gc_dist = gc_dist, # GC distribution
-  filetype = "EPP" # file type
+deviations <- run_methyltfr(
+    annfile = sample_ann, # sample annotation file
+    sample_dir = sample_dir, # where the EPP files are
+    threads = 8, # number of threads
+    chunkSize = 10, # number of chunks to process
+    sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    filetype = "EPP" # file type
 )
 ```
 
@@ -229,13 +229,13 @@ gc_dist <- getGenomeGC("hg38")
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 deviations <- run_methylTFR_RnBeads(
-  rnb_set = rnb_set, # preprocessed RnBeads object
-  tf_bindsites = tf_bindsites, # TF binding sites
-  gcfreqs = gcfreqs, # GC frequency
-  gc_dist = gc_dist, # GC distribution
-  threads = 8, # number of threads
-  chunkSize = 10, # number of motifs per chunk
-  cov_threshold = 1 # minimum coverage per site
+    rnb_set = rnb_set, # preprocessed RnBeads object
+    tf_bindsites = tf_bindsites, # TF binding sites
+    gcfreqs = gcfreqs, # GC frequency
+    gc_dist = gc_dist, # GC distribution
+    threads = 8, # number of threads
+    chunkSize = 10, # number of motifs per chunk
+    cov_threshold = 1 # minimum coverage per site
 )
 ```
 
@@ -248,12 +248,12 @@ of regulatory regions, pass them through the `enhancer` argument:
 distal <- readRDS("distal_regions.RDS") # a GRanges of distal regions
 
 deviations_distal <- run_methylTFR_RnBeads(
-  rnb_set = rnb_set,
-  tf_bindsites = tf_bindsites,
-  gcfreqs = getGCfreq(motifSet = "jaspar2020_distal"),
-  gc_dist = gc_dist,
-  enhancer = distal,
-  threads = 8
+    rnb_set = rnb_set,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = getGCfreq(motifSet = "jaspar2020_distal"),
+    gc_dist = gc_dist,
+    enhancer = distal,
+    threads = 8
 )
 ```
 
@@ -268,4 +268,3 @@ only needed if this entry point is used.
 ```{r session-info}
 sessionInfo()
 ```
-
