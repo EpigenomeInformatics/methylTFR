@@ -346,7 +346,8 @@ heat_df <- data.frame(
         levels = rev(top_motifs)
     ),
     sample = factor(
-        rep(sample_levels, each = nrow(z_top)), levels = sample_levels
+        rep(sample_levels, each = nrow(z_top)),
+        levels = sample_levels
     ),
     z = as.vector(z_top)
 )
@@ -575,7 +576,7 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] ggplot2_4.0.3               methylTFR_0.99.1           
+#>  [1] ggplot2_4.0.3               methylTFR_0.99.4           
 #>  [3] SummarizedExperiment_1.42.0 Biobase_2.72.0             
 #>  [5] GenomicRanges_1.64.0        Seqinfo_1.2.0              
 #>  [7] IRanges_2.46.0              S4Vectors_0.50.1           

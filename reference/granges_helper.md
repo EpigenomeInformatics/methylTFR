@@ -12,27 +12,27 @@ granges_helper(grobj, chr, mscore, cov, startP, endP)
 
 - grobj:
 
-  - GRanges object
+  GRanges object
 
 - chr:
 
-  - chromosome
+  chromosome
 
 - mscore:
 
-  - methylation score
+  methylation score
 
 - cov:
 
-  - methylation coverage
+  methylation coverage
 
 - startP:
 
-  - start position
+  start position
 
 - endP:
 
-  - end position
+  end position
 
 ## Value
 

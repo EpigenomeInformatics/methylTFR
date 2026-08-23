@@ -1,4 +1,4 @@
-# methylTFR: Quantification of DNA Methylation Signatures in Transcription Factor Binding Sites
+# methylTFR: DNA Methylation Signatures in Transcription Factor Binding Sites
 
 ## Introduction
 
@@ -29,7 +29,7 @@ accepted, install the development version from GitHub:
 ``` r
 
 if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
+    install.packages("remotes")
 }
 remotes::install_github("EpigenomeInformatics/methylTFR")
 ```
@@ -39,7 +39,7 @@ Once accepted, it will be installable with:
 ``` r
 
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 
 BiocManager::install("methylTFR")
@@ -148,9 +148,8 @@ library(methylTFR)
 The
 [`read_methylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.md)
 function is used to import single-sample DNA methylation data into a
-`GRanges` object.  
-It supports several common file formats, including `EPP`, `ALLC`,
-`BisSNP`, `bismarkCytosine`, `bismarkcov`, and `ENCODE`.
+`GRanges` object. It supports several common file formats, including
+`EPP`, `ALLC`, `BisSNP`, `bismarkCytosine`, `bismarkcov`, and `ENCODE`.
 
 You can optionally filter out low-coverage sites using the
 `cov_threshold` parameter (default = 1), which excludes positions with
@@ -226,7 +225,6 @@ load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-
 
 # Check the data
 head(gcdist)
@@ -345,8 +343,9 @@ sample_dir <- file.path("samples_dir")
 sample_ann <- "samples.tsv" # should contain column name bedFile
 
 # deviation score matrix
-deviations <- run_methyltfr(sample_ann, # sample annotation file
-    sample_dir, # where the EPP files are
+deviations <- run_methyltfr(
+    annfile = sample_ann, # sample annotation file
+    sample_dir = sample_dir, # where the EPP files are
     threads = 8, # number of threads
     chunkSize = 10, # number of chunks to process
     sampleColName = "bedFile", # column name for EPP file paths in sample_ann
@@ -446,7 +445,7 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] methylTFR_0.99.1            SummarizedExperiment_1.42.0
+#>  [1] methylTFR_0.99.4            SummarizedExperiment_1.42.0
 #>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
 #>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
 #>  [7] S4Vectors_0.50.1            BiocGenerics_0.58.1        

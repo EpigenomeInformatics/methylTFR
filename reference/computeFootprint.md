@@ -1,4 +1,4 @@
-# computeFootprint (Corrected)
+# computeFootprint
 
 Compute footprint returns a data.table required to create a
 transcription factor footprint with label.

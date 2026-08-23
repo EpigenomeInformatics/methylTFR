@@ -13,4 +13,4 @@ well. Additionally, two accessor functions are defined for extracting
 bias corrected deviations
 ([`deviations`](https://epigenomeinformatics.github.io/methylTFR/reference/deviations-methylTFRdeviations-method.md))
 and deviation Z-scores
-([`deviationZScores`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores-methylTFRdeviations-method.md))
+(` `[`deviationZScores`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores-methylTFRdeviations-method.md)).

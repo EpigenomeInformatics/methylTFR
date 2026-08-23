@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
                         <h4 data-toc-skip class="author">Irem B. Gündüz,
 Sarath Kumar Murugan, Fabian Muller</h4>
             
-            <h4 data-toc-skip class="date">2026-08-21</h4>
+            <h4 data-toc-skip class="date">2026-08-23</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/main/vignettes/memTcells.Rmd" class="external-link"><code>vignettes/memTcells.Rmd</code></a></small>
       <div class="d-none name"><code>memTcells.Rmd</code></div>
@@ -399,7 +399,8 @@ motif rather than of the subset.</p>
 <span>        levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">top_motifs</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">sample_levels</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span><span class="op">)</span>, levels <span class="op">=</span> <span class="va">sample_levels</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">sample_levels</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        levels <span class="op">=</span> <span class="va">sample_levels</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -609,7 +610,7 @@ chemical exposure by multimodal single-cell profiling. <em>bioRxiv</em>
 <span><span class="co">#&gt; [8] base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt;  [1] ggplot2_4.0.3               methylTFR_0.99.1           </span></span>
+<span><span class="co">#&gt;  [1] ggplot2_4.0.3               methylTFR_0.99.4           </span></span>
 <span><span class="co">#&gt;  [3] SummarizedExperiment_1.42.0 Biobase_2.72.0             </span></span>
 <span><span class="co">#&gt;  [5] GenomicRanges_1.64.0        Seqinfo_1.2.0              </span></span>
 <span><span class="co">#&gt;  [7] IRanges_2.46.0              S4Vectors_0.50.1           </span></span>
