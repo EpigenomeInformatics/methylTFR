@@ -55,9 +55,9 @@
 #' )
 #' @export
 computeDeviation <- function(
-    motif, msites, tf_bindsites, gcfreqs,
-    enhancer = NULL, ignoreStrand = TRUE,
-    binMsites
+  motif, msites, tf_bindsites, gcfreqs,
+  enhancer = NULL, ignoreStrand = TRUE,
+  binMsites
 ) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
@@ -123,7 +123,7 @@ dev_helper <- function(data) {
     interval_mean <- na.omit(interval_mean[order(cuts)])
     num_intervals <- nrow(interval_mean)
     if (num_intervals > 0) {
-        avg_first_last <- ((interval_mean$mean[1] + 
+        avg_first_last <- ((interval_mean$mean[1] +
             interval_mean$mean[num_intervals]) / 2)
         var <- interval_mean$mean[(num_intervals + 1) %/% 2] / avg_first_last
     } else {
