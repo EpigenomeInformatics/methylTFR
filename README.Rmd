@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
 [![Test R-universe](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml)
 [![GitHub issues](https://img.shields.io/github/issues/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/issues)
 [![GitHub pulls](https://img.shields.io/github/issues-pr/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/pulls)
-<!-- badges: end -->
 
 `methylTFR` is an R-package to analyze DNA methylation signatures in transcription factor binding sites in each individual cells or samples.
 
