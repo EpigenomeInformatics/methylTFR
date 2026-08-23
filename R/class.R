@@ -1,12 +1,14 @@
 #' @title methylTFRdeviations
-#' @description Class for storing results from \code{\link{run_methyltfr}} function.
+#' @description Class for storing results from
+#' \code{\link{run_methyltfr}} function.
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 #' @details This class inherits from
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment}}, and most methods
 #' for that class should work for objects of this class as well. Additionally,
-#' two accessor functions are defined for extracting bias corrected deviations
-#' (\code{\link[=deviations,methylTFRdeviations-method]{deviations}}) and deviation Z-scores
-#' (\code{\link[=deviationZScores,methylTFRdeviations-method]{deviationZScores}})
+#' two accessor functions are defined for extracting bias corrected
+#' deviations (\code{\link[=deviations,methylTFRdeviations-method]{deviations}})
+#' and deviation Z-scores
+#' (\code{\link[=deviationZScores,methylTFRdeviations-method]{deviationZScores}}).
 #' @name methylTFRdeviations-class
 #' @rdname methylTFRdeviations-class
 #' @exportClass methylTFRdeviations
@@ -17,7 +19,9 @@ setClass("methylTFRdeviations", contains = "SummarizedExperiment")
 setValidity(
   "methylTFRdeviations",
   function(object) {
-    if (any(!c("deviations", "z") %in% SummarizedExperiment::assayNames(object))) {
+    req_assays <- c("deviations", "z")
+    se_assays <- SummarizedExperiment::assayNames(object)
+    if (any(!req_assays %in% se_assays)) {
       return("The assays slot must contain 'deviations' and 'z'")
     }
     return(TRUE)
@@ -29,7 +33,8 @@ setValidity(
 ##########################################################################
 
 #' @title deviations
-#' @description Function to get deviations from a methylTFRdeviations object.
+#' @description Function to get deviations from a
+#' methylTFRdeviations object.
 #' @param x A methylTFRdeviations object.
 #' @return A matrix of deviations.
 #' @export
@@ -41,7 +46,8 @@ setValidity(
 setGeneric("deviations", function(x) standardGeneric("deviations"))
 
 #' @title deviations
-#' @description Extract bias corrected deviations from methylTFRdeviations object.
+#' @description Extract bias corrected deviations from
+#' methylTFRdeviations object.
 #' @param x methylTFRdeviations object.
 #' @return A matrix of bias corrected deviations.
 #' @export
@@ -57,7 +63,8 @@ setMethod("deviations", "methylTFRdeviations", function(x) {
 })
 
 #' @title deviationZScores
-#' @description Function to get deviation Z-scores from a methylTFRdeviations object.
+#' @description Function to get deviation Z-scores from a
+#' methylTFRdeviations object.
 #' @param x A methylTFRdeviations object.
 #' @return A matrix of deviation Z-scores.
 #' @export
@@ -69,7 +76,8 @@ setMethod("deviations", "methylTFRdeviations", function(x) {
 setGeneric("deviationZScores", function(x) standardGeneric("deviationZScores"))
 
 #' @title deviationZScores
-#' @description Extract deviation Z-scores from methylTFRdeviations object.
+#' @description Extract deviation Z-scores from
+#' methylTFRdeviations object.
 #' @param x methylTFRdeviations object.
 #' @return A matrix of deviation Z-scores.
 #' @export

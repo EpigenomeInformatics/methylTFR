@@ -1,6 +1,6 @@
 Package: methylTFR
 Title: Quantification of DNA Methylation Signatures in TFBS
-Version: 0.99.2
+Version: 0.99.3
 Date: 2026-08-19
 Authors@R: c(
     person("Irem B.", "Gündüz", , "irembgunduz@gmail.com", role = c("aut", "cre"),
@@ -51,7 +51,6 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
-BiocType: Software
 biocViews: Software, DNAMethylation, SingleCell, StatisticalMethod,
     GeneRegulation, Epigenetics,Transcription, Sequencing, WholeGenome,
     DifferentialMethylation, MotifAnnotation, MotifDiscovery
