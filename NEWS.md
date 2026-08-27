@@ -27,6 +27,15 @@ BUG FIXES
 * The invalid-input fallback for `cov_threshold` in `run_methyltfr()` now sets
   the documented default of 1 rather than 5.
 
+DOCUMENTATION
+
+* The heatmap in the memory T cell vignette is now drawn with
+  `ComplexHeatmap` instead of `ggplot2`, with columns split by cell type
+  and rows clustered.
+* The compartment-agreement scatter plot in the same vignette now colours
+  each motif by where it is differential: red for both compartments,
+  green for CD4 only, blue for CD8 only and grey for neither.
+
 INTERNAL
 
 * The per-sample deviation loop shared by both entry points was factored out

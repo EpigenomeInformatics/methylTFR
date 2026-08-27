@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@
                         <h4 data-toc-skip class="author">Irem B. Gündüz,
 Sarath Kumar Murugan, Fabian Muller</h4>
             
-            <h4 data-toc-skip class="date">2026-08-21</h4>
+            <h4 data-toc-skip class="date">2026-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/HEAD/vignettes/memTcells.Rmd" class="external-link"><code>vignettes/memTcells.Rmd</code></a></small>
       <div class="d-none name"><code>memTcells.Rmd</code></div>
@@ -73,7 +73,7 @@ Sarath Kumar Murugan, Fabian Muller</h4>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This vignette demonstrates a complete downstream analysis of <em><a href="https://bioconductor.org/packages/3.17/methylTFR" class="external-link">methylTFR</a></em>
+<p>This vignette demonstrates a complete downstream analysis of <em><a href="https://bioconductor.org/packages/3.18/methylTFR" class="external-link">methylTFR</a></em>
 deviation scores, starting from a precomputed
 <code>methylTFRdeviations</code> object. It covers dimensionality
 reduction, differential activity testing between two groups, comparison
@@ -83,7 +83,7 @@ that the deviation scores summarise.</p>
 cells, in the cytotoxic (CD8, <code>Tc</code>) and helper (CD4,
 <code>Th</code>) compartments. All quantities are derived from DNA
 methylation.</p>
-<p>The following <em><a href="https://bioconductor.org/packages/3.17/methylTFR" class="external-link">methylTFR</a></em>
+<p>The following <em><a href="https://bioconductor.org/packages/3.18/methylTFR" class="external-link">methylTFR</a></em>
 functionality is demonstrated:</p>
 <table class="table">
 <thead><tr class="header">
@@ -125,7 +125,9 @@ their output.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/EpigenomeInformatics/methylTFR" class="external-link">methylTFR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jokergoo/ComplexHeatmap" class="external-link">ComplexHeatmap</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/jokergoo/circlize" class="external-link">circlize</a></span><span class="op">)</span></span></code></pre></div>
 <p>A single palette is used for the seven cell types throughout, so that
 a colour denotes the same cell type in every figure.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -373,10 +375,11 @@ ranges differ by an order of magnitude.</p>
 <h3 id="visualising-the-differential-motifs">Visualising the differential motifs<a class="anchor" aria-label="anchor" href="#visualising-the-differential-motifs"></a>
 </h3>
 <p>The motifs with the strongest change in the CD8 comparison are shown
-as row-wise Z-scores across all four subsets. Samples are ordered by
-subset, and the annotation row uses the palette defined above. The fill
-scale is diverging and encodes the Z-score, which is a property of the
-motif rather than of the subset.</p>
+as row-wise Z-scores across all seven cell types, drawn with <em><a href="https://bioconductor.org/packages/3.18/ComplexHeatmap" class="external-link">ComplexHeatmap</a></em>.
+Columns are split by cell type and annotated with the palette defined
+above; rows are clustered, so motifs with a similar activity profile are
+placed together. The fill scale is diverging and encodes the Z-score,
+which is a property of the motif rather than of the cell type.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top_motifs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span></span>
 <span>    <span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">[</span></span>
@@ -385,47 +388,51 @@ motif rather than of the subset.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sample_order</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span><span class="op">$</span><span class="va">cell_type</span><span class="op">)</span></span>
-<span><span class="va">z_top</span> <span class="op">&lt;-</span> <span class="va">z_mat</span><span class="op">[</span><span class="va">top_motifs</span>, <span class="va">sample_order</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
-<span><span class="va">sample_levels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span></span>
+<span><span class="co"># as.matrix() so that the heatmap also works when the assay is</span></span>
+<span><span class="co"># disk-backed.</span></span>
+<span><span class="va">z_top</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">z_mat</span><span class="op">[</span><span class="va">top_motifs</span>, <span class="va">sample_order</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">subset_of</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">immuneDeviations</span><span class="op">)</span><span class="op">$</span><span class="va">cell_type</span><span class="op">[</span><span class="va">sample_order</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">heat_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>    motif <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>        levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">top_motifs</span><span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">sample_levels</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span><span class="op">)</span>, levels <span class="op">=</span> <span class="va">sample_levels</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/as.vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span></span>
+<span><span class="co"># A symmetric diverging scale, so that zero is white and the two</span></span>
+<span><span class="co"># directions are comparable.</span></span>
+<span><span class="va">z_lim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">z_top</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">z_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/circlize/man/colorRamp2.html" class="external-link">colorRamp2</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="va">z_lim</span>, <span class="fl">0</span>, <span class="va">z_lim</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2166AC"</span>, <span class="st">"white"</span>, <span class="st">"#B2182B"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ann_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>    sample <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">sample_levels</span>, levels <span class="op">=</span> <span class="va">sample_levels</span><span class="op">)</span>,</span>
-<span>    cell_type <span class="op">=</span> <span class="va">subset_of</span></span>
+<span><span class="va">column_ann</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/HeatmapAnnotation.html" class="external-link">HeatmapAnnotation</a></span><span class="op">(</span></span>
+<span>    `cell type` <span class="op">=</span> <span class="va">subset_of</span>,</span>
+<span>    col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`cell type` <span class="op">=</span> <span class="va">cell_type_colors</span><span class="op">)</span>,</span>
+<span>    annotation_name_gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>,</span>
+<span>    annotation_legend_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`cell type` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>        title <span class="op">=</span> <span class="st">""</span>,</span>
+<span>        labels_gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span>    <span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">heat_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sample</span>, <span class="va">motif</span>, fill <span class="op">=</span> <span class="va">z</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
-<span>        data <span class="op">=</span> <span class="va">ann_df</span>,</span>
-<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">sample</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">top_motifs</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1.2</span>, colour <span class="op">=</span> <span class="va">cell_type</span><span class="op">)</span>,</span>
-<span>        shape <span class="op">=</span> <span class="fl">15</span>, size <span class="op">=</span> <span class="fl">2.4</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_fill_gradient2</a></span><span class="op">(</span></span>
-<span>        low <span class="op">=</span> <span class="st">"#2166AC"</span>, mid <span class="op">=</span> <span class="st">"white"</span>, high <span class="op">=</span> <span class="st">"#B2182B"</span>,</span>
-<span>        midpoint <span class="op">=</span> <span class="fl">0</span>, name <span class="op">=</span> <span class="st">"Z-score"</span></span>
-<span>    <span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">cell_type_colors</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
-<span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        axis.ticks.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>,</span>
-<span>        legend.position <span class="op">=</span> <span class="st">"right"</span></span>
-<span>    <span class="op">)</span></span></code></pre></div>
-<p><img src="memTcells_files/figure-html/heatmap-1.png" width="672"></p>
+<span><span class="va">heat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/Heatmap.html" class="external-link">Heatmap</a></span><span class="op">(</span></span>
+<span>    <span class="va">z_top</span>,</span>
+<span>    name <span class="op">=</span> <span class="st">"Z-score"</span>,</span>
+<span>    col <span class="op">=</span> <span class="va">z_col</span>,</span>
+<span>    top_annotation <span class="op">=</span> <span class="va">column_ann</span>,</span>
+<span>    column_split <span class="op">=</span> <span class="va">subset_of</span>,</span>
+<span>    cluster_columns <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    show_row_dend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    show_column_names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    row_names_gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>,</span>
+<span>    column_title_gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>,</span>
+<span>    row_dend_width <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">8</span>, <span class="st">"mm"</span><span class="op">)</span>,</span>
+<span>    heatmap_legend_param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>        title_gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize <span class="op">=</span> <span class="fl">8</span>, fontface <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span>,</span>
+<span>        labels_gp <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize <span class="op">=</span> <span class="fl">8</span><span class="op">)</span>,</span>
+<span>        legend_height <span class="op">=</span> <span class="fu">grid</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grid/unit.html" class="external-link">unit</a></span><span class="op">(</span><span class="fl">25</span>, <span class="st">"mm"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/ComplexHeatmap/man/draw-dispatch.html" class="external-link">draw</a></span><span class="op">(</span><span class="va">heat</span>, merge_legend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="memTcells_files/figure-html/heatmap-1.png" width="720"></p>
 <p>Most of the selected motifs belong to the AP-1 family. Their pattern
 is consistent across both T compartments, high in the naive subsets and
 low in the memory subsets, and lowest of all in monocytes. The T-box
@@ -441,40 +448,71 @@ lymphoid-myeloid contrast.</p>
 </h2>
 <p>The CD8 and CD4 contrasts are computed from disjoint sets of samples.
 Plotting the Z-score differences against each other shows whether the
-two compartments identify the same motifs.</p>
+two compartments identify the same motifs. Each motif is classified by
+where it reaches significance: in both compartments, in CD4 only, in CD8
+only, or in neither.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">z_cut</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
+<span></span>
+<span><span class="va">shared</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span></span>
+<span><span class="va">tc_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span></span>
+<span><span class="va">th_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">agree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    motifs <span class="op">=</span> <span class="va">shared</span>,</span>
-<span>    tc <span class="op">=</span> <span class="va">tc_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>    th <span class="op">=</span> <span class="va">th_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span></span>
+<span>    tc <span class="op">=</span> <span class="va">tc_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">[</span><span class="va">tc_i</span><span class="op">]</span>,</span>
+<span>    th <span class="op">=</span> <span class="va">th_res</span><span class="op">$</span><span class="va">zdiff</span><span class="op">[</span><span class="va">th_i</span><span class="op">]</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">agree</span><span class="op">$</span><span class="va">sig_both</span> <span class="op">&lt;-</span></span>
-<span>    <span class="va">tc_res</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">tc_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span></span>
-<span>        <span class="va">th_res</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">shared</span>, <span class="va">th_res</span><span class="op">$</span><span class="va">motifs</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span></span>
+<span></span>
+<span><span class="co"># A motif counts as differential in a compartment when it passes both</span></span>
+<span><span class="co"># the adjusted p-value and the Z-score effect-size threshold there.</span></span>
+<span><span class="va">sig_tc</span> <span class="op">&lt;-</span> <span class="va">tc_res</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">[</span><span class="va">tc_i</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">tc</span><span class="op">)</span> <span class="op">&gt;</span> <span class="va">z_cut</span></span>
+<span><span class="va">sig_th</span> <span class="op">&lt;-</span> <span class="va">th_res</span><span class="op">$</span><span class="va">p_value_adjusted</span><span class="op">[</span><span class="va">th_i</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">th</span><span class="op">)</span> <span class="op">&gt;</span> <span class="va">z_cut</span></span>
+<span></span>
+<span><span class="va">agree</span><span class="op">$</span><span class="va">category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span></span>
+<span>        <span class="va">sig_tc</span> <span class="op">&amp;</span> <span class="va">sig_th</span>, <span class="st">"both"</span>,</span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">sig_th</span>, <span class="st">"CD4 only"</span>, <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">sig_tc</span>, <span class="st">"CD8 only"</span>, <span class="st">"neither"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"CD4 only"</span>, <span class="st">"CD8 only"</span>, <span class="st">"neither"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">rho</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">tc</span>, <span class="va">agree</span><span class="op">$</span><span class="va">th</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">rho</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.864</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">sig_both</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 268</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">category</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     both CD4 only CD8 only  neither </span></span>
+<span><span class="co">#&gt;      242       60       70      257</span></span></code></pre></div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Label the extremes at both ends: the strongest motifs cluster tightly,</span></span>
+<code class="sourceCode R"><span><span class="va">category_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"both"</span> <span class="op">=</span> <span class="st">"#D7191C"</span>,</span>
+<span>    <span class="st">"CD4 only"</span> <span class="op">=</span> <span class="st">"#1A9641"</span>,</span>
+<span>    <span class="st">"CD8 only"</span> <span class="op">=</span> <span class="st">"#2C7BB6"</span>,</span>
+<span>    <span class="st">"neither"</span> <span class="op">=</span> <span class="st">"grey75"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Label the extremes at both ends: the strongest motifs cluster tightly,</span></span>
 <span><span class="co"># so ranking by magnitude alone places every label in one corner.</span></span>
 <span><span class="va">ranked</span> <span class="op">&lt;-</span> <span class="va">agree</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">tc</span> <span class="op">+</span> <span class="va">agree</span><span class="op">$</span><span class="va">th</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="va">labelled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">ranked</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">agree</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">tc</span>, <span class="va">th</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="co"># Draw the non-differential motifs first, so that they do not cover the</span></span>
+<span><span class="co"># coloured ones.</span></span>
+<span><span class="va">agree_ord</span> <span class="op">&lt;-</span> <span class="va">agree</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">agree</span><span class="op">$</span><span class="va">category</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">agree_ord</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">tc</span>, <span class="va">th</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">sig_both</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">1.8</span>, alpha <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">category</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">1.8</span>, alpha <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span></span>
 <span>        data <span class="op">=</span> <span class="va">labelled</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>label <span class="op">=</span> <span class="va">motifs</span><span class="op">)</span>,</span>
 <span>        size <span class="op">=</span> <span class="fl">3</span>, vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.8</span>, check_overlap <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_colour_manual</a></span><span class="op">(</span></span>
-<span>        values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"FALSE"</span> <span class="op">=</span> <span class="st">"grey75"</span>, <span class="st">"TRUE"</span> <span class="op">=</span> <span class="st">"#4292C6"</span><span class="op">)</span>,</span>
-<span>        name <span class="op">=</span> <span class="st">"significant in both"</span></span>
+<span>        values <span class="op">=</span> <span class="va">category_colors</span>,</span>
+<span>        breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">category_colors</span><span class="op">)</span>,</span>
+<span>        name <span class="op">=</span> <span class="st">"differential in"</span></span>
 <span>    <span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
 <span>        x <span class="op">=</span> <span class="st">"CD8: Z-score difference (naive - memory)"</span>,</span>
@@ -484,12 +522,17 @@ two compartments identify the same motifs.</p>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
 <span>        legend.position <span class="op">=</span> <span class="st">"bottom"</span>,</span>
-<span>        axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">cell_type_colors</span><span class="op">[[</span><span class="st">"Tc-Mem"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>        axis.title.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">cell_type_colors</span><span class="op">[[</span><span class="st">"Th-Mem"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>        axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">category_colors</span><span class="op">[[</span><span class="st">"CD8 only"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>        axis.title.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">category_colors</span><span class="op">[[</span><span class="st">"CD4 only"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
 <p><img src="memTcells_files/figure-html/agreeplot-1.png" width="576"></p>
 <p>The effect sizes are correlated and share sign for most motifs, so
-the same factors are recovered in both compartments.</p>
+the same factors are recovered in both compartments. Motifs differential
+in both compartments (red) lie along the diagonal, away from the origin.
+The compartment-specific motifs (green and blue) sit closer to the axis
+they are specific to, and most of them fall just short of the threshold
+in the other compartment rather than changing in the opposite
+direction.</p>
 </div>
 <div class="section level2">
 <h2 id="motif-footprints">4. Motif footprints<a class="anchor" aria-label="anchor" href="#motif-footprints"></a>
@@ -585,58 +628,59 @@ chemical exposure by multimodal single-cell profiling. <em>bioRxiv</em>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.3.3 (2024-02-29)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-conda-linux-gnu (64-bit)</span></span>
-<span><span class="co">#&gt; Running under: Debian GNU/Linux 11 (bullseye)</span></span>
+<span><span class="co">#&gt; Running under: Debian GNU/Linux 12 (bookworm)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
-<span><span class="co">#&gt; BLAS/LAPACK: /icbb/projects/share/software/packages/miniconda3/envs/mtfr/lib/libopenblasp-r0.3.34.so;  LAPACK version 3.12.0</span></span>
+<span><span class="co">#&gt; BLAS:   /icbb/projects/share/software/packages/miniconda3/envs/mtfr_triton/lib/libblis.so.4.0.0 </span></span>
+<span><span class="co">#&gt; LAPACK: /icbb/projects/share/software/packages/miniconda3/envs/mtfr_triton/lib/liblapack.so.3.11.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; locale:</span></span>
-<span><span class="co">#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span></span>
-<span><span class="co">#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span></span>
-<span><span class="co">#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   </span></span>
-<span><span class="co">#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span></span>
-<span><span class="co">#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span></span>
-<span><span class="co">#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
+<span><span class="co">#&gt; [1] C</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; time zone: Europe/Berlin</span></span>
 <span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attached base packages:</span></span>
-<span><span class="co">#&gt; [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
-<span><span class="co">#&gt; [8] base     </span></span>
+<span><span class="co">#&gt; [1] grid      stats4    stats     graphics  grDevices utils     datasets </span></span>
+<span><span class="co">#&gt; [8] methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt;  [1] ggplot2_3.5.2               methylTFR_0.99.1           </span></span>
-<span><span class="co">#&gt;  [3] SummarizedExperiment_1.30.2 Biobase_2.60.0             </span></span>
-<span><span class="co">#&gt;  [5] GenomicRanges_1.52.0        GenomeInfoDb_1.36.1        </span></span>
-<span><span class="co">#&gt;  [7] IRanges_2.34.1              S4Vectors_0.38.1           </span></span>
-<span><span class="co">#&gt;  [9] BiocGenerics_0.46.0         MatrixGenerics_1.12.2      </span></span>
-<span><span class="co">#&gt; [11] matrixStats_1.5.0           data.table_1.17.8          </span></span>
-<span><span class="co">#&gt; [13] BiocStyle_2.28.1           </span></span>
+<span><span class="co">#&gt;  [1] circlize_0.4.18             ComplexHeatmap_2.18.0      </span></span>
+<span><span class="co">#&gt;  [3] ggplot2_3.5.2               methylTFR_0.99.4           </span></span>
+<span><span class="co">#&gt;  [5] SummarizedExperiment_1.32.0 Biobase_2.62.0             </span></span>
+<span><span class="co">#&gt;  [7] GenomicRanges_1.54.1        GenomeInfoDb_1.38.1        </span></span>
+<span><span class="co">#&gt;  [9] IRanges_2.36.0              S4Vectors_0.40.2           </span></span>
+<span><span class="co">#&gt; [11] BiocGenerics_0.48.1         MatrixGenerics_1.14.0      </span></span>
+<span><span class="co">#&gt; [13] matrixStats_1.5.0           data.table_1.17.8          </span></span>
+<span><span class="co">#&gt; [15] BiocStyle_2.30.0           </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] gtable_0.3.6            xfun_0.53               bslib_0.9.0            </span></span>
-<span><span class="co">#&gt;  [4] htmlwidgets_1.6.4       rhdf5_2.44.0            lattice_0.22-7         </span></span>
-<span><span class="co">#&gt;  [7] generics_0.1.4          rhdf5filters_1.12.1     vctrs_0.7.3            </span></span>
-<span><span class="co">#&gt; [10] tools_4.3.3             bitops_1.0-9            parallel_4.3.3         </span></span>
-<span><span class="co">#&gt; [13] tibble_3.3.0            pkgconfig_2.0.3         R.oo_1.27.1            </span></span>
-<span><span class="co">#&gt; [16] Matrix_1.6-5            RColorBrewer_1.1-3      desc_1.4.3             </span></span>
-<span><span class="co">#&gt; [19] lifecycle_1.0.5         GenomeInfoDbData_1.2.10 stringr_1.5.2          </span></span>
-<span><span class="co">#&gt; [22] compiler_4.3.3          farver_2.1.2            textshaping_1.0.3      </span></span>
-<span><span class="co">#&gt; [25] htmltools_0.5.8.1       sass_0.4.10             RCurl_1.98-1.17        </span></span>
-<span><span class="co">#&gt; [28] yaml_2.3.10             pkgdown_2.1.3           pillar_1.11.0          </span></span>
-<span><span class="co">#&gt; [31] crayon_1.5.3            jquerylib_0.1.4         R.utils_2.13.0         </span></span>
-<span><span class="co">#&gt; [34] DelayedArray_0.26.7     cachem_1.1.0            tidyselect_1.2.1       </span></span>
-<span><span class="co">#&gt; [37] digest_0.6.37           stringi_1.8.7           dplyr_1.1.4            </span></span>
-<span><span class="co">#&gt; [40] bookdown_0.47           labeling_0.4.3          fastmap_1.2.0          </span></span>
-<span><span class="co">#&gt; [43] grid_4.3.3              cli_3.6.5               logger_0.4.0           </span></span>
-<span><span class="co">#&gt; [46] magrittr_2.0.3          S4Arrays_1.0.4          withr_3.0.2            </span></span>
-<span><span class="co">#&gt; [49] scales_1.4.0            rmarkdown_2.29          XVector_0.40.0         </span></span>
-<span><span class="co">#&gt; [52] ragg_1.5.0              R.methodsS3_1.8.2       HDF5Array_1.28.1       </span></span>
-<span><span class="co">#&gt; [55] evaluate_1.0.5          knitr_1.50              rlang_1.3.0            </span></span>
-<span><span class="co">#&gt; [58] glue_1.8.0              BiocManager_1.30.26     jsonlite_2.0.0         </span></span>
-<span><span class="co">#&gt; [61] R6_2.6.1                Rhdf5lib_1.22.0         systemfonts_1.2.3      </span></span>
-<span><span class="co">#&gt; [64] fs_1.6.6                zlibbioc_1.46.0</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] tidyselect_1.2.1        dplyr_1.1.4             farver_2.1.2           </span></span>
+<span><span class="co">#&gt;  [4] R.utils_2.13.0          bitops_1.0-9            fastmap_1.2.0          </span></span>
+<span><span class="co">#&gt;  [7] RCurl_1.98-1.17         digest_0.6.37           lifecycle_1.0.4        </span></span>
+<span><span class="co">#&gt; [10] cluster_2.1.8.1         magrittr_2.0.3          compiler_4.3.3         </span></span>
+<span><span class="co">#&gt; [13] rlang_1.1.6             sass_0.4.10             tools_4.3.3            </span></span>
+<span><span class="co">#&gt; [16] yaml_2.3.10             knitr_1.50              labeling_0.4.3         </span></span>
+<span><span class="co">#&gt; [19] S4Arrays_1.2.0          htmlwidgets_1.6.4       DelayedArray_0.28.0    </span></span>
+<span><span class="co">#&gt; [22] RColorBrewer_1.1-3      abind_1.4-5             HDF5Array_1.30.0       </span></span>
+<span><span class="co">#&gt; [25] withr_3.0.2             desc_1.4.3              R.oo_1.27.1            </span></span>
+<span><span class="co">#&gt; [28] colorspace_2.1-1        Rhdf5lib_1.24.0         scales_1.4.0           </span></span>
+<span><span class="co">#&gt; [31] iterators_1.0.14        cli_3.6.5               rmarkdown_2.29         </span></span>
+<span><span class="co">#&gt; [34] crayon_1.5.3            ragg_1.5.0              generics_0.1.4         </span></span>
+<span><span class="co">#&gt; [37] rjson_0.2.23            cachem_1.1.0            rhdf5_2.46.1           </span></span>
+<span><span class="co">#&gt; [40] stringr_1.5.2           zlibbioc_1.48.0         parallel_4.3.3         </span></span>
+<span><span class="co">#&gt; [43] BiocManager_1.30.26     XVector_0.42.0          vctrs_0.6.5            </span></span>
+<span><span class="co">#&gt; [46] Matrix_1.6-5            jsonlite_2.0.0          bookdown_0.44          </span></span>
+<span><span class="co">#&gt; [49] GetoptLong_1.1.1        clue_0.3-68             systemfonts_1.2.3      </span></span>
+<span><span class="co">#&gt; [52] foreach_1.5.2           jquerylib_0.1.4         glue_1.8.0             </span></span>
+<span><span class="co">#&gt; [55] pkgdown_2.1.3           codetools_0.2-20        stringi_1.8.7          </span></span>
+<span><span class="co">#&gt; [58] gtable_0.3.6            shape_1.4.6.1           tibble_3.3.0           </span></span>
+<span><span class="co">#&gt; [61] logger_0.4.0            pillar_1.11.0           htmltools_0.5.8.1      </span></span>
+<span><span class="co">#&gt; [64] rhdf5filters_1.14.1     GenomeInfoDbData_1.2.11 R6_2.6.1               </span></span>
+<span><span class="co">#&gt; [67] textshaping_1.0.3       doParallel_1.0.17       evaluate_1.0.5         </span></span>
+<span><span class="co">#&gt; [70] lattice_0.22-7          R.methodsS3_1.8.2       png_0.1-8              </span></span>
+<span><span class="co">#&gt; [73] bslib_0.9.0             SparseArray_1.2.2       xfun_0.53              </span></span>
+<span><span class="co">#&gt; [76] fs_1.6.6                pkgconfig_2.0.3         GlobalOptions_0.1.4</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

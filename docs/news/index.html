@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.99.1" id="methyltfr-0991">methylTFR 0.99.1<a class="anchor" aria-label="anchor" href="#methyltfr-0991"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.99.4" id="methyltfr-0994">methylTFR 0.99.4<a class="anchor" aria-label="anchor" href="#methyltfr-0994"></a></h2>
 <p>NEW FEATURES</p>
 <ul><li>Added <code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code>, which runs the methylTFR workflow directly on a preprocessed RnBeads object instead of per-sample BED files. Samples are read one column at a time, so disk-backed RnBeads sets are never loaded into memory in full.</li>
 <li>Added <code><a href="../reference/computeZScoreVariability.html">computeZScoreVariability()</a></code>, which ranks TF motifs by how much their activity varies across samples and tests each motif against a chi-squared null. Deviation scores are first calibrated against a within-sample null estimated across motifs, so that a variability above 1 is interpretable as “more variable than background”.</li>
@@ -51,6 +51,9 @@
 <li>
 <code><a href="../reference/differential_deviation_test.html">differential_deviation_test()</a></code> now falls back to <code>colnames(deviations)</code> when <code>groups</code> is NULL, instead of <code>colnames(groups)</code>, which was always NULL. Group labels are also validated against the number of columns.</li>
 <li>The invalid-input fallback for <code>cov_threshold</code> in <code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code> now sets the documented default of 1 rather than 5.</li>
+</ul><p>DOCUMENTATION</p>
+<ul><li>The heatmap in the memory T cell vignette is now drawn with <code>ComplexHeatmap</code> instead of <code>ggplot2</code>, with columns split by cell type and rows clustered.</li>
+<li>The compartment-agreement scatter plot in the same vignette now colours each motif by where it is differential: red for both compartments, green for CD4 only, blue for CD8 only and grey for neither.</li>
 </ul><p>INTERNAL</p>
 <ul><li>The per-sample deviation loop shared by both entry points was factored out into <code><a href="../reference/methyltfr_core.html">methyltfr_core()</a></code>, so the file-based and RnBeads-based workflows are guaranteed to produce identical results for the same methylation calls.</li>
 </ul></div>
