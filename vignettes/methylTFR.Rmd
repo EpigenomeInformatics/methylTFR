@@ -63,7 +63,7 @@ BiocManager::install("methylTFR")
 ## Getting Started
 To get started with **methylTFR**, load the package and its dependencies:
 
-```{r init}
+```{r init,, quietly = TRUE}
 library(methylTFR)
 ```
 
