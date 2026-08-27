@@ -43,6 +43,9 @@ Imports:
     utils
 Suggests: 
     BiocStyle,
+    circlize,
+    ComplexHeatmap,
+    grid,
     knitr,
     RefManageR,
     RnBeads,
