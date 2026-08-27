@@ -448,9 +448,9 @@ sessionInfo()
 #>  [1] methylTFR_0.99.4            SummarizedExperiment_1.42.0
 #>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
 #>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
-#>  [7] S4Vectors_0.50.1            BiocGenerics_0.58.1        
+#>  [7] S4Vectors_0.50.2            BiocGenerics_0.58.1        
 #>  [9] generics_0.1.4              MatrixGenerics_1.24.0      
-#> [11] matrixStats_1.5.0           data.table_1.18.4          
+#> [11] matrixStats_1.5.0           data.table_1.18.6.1        
 #> [13] BiocStyle_2.40.0           
 #> 
 #> loaded via a namespace (and not attached):
@@ -468,8 +468,8 @@ sessionInfo()
 #> [34] tidyselect_1.2.1    digest_0.6.39       stringi_1.8.9      
 #> [37] dplyr_1.2.1         bookdown_0.47       fastmap_1.2.0      
 #> [40] grid_4.6.1          cli_3.6.6           SparseArray_1.12.2 
-#> [43] logger_0.4.2        magrittr_2.0.5      S4Arrays_1.12.0    
-#> [46] h5mread_1.4.0       UCSC.utils_1.8.0    scales_1.4.0       
+#> [43] logger_0.4.3        magrittr_2.0.5      S4Arrays_1.12.0    
+#> [46] h5mread_1.4.1       UCSC.utils_1.8.0    scales_1.4.0       
 #> [49] httr_1.4.8          rmarkdown_2.31      XVector_0.52.0     
 #> [52] otel_0.2.0          ragg_1.5.2          R.methodsS3_1.8.2  
 #> [55] HDF5Array_1.40.0    evaluate_1.0.5      knitr_1.51         

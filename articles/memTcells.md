@@ -44,6 +44,8 @@ library(methylTFR)
 #> 'DelayedArray::makeNindexFromArrayViewport' when loading 'HDF5Array'
 library(SummarizedExperiment)
 library(ggplot2)
+library(ComplexHeatmap)
+library(circlize)
 ```
 
 A single palette is used for the seven cell types throughout, so that a
@@ -322,10 +324,12 @@ sum(tc_res$p_value_adjusted < 0.05 & abs(tc_res$zdiff) > 0.5)
 ### Visualising the differential motifs
 
 The motifs with the strongest change in the CD8 comparison are shown as
-row-wise Z-scores across all four subsets. Samples are ordered by
-subset, and the annotation row uses the palette defined above. The fill
-scale is diverging and encodes the Z-score, which is a property of the
-motif rather than of the subset.
+row-wise Z-scores across all seven cell types, drawn with
+*[ComplexHeatmap](https://bioconductor.org/packages/3.23/ComplexHeatmap)*.
+Columns are split by cell type and annotated with the palette defined
+above; rows are clustered, so motifs with a similar activity profile are
+placed together. The fill scale is diverging and encodes the Z-score,
+which is a property of the motif rather than of the cell type.
 
 ``` r
 
@@ -336,47 +340,50 @@ top_motifs <- head(
 )
 
 sample_order <- order(colData(immuneDeviations)$cell_type)
-z_top <- z_mat[top_motifs, sample_order, drop = FALSE]
-sample_levels <- colnames(z_top)
+# as.matrix() so that the heatmap also works when the assay is
+# disk-backed.
+z_top <- as.matrix(z_mat[top_motifs, sample_order, drop = FALSE])
 subset_of <- colData(immuneDeviations)$cell_type[sample_order]
 
-heat_df <- data.frame(
-    motif = factor(
-        rep(rownames(z_top), times = ncol(z_top)),
-        levels = rev(top_motifs)
-    ),
-    sample = factor(
-        rep(sample_levels, each = nrow(z_top)),
-        levels = sample_levels
-    ),
-    z = as.vector(z_top)
+# A symmetric diverging scale, so that zero is white and the two
+# directions are comparable.
+z_lim <- max(abs(z_top))
+z_col <- colorRamp2(
+    c(-z_lim, 0, z_lim),
+    c("#2166AC", "white", "#B2182B")
 )
 
-ann_df <- data.frame(
-    sample = factor(sample_levels, levels = sample_levels),
-    cell_type = subset_of
+column_ann <- HeatmapAnnotation(
+    `cell type` = subset_of,
+    col = list(`cell type` = cell_type_colors),
+    annotation_name_gp = grid::gpar(fontsize = 8),
+    annotation_legend_param = list(`cell type` = list(
+        title = "",
+        labels_gp = grid::gpar(fontsize = 8)
+    ))
 )
 
-ggplot() +
-    geom_tile(data = heat_df, aes(sample, motif, fill = z)) +
-    geom_point(
-        data = ann_df,
-        aes(sample, y = length(top_motifs) + 1.2, colour = cell_type),
-        shape = 15, size = 2.4
-    ) +
-    scale_fill_gradient2(
-        low = "#2166AC", mid = "white", high = "#B2182B",
-        midpoint = 0, name = "Z-score"
-    ) +
-    scale_colour_manual(values = cell_type_colors, name = NULL) +
-    labs(x = NULL, y = NULL) +
-    theme_classic() +
-    theme(
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.text.y = element_text(size = 7),
-        legend.position = "right"
+heat <- Heatmap(
+    z_top,
+    name = "Z-score",
+    col = z_col,
+    top_annotation = column_ann,
+    column_split = subset_of,
+    cluster_columns = FALSE,
+    cluster_rows = TRUE,
+    show_row_dend = TRUE,
+    show_column_names = FALSE,
+    row_names_gp = grid::gpar(fontsize = 7),
+    column_title_gp = grid::gpar(fontsize = 7),
+    row_dend_width = grid::unit(8, "mm"),
+    heatmap_legend_param = list(
+        title_gp = grid::gpar(fontsize = 8, fontface = "bold"),
+        labels_gp = grid::gpar(fontsize = 8),
+        legend_height = grid::unit(25, "mm")
     )
+)
+
+draw(heat, merge_legend = TRUE)
 ```
 
 ![](memTcells_files/figure-html/heatmap-1.png)
@@ -393,45 +400,76 @@ not simply a general lymphoid-myeloid contrast.
 
 The CD8 and CD4 contrasts are computed from disjoint sets of samples.
 Plotting the Z-score differences against each other shows whether the
-two compartments identify the same motifs.
+two compartments identify the same motifs. Each motif is classified by
+where it reaches significance: in both compartments, in CD4 only, in CD8
+only, or in neither.
 
 ``` r
 
+z_cut <- 0.5
+
 shared <- intersect(tc_res$motifs, th_res$motifs)
+tc_i <- match(shared, tc_res$motifs)
+th_i <- match(shared, th_res$motifs)
+
 agree <- data.frame(
     motifs = shared,
-    tc = tc_res$zdiff[match(shared, tc_res$motifs)],
-    th = th_res$zdiff[match(shared, th_res$motifs)]
+    tc = tc_res$zdiff[tc_i],
+    th = th_res$zdiff[th_i]
 )
-agree$sig_both <-
-    tc_res$p_value_adjusted[match(shared, tc_res$motifs)] < 0.05 &
-        th_res$p_value_adjusted[match(shared, th_res$motifs)] < 0.05
+
+# A motif counts as differential in a compartment when it passes both
+# the adjusted p-value and the Z-score effect-size threshold there.
+sig_tc <- tc_res$p_value_adjusted[tc_i] < 0.05 & abs(agree$tc) > z_cut
+sig_th <- th_res$p_value_adjusted[th_i] < 0.05 & abs(agree$th) > z_cut
+
+agree$category <- factor(
+    ifelse(
+        sig_tc & sig_th, "both",
+        ifelse(sig_th, "CD4 only", ifelse(sig_tc, "CD8 only", "neither"))
+    ),
+    levels = c("both", "CD4 only", "CD8 only", "neither")
+)
 
 rho <- cor(agree$tc, agree$th)
 round(rho, 3)
 #> [1] 0.864
-sum(agree$sig_both)
-#> [1] 268
+table(agree$category)
+#> 
+#>     both CD4 only CD8 only  neither 
+#>      242       60       70      257
 ```
 
 ``` r
+
+category_colors <- c(
+    "both" = "#D7191C",
+    "CD4 only" = "#1A9641",
+    "CD8 only" = "#2C7BB6",
+    "neither" = "grey75"
+)
 
 # Label the extremes at both ends: the strongest motifs cluster tightly,
 # so ranking by magnitude alone places every label in one corner.
 ranked <- agree[order(agree$tc + agree$th), ]
 labelled <- rbind(head(ranked, 4), tail(ranked, 4))
 
-ggplot(agree, aes(tc, th)) +
+# Draw the non-differential motifs first, so that they do not cover the
+# coloured ones.
+agree_ord <- agree[order(agree$category, decreasing = TRUE), ]
+
+ggplot(agree_ord, aes(tc, th)) +
     geom_hline(yintercept = 0, linetype = "dashed", colour = "grey60") +
     geom_vline(xintercept = 0, linetype = "dashed", colour = "grey60") +
-    geom_point(aes(colour = sig_both), size = 1.8, alpha = 0.85) +
+    geom_point(aes(colour = category), size = 1.8, alpha = 0.85) +
     geom_text(
         data = labelled, aes(label = motifs),
         size = 3, vjust = -0.8, check_overlap = TRUE
     ) +
     scale_colour_manual(
-        values = c("FALSE" = "grey75", "TRUE" = "#4292C6"),
-        name = "significant in both"
+        values = category_colors,
+        breaks = names(category_colors),
+        name = "differential in"
     ) +
     labs(
         x = "CD8: Z-score difference (naive - memory)",
@@ -441,15 +479,19 @@ ggplot(agree, aes(tc, th)) +
     theme_classic() +
     theme(
         legend.position = "bottom",
-        axis.title.x = element_text(colour = cell_type_colors[["Tc-Mem"]]),
-        axis.title.y = element_text(colour = cell_type_colors[["Th-Mem"]])
+        axis.title.x = element_text(colour = category_colors[["CD8 only"]]),
+        axis.title.y = element_text(colour = category_colors[["CD4 only"]])
     )
 ```
 
 ![](memTcells_files/figure-html/agreeplot-1.png)
 
 The effect sizes are correlated and share sign for most motifs, so the
-same factors are recovered in both compartments.
+same factors are recovered in both compartments. Motifs differential in
+both compartments (red) lie along the diagonal, away from the origin.
+The compartment-specific motifs (green and blue) sit closer to the axis
+they are specific to, and most of them fall just short of the threshold
+in the other compartment rather than changing in the opposite direction.
 
 ## 4. Motif footprints
 
@@ -572,39 +614,44 @@ sessionInfo()
 #> tzcode source: system (glibc)
 #> 
 #> attached base packages:
-#> [1] stats4    stats     graphics  grDevices utils     datasets  methods  
-#> [8] base     
+#> [1] grid      stats4    stats     graphics  grDevices utils     datasets 
+#> [8] methods   base     
 #> 
 #> other attached packages:
-#>  [1] ggplot2_4.0.3               methylTFR_0.99.4           
-#>  [3] SummarizedExperiment_1.42.0 Biobase_2.72.0             
-#>  [5] GenomicRanges_1.64.0        Seqinfo_1.2.0              
-#>  [7] IRanges_2.46.0              S4Vectors_0.50.1           
-#>  [9] BiocGenerics_0.58.1         generics_0.1.4             
-#> [11] MatrixGenerics_1.24.0       matrixStats_1.5.0          
-#> [13] data.table_1.18.4           BiocStyle_2.40.0           
+#>  [1] circlize_0.4.18             ComplexHeatmap_2.28.0      
+#>  [3] ggplot2_4.0.3               methylTFR_0.99.4           
+#>  [5] SummarizedExperiment_1.42.0 Biobase_2.72.0             
+#>  [7] GenomicRanges_1.64.0        Seqinfo_1.2.0              
+#>  [9] IRanges_2.46.0              S4Vectors_0.50.2           
+#> [11] BiocGenerics_0.58.1         generics_0.1.4             
+#> [13] MatrixGenerics_1.24.0       matrixStats_1.5.0          
+#> [15] data.table_1.18.6.1         BiocStyle_2.40.0           
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] gtable_0.3.6        xfun_0.60           bslib_0.12.0       
-#>  [4] rhdf5_2.56.0        lattice_0.22-9      rhdf5filters_1.24.1
-#>  [7] vctrs_0.7.3         tools_4.6.1         parallel_4.6.1     
-#> [10] tibble_3.3.1        pkgconfig_2.0.3     R.oo_1.27.1        
-#> [13] Matrix_1.7-5        RColorBrewer_1.1-3  S7_0.2.2           
-#> [16] desc_1.4.3          lifecycle_1.0.5     stringr_1.6.0      
-#> [19] compiler_4.6.1      farver_2.1.2        textshaping_1.0.5  
-#> [22] GenomeInfoDb_1.48.0 htmltools_0.5.9     sass_0.4.10        
-#> [25] yaml_2.3.12         pkgdown_2.2.1       pillar_1.11.1      
-#> [28] jquerylib_0.1.4     R.utils_2.13.0      DelayedArray_0.38.2
-#> [31] cachem_1.1.0        abind_1.4-8         tidyselect_1.2.1   
-#> [34] digest_0.6.39       stringi_1.8.9       dplyr_1.2.1        
-#> [37] bookdown_0.47       labeling_0.4.3      fastmap_1.2.0      
-#> [40] grid_4.6.1          cli_3.6.6           SparseArray_1.12.2 
-#> [43] logger_0.4.2        magrittr_2.0.5      S4Arrays_1.12.0    
-#> [46] h5mread_1.4.0       withr_3.0.3         UCSC.utils_1.8.0   
-#> [49] scales_1.4.0        httr_1.4.8          rmarkdown_2.31     
-#> [52] XVector_0.52.0      otel_0.2.0          ragg_1.5.2         
-#> [55] R.methodsS3_1.8.2   HDF5Array_1.40.0    evaluate_1.0.5     
-#> [58] knitr_1.51          rlang_1.3.0         glue_1.8.1         
-#> [61] BiocManager_1.30.27 jsonlite_2.0.0      R6_2.6.1           
-#> [64] Rhdf5lib_2.0.0      systemfonts_1.3.2   fs_2.1.0
+#>  [1] tidyselect_1.2.1    dplyr_1.2.1         farver_2.1.2       
+#>  [4] R.utils_2.13.0      S7_0.2.2            fastmap_1.2.0      
+#>  [7] digest_0.6.39       lifecycle_1.0.5     cluster_2.1.8.2    
+#> [10] magrittr_2.0.5      compiler_4.6.1      rlang_1.3.0        
+#> [13] sass_0.4.10         tools_4.6.1         yaml_2.3.12        
+#> [16] knitr_1.51          labeling_0.4.3      S4Arrays_1.12.0    
+#> [19] DelayedArray_0.38.2 RColorBrewer_1.1-3  abind_1.4-8        
+#> [22] HDF5Array_1.40.0    withr_3.0.3         desc_1.4.3         
+#> [25] R.oo_1.27.1         colorspace_2.1-3    Rhdf5lib_2.0.0     
+#> [28] scales_1.4.0        iterators_1.0.14    cli_3.6.6          
+#> [31] rmarkdown_2.31      crayon_1.5.3        ragg_1.5.2         
+#> [34] otel_0.2.0          httr_1.4.8          rjson_0.2.23       
+#> [37] cachem_1.1.0        rhdf5_2.56.0        stringr_1.6.0      
+#> [40] parallel_4.6.1      BiocManager_1.30.27 XVector_0.52.0     
+#> [43] vctrs_0.7.3         Matrix_1.7-5        jsonlite_2.0.0     
+#> [46] bookdown_0.47       GetoptLong_1.1.1    clue_0.3-68        
+#> [49] systemfonts_1.3.2   h5mread_1.4.1       foreach_1.5.2      
+#> [52] jquerylib_0.1.4     glue_1.8.1          pkgdown_2.2.1      
+#> [55] codetools_0.2-20    stringi_1.8.9       gtable_0.3.6       
+#> [58] shape_1.4.6.1       GenomeInfoDb_1.48.0 UCSC.utils_1.8.0   
+#> [61] tibble_3.3.1        logger_0.4.3        pillar_1.11.1      
+#> [64] htmltools_0.5.9     rhdf5filters_1.24.1 R6_2.6.1           
+#> [67] textshaping_1.0.5   doParallel_1.0.17   evaluate_1.0.5     
+#> [70] lattice_0.22-9      R.methodsS3_1.8.2   png_0.1-9          
+#> [73] bslib_0.12.0        SparseArray_1.12.2  xfun_0.60          
+#> [76] fs_2.1.0            pkgconfig_2.0.3     GlobalOptions_0.1.4
 ```
