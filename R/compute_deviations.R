@@ -55,8 +55,10 @@
 #' )
 #' @export
 computeDeviation <- function(
-  motif, msites, tf_bindsites, gcfreqs,
-  enhancer = NULL, ignoreStrand = TRUE,
+  motif, msites,
+  tf_bindsites, gcfreqs,
+  enhancer = NULL,
+  ignoreStrand = TRUE,
   binMsites
 ) {
     if (!is.logical(ignoreStrand)) {
@@ -73,13 +75,16 @@ computeDeviation <- function(
     if (is.null(tf_bindsites) ||
         !any(c(!is(tf_bindsites, "GRangesList") ||
             !is.list(tf_bindsites)))) {
-        stop("Please provide a valid tf binding sites as GRangesList")
+        stop("Please provide a valid tf binding sites
+         as GRangesList")
     }
     if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
         stop("Please provide a valid enhancer regions")
     }
     tfbs <- tf_bindsites[[motif]]
-    tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
+    tfbs <- resize(tfbs, width(tfbs)[1] + 130,
+        fix = "center"
+    )
     gcfreq <- gcfreqs[[motif]]
     if (!is.null(enhancer)) {
         tfbs <- subsetByOverlaps(tfbs, enhancer,

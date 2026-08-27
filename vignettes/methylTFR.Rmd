@@ -1,11 +1,13 @@
 ---
-title: "methylTFR: DNA Methylation Signatures in Transcription Factor Binding Sites"
+title: "methylTFR: DNA Methylation Signatures 
+in TFBS"
 author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
 date: "`r Sys.Date()`"
 package: methylTFR
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{methylTFR: DNA Methylation Signatures in TFBS}
+  %\VignetteIndexEntry{methylTFR: DNA Methylation
+   Signatures in TFBS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -104,7 +106,8 @@ the multi-sample section below.
 
 To build annotations for a different assembly, motif set, or region
 restriction, use 
-[`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder).
+[`methylTFRAnnotationBuilder`](
+    https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder).
 
 The examples in this section instead use a small `BATF` subset bundled
 with `methylTFR`, so they run without any annotation package.

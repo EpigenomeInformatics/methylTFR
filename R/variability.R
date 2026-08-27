@@ -120,7 +120,10 @@ calibrateDeviations <- function(devs, method = c("robust", "gaussian")) {
 #' @export
 computeZScoreVariability <- function(
   object,
-  method = c("robust", "gaussian"),
+  method = c(
+      "robust",
+      "gaussian"
+  ),
   bootstrap = FALSE,
   niterations = 1000L,
   conf_level = 0.95,

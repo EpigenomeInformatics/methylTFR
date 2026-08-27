@@ -19,7 +19,11 @@ create_sink <- function(
     if (!dir.exists(temp_dir)) {
         dir.create(temp_dir)
     }
-    tempfile <- tempfile(pattern = pattern, tmpdir = temp_dir, fileext = fileext)
+    tempfile <- tempfile(
+        pattern = pattern,
+        tmpdir = temp_dir,
+        fileext = fileext
+    )
 
     # Create a sink for each region type
     sink <- HDF5Array::HDF5RealizationSink(
