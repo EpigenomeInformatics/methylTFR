@@ -37,7 +37,7 @@ addGCBintoMethylome <- function(
 ) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option,
-         using the default")
+        using the default")
         ignoreStrand <- TRUE
     }
     if (is.null(msites) || !is(msites, "GRanges")) {
@@ -86,7 +86,7 @@ computeExpectations <- function(binMsites, gcfreq) {
     }
     if (!is.matrix(gcfreq)) {
         stop("Please provide a valid
-         GC bin frequency table as a matrix")
+        GC bin frequency table as a matrix")
     }
     exp.data <- t(gcfreq) %*% binMsites[, 2]
     mpos <- round(seq(-floor(length(exp.data) / 2),

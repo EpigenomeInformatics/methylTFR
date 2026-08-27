@@ -76,7 +76,7 @@ computeDeviation <- function(
         !any(c(!is(tf_bindsites, "GRangesList") ||
             !is.list(tf_bindsites)))) {
         stop("Please provide a valid tf binding sites
-         as GRangesList")
+        as GRangesList")
     }
     if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
         stop("Please provide a valid enhancer regions")
