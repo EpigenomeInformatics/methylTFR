@@ -94,3 +94,58 @@ Z-scores
 
 [`run_methylTFR_RnBeads`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)
 for running methylTFR directly on a preprocessed RnBeads object.
+
+## Examples
+
+``` r
+# A minimal end-to-end run on the BATF example data bundled with the
+# package. The annotation objects cover a single motif, so the result
+# has one row.
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+
+# run_methyltfr() reads per-sample calls from disk, so the bundled sites
+# are written out as a bismarkCov file first.
+sample_dir <- tempfile("methylTFR_example")
+dir.create(sample_dir)
+n_meth <- round(msites$score * msites$coverage)
+write.table(
+    data.frame(
+        chr = as.character(GenomicRanges::seqnames(msites)),
+        start = GenomicRanges::start(msites),
+        end = GenomicRanges::end(msites),
+        percent = msites$score * 100,
+        meth = n_meth,
+        unmeth = msites$coverage - n_meth
+    ),
+    file.path(sample_dir, "sample_1.cov"),
+    sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE
+)
+write.table(
+    data.frame(sampleName = "sample_1", bedFile = "sample_1.cov"),
+    file.path(sample_dir, "samples.tsv"),
+    sep = "\t", row.names = FALSE, quote = FALSE
+)
+
+devs <- run_methyltfr(
+    sample_ann = "samples.tsv",
+    sample_dir = sample_dir,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    gc_dist = gcdist,
+    filetype = "bismarkcov"
+)
+#> SUCCESS [2026-08-28 14:10:41] The samples are successfully located
+#> INFO [2026-08-28 14:10:42] Initializing the temp sink: methylTFR_tmp/methylTFR1b16e9154d5.h5
+#> INFO [2026-08-28 14:10:42] Initializing the temp sink: methylTFR_tmp/methylTFR1b163e642a4e.h5
+#> INFO [2026-08-28 14:10:42] Processing sample_1.cov
+#> INFO [2026-08-28 14:10:47] Finished processing sample_1.cov
+#> SUCCESS [2026-08-28 14:10:47] Computed all deviations successfully
+deviations(devs)
+#>      sample_1.cov
+#> BATF     1.743674
+
+unlink(sample_dir, recursive = TRUE)
+```

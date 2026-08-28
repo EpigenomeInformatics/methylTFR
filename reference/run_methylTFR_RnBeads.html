@@ -17,7 +17,7 @@ per-sample methylation levels come from."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -166,26 +166,54 @@ insensitive to a uniform single-base shift.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Not run: requires the RnBeads package, an hg38 annotation package and a</span></span></span>
-<span class="r-in"><span><span class="co"># preprocessed RnBeads set.</span></span></span>
-<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"RnBeads"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="co"># rnb_set &lt;- RnBeads::load.rnb.set("reports/rnb.set_preprocessed")</span></span></span>
-<span class="r-in"><span>    <span class="co"># gcfreqs &lt;- getGCfreq(motifSet = "jaspar2020")</span></span></span>
-<span class="r-in"><span>    <span class="co"># gc_dist &lt;- getGenomeGC("hg38")</span></span></span>
-<span class="r-in"><span>    <span class="co"># tf_bindsites &lt;- getTFbindsites(motifSet = "jaspar2020")</span></span></span>
-<span class="r-in"><span>    <span class="co">#</span></span></span>
-<span class="r-in"><span>    <span class="co"># deviations &lt;- run_methylTFR_RnBeads(</span></span></span>
-<span class="r-in"><span>    <span class="co">#     rnb_set = rnb_set,</span></span></span>
-<span class="r-in"><span>    <span class="co">#     tf_bindsites = tf_bindsites,</span></span></span>
-<span class="r-in"><span>    <span class="co">#     gcfreqs = gcfreqs,</span></span></span>
-<span class="r-in"><span>    <span class="co">#     gc_dist = gc_dist,</span></span></span>
-<span class="r-in"><span>    <span class="co">#     threads = 8,</span></span></span>
-<span class="r-in"><span>    <span class="co">#     chunkSize = 15</span></span></span>
-<span class="r-in"><span>    <span class="co"># )</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A minimal end-to-end run on the BATF example data bundled with the</span></span></span>
+<span class="r-in"><span><span class="co"># package. RnBeads and its hg38 annotation build the input object; both</span></span></span>
+<span class="r-in"><span><span class="co"># are optional dependencies.</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"RnBeads"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"RnBeads.hg38"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_data.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        <span class="st">"extdata"</span>, <span class="st">"BATF_tf_bindsites.rda"</span>,</span></span>
+<span class="r-in"><span>        package <span class="op">=</span> <span class="st">"methylTFR"</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_gcfreqs.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gcdist_subset.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>    <span class="co"># RnBiseqSet() takes methylation as a fraction and coverage as counts,</span></span></span>
+<span class="r-in"><span>    <span class="co"># with one column per sample.</span></span></span>
+<span class="r-in"><span>    <span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        chromosome <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        position <span class="op">=</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">start</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        strand <span class="op">=</span> <span class="st">"*"</span>,</span></span>
+<span class="r-in"><span>        stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">rnb_set</span> <span class="op">&lt;-</span> <span class="fu">RnBeads</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/RnBiseqSet-class.html" class="external-link">RnBiseqSet</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        pheno <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>            sampleName <span class="op">=</span> <span class="st">"sample_1"</span>, stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>        <span class="op">)</span>,</span></span>
+<span class="r-in"><span>        sites <span class="op">=</span> <span class="va">sites</span>,</span></span>
+<span class="r-in"><span>        meth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">score</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        covg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">coverage</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        assembly <span class="op">=</span> <span class="st">"hg38"</span>,</span></span>
+<span class="r-in"><span>        summarize.regions <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>    <span class="va">devs</span> <span class="op">&lt;-</span> <span class="fu">run_methylTFR_RnBeads</span><span class="op">(</span></span></span>
+<span class="r-in"><span>        rnb_set <span class="op">=</span> <span class="va">rnb_set</span>,</span></span>
+<span class="r-in"><span>        tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span></span>
+<span class="r-in"><span>        gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span></span>
+<span class="r-in"><span>        gc_dist <span class="op">=</span> <span class="va">gcdist</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="deviations.html">deviations</a></span><span class="op">(</span><span class="va">devs</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:10:36] Found 534 sites across 1 samples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:10:36] Initializing the temp sink: methylTFR_tmp/methylTFR1b165c966482.h5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:10:36] Initializing the temp sink: methylTFR_tmp/methylTFR1b163f6a7d2.h5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:10:36] Processing 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:10:41] Finished processing 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> SUCCESS [2026-08-28 14:10:41] Computed all deviations successfully</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BATF 2.009857</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

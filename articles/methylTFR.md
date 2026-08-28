@@ -1,4 +1,4 @@
-# methylTFR: DNA Methylation Signatures in Transcription Factor Binding Sites
+# methylTFR: DNA Methylation Signatures in TFBS
 
 ## Introduction
 
@@ -53,90 +53,6 @@ dependencies:
 ``` r
 
 library(methylTFR)
-#> Loading required package: data.table
-#> 
-#> Attaching package: 'data.table'
-#> The following object is masked from 'package:base':
-#> 
-#>     %notin%
-#> Loading required package: SummarizedExperiment
-#> Loading required package: MatrixGenerics
-#> Loading required package: matrixStats
-#> 
-#> Attaching package: 'MatrixGenerics'
-#> The following objects are masked from 'package:matrixStats':
-#> 
-#>     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
-#>     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
-#>     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
-#>     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
-#>     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
-#>     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
-#>     colWeightedMeans, colWeightedMedians, colWeightedSds,
-#>     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
-#>     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
-#>     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
-#>     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
-#>     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
-#>     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
-#>     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
-#>     rowWeightedSds, rowWeightedVars
-#> Loading required package: GenomicRanges
-#> Loading required package: stats4
-#> Loading required package: BiocGenerics
-#> Loading required package: generics
-#> 
-#> Attaching package: 'generics'
-#> The following objects are masked from 'package:base':
-#> 
-#>     as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,
-#>     setequal, union
-#> 
-#> Attaching package: 'BiocGenerics'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     IQR, mad, sd, var, xtabs
-#> The following objects are masked from 'package:base':
-#> 
-#>     anyDuplicated, aperm, append, as.data.frame, basename, cbind,
-#>     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
-#>     get, grep, grepl, is.unsorted, lapply, Map, mapply, match, mget,
-#>     order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
-#>     rbind, Reduce, rownames, sapply, saveRDS, table, tapply, unique,
-#>     unsplit, which.max, which.min
-#> Loading required package: S4Vectors
-#> 
-#> Attaching package: 'S4Vectors'
-#> The following objects are masked from 'package:data.table':
-#> 
-#>     first, second
-#> The following object is masked from 'package:utils':
-#> 
-#>     findMatches
-#> The following objects are masked from 'package:base':
-#> 
-#>     expand.grid, I, unname
-#> Loading required package: IRanges
-#> 
-#> Attaching package: 'IRanges'
-#> The following object is masked from 'package:data.table':
-#> 
-#>     shift
-#> Loading required package: Seqinfo
-#> Loading required package: Biobase
-#> Welcome to Bioconductor
-#> 
-#>     Vignettes contain introductory material; view with
-#>     'browseVignettes()'. To cite Bioconductor, see
-#>     'citation("Biobase")', and for packages 'citation("pkgname")'.
-#> 
-#> Attaching package: 'Biobase'
-#> The following object is masked from 'package:MatrixGenerics':
-#> 
-#>     rowMedians
-#> The following objects are masked from 'package:matrixStats':
-#> 
-#>     anyMissing, rowMedians
 #> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
 #> 'DelayedArray::makeNindexFromArrayViewport' when loading 'SummarizedExperiment'
 #> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
@@ -445,7 +361,7 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] methylTFR_0.99.4            SummarizedExperiment_1.42.0
+#>  [1] methylTFR_0.99.6            SummarizedExperiment_1.42.0
 #>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
 #>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
 #>  [7] S4Vectors_0.50.2            BiocGenerics_0.58.1        
@@ -461,19 +377,20 @@ sessionInfo()
 #> [13] R.oo_1.27.1         Matrix_1.7-5        RColorBrewer_1.1-3 
 #> [16] S7_0.2.2            desc_1.4.3          lifecycle_1.0.5    
 #> [19] stringr_1.6.0       compiler_4.6.1      farver_2.1.2       
-#> [22] textshaping_1.0.5   GenomeInfoDb_1.48.0 htmltools_0.5.9    
-#> [25] sass_0.4.10         yaml_2.3.12         pkgdown_2.2.1      
-#> [28] pillar_1.11.1       jquerylib_0.1.4     R.utils_2.13.0     
-#> [31] DelayedArray_0.38.2 cachem_1.1.0        abind_1.4-8        
-#> [34] tidyselect_1.2.1    digest_0.6.39       stringi_1.8.9      
-#> [37] dplyr_1.2.1         bookdown_0.47       fastmap_1.2.0      
-#> [40] grid_4.6.1          cli_3.6.6           SparseArray_1.12.2 
-#> [43] logger_0.4.3        magrittr_2.0.5      S4Arrays_1.12.0    
-#> [46] h5mread_1.4.1       UCSC.utils_1.8.0    scales_1.4.0       
-#> [49] httr_1.4.8          rmarkdown_2.31      XVector_0.52.0     
-#> [52] otel_0.2.0          ragg_1.5.2          R.methodsS3_1.8.2  
-#> [55] HDF5Array_1.40.0    evaluate_1.0.5      knitr_1.51         
-#> [58] rlang_1.3.0         glue_1.8.1          BiocManager_1.30.27
-#> [61] jsonlite_2.0.0      R6_2.6.1            Rhdf5lib_2.0.0     
-#> [64] systemfonts_1.3.2   fs_2.1.0
+#> [22] textshaping_1.0.5   codetools_0.2-20    GenomeInfoDb_1.48.0
+#> [25] htmltools_0.5.9     sass_0.4.10         yaml_2.3.12        
+#> [28] pillar_1.11.1       pkgdown_2.2.1       jquerylib_0.1.4    
+#> [31] R.utils_2.13.0      BiocParallel_1.46.0 DelayedArray_0.38.2
+#> [34] cachem_1.1.0        abind_1.4-8         tidyselect_1.2.1   
+#> [37] digest_0.6.39       stringi_1.8.9       dplyr_1.2.1        
+#> [40] bookdown_0.47       fastmap_1.2.0       grid_4.6.1         
+#> [43] cli_3.6.6           SparseArray_1.12.2  logger_0.4.3       
+#> [46] magrittr_2.0.5      S4Arrays_1.12.0     h5mread_1.4.1      
+#> [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.8         
+#> [52] rmarkdown_2.31      XVector_0.52.0      otel_0.2.0         
+#> [55] ragg_1.5.2          R.methodsS3_1.8.2   HDF5Array_1.40.0   
+#> [58] evaluate_1.0.5      knitr_1.51          rlang_1.3.0        
+#> [61] glue_1.8.1          BiocManager_1.30.27 jsonlite_2.0.0     
+#> [64] R6_2.6.1            Rhdf5lib_2.0.0      systemfonts_1.3.2  
+#> [67] fs_2.1.0
 ```

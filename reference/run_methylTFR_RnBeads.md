@@ -115,24 +115,52 @@ Irem Gunduz
 ## Examples
 
 ``` r
-# Not run: requires the RnBeads package, an hg38 annotation package and a
-# preprocessed RnBeads set.
-# \donttest{
-if (requireNamespace("RnBeads", quietly = TRUE)) {
-    # rnb_set <- RnBeads::load.rnb.set("reports/rnb.set_preprocessed")
-    # gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-    # gc_dist <- getGenomeGC("hg38")
-    # tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
-    #
-    # deviations <- run_methylTFR_RnBeads(
-    #     rnb_set = rnb_set,
-    #     tf_bindsites = tf_bindsites,
-    #     gcfreqs = gcfreqs,
-    #     gc_dist = gc_dist,
-    #     threads = 8,
-    #     chunkSize = 15
-    # )
+# A minimal end-to-end run on the BATF example data bundled with the
+# package. RnBeads and its hg38 annotation build the input object; both
+# are optional dependencies.
+if (requireNamespace("RnBeads", quietly = TRUE) &&
+    requireNamespace("RnBeads.hg38", quietly = TRUE)) {
+    load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+    load(system.file(
+        "extdata", "BATF_tf_bindsites.rda",
+        package = "methylTFR"
+    ))
+    load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+    load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+
+    # RnBiseqSet() takes methylation as a fraction and coverage as counts,
+    # with one column per sample.
+    sites <- data.frame(
+        chromosome = as.character(GenomicRanges::seqnames(msites)),
+        position = GenomicRanges::start(msites),
+        strand = "*",
+        stringsAsFactors = FALSE
+    )
+    rnb_set <- RnBeads::RnBiseqSet(
+        pheno = data.frame(
+            sampleName = "sample_1", stringsAsFactors = FALSE
+        ),
+        sites = sites,
+        meth = matrix(msites$score, ncol = 1),
+        covg = matrix(msites$coverage, ncol = 1),
+        assembly = "hg38",
+        summarize.regions = FALSE
+    )
+
+    devs <- run_methylTFR_RnBeads(
+        rnb_set = rnb_set,
+        tf_bindsites = tf_bindsites,
+        gcfreqs = gcfreqs,
+        gc_dist = gcdist
+    )
+    deviations(devs)
 }
-#> NULL
-# }
+#> INFO [2026-08-28 14:10:36] Found 534 sites across 1 samples
+#> INFO [2026-08-28 14:10:36] Initializing the temp sink: methylTFR_tmp/methylTFR1b165c966482.h5
+#> INFO [2026-08-28 14:10:36] Initializing the temp sink: methylTFR_tmp/methylTFR1b163f6a7d2.h5
+#> INFO [2026-08-28 14:10:36] Processing 1
+#> INFO [2026-08-28 14:10:41] Finished processing 1
+#> SUCCESS [2026-08-28 14:10:41] Computed all deviations successfully
+#>             1
+#> BATF 2.009857
 ```

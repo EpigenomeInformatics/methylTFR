@@ -1,6 +1,6 @@
 # Changelog
 
-## methylTFR 0.99.4
+## methylTFR 0.99.6
 
 NEW FEATURES
 
