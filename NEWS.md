@@ -1,4 +1,4 @@
-# methylTFR 0.99.5
+# methylTFR 0.99.6
 
 NEW FEATURES
 

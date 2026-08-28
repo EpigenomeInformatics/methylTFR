@@ -1,6 +1,6 @@
 Package: methylTFR
 Title: Quantification of DNA Methylation Signatures in TFBS
-Version: 0.99.5
+Version: 0.99.6
 Date: 2026-08-19
 Authors@R: c(
     person("Irem B.", "Gündüz", , "irembgunduz@gmail.com", role = c("aut", "cre"),
