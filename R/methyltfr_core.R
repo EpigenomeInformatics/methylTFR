@@ -107,6 +107,157 @@ read_sample_annotation <- function(annfile, sampleColName) {
 }
 
 
+#' @title check_core_inputs
+#' @description Validate the arguments shared by both methylTFR entry points.
+#' @param sample_ids A character vector of sample identifiers.
+#' @param msites_fun A function of a single integer sample index.
+#' @param samples A \code{data.frame} with one row per sample.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @keywords internal
+check_core_inputs <- function(sample_ids, msites_fun, samples) {
+    if (!is.character(sample_ids) || length(sample_ids) == 0) {
+        stop("No samples to process.")
+    }
+    if (!is.function(msites_fun)) {
+        stop("msites_fun must be a function of a single sample index.")
+    }
+    if (nrow(samples) != length(sample_ids)) {
+        stop("Sample annotation must have one row per sample.")
+    }
+    invisible(NULL)
+}
+
+#' @title valid_core_motifs
+#' @description Drop motifs whose binding sites are empty or whose GC bin
+#' frequency matrix is missing.
+#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
+#' @param gcfreqs a \code{list} of GC bin frequency tables.
+#' @return A character vector of the motif names that can be processed.
+#' @importFrom logger log_info
+#' @keywords internal
+valid_core_motifs <- function(tf_bindsites, gcfreqs) {
+    motifs <- names(gcfreqs)
+    valid_motifs <- vapply(motifs, function(m) {
+        has_tfbs <- !is.null(tf_bindsites[[m]]) &&
+            length(tf_bindsites[[m]]) > 0
+        has_matrix <- !is.null(gcfreqs[[m]])
+        return(has_tfbs && has_matrix)
+    }, logical(1))
+
+    if (any(!valid_motifs)) {
+        num_discarded <- sum(!valid_motifs)
+        log_info(
+            "Discarding ", num_discarded,
+            " motifs due to empty TFBS or missing matrix."
+        )
+        motifs <- motifs[valid_motifs]
+    }
+
+    if (length(motifs) == 0) {
+        stop("No valid motifs remaining after validation.")
+    }
+    return(motifs)
+}
+
+#' @title process_core_sample
+#' @description Compute and write the deviations of one sample, one motif
+#' chunk at a time.
+#' @param index Integer index of the sample within \code{sample_ids}.
+#' @param sample_ids A character vector of sample identifiers.
+#' @param msites_fun A function of a single integer sample index.
+#' @param motif_chunks A \code{list} of character vectors of motif names.
+#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
+#' @param gcfreqs a \code{list} of GC bin frequency tables.
+#' @param gc_dist a \code{GRanges} of the genome-wide GC distribution.
+#' @param dev_grid,exp_grid The grids the blocks are written on.
+#' @param dev_sink,exp_sink The sinks the blocks are written to.
+#' @param threads Thread count for parallel processing.
+#' @param enhancer a \code{GRanges} restricting the analysis (optional).
+#' @param ignoreStrand if TRUE, strand information is ignored.
+#' @return Invisible \code{NULL}. Called for its effect on the sinks.
+#' @importFrom parallel mclapply
+#' @importFrom logger log_info
+#' @importFrom methods is
+#' @keywords internal
+process_core_sample <- function(
+    index, sample_ids, msites_fun, motif_chunks, tf_bindsites, gcfreqs,
+    gc_dist, dev_grid, exp_grid, dev_sink, exp_sink, threads, enhancer,
+    ignoreStrand
+) {
+    sample_name <- sample_ids[index]
+    msites <- msites_fun(index)
+    if (!is(msites, "GRanges")) {
+        stop(
+            "msites_fun did not return a GRanges object for sample ",
+            sample_name
+        )
+    }
+    log_info("Processing ", sample_name)
+    bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
+
+    # Process motifs in chunks
+    for (j in seq_along(motif_chunks)) {
+        chunk_motifs <- motif_chunks[[j]]
+
+        sample_deviations <- mclapply(chunk_motifs,
+            computeDeviation,
+            msites = msites,
+            tf_bindsites = tf_bindsites,
+            gcfreqs = gcfreqs,
+            binMsites = bin_meth,
+            enhancer = enhancer,
+            mc.cores = threads,
+            ignoreStrand = ignoreStrand
+        )
+        names(sample_deviations) <- chunk_motifs
+
+        # Write the block to the sink
+        write_block_to_sink(
+            lapply(sample_deviations, function(x) x$dev),
+            dev_grid, index, j, dev_sink
+        )
+        write_block_to_sink(
+            lapply(sample_deviations, function(x) x$exp_dev),
+            exp_grid, index, j, exp_sink
+        )
+        rm(sample_deviations)
+    }
+    rm(msites)
+    cleanMem()
+    log_info("Finished processing ", sample_name)
+    invisible(NULL)
+}
+
+#' @title assemble_core_result
+#' @description Close the sinks and assemble the deviations, their row-wise
+#' Z-scores and the expected deviations into a result object.
+#' @param dev_sink The sink holding the bias-corrected deviations.
+#' @param exp_sink The sink holding the expected deviations.
+#' @param samples A \code{data.frame} with one row per sample.
+#' @return a \code{methylTFRdeviations} object.
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @importFrom S4Vectors DataFrame
+#' @importFrom DelayedArray DelayedArray close
+#' @importFrom methods as new
+#' @keywords internal
+assemble_core_result <- function(dev_sink, exp_sink, samples) {
+    DelayedArray::close(dev_sink)
+    DelayedArray::close(exp_sink)
+    deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
+    exp_dev <- as.matrix(t(as(exp_sink, "DelayedArray")))
+
+    se <- SummarizedExperiment(
+        assays = list(
+            deviations = deviation,
+            z = computeRowZScore(deviation),
+            expected = exp_dev
+        ),
+        colData = samples,
+        rowData = DataFrame(motifs = row.names(deviation))
+    )
+    return(new("methylTFRdeviations", se))
+}
+
 #' @title methyltfr_core
 #' @description Internal engine shared by \code{\link{run_methyltfr}} and
 #' \code{\link{run_methylTFR_RnBeads}}. It validates the motif set, allocates
@@ -147,48 +298,11 @@ read_sample_annotation <- function(annfile, sampleColName) {
 #' @importFrom methods as new is
 #' @keywords internal
 methyltfr_core <- function(
-    sample_ids,
-    msites_fun,
-    samples,
-    tf_bindsites,
-    gcfreqs,
-    gc_dist,
-    chunkSize = 20,
-    threads = 1,
-    enhancer = NULL,
-    ignoreStrand = TRUE
+    sample_ids, msites_fun, samples, tf_bindsites, gcfreqs, gc_dist,
+    chunkSize = 20, threads = 1, enhancer = NULL, ignoreStrand = TRUE
 ) {
-    if (!is.character(sample_ids) || length(sample_ids) == 0) {
-        stop("No samples to process.")
-    }
-    if (!is.function(msites_fun)) {
-        stop("msites_fun must be a function of a single sample index.")
-    }
-    if (nrow(samples) != length(sample_ids)) {
-        stop("Sample annotation must have one row per sample.")
-    }
-
-    motifs <- names(gcfreqs)
-
-    # Validate motifs: discard if TFBS is empty or matrix is missing
-    valid_motifs <- vapply(motifs, function(m) {
-        has_tfbs <- !is.null(tf_bindsites[[m]]) && length(tf_bindsites[[m]]) > 0
-        has_matrix <- !is.null(gcfreqs[[m]])
-        return(has_tfbs && has_matrix)
-    }, logical(1))
-
-    if (any(!valid_motifs)) {
-        num_discarded <- sum(!valid_motifs)
-        log_info(
-            "Discarding ", num_discarded,
-            " motifs due to empty TFBS or missing matrix."
-        )
-        motifs <- motifs[valid_motifs]
-    }
-
-    if (length(motifs) == 0) {
-        stop("No valid motifs remaining after validation.")
-    }
+    check_core_inputs(sample_ids, msites_fun, samples)
+    motifs <- valid_core_motifs(tf_bindsites, gcfreqs)
 
     # Split the motifs into chunks
     numChunks <- ceiling(length(motifs) / chunkSize)
@@ -213,67 +327,16 @@ methyltfr_core <- function(
     }
 
     for (i in seq_along(sample_ids)) {
-        sample_name <- sample_ids[i]
-        msites <- msites_fun(i)
-        if (!is(msites, "GRanges")) {
-            stop(
-                "msites_fun did not return a GRanges object for sample ",
-                sample_name
-            )
-        }
-        log_info("Processing ", sample_name)
-        bin_meth <- addGCBintoMethylome(
-            msites,
-            gc_dist, ignoreStrand
+        process_core_sample(
+            index = i, sample_ids = sample_ids, msites_fun = msites_fun,
+            motif_chunks = motif_chunks, tf_bindsites = tf_bindsites,
+            gcfreqs = gcfreqs, gc_dist = gc_dist, dev_grid = dev_grid,
+            exp_grid = exp_grid, dev_sink = dev_sink, exp_sink = exp_sink,
+            threads = threads, enhancer = enhancer,
+            ignoreStrand = ignoreStrand
         )
-
-        # Process motifs in chunks
-        for (j in seq_along(motif_chunks)) {
-            chunk_motifs <- motif_chunks[[j]]
-
-            sample_deviations <- mclapply(chunk_motifs,
-                computeDeviation,
-                msites = msites,
-                tf_bindsites = tf_bindsites,
-                gcfreqs = gcfreqs,
-                binMsites = bin_meth,
-                enhancer = enhancer,
-                mc.cores = threads,
-                ignoreStrand = ignoreStrand
-            )
-            names(sample_deviations) <- chunk_motifs
-
-            # Write the block to the sink
-            write_block_to_sink(
-                lapply(sample_deviations, function(x) x$dev),
-                dev_grid, i, j, dev_sink
-            )
-            write_block_to_sink(
-                lapply(sample_deviations, function(x) x$exp_dev),
-                exp_grid, i, j, exp_sink
-            )
-            rm(sample_deviations)
-        }
-        rm(msites)
-        cleanMem()
-        log_info("Finished processing ", sample_name)
     }
     log_success("Computed all deviations successfully")
 
-    # Close the sinks
-    DelayedArray::close(dev_sink)
-    DelayedArray::close(exp_sink)
-    deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
-    exp_dev <- as.matrix(t(as(exp_sink, "DelayedArray")))
-
-    se <- SummarizedExperiment(
-        assays = list(
-            deviations = deviation,
-            z = computeRowZScore(deviation),
-            expected = exp_dev
-        ),
-        colData = samples,
-        rowData = DataFrame(motifs = row.names(deviation))
-    )
-    return(new("methylTFRdeviations", se))
+    return(assemble_core_result(dev_sink, exp_sink, samples))
 }
