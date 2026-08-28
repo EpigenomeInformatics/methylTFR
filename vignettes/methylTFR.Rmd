@@ -1,13 +1,11 @@
 ---
-title: "methylTFR: DNA Methylation Signatures 
-in TFBS"
+title: "methylTFR: DNA Methylation Signatures in TFBS"
 author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
 date: "`r Sys.Date()`"
 package: methylTFR
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{methylTFR: DNA Methylation
-   Signatures in TFBS}
+  %\VignetteIndexEntry{methylTFR: DNA Methylation Signatures in TFBS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
