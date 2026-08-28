@@ -49,6 +49,7 @@ Suggests:
     knitr,
     RefManageR,
     RnBeads,
+    RnBeads.hg38,
     rmarkdown,
     sessioninfo,
     testthat (>= 3.0.0)
