@@ -13,7 +13,7 @@ footprint base for all given motifs per raw samples"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -158,6 +158,60 @@ bias-corrected deviation and Z-scores</p>
 directly on a preprocessed RnBeads object.</p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A minimal end-to-end run on the BATF example data bundled with the</span></span></span>
+<span class="r-in"><span><span class="co"># package. The annotation objects cover a single motif, so the result</span></span></span>
+<span class="r-in"><span><span class="co"># has one row.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_data.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_tf_bindsites.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_gcfreqs.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gcdist_subset.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># run_methyltfr() reads per-sample calls from disk, so the bundled sites</span></span></span>
+<span class="r-in"><span><span class="co"># are written out as a bismarkCov file first.</span></span></span>
+<span class="r-in"><span><span class="va">sample_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"methylTFR_example"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">sample_dir</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">n_meth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">score</span> <span class="op">*</span> <span class="va">msites</span><span class="op">$</span><span class="va">coverage</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>        chr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        start <span class="op">=</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">start</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        end <span class="op">=</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">end</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        percent <span class="op">=</span> <span class="va">msites</span><span class="op">$</span><span class="va">score</span> <span class="op">*</span> <span class="fl">100</span>,</span></span>
+<span class="r-in"><span>        meth <span class="op">=</span> <span class="va">n_meth</span>,</span></span>
+<span class="r-in"><span>        unmeth <span class="op">=</span> <span class="va">msites</span><span class="op">$</span><span class="va">coverage</span> <span class="op">-</span> <span class="va">n_meth</span></span></span>
+<span class="r-in"><span>    <span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">sample_dir</span>, <span class="st">"sample_1.cov"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    sep <span class="op">=</span> <span class="st">"\t"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span>, col.names <span class="op">=</span> <span class="cn">FALSE</span>, quote <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>sampleName <span class="op">=</span> <span class="st">"sample_1"</span>, bedFile <span class="op">=</span> <span class="st">"sample_1.cov"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">sample_dir</span>, <span class="st">"samples.tsv"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    sep <span class="op">=</span> <span class="st">"\t"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span>, quote <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">devs</span> <span class="op">&lt;-</span> <span class="fu">run_methyltfr</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    sample_ann <span class="op">=</span> <span class="st">"samples.tsv"</span>,</span></span>
+<span class="r-in"><span>    sample_dir <span class="op">=</span> <span class="va">sample_dir</span>,</span></span>
+<span class="r-in"><span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span></span>
+<span class="r-in"><span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span></span>
+<span class="r-in"><span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span></span>
+<span class="r-in"><span>    filetype <span class="op">=</span> <span class="st">"bismarkcov"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> SUCCESS [2026-08-28 14:26:52] The samples are successfully located</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:26:52] Initializing the temp sink: methylTFR_tmp/methylTFR3ac69c1c97bf3e.h5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:26:52] Initializing the temp sink: methylTFR_tmp/methylTFR3ac69c2bd33887.h5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:26:53] Processing sample_1.cov</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-08-28 14:26:56] Finished processing sample_1.cov</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> SUCCESS [2026-08-28 14:26:56] Computed all deviations successfully</span>
+<span class="r-in"><span><span class="fu"><a href="deviations.html">deviations</a></span><span class="op">(</span><span class="va">devs</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      sample_1.cov</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BATF     1.743674</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">sample_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
