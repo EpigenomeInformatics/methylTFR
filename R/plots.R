@@ -58,9 +58,9 @@
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotExpectedFootprint <- function(
-  motif, tf_bindsites, msites,
-  sample_name = NULL, gc_dist, gcfreqs,
-  enhancer = NULL, returnPlotData = FALSE
+    motif, tf_bindsites, msites,
+    sample_name = NULL, gc_dist, gcfreqs,
+    enhancer = NULL, returnPlotData = FALSE
 ) {
     if (is.null(msites)) {
         stop(
@@ -211,11 +211,11 @@ plotExpectedFootprint <- function(
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotMotifFootprint <- function(
-  motif,
-  tf_bindsites, msites,
-  sample_name = NULL, gc_dist, gcfreqs,
-  enhancer = NULL, method = "division",
-  flankNorm = 50
+    motif,
+    tf_bindsites, msites,
+    sample_name = NULL, gc_dist, gcfreqs,
+    enhancer = NULL, method = "division",
+    flankNorm = 50
 ) {
     if (is.null(method) ||
         !method %in% c("substraction", "division")) {

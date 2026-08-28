@@ -53,12 +53,12 @@
 #' )
 #' @export
 differential_deviation_test <- function(
-  deviations,
-  groups = NULL,
-  motifs = rownames(deviations),
-  alternative = c("two.sided", "less", "greater"),
-  parametric = TRUE,
-  padjMethod = "BH"
+    deviations,
+    groups = NULL,
+    motifs = rownames(deviations),
+    alternative = c("two.sided", "less", "greater"),
+    parametric = TRUE,
+    padjMethod = "BH"
 ) {
     if (!any(class(deviations) %in%
         c("data.frame", "matrix", "methylTFRdeviations"))) {

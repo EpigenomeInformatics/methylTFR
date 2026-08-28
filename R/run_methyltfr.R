@@ -47,14 +47,57 @@
 #' bias-corrected deviation and Z-scores
 #' @seealso \code{\link{run_methylTFR_RnBeads}} for running methylTFR
 #' directly on a preprocessed RnBeads object.
+#' @examples
+#' # A minimal end-to-end run on the BATF example data bundled with the
+#' # package. The annotation objects cover a single motif, so the result
+#' # has one row.
+#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+#' load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+#' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+#'
+#' # run_methyltfr() reads per-sample calls from disk, so the bundled sites
+#' # are written out as a bismarkCov file first.
+#' sample_dir <- tempfile("methylTFR_example")
+#' dir.create(sample_dir)
+#' n_meth <- round(msites$score * msites$coverage)
+#' write.table(
+#'     data.frame(
+#'         chr = as.character(GenomicRanges::seqnames(msites)),
+#'         start = GenomicRanges::start(msites),
+#'         end = GenomicRanges::end(msites),
+#'         percent = msites$score * 100,
+#'         meth = n_meth,
+#'         unmeth = msites$coverage - n_meth
+#'     ),
+#'     file.path(sample_dir, "sample_1.cov"),
+#'     sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE
+#' )
+#' write.table(
+#'     data.frame(sampleName = "sample_1", bedFile = "sample_1.cov"),
+#'     file.path(sample_dir, "samples.tsv"),
+#'     sep = "\t", row.names = FALSE, quote = FALSE
+#' )
+#'
+#' devs <- run_methyltfr(
+#'     sample_ann = "samples.tsv",
+#'     sample_dir = sample_dir,
+#'     tf_bindsites = tf_bindsites,
+#'     gcfreqs = gcfreqs,
+#'     gc_dist = gcdist,
+#'     filetype = "bismarkcov"
+#' )
+#' deviations(devs)
+#'
+#' unlink(sample_dir, recursive = TRUE)
 #' @export
 run_methyltfr <- function(
-  sample_ann, sample_dir, tf_bindsites = NULL,
-  gcfreqs = NULL, gc_dist = NULL,
-  sampleColName = "bedFile", chunkSize = 20,
-  full_path = FALSE, annfile = NULL, threads = 1,
-  enhancer = NULL, filetype = NULL,
-  ignoreStrand = TRUE, cov_threshold = 1
+    sample_ann, sample_dir, tf_bindsites = NULL,
+    gcfreqs = NULL, gc_dist = NULL,
+    sampleColName = "bedFile", chunkSize = 20,
+    full_path = FALSE, annfile = NULL, threads = 1,
+    enhancer = NULL, filetype = NULL,
+    ignoreStrand = TRUE, cov_threshold = 1
 ) {
     if (!tolower(filetype) %in% c(
         "bissnp", "epp", "allc", "bismarkcytosine",

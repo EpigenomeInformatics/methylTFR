@@ -14,9 +14,9 @@
 #' @importFrom S4Vectors mcols
 #' @import data.table
 computeFootprint <- function(
-  motif_name,
-  tf_bindsites,
-  msites, enhancer = NULL
+    motif_name,
+    tf_bindsites,
+    msites, enhancer = NULL
 ) {
     tfbs <- tf_bindsites[[motif_name]]
     w <- width(tfbs)[1]
@@ -76,8 +76,8 @@ computeFootprint <- function(
 #' @importFrom S4Vectors mcols
 #' @import data.table
 computeExpectedFootprint <- function(
-  motif, gcfreqs, gc_dist,
-  enhancer = NULL, msites
+    motif, gcfreqs, gc_dist,
+    enhancer = NULL, msites
 ) {
     gcfreq <- gcfreqs[[motif]]
 
