@@ -26,7 +26,7 @@ test_that("computeDeviation", {
     )
     expect_error(
         computeDeviation(motif = "BATF", NULL, tf_bindsites, gcfreqs, enhancer = NULL, ignoreStrand = TRUE, bin_meth),
-        "Please provide a valid methylation\n        sites with read_methylome function"
+        "Please provide a valid methylation sites with read_methylome function"
     )
     expect_error(
         computeDeviation(motif = "BATF", msites, NULL, gcfreqs, enhancer = NULL, ignoreStrand = TRUE, bin_meth),
@@ -34,7 +34,7 @@ test_that("computeDeviation", {
     )
     expect_error(
         computeDeviation("BATF", msites, tf_bindsites, NULL, enhancer = NULL, ignoreStrand = TRUE, bin_meth),
-        "Please provide a valid\n         GC bin frequency table as a matrix"
+        "Please provide a valid GC bin frequency table as a matrix"
     )
 
     # Check that the function returns a warning when given incorrect options

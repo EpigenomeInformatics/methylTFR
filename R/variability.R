@@ -52,6 +52,111 @@ calibrateDeviations <- function(devs, method = c("robust", "gaussian")) {
 }
 
 
+#' @title check_variability_inputs
+#' @description Validate the inputs of \code{computeZScoreVariability} and
+#' return the deviation scores as a matrix.
+#' @param object A \code{methylTFRdeviations} object, matrix or data.frame.
+#' @param bootstrap Logical, whether bootstrap bounds were requested.
+#' @param conf_level Confidence level of the bootstrap bounds.
+#' @return The deviation scores as a numeric matrix.
+#' @importFrom methods is
+#' @keywords internal
+check_variability_inputs <- function(object, bootstrap, conf_level) {
+    if (is(object, "methylTFRdeviations")) {
+        devs <- deviations(object)
+    } else if (is.matrix(object) || is.data.frame(object)) {
+        devs <- as.matrix(object)
+    } else {
+        stop(
+            "object must be a methylTFRdeviations object, ",
+            "a matrix or a data.frame"
+        )
+    }
+    if (!is.numeric(devs)) {
+        stop("The deviation scores must be numeric")
+    }
+    if (ncol(devs) < 3) {
+        stop(
+            "At least three samples are required to estimate variability; ",
+            "found ", ncol(devs), "."
+        )
+    }
+    if (!is.logical(bootstrap) || length(bootstrap) != 1) {
+        stop("bootstrap must be a single logical value")
+    }
+    if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
+        stop("conf_level must be a number between 0 and 1")
+    }
+    if (nrow(devs) < 50) {
+        message(
+            "Only ", nrow(devs), " motifs supplied. The within-sample null is ",
+            "estimated across motifs, so variability estimates from small ",
+            "motif sets should be treated as indicative only."
+        )
+    }
+    return(devs)
+}
+
+#' @title variability_test
+#' @description Summarise the calibrated Z-scores into a variability per
+#' motif and test each against the chi-squared null.
+#' @param z The calibrated Z-score matrix.
+#' @param motif_names Character vector of motif names.
+#' @param padjMethod Multiple testing correction passed to
+#' \code{stats::p.adjust}.
+#' @return A \code{data.frame} with one row per motif.
+#' @keywords internal
+variability_test <- function(z, motif_names, padjMethod) {
+    variability <- matrixStats::rowSds(z, na.rm = TRUE)
+    n_obs <- rowSums(!is.na(z))
+
+    p_value <- rep(NA_real_, length(variability))
+    testable <- is.finite(variability) & n_obs > 1
+    p_value[testable] <- stats::pchisq(
+        variability[testable]^2 * (n_obs[testable] - 1),
+        df = n_obs[testable] - 1,
+        lower.tail = FALSE
+    )
+
+    return(data.frame(
+        motifs = motif_names,
+        variability = variability,
+        p_value = p_value,
+        p_value_adjusted = stats::p.adjust(p_value, method = padjMethod),
+        stringsAsFactors = FALSE,
+        row.names = NULL
+    ))
+}
+
+#' @title bootstrap_variability
+#' @description Add bootstrap confidence bounds to a variability table.
+#' @param z The calibrated Z-score matrix.
+#' @param res The variability table to add the bounds to.
+#' @param niterations Number of bootstrap iterations.
+#' @param conf_level Confidence level of the bounds.
+#' @return \code{res} with the two bound columns added.
+#' @keywords internal
+bootstrap_variability <- function(z, res, niterations, conf_level) {
+    if (!is.numeric(niterations) || niterations < 2) {
+        stop("niterations must be a number greater than 1")
+    }
+    niterations <- as.integer(niterations)
+    boot <- vapply(seq_len(niterations), function(k) {
+        idx <- sample.int(ncol(z), ncol(z), replace = TRUE)
+        matrixStats::rowSds(z[, idx, drop = FALSE], na.rm = TRUE)
+    }, numeric(nrow(z)))
+    alpha <- (1 - conf_level) / 2
+    res$bootstrap_lower_bound <- apply(
+        boot, 1, stats::quantile,
+        probs = alpha, na.rm = TRUE
+    )
+    res$bootstrap_upper_bound <- apply(
+        boot, 1, stats::quantile,
+        probs = 1 - alpha, na.rm = TRUE
+    )
+    return(res)
+}
+
 #' @title computeZScoreVariability
 #' @description Identify transcription factor motifs whose methylTFR activity
 #' varies across samples more than expected by chance.
@@ -119,47 +224,11 @@ calibrateDeviations <- function(devs, method = c("robust", "gaussian")) {
 #' @author Irem Gunduz
 #' @export
 computeZScoreVariability <- function(
-  object,
-  method = c("robust", "gaussian"),
-  bootstrap = FALSE,
-  niterations = 1000L,
-  conf_level = 0.95,
-  padjMethod = "BH"
+    object, method = c("robust", "gaussian"), bootstrap = FALSE,
+    niterations = 1000L, conf_level = 0.95, padjMethod = "BH"
 ) {
     method <- match.arg(method)
-    if (is(object, "methylTFRdeviations")) {
-        devs <- deviations(object)
-    } else if (is.matrix(object) || is.data.frame(object)) {
-        devs <- as.matrix(object)
-    } else {
-        stop(
-            "object must be a methylTFRdeviations object, ",
-            "a matrix or a data.frame"
-        )
-    }
-    if (!is.numeric(devs)) {
-        stop("The deviation scores must be numeric")
-    }
-    if (ncol(devs) < 3) {
-        stop(
-            "At least three samples are required to estimate variability; ",
-            "found ", ncol(devs), "."
-        )
-    }
-    if (!is.logical(bootstrap) || length(bootstrap) != 1) {
-        stop("bootstrap must be a single logical value")
-    }
-    if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-        stop("conf_level must be a number between 0 and 1")
-    }
-
-    if (nrow(devs) < 50) {
-        message(
-            "Only ", nrow(devs), " motifs supplied. The within-sample null is ",
-            "estimated across motifs, so variability estimates from small ",
-            "motif sets should be treated as indicative only."
-        )
-    }
+    devs <- check_variability_inputs(object, bootstrap, conf_level)
 
     motif_names <- rownames(devs)
     if (is.null(motif_names)) {
@@ -167,46 +236,10 @@ computeZScoreVariability <- function(
     }
 
     z <- calibrateDeviations(devs, method = method)
-    variability <- matrixStats::rowSds(z, na.rm = TRUE)
-    n_obs <- rowSums(!is.na(z))
-
-    p_value <- rep(NA_real_, length(variability))
-    testable <- is.finite(variability) & n_obs > 1
-    p_value[testable] <- stats::pchisq(
-        variability[testable]^2 * (n_obs[testable] - 1),
-        df = n_obs[testable] - 1,
-        lower.tail = FALSE
-    )
-    p_adj <- stats::p.adjust(p_value, method = padjMethod)
-
-    res <- data.frame(
-        motifs = motif_names,
-        variability = variability,
-        p_value = p_value,
-        p_value_adjusted = p_adj,
-        stringsAsFactors = FALSE,
-        row.names = NULL
-    )
+    res <- variability_test(z, motif_names, padjMethod)
 
     if (bootstrap) {
-        if (!is.numeric(niterations) || niterations < 2) {
-            stop("niterations must be a number greater than 1")
-        }
-        niterations <- as.integer(niterations)
-        boot <- vapply(seq_len(niterations), function(k) {
-            idx <- sample.int(ncol(z), ncol(z), replace = TRUE)
-            matrixStats::rowSds(z[, idx, drop = FALSE], na.rm = TRUE)
-        }, numeric(nrow(z)))
-        alpha <- (1 - conf_level) / 2
-        res$bootstrap_lower_bound <- apply(
-            boot, 1, stats::quantile,
-            probs = alpha, na.rm = TRUE
-        )
-        res$bootstrap_upper_bound <- apply(
-            boot, 1, stats::quantile,
-            probs = 1 - alpha, na.rm = TRUE
-        )
+        res <- bootstrap_variability(z, res, niterations, conf_level)
     }
-
     return(res)
 }

@@ -1,6 +1,6 @@
 Package: methylTFR
 Title: Quantification of DNA Methylation Signatures in TFBS
-Version: 0.99.4
+Version: 0.99.6
 Date: 2026-08-19
 Authors@R: c(
     person("Irem B.", "Gündüz", , "irembgunduz@gmail.com", role = c("aut", "cre"),
@@ -27,6 +27,7 @@ Depends:
     SummarizedExperiment
 Imports: 
     BiocGenerics,
+    BiocParallel,
     DelayedArray,
     GenomicRanges,
     ggplot2,
@@ -35,7 +36,6 @@ Imports:
     logger,
     matrixStats,
     methods,
-    parallel,
     R.utils,
     S4Vectors,
     stats,
@@ -49,6 +49,7 @@ Suggests:
     knitr,
     RefManageR,
     RnBeads,
+    RnBeads.hg38,
     rmarkdown,
     sessioninfo,
     testthat (>= 3.0.0)
