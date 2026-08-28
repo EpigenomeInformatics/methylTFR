@@ -10,8 +10,8 @@
 #' @importFrom methods is
 #' @keywords internal
 check_annotation_inputs <- function(
-  tf_bindsites, gcfreqs, gc_dist,
-  enhancer = NULL
+    tf_bindsites, gcfreqs, gc_dist,
+    enhancer = NULL
 ) {
     if (any(vapply(
         list(tf_bindsites, gcfreqs, gc_dist), is.null, logical(1)
@@ -44,8 +44,8 @@ check_annotation_inputs <- function(
 #' @return A named list with the validated values.
 #' @keywords internal
 check_run_options <- function(
-  chunkSize = 20, threads = 1,
-  ignoreStrand = TRUE, cov_threshold = 1
+    chunkSize = 20, threads = 1,
+    ignoreStrand = TRUE, cov_threshold = 1
 ) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
@@ -147,16 +147,16 @@ read_sample_annotation <- function(annfile, sampleColName) {
 #' @importFrom methods as new is
 #' @keywords internal
 methyltfr_core <- function(
-  sample_ids,
-  msites_fun,
-  samples,
-  tf_bindsites,
-  gcfreqs,
-  gc_dist,
-  chunkSize = 20,
-  threads = 1,
-  enhancer = NULL,
-  ignoreStrand = TRUE
+    sample_ids,
+    msites_fun,
+    samples,
+    tf_bindsites,
+    gcfreqs,
+    gc_dist,
+    chunkSize = 20,
+    threads = 1,
+    enhancer = NULL,
+    ignoreStrand = TRUE
 ) {
     if (!is.character(sample_ids) || length(sample_ids) == 0) {
         stop("No samples to process.")

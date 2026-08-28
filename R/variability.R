@@ -119,15 +119,15 @@ calibrateDeviations <- function(devs, method = c("robust", "gaussian")) {
 #' @author Irem Gunduz
 #' @export
 computeZScoreVariability <- function(
-  object,
-  method = c(
-      "robust",
-      "gaussian"
-  ),
-  bootstrap = FALSE,
-  niterations = 1000L,
-  conf_level = 0.95,
-  padjMethod = "BH"
+    object,
+    method = c(
+        "robust",
+        "gaussian"
+    ),
+    bootstrap = FALSE,
+    niterations = 1000L,
+    conf_level = 0.95,
+    padjMethod = "BH"
 ) {
     method <- match.arg(method)
     if (is(object, "methylTFRdeviations")) {

@@ -81,11 +81,11 @@
 #' }
 #' @export
 run_methylTFR_RnBeads <- function(
-  rnb_set, tf_bindsites = NULL,
-  gcfreqs = NULL, gc_dist = NULL,
-  chunkSize = 20, threads = 1,
-  enhancer = NULL, ignoreStrand = TRUE,
-  cov_threshold = 1, sample_ann = NULL
+    rnb_set, tf_bindsites = NULL,
+    gcfreqs = NULL, gc_dist = NULL,
+    chunkSize = 20, threads = 1,
+    enhancer = NULL, ignoreStrand = TRUE,
+    cov_threshold = 1, sample_ann = NULL
 ) {
     if (!requireNamespace("RnBeads", quietly = TRUE)) {
         stop(
@@ -268,8 +268,8 @@ rnb_has_coverage <- function(rnb_set) {
 #' @importFrom logger log_warn
 #' @keywords internal
 rnb_sample_msites <- function(
-  rnb_set, sites_gr, index,
-  cov_threshold = 1, has_covg = TRUE
+    rnb_set, sites_gr, index,
+    cov_threshold = 1, has_covg = TRUE
 ) {
     index <- as.integer(index)
     mvals <- rnb_column(RnBeads::meth, rnb_set, index)

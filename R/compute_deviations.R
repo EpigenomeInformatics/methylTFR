@@ -55,11 +55,11 @@
 #' )
 #' @export
 computeDeviation <- function(
-  motif, msites,
-  tf_bindsites, gcfreqs,
-  enhancer = NULL,
-  ignoreStrand = TRUE,
-  binMsites
+    motif, msites,
+    tf_bindsites, gcfreqs,
+    enhancer = NULL,
+    ignoreStrand = TRUE,
+    binMsites
 ) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
@@ -69,14 +69,15 @@ computeDeviation <- function(
         stop("Please provide a valid motif name")
     }
     if (is.null(msites) || !is(msites, "GRanges")) {
-        stop("Please provide a valid methylation
-        sites with read_methylome function")
+        stop(
+            "Please provide a valid methylation sites with ",
+            "read_methylome function"
+        )
     }
     if (is.null(tf_bindsites) ||
         !any(c(!is(tf_bindsites, "GRangesList") ||
             !is.list(tf_bindsites)))) {
-        stop("Please provide a valid tf binding sites
-         as GRangesList")
+        stop("Please provide a valid tf binding sites as GRangesList")
     }
     if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
         stop("Please provide a valid enhancer regions")
