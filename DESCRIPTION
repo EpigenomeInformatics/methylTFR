@@ -27,6 +27,7 @@ Depends:
     SummarizedExperiment
 Imports: 
     BiocGenerics,
+    BiocParallel,
     DelayedArray,
     GenomicRanges,
     ggplot2,
@@ -35,7 +36,6 @@ Imports:
     logger,
     matrixStats,
     methods,
-    parallel,
     R.utils,
     S4Vectors,
     stats,

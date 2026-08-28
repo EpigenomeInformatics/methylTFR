@@ -114,7 +114,6 @@ locate_sample_files <- function(
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom IRanges subsetByOverlaps
 #' @importFrom data.table data.table
-#' @importFrom parallel mclapply
 #' @importFrom logger log_info log_error
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
