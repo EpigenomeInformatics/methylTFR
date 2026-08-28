@@ -1,3 +1,47 @@
+#' @title check_rnb_inputs
+#' @description Check that \pkg{RnBeads} is available and that the object
+#' handed in is an \code{RnBSet}.
+#' @param rnb_set The object to validate.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @importFrom methods is
+#' @keywords internal
+check_rnb_inputs <- function(rnb_set) {
+    if (!requireNamespace("RnBeads", quietly = TRUE)) {
+        stop(
+            "The RnBeads package is required for run_methylTFR_RnBeads(). ",
+            "Install it with BiocManager::install('RnBeads'), or export ",
+            "your samples and use run_methyltfr() instead."
+        )
+    }
+    if (is.null(rnb_set) || !is(rnb_set, "RnBSet")) {
+        stop("Please provide a valid RnBSet object")
+    }
+    invisible(NULL)
+}
+
+#' @title resolve_rnb_sample_ann
+#' @description Default the sample annotation to the phenotype table of the
+#' RnBeads object and check its shape.
+#' @param rnb_set A preprocessed \code{RnBSet} object.
+#' @param sample_ann Sample annotation supplied by the caller, or NULL.
+#' @param sample_ids Character vector of sample identifiers.
+#' @return The sample annotation as a \code{data.frame}.
+#' @keywords internal
+resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
+    if (is.null(sample_ann)) {
+        sample_ann <- as.data.frame(RnBeads::pheno(rnb_set),
+            stringsAsFactors = FALSE
+        )
+    }
+    if (!is.data.frame(sample_ann)) {
+        stop("sample_ann must be a data.frame")
+    }
+    if (nrow(sample_ann) != length(sample_ids)) {
+        stop("sample_ann must have one row per sample in the RnBSet object")
+    }
+    return(sample_ann)
+}
+
 #' @title run_methylTFR_RnBeads
 #' @description Run the methylTFR workflow directly on a preprocessed
 #' \pkg{RnBeads} object, without exporting per-sample BED files first.
@@ -81,38 +125,17 @@
 #' }
 #' @export
 run_methylTFR_RnBeads <- function(
-    rnb_set, tf_bindsites = NULL,
-    gcfreqs = NULL, gc_dist = NULL,
-    chunkSize = 20, threads = 1,
-    enhancer = NULL, ignoreStrand = TRUE,
+    rnb_set, tf_bindsites = NULL, gcfreqs = NULL, gc_dist = NULL,
+    chunkSize = 20, threads = 1, enhancer = NULL, ignoreStrand = TRUE,
     cov_threshold = 1, sample_ann = NULL
 ) {
-    if (!requireNamespace("RnBeads", quietly = TRUE)) {
-        stop(
-            "The RnBeads package is required for run_methylTFR_RnBeads(). ",
-            "Install it with BiocManager::install('RnBeads'), or export ",
-            "your samples and use run_methyltfr() instead."
-        )
-    }
-    if (is.null(rnb_set) || !is(rnb_set, "RnBSet")) {
-        stop("Please provide a valid RnBSet object")
-    }
+    check_rnb_inputs(rnb_set)
     check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
     opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
 
     sample_ids <- rnb_sample_ids(rnb_set)
 
-    if (is.null(sample_ann)) {
-        sample_ann <- as.data.frame(RnBeads::pheno(rnb_set),
-            stringsAsFactors = FALSE
-        )
-    }
-    if (!is.data.frame(sample_ann)) {
-        stop("sample_ann must be a data.frame")
-    }
-    if (nrow(sample_ann) != length(sample_ids)) {
-        stop("sample_ann must have one row per sample in the RnBSet object")
-    }
+    sample_ann <- resolve_rnb_sample_ann(rnb_set, sample_ann, sample_ids)
 
     sites_gr <- rnb_sites_to_granges(rnb_set, opts$ignoreStrand)
     has_covg <- rnb_has_coverage(rnb_set)
