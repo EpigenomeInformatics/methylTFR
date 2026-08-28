@@ -16,7 +16,7 @@ process_core_sample(
   exp_grid,
   dev_sink,
   exp_sink,
-  threads,
+  BPPARAM,
   enhancer,
   ignoreStrand
 )
@@ -40,7 +40,7 @@ process_core_sample(
 
 \item{dev_sink, exp_sink}{The sinks the blocks are written to.}
 
-\item{threads}{Thread count for parallel processing.}
+\item{BPPARAM}{A \code{BiocParallelParam} object.}
 
 \item{enhancer}{a \code{GRanges} restricting the analysis (optional).}
 

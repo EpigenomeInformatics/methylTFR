@@ -159,6 +159,27 @@ valid_core_motifs <- function(tf_bindsites, gcfreqs) {
     return(motifs)
 }
 
+#' @title bpparam_from_threads
+#' @description Build the \pkg{BiocParallel} back-end used to spread the
+#' motifs of one chunk over workers.
+#' @details A forking back-end is used where the platform supports it and a
+#' socket back-end on Windows, so that \code{threads} has the same meaning
+#' on every platform. \code{threads = 1} runs serially in the current
+#' process.
+#' @param threads Thread count for parallel processing.
+#' @return A \code{BiocParallelParam} object.
+#' @importFrom BiocParallel SerialParam MulticoreParam SnowParam
+#' @keywords internal
+bpparam_from_threads <- function(threads) {
+    if (is.null(threads) || !is.numeric(threads) || threads <= 1) {
+        return(SerialParam())
+    }
+    if (.Platform$OS.type == "windows") {
+        return(SnowParam(workers = threads))
+    }
+    return(MulticoreParam(workers = threads))
+}
+
 #' @title process_core_sample
 #' @description Compute and write the deviations of one sample, one motif
 #' chunk at a time.
@@ -171,17 +192,17 @@ valid_core_motifs <- function(tf_bindsites, gcfreqs) {
 #' @param gc_dist a \code{GRanges} of the genome-wide GC distribution.
 #' @param dev_grid,exp_grid The grids the blocks are written on.
 #' @param dev_sink,exp_sink The sinks the blocks are written to.
-#' @param threads Thread count for parallel processing.
+#' @param BPPARAM A \code{BiocParallelParam} object.
 #' @param enhancer a \code{GRanges} restricting the analysis (optional).
 #' @param ignoreStrand if TRUE, strand information is ignored.
 #' @return Invisible \code{NULL}. Called for its effect on the sinks.
-#' @importFrom parallel mclapply
+#' @importFrom BiocParallel bplapply
 #' @importFrom logger log_info
 #' @importFrom methods is
 #' @keywords internal
 process_core_sample <- function(
     index, sample_ids, msites_fun, motif_chunks, tf_bindsites, gcfreqs,
-    gc_dist, dev_grid, exp_grid, dev_sink, exp_sink, threads, enhancer,
+    gc_dist, dev_grid, exp_grid, dev_sink, exp_sink, BPPARAM, enhancer,
     ignoreStrand
 ) {
     sample_name <- sample_ids[index]
@@ -199,15 +220,15 @@ process_core_sample <- function(
     for (j in seq_along(motif_chunks)) {
         chunk_motifs <- motif_chunks[[j]]
 
-        sample_deviations <- mclapply(chunk_motifs,
+        sample_deviations <- bplapply(chunk_motifs,
             computeDeviation,
             msites = msites,
             tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs,
             binMsites = bin_meth,
             enhancer = enhancer,
-            mc.cores = threads,
-            ignoreStrand = ignoreStrand
+            ignoreStrand = ignoreStrand,
+            BPPARAM = BPPARAM
         )
         names(sample_deviations) <- chunk_motifs
 
@@ -290,7 +311,6 @@ assemble_core_result <- function(dev_sink, exp_sink, samples) {
 #' row-wise Z-scores and expected deviations.
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom IRanges subsetByOverlaps
-#' @importFrom parallel mclapply
 #' @importFrom logger log_info
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
@@ -303,6 +323,7 @@ methyltfr_core <- function(
 ) {
     check_core_inputs(sample_ids, msites_fun, samples)
     motifs <- valid_core_motifs(tf_bindsites, gcfreqs)
+    BPPARAM <- bpparam_from_threads(threads)
 
     # Split the motifs into chunks
     numChunks <- ceiling(length(motifs) / chunkSize)
@@ -332,7 +353,7 @@ methyltfr_core <- function(
             motif_chunks = motif_chunks, tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs, gc_dist = gc_dist, dev_grid = dev_grid,
             exp_grid = exp_grid, dev_sink = dev_sink, exp_sink = exp_sink,
-            threads = threads, enhancer = enhancer,
+            BPPARAM = BPPARAM, enhancer = enhancer,
             ignoreStrand = ignoreStrand
         )
     }
