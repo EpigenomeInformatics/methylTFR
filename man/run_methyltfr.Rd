@@ -76,6 +76,50 @@ calculate the deviation
 in transcription factor
 footprint base for all given motifs per raw samples
 }
+\examples{
+# A minimal end-to-end run on the BATF example data bundled with the
+# package. The annotation objects cover a single motif, so the result
+# has one row.
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+
+# run_methyltfr() reads per-sample calls from disk, so the bundled sites
+# are written out as a bismarkCov file first.
+sample_dir <- tempfile("methylTFR_example")
+dir.create(sample_dir)
+n_meth <- round(msites$score * msites$coverage)
+write.table(
+    data.frame(
+        chr = as.character(GenomicRanges::seqnames(msites)),
+        start = GenomicRanges::start(msites),
+        end = GenomicRanges::end(msites),
+        percent = msites$score * 100,
+        meth = n_meth,
+        unmeth = msites$coverage - n_meth
+    ),
+    file.path(sample_dir, "sample_1.cov"),
+    sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE
+)
+write.table(
+    data.frame(sampleName = "sample_1", bedFile = "sample_1.cov"),
+    file.path(sample_dir, "samples.tsv"),
+    sep = "\t", row.names = FALSE, quote = FALSE
+)
+
+devs <- run_methyltfr(
+    sample_ann = "samples.tsv",
+    sample_dir = sample_dir,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    gc_dist = gcdist,
+    filetype = "bismarkcov"
+)
+deviations(devs)
+
+unlink(sample_dir, recursive = TRUE)
+}
 \seealso{
 \code{\link{run_methylTFR_RnBeads}} for running methylTFR
 directly on a preprocessed RnBeads object.

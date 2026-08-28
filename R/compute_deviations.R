@@ -1,3 +1,35 @@
+#' @title check_deviation_inputs
+#' @description Validate the inputs of \code{computeDeviation}.
+#' @param motif Motif name as a character string.
+#' @param msites Methylation sites as a \code{GRanges} object.
+#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
+#' @param enhancer a \code{GRanges} restricting the analysis (optional).
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @importFrom methods is
+#' @keywords internal
+check_deviation_inputs <- function(
+    motif, msites, tf_bindsites, enhancer = NULL
+) {
+    if (is.null(motif) || !is.character(motif)) {
+        stop("Please provide a valid motif name")
+    }
+    if (is.null(msites) || !is(msites, "GRanges")) {
+        stop(
+            "Please provide a valid methylation sites with ",
+            "read_methylome function"
+        )
+    }
+    if (is.null(tf_bindsites) ||
+        !any(c(!is(tf_bindsites, "GRangesList") ||
+            !is.list(tf_bindsites)))) {
+        stop("Please provide a valid tf binding sites as GRangesList")
+    }
+    if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
+        stop("Please provide a valid enhancer regions")
+    }
+    invisible(NULL)
+}
+
 #' @title computeDeviation
 #' @description computeDeviation is a function to calculate
 #'  the deviation in transcription factor
@@ -55,31 +87,18 @@
 #' )
 #' @export
 computeDeviation <- function(
-  motif, msites, tf_bindsites, gcfreqs,
-  enhancer = NULL, ignoreStrand = TRUE,
-  binMsites
+    motif, msites, tf_bindsites, gcfreqs, enhancer = NULL,
+    ignoreStrand = TRUE, binMsites
 ) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
         ignoreStrand <- TRUE
     }
-    if (is.null(motif) || !is.character(motif)) {
-        stop("Please provide a valid motif name")
-    }
-    if (is.null(msites) || !is(msites, "GRanges")) {
-        stop("Please provide a valid methylation
-        sites with read_methylome function")
-    }
-    if (is.null(tf_bindsites) ||
-        !any(c(!is(tf_bindsites, "GRangesList") ||
-            !is.list(tf_bindsites)))) {
-        stop("Please provide a valid tf binding sites as GRangesList")
-    }
-    if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
-        stop("Please provide a valid enhancer regions")
-    }
+    check_deviation_inputs(motif, msites, tf_bindsites, enhancer)
     tfbs <- tf_bindsites[[motif]]
-    tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
+    tfbs <- resize(tfbs, width(tfbs)[1] + 130,
+        fix = "center"
+    )
     gcfreq <- gcfreqs[[motif]]
     if (!is.null(enhancer)) {
         tfbs <- subsetByOverlaps(tfbs, enhancer,

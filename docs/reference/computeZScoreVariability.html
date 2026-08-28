@@ -9,7 +9,7 @@ varies across samples more than expected by chance."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,7 +122,7 @@ by <code><a href="deviationZScores.html">deviationZScores</a></code>. Those are 
 visualisation, and their standard deviation across samples is 1 for every
 motif by construction, which would make the test degenerate. The default
 input is therefore the <code>deviations</code> assay.</p>
-<p>The approach is analogous to <code>chromVAR::computeVariability</code>, with one
+<p>The approach is analogous to <code><a href="https://rdrr.io/pkg/chromVAR/man/computeVariability.html" class="external-link">chromVAR::computeVariability</a></code>, with one
 difference: chromVAR calibrates each motif against a set of GC- and
 width-matched background peak sets, whereas here the null is estimated
 across motifs within each sample. The latter needs no additional deviation

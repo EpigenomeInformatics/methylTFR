@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,7 +39,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.99.4" id="methyltfr-0994">methylTFR 0.99.4<a class="anchor" aria-label="anchor" href="#methyltfr-0994"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.99.5" id="methyltfr-0995">methylTFR 0.99.5<a class="anchor" aria-label="anchor" href="#methyltfr-0995"></a></h2>
 <p>NEW FEATURES</p>
 <ul><li>Added <code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code>, which runs the methylTFR workflow directly on a preprocessed RnBeads object instead of per-sample BED files. Samples are read one column at a time, so disk-backed RnBeads sets are never loaded into memory in full.</li>
 <li>Added <code><a href="../reference/computeZScoreVariability.html">computeZScoreVariability()</a></code>, which ranks TF motifs by how much their activity varies across samples and tests each motif against a chi-squared null. Deviation scores are first calibrated against a within-sample null estimated across motifs, so that a variability above 1 is interpretable as “more variable than background”.</li>

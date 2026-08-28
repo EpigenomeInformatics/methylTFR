@@ -18,6 +18,7 @@ methylTFR.BiocCheck/*
 .Trashes
 .fseventsd
 .TemporaryItems
+methylTFR_tmp/
 
 # R session artefacts
 .Rhistory
