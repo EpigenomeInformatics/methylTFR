@@ -1,3 +1,83 @@
+#' @title check_file_run_inputs
+#' @description Validate the file-specific arguments of
+#' \code{run_methyltfr}.
+#' @param filetype File type of the methylation call files.
+#' @param sampleColName Column name holding the file names.
+#' @param full_path if TRUE, the annotation file holds full paths.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @keywords internal
+check_file_run_inputs <- function(filetype, sampleColName, full_path) {
+    if (!tolower(filetype) %in% c(
+        "bissnp", "epp", "allc", "bismarkcytosine",
+        "bismarkcov", "encode"
+    )) {
+        stop("Please provide a valid file type")
+    }
+    if (is.null(sampleColName) || !is.character(sampleColName)) {
+        stop("Please provide a valid sample column name")
+    }
+    if (!is.logical(full_path)) {
+        stop(
+            "Invalid full path flag detected, ",
+            "please provide a valid logical value"
+        )
+    }
+    invisible(NULL)
+}
+
+#' @title resolve_annotation_file
+#' @description Work out the path of the sample annotation file.
+#' @param annfile Explicit path to the annotation file, or NULL.
+#' @param sample_ann Name of the annotation file inside \code{sample_dir}.
+#' @param sample_dir Directory holding the methylation call files.
+#' @return The path of the annotation file as a character string.
+#' @keywords internal
+resolve_annotation_file <- function(annfile, sample_ann, sample_dir) {
+    if (!is.null(annfile) && is.character(annfile)) {
+        return(annfile)
+    }
+    if (is.null(sample_ann) || !is.character(sample_ann)) {
+        stop("Please provide a valid sample annotation file")
+    }
+    if (is.null(sample_dir) || !is.character(sample_dir)) {
+        stop("Please provide a valid sample directory")
+    }
+    if (!dir.exists(sample_dir)) {
+        stop(
+            "Sample directory does not exist, ",
+            "please check the directory path"
+        )
+    }
+    return(file.path(sample_dir, sample_ann))
+}
+
+#' @title locate_sample_files
+#' @description Build and check the list of per-sample methylation files.
+#' @param samples The sample annotation as a \code{data.frame}.
+#' @param sample_dir Directory holding the methylation call files.
+#' @param sampleColName Column name holding the file names.
+#' @param full_path if TRUE, the annotation file holds full paths.
+#' @return A character vector of existing file paths.
+#' @importFrom logger log_success
+#' @keywords internal
+locate_sample_files <- function(
+    samples, sample_dir, sampleColName, full_path
+) {
+    if (full_path) {
+        files_list <- samples[, sampleColName]
+    } else {
+        files_list <- file.path(sample_dir, samples[, sampleColName])
+    }
+    if (!all(file.exists(files_list))) {
+        stop(
+            "Some of the files does not exist, ",
+            "please check the file path!"
+        )
+    }
+    log_success("The samples are successfully located")
+    return(files_list)
+}
+
 #' @title run_methyltfr
 #' @description This function is a wrapper function to
 #' calculate the deviation
@@ -99,56 +179,17 @@ run_methyltfr <- function(
     enhancer = NULL, filetype = NULL,
     ignoreStrand = TRUE, cov_threshold = 1
 ) {
-    if (!tolower(filetype) %in% c(
-        "bissnp", "epp", "allc", "bismarkcytosine",
-        "bismarkcov", "encode"
-    )) {
-        stop("Please provide a valid file type")
-    }
-    if (is.null(sampleColName) || !is.character(sampleColName)) {
-        stop("Please provide a valid sample column name")
-    }
-    if (!is.logical(full_path)) {
-        stop(
-            "Invalid full path flag detected, ",
-            "please provide a valid logical value"
-        )
-    }
+    check_file_run_inputs(filetype, sampleColName, full_path)
     check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
     opts <- check_run_options(
         chunkSize, threads, ignoreStrand, cov_threshold
     )
 
-    if (is.null(annfile) || !is.character(annfile)) {
-        if (is.null(sample_ann) || !is.character(sample_ann)) {
-            stop("Please provide a valid sample annotation file")
-        }
-        if (is.null(sample_dir) || !is.character(sample_dir)) {
-            stop("Please provide a valid sample directory")
-        }
-        if (!dir.exists(sample_dir)) {
-            stop(
-                "Sample directory does not exist, ",
-                "please check the directory path"
-            )
-        }
-        annfile <- file.path(sample_dir, sample_ann)
-    }
-
+    annfile <- resolve_annotation_file(annfile, sample_ann, sample_dir)
     samples <- read_sample_annotation(annfile, sampleColName)
-
-    if (full_path) {
-        files_list <- samples[, sampleColName]
-    } else {
-        files_list <- file.path(sample_dir, samples[, sampleColName])
-    }
-    if (!all(file.exists(files_list))) {
-        stop(
-            "Some of the files does not exist, ",
-            "please check the file path!"
-        )
-    }
-    log_success("The samples are successfully located")
+    files_list <- locate_sample_files(
+        samples, sample_dir, sampleColName, full_path
+    )
 
     # Per-sample reader handed to the shared engine
     msites_fun <- function(i) {
