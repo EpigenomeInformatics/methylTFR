@@ -68,6 +68,42 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #' @param sample_ann Optional \code{data.frame} of sample annotation.
 #' @return a \code{methylTFRdeviations} object with bias-corrected
 #' deviations and Z-scores.
+#' @examples
+#' # A minimal end-to-end run on the BATF example data bundled with the
+#' # package. The bundled calls are wrapped in an RnBiseqSet so that the
+#' # example exercises the same code path as a preprocessed RnBeads object.
+#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+#' load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+#' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+#'
+#' if (requireNamespace("RnBeads", quietly = TRUE) &&
+#'     requireNamespace("RnBeads.hg38", quietly = TRUE)) {
+#'     sites <- data.frame(
+#'         chr = as.character(GenomicRanges::seqnames(msites)),
+#'         start = GenomicRanges::start(msites),
+#'         strand = "*",
+#'         stringsAsFactors = FALSE
+#'     )
+#'     rnb_set <- RnBeads::RnBiseqSet(
+#'         pheno = data.frame(sampleName = "sample_1"),
+#'         sites = sites,
+#'         meth = matrix(msites$score, ncol = 1),
+#'         covg = matrix(msites$coverage, ncol = 1),
+#'         assembly = "hg38",
+#'         summarize.regions = FALSE
+#'     )
+#'
+#'     devs <- run_methylTFR_RnBeads(
+#'         rnb_set = rnb_set,
+#'         tf_bindsites = tf_bindsites,
+#'         gcfreqs = gcfreqs,
+#'         gc_dist = gcdist
+#'     )
+#'     deviations(devs)
+#' }
+#' @seealso \code{\link{run_methyltfr}} for running methylTFR from
+#' per-sample BED files.
 #' @importFrom logger log_info
 #' @importFrom methods is
 #' @export
@@ -151,11 +187,57 @@ rnb_annotation_target <- function(rnb_set) {
 }
 
 
+#' @title rnb_probe_ids
+#' @description Read the probe identifiers of an RnBeads object.
+#' @details The \code{sites} slot of an \code{RnBSet} is an index matrix
+#' whose row names carry the probe identifiers.
+#' @param rnb_set An \code{RnBSet} object.
+#' @return A character vector of probe identifiers, or \code{NULL}.
+#' @keywords internal
+rnb_probe_ids <- function(rnb_set) {
+    ids <- tryCatch(rownames(rnb_set@sites), error = function(e) NULL)
+    if (length(ids) == 0) {
+        ids <- tryCatch(
+            rownames(RnBeads::meth(rnb_set, type = "sites")),
+            error = function(e) NULL
+        )
+    }
+    if (length(ids) == 0) NULL else as.character(ids)
+}
+
+
+#' @title rnb_annotation_by_id
+#' @description Subset a genome-wide annotation track to the probes of an
+#' RnBeads object, matching on probe identifier.
+#' @details The \code{sites} slot holds a three-column index matrix, not a
+#' row index into the annotation, so the track is matched by identifier
+#' rather than by position.
+#' @param rnb_set An \code{RnBSet} object.
+#' @param target Character scalar naming the annotation target.
+#' @param assembly Character scalar naming the genome assembly.
+#' @return A \code{data.frame} of annotation rows, or \code{NULL} when the
+#' identifiers cannot be matched.
+#' @keywords internal
+rnb_annotation_by_id <- function(rnb_set, target, assembly) {
+    ids <- rnb_probe_ids(rnb_set)
+    if (is.null(ids)) {
+        return(NULL)
+    }
+    track <- RnBeads::rnb.get.annotation(target, assembly)
+    full <- RnBeads::rnb.annotation2data.frame(track)
+    idx <- match(ids, rownames(full))
+    if (anyNA(idx)) {
+        return(NULL)
+    }
+    full[idx, , drop = FALSE]
+}
+
+
 #' @title rnb_annotation_table
 #' @description Look up the site or probe annotation of an RnBeads object.
 #' @details The annotation stored in the object is used when available,
 #' otherwise the genome-wide track registered for \code{target} is
-#' subset to the sites of the object.
+#' matched to the probes of the object by identifier.
 #' @param rnb_set An \code{RnBSet} object.
 #' @param target Character scalar naming the annotation target.
 #' @param assembly Character scalar naming the genome assembly.
@@ -169,10 +251,7 @@ rnb_annotation_table <- function(rnb_set, target, assembly) {
         ann <- pull(RnBeads::annotation(rnb_set, type = "sites"))
     }
     if (is.null(ann) && target != "sites") {
-        ann <- pull({
-            track <- RnBeads::rnb.get.annotation(target, assembly)
-            RnBeads::rnb.annotation2data.frame(track)[rnb_set@sites, ]
-        })
+        ann <- pull(rnb_annotation_by_id(rnb_set, target, assembly))
     }
     if (is.null(ann) || nrow(ann) == 0) {
         stop(

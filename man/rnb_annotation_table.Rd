@@ -22,6 +22,6 @@ Look up the site or probe annotation of an RnBeads object.
 \details{
 The annotation stored in the object is used when available,
 otherwise the genome-wide track registered for \code{target} is
-subset to the sites of the object.
+matched to the probes of the object by identifier.
 }
 \keyword{internal}
