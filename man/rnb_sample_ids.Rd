@@ -15,12 +15,4 @@ A character vector of sample identifiers.
 \description{
 Determine the sample identifiers of an RnBeads object.
 }
-\details{
-RnBeads exports \code{samples} with \code{exportMethods} rather
-than \code{export}, so the generic is not reachable as
-\code{RnBeads::samples} and referring to it that way fails
-\code{R CMD check}. The identifiers are therefore taken from the column
-names of the methylation matrix, falling back to the row names of the
-sample annotation.
-}
 \keyword{internal}
