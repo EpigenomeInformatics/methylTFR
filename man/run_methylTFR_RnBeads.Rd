@@ -56,3 +56,42 @@ sets (\code{RnBiseqSet}) are filtered by coverage, array sets
 (\code{RnBeadSet}) by detection p-value. The number of sites retained
 per sample is reported through \pkg{logger}.
 }
+\examples{
+# A minimal end-to-end run on the BATF example data bundled with the
+# package. The bundled calls are wrapped in an RnBiseqSet so that the
+# example exercises the same code path as a preprocessed RnBeads object.
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
+
+if (requireNamespace("RnBeads", quietly = TRUE) &&
+    requireNamespace("RnBeads.hg38", quietly = TRUE)) {
+    sites <- data.frame(
+        chr = as.character(GenomicRanges::seqnames(msites)),
+        start = GenomicRanges::start(msites),
+        strand = "*",
+        stringsAsFactors = FALSE
+    )
+    rnb_set <- RnBeads::RnBiseqSet(
+        pheno = data.frame(sampleName = "sample_1"),
+        sites = sites,
+        meth = matrix(msites$score, ncol = 1),
+        covg = matrix(msites$coverage, ncol = 1),
+        assembly = "hg38",
+        summarize.regions = FALSE
+    )
+
+    devs <- run_methylTFR_RnBeads(
+        rnb_set = rnb_set,
+        tf_bindsites = tf_bindsites,
+        gcfreqs = gcfreqs,
+        gc_dist = gcdist
+    )
+    deviations(devs)
+}
+}
+\seealso{
+\code{\link{run_methyltfr}} for running methylTFR from
+per-sample BED files.
+}
