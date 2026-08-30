@@ -4,27 +4,36 @@
 \alias{rnb_sample_msites}
 \title{rnb_sample_msites}
 \usage{
-rnb_sample_msites(rnb_set, sites_gr, index, cov_threshold = 1, has_covg = TRUE)
+rnb_sample_msites(
+  rnb_set,
+  sites_gr,
+  index,
+  cov_threshold = 1,
+  has_covg = TRUE,
+  dpval_threshold = 0.05,
+  has_dpval = FALSE
+)
 }
 \arguments{
 \item{rnb_set}{An \code{RnBSet} object.}
 
-\item{sites_gr}{A \code{GRanges} object of site positions, as returned by
-\code{rnb_sites_to_granges}.}
+\item{sites_gr}{A \code{GRanges} object of site positions.}
 
 \item{index}{Integer index of the sample to extract.}
 
 \item{cov_threshold}{numeric coverage threshold.}
 
-\item{has_covg}{logical, whether the object carries coverage information.}
+\item{has_covg}{logical, whether coverage filtering applies.}
+
+\item{dpval_threshold}{numeric detection p-value threshold.}
+
+\item{has_dpval}{logical, whether detection p-value filtering applies.}
 }
 \value{
-A \code{GRanges} object with \code{score} and \code{coverage}
-metadata columns, restricted to sites with a non-missing methylation call.
+A \code{GRanges} object restricted to valid methylation calls.
 }
 \description{
 Extract the methylation calls of a single sample from an
-RnBeads object as a \code{GRanges} object in the layout expected by
-\code{\link{computeDeviation}}.
+RnBeads object as a \code{GRanges} object.
 }
 \keyword{internal}

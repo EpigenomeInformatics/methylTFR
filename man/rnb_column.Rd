@@ -7,8 +7,7 @@
 rnb_column(accessor, rnb_set, index)
 }
 \arguments{
-\item{accessor}{An RnBeads accessor function, either \code{RnBeads::meth} or
-\code{RnBeads::covg}.}
+\item{accessor}{An RnBeads accessor function.}
 
 \item{rnb_set}{An \code{RnBSet} object.}
 
@@ -18,8 +17,6 @@ rnb_column(accessor, rnb_set, index)
 A numeric vector with one value per site.
 }
 \description{
-Extract a single sample column from an RnBeads accessor,
-falling back to full extraction on RnBeads versions that do not support
-column subsetting.
+Extract a single sample column from an RnBeads accessor.
 }
 \keyword{internal}

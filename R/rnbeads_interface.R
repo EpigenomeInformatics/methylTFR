@@ -19,6 +19,7 @@ check_rnb_inputs <- function(rnb_set) {
     invisible(NULL)
 }
 
+
 #' @title resolve_rnb_sample_ann
 #' @description Default the sample annotation to the phenotype table of the
 #' RnBeads object and check its shape.
@@ -42,130 +43,47 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
     return(sample_ann)
 }
 
+
 #' @title run_methylTFR_RnBeads
 #' @description Run the methylTFR workflow directly on a preprocessed
 #' \pkg{RnBeads} object, without exporting per-sample BED files first.
 #'
-#' This is the RnBeads-based counterpart to \code{\link{run_methyltfr}}. Both
-#' functions share the same engine and produce numerically identical results
-#' for the same underlying methylation calls; they differ only in where the
-#' per-sample methylation levels come from.
-#'
 #' @details
-#' Methylation calls are always read at single-cytosine resolution
-#' (\code{type = "sites"}). Region-level summaries such as \code{tiling1kb} or
-#' \code{distal} cannot be used, because methylTFR needs base-resolution calls
-#' to build the footprint around each motif centre. To restrict the analysis to
-#' a set of regulatory regions, pass those regions through the \code{enhancer}
-#' argument instead.
+#' Methylation calls are read at single-cytosine resolution. Sequencing
+#' sets (\code{RnBiseqSet}) are filtered by coverage, array sets
+#' (\code{RnBeadSet}) by detection p-value. The number of sites retained
+#' per sample is reported through \pkg{logger}.
 #'
-#' Samples are processed one at a time and methylation levels are pulled from
-#' the RnBeads object column by column, so disk-backed (\code{ff}-managed)
-#' RnBeads sets are never loaded into memory in full.
-#'
-#' Coverage filtering is applied only when the object carries coverage
-#' information, which is the case for sequencing-based sets
-#' (\code{RnBiseqSet}). For array-based sets \code{cov_threshold} is ignored
-#' and a message is emitted.
-#'
-#' Note that RnBeads site annotation is 1-based while
-#' \code{\link{read_methylome}} reads 0-based BED coordinates as-is. The
-#' resulting one-base offset is not corrected here, since deviation scores
-#' aggregate methylation over windows of tens to hundreds of bases and are
-#' insensitive to a uniform single-base shift.
-#'
-#' @param rnb_set A preprocessed \code{RnBSet} object, for example the output
-#' of \code{rnb.run.preprocessing} or a set loaded with
-#' \code{RnBeads::load.rnb.set}.
-#' @param tf_bindsites a \code{GRangesList} object contains
-#'  tf binding sites positions
-#' @param gcfreqs a \code{list} of GC bin frequency tables
-#'  (matrices for multiple motif)
-#' @param gc_dist a \code{GRanges} object contains
-#' Genome wide GC distribution
-#' @param chunkSize Chunk size for parallel processing
-#'  of motifs (default: 20)
-#' @param threads Thread count for parallel processing
-#' @param enhancer a \code{GRanges} object specifying
-#' regions such as distal regulatory elements (optional)
-#' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param cov_threshold numeric, coverage threshold used to filter out low
-#' coverage sites, default is 1. Ignored for objects without coverage
-#' information.
-#' @param sample_ann Optional \code{data.frame} of sample annotation with one
-#' row per sample, used as \code{colData}. Defaults to
-#' \code{RnBeads::pheno(rnb_set)}.
-#' @return a \code{methylTFRdeviations} object with
-#' bias-corrected deviation and Z-scores
-#' @importFrom GenomicRanges GRanges
-#' @importFrom IRanges IRanges
-#' @importFrom logger log_info log_warn
+#' @param rnb_set A preprocessed \code{RnBSet} object.
+#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
+#' @param gcfreqs a \code{list} of GC bin frequency tables.
+#' @param gc_dist a \code{GRanges} of the genome-wide GC distribution.
+#' @param chunkSize Chunk size for parallel processing of motifs.
+#' @param threads Thread count for parallel processing.
+#' @param enhancer an optional \code{GRanges} of regions to restrict to.
+#' @param ignoreStrand if TRUE, strand information is ignored.
+#' @param cov_threshold numeric, minimum coverage of a retained site.
+#' @param dpval_threshold numeric, maximum detection p-value of a
+#' retained probe.
+#' @param sample_ann Optional \code{data.frame} of sample annotation.
+#' @return a \code{methylTFRdeviations} object with bias-corrected
+#' deviations and Z-scores.
+#' @importFrom logger log_info
 #' @importFrom methods is
-#' @seealso \code{\link{run_methyltfr}} for the file-based entry point.
-#' @author Irem Gunduz
-#' @examples
-#' # A minimal end-to-end run on the BATF example data bundled with the
-#' # package. RnBeads and its hg38 annotation build the input object; both
-#' # are optional dependencies.
-#' if (requireNamespace("RnBeads", quietly = TRUE) &&
-#'     requireNamespace("RnBeads.hg38", quietly = TRUE)) {
-#'     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-#'     load(system.file(
-#'         "extdata", "BATF_tf_bindsites.rda",
-#'         package = "methylTFR"
-#'     ))
-#'     load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
-#'     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-#'
-#'     # RnBiseqSet() takes methylation as a fraction and coverage as counts,
-#'     # with one column per sample.
-#'     sites <- data.frame(
-#'         chromosome = as.character(GenomicRanges::seqnames(msites)),
-#'         position = GenomicRanges::start(msites),
-#'         strand = "*",
-#'         stringsAsFactors = FALSE
-#'     )
-#'     rnb_set <- RnBeads::RnBiseqSet(
-#'         pheno = data.frame(
-#'             sampleName = "sample_1", stringsAsFactors = FALSE
-#'         ),
-#'         sites = sites,
-#'         meth = matrix(msites$score, ncol = 1),
-#'         covg = matrix(msites$coverage, ncol = 1),
-#'         assembly = "hg38",
-#'         summarize.regions = FALSE
-#'     )
-#'
-#'     devs <- run_methylTFR_RnBeads(
-#'         rnb_set = rnb_set,
-#'         tf_bindsites = tf_bindsites,
-#'         gcfreqs = gcfreqs,
-#'         gc_dist = gcdist
-#'     )
-#'     deviations(devs)
-#' }
 #' @export
 run_methylTFR_RnBeads <- function(
     rnb_set, tf_bindsites = NULL, gcfreqs = NULL, gc_dist = NULL,
     chunkSize = 20, threads = 1, enhancer = NULL, ignoreStrand = TRUE,
-    cov_threshold = 1, sample_ann = NULL
+    cov_threshold = 1, dpval_threshold = 0.05, sample_ann = NULL
 ) {
     check_rnb_inputs(rnb_set)
     check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
     opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
 
     sample_ids <- rnb_sample_ids(rnb_set)
-
     sample_ann <- resolve_rnb_sample_ann(rnb_set, sample_ann, sample_ids)
-
     sites_gr <- rnb_sites_to_granges(rnb_set, opts$ignoreStrand)
-    has_covg <- rnb_has_coverage(rnb_set)
-    if (!has_covg) {
-        log_warn(
-            "The RnBSet object does not carry coverage information; ",
-            "cov_threshold is ignored."
-        )
-    }
+    mode <- rnb_quality_mode(rnb_set, dpval_threshold)
     log_info(
         "Found ", length(sites_gr), " sites across ",
         length(sample_ids), " samples"
@@ -173,24 +91,17 @@ run_methylTFR_RnBeads <- function(
 
     msites_fun <- function(i) {
         rnb_sample_msites(
-            rnb_set = rnb_set,
-            sites_gr = sites_gr,
-            index = i,
-            cov_threshold = opts$cov_threshold,
-            has_covg = has_covg
+            rnb_set = rnb_set, sites_gr = sites_gr, index = i,
+            cov_threshold = opts$cov_threshold, has_covg = mode$has_covg,
+            dpval_threshold = dpval_threshold, has_dpval = mode$has_dpval
         )
     }
 
     methyltfr_core(
-        sample_ids = sample_ids,
-        msites_fun = msites_fun,
-        samples = sample_ann,
-        tf_bindsites = tf_bindsites,
-        gcfreqs = gcfreqs,
-        gc_dist = gc_dist,
-        chunkSize = opts$chunkSize,
-        threads = opts$threads,
-        enhancer = enhancer,
+        sample_ids = sample_ids, msites_fun = msites_fun,
+        samples = sample_ann, tf_bindsites = tf_bindsites,
+        gcfreqs = gcfreqs, gc_dist = gc_dist, chunkSize = opts$chunkSize,
+        threads = opts$threads, enhancer = enhancer,
         ignoreStrand = opts$ignoreStrand
     )
 }
@@ -198,12 +109,6 @@ run_methylTFR_RnBeads <- function(
 
 #' @title rnb_sample_ids
 #' @description Determine the sample identifiers of an RnBeads object.
-#' @details RnBeads exports \code{samples} with \code{exportMethods} rather
-#' than \code{export}, so the generic is not reachable as
-#' \code{RnBeads::samples} and referring to it that way fails
-#' \code{R CMD check}. The identifiers are therefore taken from the column
-#' names of the methylation matrix, falling back to the row names of the
-#' sample annotation.
 #' @param rnb_set An \code{RnBSet} object.
 #' @return A character vector of sample identifiers.
 #' @keywords internal
@@ -212,63 +117,110 @@ rnb_sample_ids <- function(rnb_set) {
         colnames(RnBeads::meth(rnb_set, type = "sites", i = 1L)),
         error = function(e) NULL
     )
-    if (is.null(ids) || length(ids) == 0) {
-        ids <- tryCatch(rownames(RnBeads::pheno(rnb_set)),
+    if (length(ids) == 0) {
+        ids <- tryCatch(
+            rownames(RnBeads::pheno(rnb_set)),
             error = function(e) NULL
         )
     }
-    if (is.null(ids) || length(ids) == 0) {
-        nsamples <- tryCatch(nrow(RnBeads::pheno(rnb_set)),
+    if (length(ids) == 0) {
+        nsamples <- tryCatch(
+            nrow(RnBeads::pheno(rnb_set)),
             error = function(e) 0L
         )
-        if (!is.null(nsamples) && nsamples > 0) {
+        if (length(nsamples) == 1 && nsamples > 0) {
             ids <- paste0("sample_", seq_len(nsamples))
         }
     }
-    if (is.null(ids) || length(ids) == 0) {
-        stop(
-            "Could not determine sample identifiers from the RnBSet object; ",
-            "pass them explicitly via sample_ann."
-        )
+    if (length(ids) == 0) {
+        stop("Could not determine sample identifiers from the RnBSet object.")
     }
     return(as.character(ids))
 }
 
 
-#' @title rnb_sites_to_granges
-#' @description Build a \code{GRanges} object of the site annotation of an
-#' RnBeads object. The order of the ranges matches the row order of the
-#' methylation matrix returned by \code{RnBeads::meth}.
+#' @title rnb_annotation_target
+#' @description Resolve the annotation target of an RnBeads object.
 #' @param rnb_set An \code{RnBSet} object.
-#' @param ignoreStrand if TRUE, all ranges are returned with strand \code{"*"}.
-#' @return A \code{GRanges} object with one range per site.
-#' @importFrom GenomicRanges GRanges
-#' @importFrom IRanges IRanges
+#' @return A character scalar naming the annotation target, \code{"sites"}
+#' for sequencing sets and the array platform for array sets.
+#' @importFrom methods is
 #' @keywords internal
-rnb_sites_to_granges <- function(rnb_set, ignoreStrand = TRUE) {
-    ann <- RnBeads::annotation(rnb_set, type = "sites")
-    if (is.null(ann) || nrow(ann) == 0) {
-        stop("The RnBSet object does not contain any site annotation")
+rnb_annotation_target <- function(rnb_set) {
+    if (is(rnb_set, "RnBeadSet")) rnb_set@target else "sites"
+}
+
+
+#' @title rnb_annotation_table
+#' @description Look up the site or probe annotation of an RnBeads object.
+#' @details The annotation stored in the object is used when available,
+#' otherwise the genome-wide track registered for \code{target} is
+#' subset to the sites of the object.
+#' @param rnb_set An \code{RnBSet} object.
+#' @param target Character scalar naming the annotation target.
+#' @param assembly Character scalar naming the genome assembly.
+#' @return A \code{data.frame} with one row per site or probe.
+#' @keywords internal
+rnb_annotation_table <- function(rnb_set, target, assembly) {
+    pull <- function(expr) tryCatch(expr, error = function(e) NULL)
+
+    ann <- pull(RnBeads::annotation(rnb_set, type = target))
+    if (is.null(ann)) {
+        ann <- pull(RnBeads::annotation(rnb_set, type = "sites"))
     }
-    required <- c("Chromosome", "Start")
-    missing_cols <- setdiff(required, colnames(ann))
-    if (length(missing_cols) > 0) {
+    if (is.null(ann) && target != "sites") {
+        ann <- pull({
+            track <- RnBeads::rnb.get.annotation(target, assembly)
+            RnBeads::rnb.annotation2data.frame(track)[rnb_set@sites, ]
+        })
+    }
+    if (is.null(ann) || nrow(ann) == 0) {
         stop(
-            "Unexpected RnBeads site annotation, missing column(s): ",
-            paste(missing_cols, collapse = ", ")
+            "Could not extract coordinates for target '", target,
+            "' and assembly '", assembly, "'. Load the matching RnBeads ",
+            "annotation, or a custom annotation for this array, before ",
+            "calling methylTFR."
         )
     }
+    return(ann)
+}
+
+
+#' @title rnb_sites_to_granges
+#' @description Build a \code{GRanges} object of the site or probe
+#' annotation of an RnBeads object.
+#' @param rnb_set An \code{RnBSet} object.
+#' @param ignoreStrand if TRUE, all ranges are returned with strand
+#' \code{"*"}.
+#' @return A \code{GRanges} object with one range per site or probe.
+#' @importFrom GenomicRanges GRanges
+#' @importFrom IRanges IRanges
+#' @importFrom logger log_info
+#' @importFrom methods is
+#' @keywords internal
+rnb_sites_to_granges <- function(rnb_set, ignoreStrand = TRUE) {
+    assembly <- rnb_set@assembly
+    target <- rnb_annotation_target(rnb_set)
+    log_info("Annotation target: ", target, " | assembly: ", assembly)
+    invisible(requireNamespace(paste0("RnBeads.", assembly), quietly = TRUE))
+
+    ann <- rnb_annotation_table(rnb_set, target, assembly)
+    missing_cols <- setdiff(c("Chromosome", "Start"), colnames(ann))
+    if (length(missing_cols) > 0) {
+        stop("RnBeads annotation misses column(s): ", toString(missing_cols))
+    }
+
     ends <- if ("End" %in% colnames(ann)) ann$End else ann$Start
     strands <- "*"
     if (!ignoreStrand && "Strand" %in% colnames(ann)) {
         strands <- as.character(ann$Strand)
         strands[is.na(strands) | !strands %in% c("+", "-")] <- "*"
     }
+
     GenomicRanges::GRanges(
         seqnames = as.character(ann$Chromosome),
         ranges = IRanges::IRanges(
-            start = as.integer(ann$Start),
-            end = as.integer(ends)
+            start = as.integer(ann$Start), end = as.integer(ends)
         ),
         strand = strands
     )
@@ -276,13 +228,12 @@ rnb_sites_to_granges <- function(rnb_set, ignoreStrand = TRUE) {
 
 
 #' @title rnb_has_coverage
-#' @description Test whether an RnBeads object carries coverage information.
+#' @description Test whether an RnBeads object carries coverage
+#' information.
 #' @param rnb_set An \code{RnBSet} object.
 #' @return A logical scalar.
 #' @keywords internal
 rnb_has_coverage <- function(rnb_set) {
-    # Try the subsetting form first so that large disk-backed sets are not
-    # materialised, then fall back for RnBeads versions without the j argument.
     res <- tryCatch(
         !is.null(RnBeads::covg(rnb_set, type = "sites", j = 1L)),
         error = function(e) NULL
@@ -297,63 +248,54 @@ rnb_has_coverage <- function(rnb_set) {
 }
 
 
-#' @title rnb_sample_msites
-#' @description Extract the methylation calls of a single sample from an
-#' RnBeads object as a \code{GRanges} object in the layout expected by
-#' \code{\link{computeDeviation}}.
+#' @title rnb_has_dpval
+#' @description Test whether an RnBeads object carries detection
+#' p-values.
 #' @param rnb_set An \code{RnBSet} object.
-#' @param sites_gr A \code{GRanges} object of site positions, as returned by
-#' \code{rnb_sites_to_granges}.
-#' @param index Integer index of the sample to extract.
-#' @param cov_threshold numeric coverage threshold.
-#' @param has_covg logical, whether the object carries coverage information.
-#' @return A \code{GRanges} object with \code{score} and \code{coverage}
-#' metadata columns, restricted to sites with a non-missing methylation call.
-#' @importFrom logger log_warn
+#' @return A logical scalar.
 #' @keywords internal
-rnb_sample_msites <- function(
-    rnb_set, sites_gr, index,
-    cov_threshold = 1, has_covg = TRUE
-) {
-    index <- as.integer(index)
-    mvals <- rnb_column(RnBeads::meth, rnb_set, index)
-    if (length(mvals) != length(sites_gr)) {
-        stop(
-            "The number of methylation values does not match the number of ",
-            "annotated sites; the RnBSet object appears to be inconsistent."
+rnb_has_dpval <- function(rnb_set) {
+    res <- tryCatch(
+        !is.null(RnBeads::dpval(rnb_set, type = "sites", j = 1L)),
+        error = function(e) NULL
+    )
+    if (is.null(res)) {
+        res <- tryCatch(
+            !is.null(RnBeads::dpval(rnb_set, type = "sites")),
+            error = function(e) FALSE
         )
     }
-    keep <- !is.na(mvals)
-    if (has_covg) {
-        cvals <- rnb_column(RnBeads::covg, rnb_set, index)
-        if (length(cvals) != length(sites_gr)) {
-            stop(
-                "The number of coverage values does not match the number of ",
-                "annotated sites."
-            )
-        }
-        keep <- keep & !is.na(cvals) & cvals >= cov_threshold
-    } else {
-        cvals <- rep(NA_real_, length(sites_gr))
-    }
-    if (!any(keep)) {
-        stop(
-            "No sites passed the coverage threshold for sample index ", index
+    return(isTRUE(res))
+}
+
+
+#' @title rnb_quality_mode
+#' @description Decide which per-site quality filter applies to an
+#' RnBeads object and report it.
+#' @param rnb_set An \code{RnBSet} object.
+#' @param dpval_threshold numeric detection p-value threshold.
+#' @return A list with the logical flags \code{has_covg} and
+#' \code{has_dpval}.
+#' @importFrom logger log_info log_warn
+#' @keywords internal
+rnb_quality_mode <- function(rnb_set, dpval_threshold) {
+    has_covg <- rnb_has_coverage(rnb_set)
+    has_dpval <- rnb_has_dpval(rnb_set)
+    if (has_dpval) {
+        log_info("Filtering probes at detection p-value <= ", dpval_threshold)
+    } else if (!has_covg) {
+        log_warn(
+            "RnBSet carries neither coverage nor detection p-values, ",
+            "no quality filtering is applied"
         )
     }
-    gr <- sites_gr[keep]
-    gr$score <- as.numeric(mvals[keep])
-    gr$coverage <- as.numeric(cvals[keep])
-    return(gr)
+    list(has_covg = has_covg, has_dpval = has_dpval)
 }
 
 
 #' @title rnb_column
-#' @description Extract a single sample column from an RnBeads accessor,
-#' falling back to full extraction on RnBeads versions that do not support
-#' column subsetting.
-#' @param accessor An RnBeads accessor function, either \code{RnBeads::meth} or
-#' \code{RnBeads::covg}.
+#' @description Extract a single sample column from an RnBeads accessor.
+#' @param accessor An RnBeads accessor function.
 #' @param rnb_set An \code{RnBSet} object.
 #' @param index Integer index of the sample to extract.
 #' @return A numeric vector with one value per site.
@@ -370,4 +312,54 @@ rnb_column <- function(accessor, rnb_set, index) {
         }
     }
     return(as.numeric(as.vector(vals)))
+}
+
+
+#' @title rnb_sample_msites
+#' @description Extract the methylation calls of a single sample from an
+#' RnBeads object as a \code{GRanges} object.
+#' @param rnb_set An \code{RnBSet} object.
+#' @param sites_gr A \code{GRanges} object of site positions.
+#' @param index Integer index of the sample to extract.
+#' @param cov_threshold numeric coverage threshold.
+#' @param has_covg logical, whether coverage filtering applies.
+#' @param dpval_threshold numeric detection p-value threshold.
+#' @param has_dpval logical, whether detection p-value filtering applies.
+#' @return A \code{GRanges} object restricted to valid methylation calls.
+#' @importFrom logger log_info
+#' @keywords internal
+rnb_sample_msites <- function(
+    rnb_set, sites_gr, index, cov_threshold = 1, has_covg = TRUE,
+    dpval_threshold = 0.05, has_dpval = FALSE
+) {
+    index <- as.integer(index)
+    mvals <- rnb_column(RnBeads::meth, rnb_set, index)
+    if (length(mvals) != length(sites_gr)) {
+        stop("Methylation values do not match annotated sites.")
+    }
+
+    keep <- !is.na(mvals)
+    if (has_covg) {
+        cvals <- rnb_column(RnBeads::covg, rnb_set, index)
+        keep <- keep & !is.na(cvals) & cvals >= cov_threshold
+    } else {
+        cvals <- rep(NA_real_, length(sites_gr))
+    }
+    if (has_dpval) {
+        dvals <- rnb_column(RnBeads::dpval, rnb_set, index)
+        keep <- keep & !is.na(dvals) & dvals <= dpval_threshold
+    }
+
+    log_info(
+        "Sample ", index, ": ", sum(keep), " of ", length(keep),
+        " sites retained (", round(100 * mean(keep), 2), "%)"
+    )
+    if (!any(keep)) {
+        stop("No sites passed the quality thresholds for sample index ", index)
+    }
+
+    gr <- sites_gr[keep]
+    gr$score <- as.numeric(mvals[keep])
+    gr$coverage <- as.numeric(cvals[keep])
+    return(gr)
 }

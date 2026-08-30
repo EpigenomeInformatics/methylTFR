@@ -14,122 +14,45 @@ run_methylTFR_RnBeads(
   enhancer = NULL,
   ignoreStrand = TRUE,
   cov_threshold = 1,
+  dpval_threshold = 0.05,
   sample_ann = NULL
 )
 }
 \arguments{
-\item{rnb_set}{A preprocessed \code{RnBSet} object, for example the output
-of \code{rnb.run.preprocessing} or a set loaded with
-\code{RnBeads::load.rnb.set}.}
+\item{rnb_set}{A preprocessed \code{RnBSet} object.}
 
-\item{tf_bindsites}{a \code{GRangesList} object contains
-tf binding sites positions}
+\item{tf_bindsites}{a \code{GRangesList} of TF binding site positions.}
 
-\item{gcfreqs}{a \code{list} of GC bin frequency tables
-(matrices for multiple motif)}
+\item{gcfreqs}{a \code{list} of GC bin frequency tables.}
 
-\item{gc_dist}{a \code{GRanges} object contains
-Genome wide GC distribution}
+\item{gc_dist}{a \code{GRanges} of the genome-wide GC distribution.}
 
-\item{chunkSize}{Chunk size for parallel processing
-of motifs (default: 20)}
+\item{chunkSize}{Chunk size for parallel processing of motifs.}
 
-\item{threads}{Thread count for parallel processing}
+\item{threads}{Thread count for parallel processing.}
 
-\item{enhancer}{a \code{GRanges} object specifying
-regions such as distal regulatory elements (optional)}
+\item{enhancer}{an optional \code{GRanges} of regions to restrict to.}
 
-\item{ignoreStrand}{if TRUE, it ignores strand info from annotation}
+\item{ignoreStrand}{if TRUE, strand information is ignored.}
 
-\item{cov_threshold}{numeric, coverage threshold used to filter out low
-coverage sites, default is 1. Ignored for objects without coverage
-information.}
+\item{cov_threshold}{numeric, minimum coverage of a retained site.}
 
-\item{sample_ann}{Optional \code{data.frame} of sample annotation with one
-row per sample, used as \code{colData}. Defaults to
-\code{RnBeads::pheno(rnb_set)}.}
+\item{dpval_threshold}{numeric, maximum detection p-value of a
+retained probe.}
+
+\item{sample_ann}{Optional \code{data.frame} of sample annotation.}
 }
 \value{
-a \code{methylTFRdeviations} object with
-bias-corrected deviation and Z-scores
+a \code{methylTFRdeviations} object with bias-corrected
+deviations and Z-scores.
 }
 \description{
 Run the methylTFR workflow directly on a preprocessed
 \pkg{RnBeads} object, without exporting per-sample BED files first.
-
-This is the RnBeads-based counterpart to \code{\link{run_methyltfr}}. Both
-functions share the same engine and produce numerically identical results
-for the same underlying methylation calls; they differ only in where the
-per-sample methylation levels come from.
 }
 \details{
-Methylation calls are always read at single-cytosine resolution
-(\code{type = "sites"}). Region-level summaries such as \code{tiling1kb} or
-\code{distal} cannot be used, because methylTFR needs base-resolution calls
-to build the footprint around each motif centre. To restrict the analysis to
-a set of regulatory regions, pass those regions through the \code{enhancer}
-argument instead.
-
-Samples are processed one at a time and methylation levels are pulled from
-the RnBeads object column by column, so disk-backed (\code{ff}-managed)
-RnBeads sets are never loaded into memory in full.
-
-Coverage filtering is applied only when the object carries coverage
-information, which is the case for sequencing-based sets
-(\code{RnBiseqSet}). For array-based sets \code{cov_threshold} is ignored
-and a message is emitted.
-
-Note that RnBeads site annotation is 1-based while
-\code{\link{read_methylome}} reads 0-based BED coordinates as-is. The
-resulting one-base offset is not corrected here, since deviation scores
-aggregate methylation over windows of tens to hundreds of bases and are
-insensitive to a uniform single-base shift.
-}
-\examples{
-# A minimal end-to-end run on the BATF example data bundled with the
-# package. RnBeads and its hg38 annotation build the input object; both
-# are optional dependencies.
-if (requireNamespace("RnBeads", quietly = TRUE) &&
-    requireNamespace("RnBeads.hg38", quietly = TRUE)) {
-    load(system.file("extdata", "example_data.rda", package = "methylTFR"))
-    load(system.file(
-        "extdata", "BATF_tf_bindsites.rda",
-        package = "methylTFR"
-    ))
-    load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
-    load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
-
-    # RnBiseqSet() takes methylation as a fraction and coverage as counts,
-    # with one column per sample.
-    sites <- data.frame(
-        chromosome = as.character(GenomicRanges::seqnames(msites)),
-        position = GenomicRanges::start(msites),
-        strand = "*",
-        stringsAsFactors = FALSE
-    )
-    rnb_set <- RnBeads::RnBiseqSet(
-        pheno = data.frame(
-            sampleName = "sample_1", stringsAsFactors = FALSE
-        ),
-        sites = sites,
-        meth = matrix(msites$score, ncol = 1),
-        covg = matrix(msites$coverage, ncol = 1),
-        assembly = "hg38",
-        summarize.regions = FALSE
-    )
-
-    devs <- run_methylTFR_RnBeads(
-        rnb_set = rnb_set,
-        tf_bindsites = tf_bindsites,
-        gcfreqs = gcfreqs,
-        gc_dist = gcdist
-    )
-    deviations(devs)
-}
-}
-\seealso{
-\code{\link{run_methyltfr}} for the file-based entry point.
-}
-\author{
-Irem Gunduz
+Methylation calls are read at single-cytosine resolution. Sequencing
+sets (\code{RnBiseqSet}) are filtered by coverage, array sets
+(\code{RnBeadSet}) by detection p-value. The number of sites retained
+per sample is reported through \pkg{logger}.
 }
