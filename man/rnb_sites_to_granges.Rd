@@ -9,14 +9,14 @@ rnb_sites_to_granges(rnb_set, ignoreStrand = TRUE)
 \arguments{
 \item{rnb_set}{An \code{RnBSet} object.}
 
-\item{ignoreStrand}{if TRUE, all ranges are returned with strand \code{"*"}.}
+\item{ignoreStrand}{if TRUE, all ranges are returned with strand
+\code{"*"}.}
 }
 \value{
-A \code{GRanges} object with one range per site.
+A \code{GRanges} object with one range per site or probe.
 }
 \description{
-Build a \code{GRanges} object of the site annotation of an
-RnBeads object. The order of the ranges matches the row order of the
-methylation matrix returned by \code{RnBeads::meth}.
+Build a \code{GRanges} object of the site or probe
+annotation of an RnBeads object.
 }
 \keyword{internal}

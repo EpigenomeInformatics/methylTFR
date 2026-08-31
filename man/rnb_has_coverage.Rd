@@ -13,6 +13,7 @@ rnb_has_coverage(rnb_set)
 A logical scalar.
 }
 \description{
-Test whether an RnBeads object carries coverage information.
+Test whether an RnBeads object carries coverage
+information.
 }
 \keyword{internal}
