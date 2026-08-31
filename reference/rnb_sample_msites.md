@@ -1,13 +1,20 @@
 # rnb_sample_msites
 
 Extract the methylation calls of a single sample from an RnBeads object
-as a `GRanges` object in the layout expected by
-[`computeDeviation`](https://epigenomeinformatics.github.io/methylTFR/reference/computeDeviation.md).
+as a `GRanges` object.
 
 ## Usage
 
 ``` r
-rnb_sample_msites(rnb_set, sites_gr, index, cov_threshold = 1, has_covg = TRUE)
+rnb_sample_msites(
+  rnb_set,
+  sites_gr,
+  index,
+  cov_threshold = 1,
+  has_covg = TRUE,
+  dpval_threshold = 0.05,
+  has_dpval = FALSE
+)
 ```
 
 ## Arguments
@@ -18,8 +25,7 @@ rnb_sample_msites(rnb_set, sites_gr, index, cov_threshold = 1, has_covg = TRUE)
 
 - sites_gr:
 
-  A `GRanges` object of site positions, as returned by
-  `rnb_sites_to_granges`.
+  A `GRanges` object of site positions.
 
 - index:
 
@@ -31,9 +37,16 @@ rnb_sample_msites(rnb_set, sites_gr, index, cov_threshold = 1, has_covg = TRUE)
 
 - has_covg:
 
-  logical, whether the object carries coverage information.
+  logical, whether coverage filtering applies.
+
+- dpval_threshold:
+
+  numeric detection p-value threshold.
+
+- has_dpval:
+
+  logical, whether detection p-value filtering applies.
 
 ## Value
 
-A `GRanges` object with `score` and `coverage` metadata columns,
-restricted to sites with a non-missing methylation call.
+A `GRanges` object restricted to valid methylation calls.

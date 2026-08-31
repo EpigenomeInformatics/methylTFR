@@ -57,8 +57,14 @@
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/resolve_annotation_file.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/resolve_diff_groups.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/resolve_rnb_sample_ann.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_annotation_by_id.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_annotation_table.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_annotation_target.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_column.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_has_coverage.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_has_dpval.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_probe_ids.html</loc></url>
+<url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_quality_mode.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_sample_ids.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_sample_msites.html</loc></url>
 <url><loc>https://epigenomeinformatics.github.io/methylTFR/reference/rnb_sites_to_granges.html</loc></url>

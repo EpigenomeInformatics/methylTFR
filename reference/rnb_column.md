@@ -1,8 +1,6 @@
 # rnb_column
 
-Extract a single sample column from an RnBeads accessor, falling back to
-full extraction on RnBeads versions that do not support column
-subsetting.
+Extract a single sample column from an RnBeads accessor.
 
 ## Usage
 
@@ -14,10 +12,7 @@ rnb_column(accessor, rnb_set, index)
 
 - accessor:
 
-  An RnBeads accessor function, either
-  [`RnBeads::meth`](https://rdrr.io/pkg/RnBeads/man/meth-methods.html)
-  or
-  [`RnBeads::covg`](https://rdrr.io/pkg/RnBeads/man/covg-methods.html).
+  An RnBeads accessor function.
 
 - rnb_set:
 

@@ -619,7 +619,7 @@ sessionInfo()
 #> 
 #> other attached packages:
 #>  [1] circlize_0.4.18             ComplexHeatmap_2.28.0      
-#>  [3] ggplot2_4.0.3               methylTFR_0.99.6           
+#>  [3] ggplot2_4.0.3               methylTFR_0.99.7           
 #>  [5] SummarizedExperiment_1.42.0 Biobase_2.72.0             
 #>  [7] GenomicRanges_1.64.0        Seqinfo_1.2.0              
 #>  [9] IRanges_2.46.0              S4Vectors_0.50.2           
@@ -643,7 +643,7 @@ sessionInfo()
 #> [37] rjson_0.2.23        cachem_1.1.0        rhdf5_2.56.0       
 #> [40] stringr_1.6.0       parallel_4.6.1      BiocManager_1.30.27
 #> [43] XVector_0.52.0      vctrs_0.7.3         Matrix_1.7-5       
-#> [46] jsonlite_2.0.0      bookdown_0.47       GetoptLong_1.1.1   
+#> [46] jsonlite_2.0.0      bookdown_0.48       GetoptLong_1.1.1   
 #> [49] clue_0.3-68         systemfonts_1.3.2   h5mread_1.4.1      
 #> [52] foreach_1.5.2       jquerylib_0.1.4     glue_1.8.1         
 #> [55] pkgdown_2.2.1       codetools_0.2-20    stringi_1.8.9      

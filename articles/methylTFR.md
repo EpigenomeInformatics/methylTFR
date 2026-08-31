@@ -361,7 +361,7 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] methylTFR_0.99.6            SummarizedExperiment_1.42.0
+#>  [1] methylTFR_0.99.7            SummarizedExperiment_1.42.0
 #>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
 #>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
 #>  [7] S4Vectors_0.50.2            BiocGenerics_0.58.1        
@@ -383,7 +383,7 @@ sessionInfo()
 #> [31] R.utils_2.13.0      BiocParallel_1.46.0 DelayedArray_0.38.2
 #> [34] cachem_1.1.0        abind_1.4-8         tidyselect_1.2.1   
 #> [37] digest_0.6.39       stringi_1.8.9       dplyr_1.2.1        
-#> [40] bookdown_0.47       fastmap_1.2.0       grid_4.6.1         
+#> [40] bookdown_0.48       fastmap_1.2.0       grid_4.6.1         
 #> [43] cli_3.6.6           SparseArray_1.12.2  logger_0.4.3       
 #> [46] magrittr_2.0.5      S4Arrays_1.12.0     h5mread_1.4.1      
 #> [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.8         

@@ -1,9 +1,7 @@
 # rnb_sites_to_granges
 
-Build a `GRanges` object of the site annotation of an RnBeads object.
-The order of the ranges matches the row order of the methylation matrix
-returned by
-[`RnBeads::meth`](https://rdrr.io/pkg/RnBeads/man/meth-methods.html).
+Build a `GRanges` object of the site or probe annotation of an RnBeads
+object.
 
 ## Usage
 
@@ -23,4 +21,4 @@ rnb_sites_to_granges(rnb_set, ignoreStrand = TRUE)
 
 ## Value
 
-A `GRanges` object with one range per site.
+A `GRanges` object with one range per site or probe.
