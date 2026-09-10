@@ -1,3 +1,23 @@
+# methylTFR 0.99.8
+
+BUG FIXES
+
+* `read_methylome(type = "encode")` returned methylation scores that were not
+  fractions. `parse_encode()` divided column 11 by column 10, but in a bedMethyl
+  file column 10 is read coverage and column 11 is the percentage of reads
+  methylated, so a fully methylated CpG covered by five reads scored 20. The
+  score is now the percentage over 100.
+* `parse_encode()` skipped the first line of every file unconditionally. Files
+  downloaded from ENCODE carry no header, so the first record was silently
+  discarded. The header is now detected.
+* `read_methylome()` stops if the parsed scores fall outside 0 to 1 rather than
+  passing them to the deviation calculation.
+* The bundled `encode.tsv.gz` example has been rebuilt. Columns 10 and 11 are
+  now named `coverage` and `percentMeth` rather than `blockCount` and
+  `blockSizes`, and the percentages span 0 to 100, so the tests exercise the
+  case the old example passed by luck.
+
+
 # methylTFR 0.99.7
 
 NEW FEATURES
