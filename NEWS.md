@@ -12,6 +12,10 @@ BUG FIXES
   discarded. The header is now detected.
 * `read_methylome()` stops if the parsed scores fall outside 0 to 1 rather than
   passing them to the deviation calculation.
+* The `run_methylTFR_RnBeads()` example built an `RnBiseqSet` without setting
+  `identifiers.column`, so `samples()` returned row numbers and the example
+  stopped on the sample-identifier check. It now sets the option before
+  building the set and restores it afterwards.
 * The bundled `encode.tsv.gz` example has been rebuilt. Columns 10 and 11 are
   now named `coverage` and `percentMeth` rather than `blockCount` and
   `blockSizes`, and the percentages span 0 to 100, so the tests exercise the

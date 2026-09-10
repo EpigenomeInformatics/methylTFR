@@ -79,6 +79,12 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #'
 #' if (requireNamespace("RnBeads", quietly = TRUE) &&
 #'     requireNamespace("RnBeads.hg38", quietly = TRUE)) {
+#'     # identifiers.column is a session option, not a property of the object,
+#'     # so it has to be set before the set is built or samples() falls back
+#'     # to row numbers and methylTFR cannot name the columns it returns
+#'     old_ids <- RnBeads::rnb.getOption("identifiers.column")
+#'     RnBeads::rnb.options(identifiers.column = "sampleName")
+#'
 #'     sites <- data.frame(
 #'         chr = as.character(GenomicRanges::seqnames(msites)),
 #'         start = GenomicRanges::start(msites),
@@ -88,8 +94,10 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #'     rnb_set <- RnBeads::RnBiseqSet(
 #'         pheno = data.frame(sampleName = "sample_1"),
 #'         sites = sites,
-#'         meth = matrix(msites$score, ncol = 1),
-#'         covg = matrix(msites$coverage, ncol = 1),
+#'         meth = matrix(msites$score, ncol = 1,
+#'                       dimnames = list(NULL, "sample_1")),
+#'         covg = matrix(msites$coverage, ncol = 1,
+#'                       dimnames = list(NULL, "sample_1")),
 #'         assembly = "hg38",
 #'         summarize.regions = FALSE
 #'     )
@@ -100,6 +108,7 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #'         gcfreqs = gcfreqs,
 #'         gc_dist = gcdist
 #'     )
+#'     RnBeads::rnb.options(identifiers.column = old_ids)
 #'     deviations(devs)
 #' }
 #' @seealso \code{\link{run_methyltfr}} for running methylTFR from
