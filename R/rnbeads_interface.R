@@ -149,10 +149,13 @@ run_methylTFR_RnBeads <- function(
 #' @return A character vector of sample identifiers.
 #' @keywords internal
 rnb_sample_ids <- function(rnb_set) {
-    ids <- tryCatch(
-        colnames(RnBeads::meth(rnb_set, type = "sites", i = 1L)),
-        error = function(e) NULL
-    )
+    ids <- tryCatch(RnBeads::samples(rnb_set), error = function(e) NULL)
+    if (length(ids) == 0) {
+        ids <- tryCatch(
+            colnames(RnBeads::meth(rnb_set, type = "sites", i = 1L)),
+            error = function(e) NULL
+        )
+    }
     if (length(ids) == 0) {
         ids <- tryCatch(
             rownames(RnBeads::pheno(rnb_set)),
@@ -160,18 +163,36 @@ rnb_sample_ids <- function(rnb_set) {
         )
     }
     if (length(ids) == 0) {
-        nsamples <- tryCatch(
-            nrow(RnBeads::pheno(rnb_set)),
-            error = function(e) 0L
-        )
-        if (length(nsamples) == 1 && nsamples > 0) {
-            ids <- paste0("sample_", seq_len(nsamples))
-        }
-    }
-    if (length(ids) == 0) {
         stop("Could not determine sample identifiers from the RnBSet object.")
     }
-    return(as.character(ids))
+    ids <- as.character(ids)
+    if (any(grepl("\\.idat$|_Grn|_Red", ids, ignore.case = TRUE))) {
+        stop(
+            "Sample identifiers look like IDAT channel files, not samples: '",
+            ids[1], "'. The RnBSet was imported with the raw channel files ",
+            "as samples, so each array appears twice and the methylation ",
+            "values are not comparable. Re-import with a sample sheet and ",
+            "an identifiers.column before running methylTFR."
+        )
+    }
+    if (identical(ids, as.character(seq_along(ids)))) {
+        stop(
+            "Sample identifiers are the row numbers 1..", length(ids),
+            ", so the RnBSet carries no usable sample names in this ",
+            "session. identifiers.column is a session option rather than ",
+            "a property of the saved object, so set it before loading, ",
+            "for example rnb.options(identifiers.column = 'Sample.ID'), ",
+            "or assign colnames on the methylation matrix yourself."
+        )
+    }
+    if (anyDuplicated(ids)) {
+        stop(
+            "The RnBSet has duplicated sample identifiers, for example '",
+            ids[anyDuplicated(ids)], "'. Resolve or average the duplicates ",
+            "before running methylTFR."
+        )
+    }
+    return(ids)
 }
 
 

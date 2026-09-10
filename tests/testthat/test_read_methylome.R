@@ -44,4 +44,33 @@ test_that("read_methylome", {
 
     # Check the class of the encode object
     expect_s4_class(encode, "GRanges")
+
+    # Every row of the example is kept at the default coverage threshold
+    expect_equal(length(encode), 6)
+
+    # Column 11 is a percentage, so the score is that percentage over 100. Row
+    # four is 100 percent at coverage 5: dividing column 11 by column 10, as
+    # parse_encode() used to, returned 20 for it.
+    expect_equal(encode$score, c(0.06, 0.03, 0, 1, 0.55, 1))
+    expect_equal(encode$coverage, c(62, 62, 31, 5, 31, 10))
+    expect_true(all(encode$score >= 0 & encode$score <= 1))
+
+    # Coverage filtering reads column 10
+    encode_cov <- read_methylome(encode_path, "encode", cov_threshold = 20)
+    expect_equal(length(encode_cov), 4)
+})
+
+test_that("read_methylome rejects an encode file whose column 11 is not a percentage", {
+    bad <- tempfile(fileext = ".tsv")
+    on.exit(unlink(bad), add = TRUE)
+    write.table(
+        data.frame(
+            chrom = "chr1", start = 1000170, end = 1000171,
+            name = "x", score = 62, strand = "+",
+            thickStart = 1000170, thickEnd = 1000171, itemRgb = "255,255,0",
+            coverage = 5, percentMeth = 400
+        ),
+        bad, sep = "\t", row.names = FALSE, quote = FALSE
+    )
+    expect_error(read_methylome(bad, "encode"), "not a\\s+methylation percentage")
 })

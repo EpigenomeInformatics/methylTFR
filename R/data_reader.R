@@ -61,6 +61,21 @@ read_methylome <- function(filename, type, cov_threshold = 1) {
 
     # Filter low coverage sites
     gr_obj <- gr_obj[gr_obj$coverage >= cov_threshold]
+
+    # A methylation score is a fraction. Anything else means the file did not
+    # have the layout the requested type expects, and returning it silently
+    # would put nonsense into every deviation computed downstream.
+    if (length(gr_obj) > 0) {
+        rng <- range(gr_obj$score, na.rm = TRUE)
+        if (is.finite(rng[1]) && (rng[1] < 0 || rng[2] > 1)) {
+            stop(
+                "Methylation scores parsed from ", filename, " span ",
+                signif(rng[1], 3), " to ", signif(rng[2], 3),
+                ", which is not a fraction. Check that '", type,
+                "' is the right format for this file."
+            )
+        }
+    }
     return(gr_obj)
 }
 
@@ -131,17 +146,30 @@ parse_bismarkcov <- function(filename) {
 
 #' @keywords internal
 parse_encode <- function(filename) {
+    # bedMethyl: column 10 is read coverage and column 11 is the percentage of
+    # reads methylated. Columns are taken by position, and the header is
+    # detected rather than assumed, because files downloaded from ENCODE carry
+    # no header line while the bundled example does.
     msites <- data.table::fread(
         filename,
-        header = FALSE, skip = 1, showProgress = FALSE
+        header = "auto", showProgress = FALSE
     )
     if (ncol(msites) < 11) {
         logger::log_warn(sprintf("%s is an invalid encode file!", filename))
         stop("encode file must contain 11 columns!")
     }
-    mscore <- round(msites$V11 / msites$V10, 6)
-    cov <- msites$V10
-    msites <- msites[, .(V1, V2, V3, V6)]
+    cov <- as.numeric(msites[[10]])
+    pct <- as.numeric(msites[[11]])
+    if (any(pct > 100, na.rm = TRUE) || any(pct < 0, na.rm = TRUE)) {
+        stop(
+            "Column 11 of ", filename, " is outside 0-100, so it is not a ",
+            "methylation percentage. Check that this is a bedMethyl file."
+        )
+    }
+    mscore <- round(pct / 100, 6)
+    msites <- data.table::data.table(
+        V1 = msites[[1]], V2 = msites[[2]], V3 = msites[[3]], V6 = msites[[6]]
+    )
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
