@@ -53,10 +53,6 @@ dependencies:
 ``` r
 
 library(methylTFR)
-#> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
-#> 'DelayedArray::makeNindexFromArrayViewport' when loading 'SummarizedExperiment'
-#> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
-#> 'DelayedArray::makeNindexFromArrayViewport' when loading 'HDF5Array'
 ```
 
 ### Read a Sample File
@@ -341,7 +337,7 @@ only needed if this entry point is used.
 sessionInfo()
 #> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.4 LTS
+#> Running under: Ubuntu 24.04.5 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -370,8 +366,8 @@ sessionInfo()
 #> [13] BiocStyle_2.40.0           
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] gtable_0.3.6        xfun_0.60           bslib_0.12.0       
-#>  [4] ggplot2_4.0.3       rhdf5_2.56.0        lattice_0.22-9     
+#>  [1] gtable_0.3.6        xfun_0.61           bslib_0.12.0       
+#>  [4] ggplot2_4.0.3       rhdf5_2.56.1        lattice_0.22-9     
 #>  [7] rhdf5filters_1.24.1 vctrs_0.7.3         tools_4.6.1        
 #> [10] parallel_4.6.1      tibble_3.3.1        pkgconfig_2.0.3    
 #> [13] R.oo_1.27.1         Matrix_1.7-5        RColorBrewer_1.1-3 
@@ -386,10 +382,10 @@ sessionInfo()
 #> [40] bookdown_0.48       fastmap_1.2.0       grid_4.6.1         
 #> [43] cli_3.6.6           SparseArray_1.12.2  logger_0.4.3       
 #> [46] magrittr_2.0.5      S4Arrays_1.12.0     h5mread_1.4.1      
-#> [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.8         
-#> [52] rmarkdown_2.31      XVector_0.52.0      otel_0.2.0         
+#> [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.9         
+#> [52] rmarkdown_2.32      XVector_0.52.0      otel_0.2.0         
 #> [55] ragg_1.5.2          R.methodsS3_1.8.2   HDF5Array_1.40.0   
-#> [58] evaluate_1.0.5      knitr_1.51          rlang_1.3.0        
+#> [58] evaluate_1.0.5      knitr_1.52          rlang_1.3.0        
 #> [61] glue_1.8.1          BiocManager_1.30.27 jsonlite_2.0.0     
 #> [64] R6_2.6.1            Rhdf5lib_2.0.0      systemfonts_1.3.2  
 #> [67] fs_2.1.0

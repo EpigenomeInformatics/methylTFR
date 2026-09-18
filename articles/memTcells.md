@@ -38,10 +38,6 @@ vignette; this one begins from their output.
 ``` r
 
 library(methylTFR)
-#> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
-#> 'DelayedArray::makeNindexFromArrayViewport' when loading 'SummarizedExperiment'
-#> Warning: replacing previous import 'S4Arrays::makeNindexFromArrayViewport' by
-#> 'DelayedArray::makeNindexFromArrayViewport' when loading 'HDF5Array'
 library(SummarizedExperiment)
 library(ggplot2)
 library(ComplexHeatmap)
@@ -598,7 +594,7 @@ chemical exposure by multimodal single-cell profiling. *bioRxiv*
 sessionInfo()
 #> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.4 LTS
+#> Running under: Ubuntu 24.04.5 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
@@ -633,14 +629,14 @@ sessionInfo()
 #>  [7] digest_0.6.39       lifecycle_1.0.5     cluster_2.1.8.2    
 #> [10] magrittr_2.0.5      compiler_4.6.1      rlang_1.3.0        
 #> [13] sass_0.4.10         tools_4.6.1         yaml_2.3.12        
-#> [16] knitr_1.51          labeling_0.4.3      S4Arrays_1.12.0    
+#> [16] knitr_1.52          labeling_0.4.3      S4Arrays_1.12.0    
 #> [19] DelayedArray_0.38.2 RColorBrewer_1.1-3  abind_1.4-8        
 #> [22] BiocParallel_1.46.0 HDF5Array_1.40.0    withr_3.0.3        
 #> [25] desc_1.4.3          R.oo_1.27.1         colorspace_2.1-3   
 #> [28] Rhdf5lib_2.0.0      scales_1.4.0        iterators_1.0.14   
-#> [31] cli_3.6.6           rmarkdown_2.31      crayon_1.5.3       
-#> [34] ragg_1.5.2          otel_0.2.0          httr_1.4.8         
-#> [37] rjson_0.2.23        cachem_1.1.0        rhdf5_2.56.0       
+#> [31] cli_3.6.6           rmarkdown_2.32      crayon_1.5.3       
+#> [34] ragg_1.5.2          otel_0.2.0          httr_1.4.9         
+#> [37] rjson_0.2.23        cachem_1.1.0        rhdf5_2.56.1       
 #> [40] stringr_1.6.0       parallel_4.6.1      BiocManager_1.30.27
 #> [43] XVector_0.52.0      vctrs_0.7.3         Matrix_1.7-5       
 #> [46] jsonlite_2.0.0      bookdown_0.48       GetoptLong_1.1.1   
@@ -653,6 +649,6 @@ sessionInfo()
 #> [67] R6_2.6.1            textshaping_1.0.5   doParallel_1.0.17  
 #> [70] evaluate_1.0.5      lattice_0.22-9      R.methodsS3_1.8.2  
 #> [73] png_0.1-9           bslib_0.12.0        SparseArray_1.12.2 
-#> [76] xfun_0.60           fs_2.1.0            pkgconfig_2.0.3    
+#> [76] xfun_0.61           fs_2.1.0            pkgconfig_2.0.3    
 #> [79] GlobalOptions_0.1.4
 ```
