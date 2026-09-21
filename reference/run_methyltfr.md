@@ -137,12 +137,12 @@ devs <- run_methyltfr(
     gc_dist = gcdist,
     filetype = "bismarkcov"
 )
-#> SUCCESS [2026-09-21 15:17:43] The samples are successfully located
-#> INFO [2026-09-21 15:17:43] Initializing the temp sink: methylTFR_tmp/methylTFR530f6b9b9422.h5
-#> INFO [2026-09-21 15:17:43] Initializing the temp sink: methylTFR_tmp/methylTFR530f67274bf5.h5
-#> INFO [2026-09-21 15:17:43] Processing sample_1.cov
-#> INFO [2026-09-21 15:17:46] Finished processing sample_1.cov
-#> SUCCESS [2026-09-21 15:17:46] Computed all deviations successfully
+#> SUCCESS [2026-09-21 15:21:32] The samples are successfully located
+#> INFO [2026-09-21 15:21:32] Initializing the temp sink: methylTFR_tmp/methylTFR1a201982bbf7.h5
+#> INFO [2026-09-21 15:21:32] Initializing the temp sink: methylTFR_tmp/methylTFR1a2047c44ea4.h5
+#> INFO [2026-09-21 15:21:32] Processing sample_1.cov
+#> INFO [2026-09-21 15:21:36] Finished processing sample_1.cov
+#> SUCCESS [2026-09-21 15:21:36] Computed all deviations successfully
 deviations(devs)
 #>      sample_1.cov
 #> BATF     1.743674
