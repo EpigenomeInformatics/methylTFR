@@ -13,7 +13,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/EpigenomeInformatics/methylTFR/blob/v1.0.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/EpigenomeInformatics/methylTFR/blob/main/inst/CITATION)
 
 Gunduz IB, Murugan SK, Muller F (2026). *methylTFR: Quantification of
 DNA Methylation Signatures in TFBS*.

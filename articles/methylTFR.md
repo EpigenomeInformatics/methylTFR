@@ -360,7 +360,7 @@ sessionInfo()
 #>  [1] methylTFR_0.99.7            SummarizedExperiment_1.42.0
 #>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
 #>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
-#>  [7] S4Vectors_0.50.2            BiocGenerics_0.58.1        
+#>  [7] S4Vectors_0.50.3            BiocGenerics_0.58.1        
 #>  [9] generics_0.1.4              MatrixGenerics_1.24.0      
 #> [11] matrixStats_1.5.0           data.table_1.18.6.1        
 #> [13] BiocStyle_2.40.0           

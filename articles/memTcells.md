@@ -618,7 +618,7 @@ sessionInfo()
 #>  [3] ggplot2_4.0.3               methylTFR_0.99.7           
 #>  [5] SummarizedExperiment_1.42.0 Biobase_2.72.0             
 #>  [7] GenomicRanges_1.64.0        Seqinfo_1.2.0              
-#>  [9] IRanges_2.46.0              S4Vectors_0.50.2           
+#>  [9] IRanges_2.46.0              S4Vectors_0.50.3           
 #> [11] BiocGenerics_0.58.1         generics_0.1.4             
 #> [13] MatrixGenerics_1.24.0       matrixStats_1.5.0          
 #> [15] data.table_1.18.6.1         BiocStyle_2.40.0           
