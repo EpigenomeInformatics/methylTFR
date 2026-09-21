@@ -2,6 +2,8 @@
 
 # *methylTFR* : Quantification of DNA Methylation Patterns in TFBS
 
+<img src="man/figures/logo.png" align="right" height="139" alt="methylTFR logo" />
+
 <!-- badges: start -->
 [![Test R-universe](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml)
 [![GitHub issues](https://img.shields.io/github/issues/EpigenomeInformatics/methylTFR)](https://github.com/EpigenomeInformatics/methylTFR/issues)
