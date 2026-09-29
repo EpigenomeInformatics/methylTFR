@@ -158,7 +158,14 @@ run_methylTFR_RnBeads <- function(
 #' @return A character vector of sample identifiers.
 #' @keywords internal
 rnb_sample_ids <- function(rnb_set) {
-    ids <- tryCatch(RnBeads::samples(rnb_set), error = function(e) NULL)
+    # Same as RnBeads' samples(): the column named by the
+    # "identifiers.column" option. samples() is not exported by all
+    # RnBeads versions, so it is not called directly.
+    ids <- tryCatch({
+        id_col <- RnBeads::rnb.getOption("identifiers.column")
+        ph <- RnBeads::pheno(rnb_set)
+        if (!is.null(id_col) && id_col %in% colnames(ph)) ph[[id_col]]
+    }, error = function(e) NULL)
     if (length(ids) == 0) {
         ids <- tryCatch(
             colnames(RnBeads::meth(rnb_set, type = "sites", i = 1L)),

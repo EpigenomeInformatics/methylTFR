@@ -25,6 +25,7 @@ bibentry(
     year = pkg_year,
     note = pkg_note,
     url = pkg_url,
+    doi = "10.18129/B9.bioc.methylTFR",
     textVersion = paste0(
         "Gunduz IB, Murugan SK, Mueller F (", pkg_year, "). ",
         pkg_title, ". ", pkg_note, ". ", pkg_url
