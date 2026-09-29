@@ -84,6 +84,7 @@ If you use `methylTFR` in your work, please cite:
   year = {2026},
   note = {R package version 0.99.8},
   url = {https://github.com/EpigenomeInformatics/methylTFR},
+  doi = {10.18129/B9.bioc.methylTFR},
 }
 ```
 
