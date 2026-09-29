@@ -150,14 +150,14 @@ head(gcdist)
 #>   [5]     chr1 13261-13290      * |  0.666667         5
 #>   [6]     chr1 13291-13320      * |  0.600000         5
 #>   -------
-#>   seqinfo: 22 sequences from an unspecified genome
+#>   seqinfo: 24 sequences from an unspecified genome; no seqlengths
 head(gcfreqs$BATF[, 1:5])
-#>           [,1]      [,2]      [,3]      [,4]      [,5]
-#> [1,] 0.1398816 0.1394321 0.1386829 0.1366599 0.1361355
-#> [2,] 0.1538173 0.1546415 0.1580880 0.1591369 0.1620589
-#> [3,] 0.1962239 0.2001199 0.1965985 0.1973477 0.1916536
-#> [4,] 0.2734697 0.2706226 0.2724957 0.2718214 0.2769911
-#> [5,] 0.2366075 0.2351839 0.2341350 0.2350341 0.2331610
+#>            [,1]       [,2]      [,3]       [,4]       [,5]
+#> [1,] 0.08855923 0.08616168 0.0865363 0.08608676 0.08646138
+#> [2,] 0.20513973 0.20791189 0.2102345 0.20971005 0.21173297
+#> [3,] 0.19622387 0.20011988 0.1965985 0.19734772 0.19165356
+#> [4,] 0.27346969 0.27062261 0.2724957 0.27182138 0.27699108
+#> [5,] 0.23660748 0.23518394 0.2341350 0.23503409 0.23316101
 head(tf_bindsites)
 #> $BATF
 #> GRanges object with 268717 ranges and 1 metadata column:
@@ -212,8 +212,8 @@ bin_meth <- addGCBintoMethylome(msites, gcdist, ignoreStrand = TRUE)
 #> Loading required namespace: GenomeInfoDb
 bin_meth
 #>      gcbin avg_mscore
-#> [1,]     1  0.5315789
-#> [2,]     2  0.6466688
+#> [1,]     1  0.8125000
+#> [2,]     2  0.5871203
 #> [3,]     3  0.7217031
 #> [4,]     4  0.7091566
 #> [5,]     5  0.7838198
@@ -233,7 +233,7 @@ deviation_score <- computeDeviation(
 deviation_score
 #>         dev   exp_dev
 #>       <num>     <num>
-#> 1: 1.743674 0.9835985
+#> 1: 1.747427 0.9798459
 ```
 
 ## Run methylTFR on multiple samples and motifs
@@ -248,7 +248,7 @@ working directory.
 library(methylTFRAnnotationHg38) # annotation package for hg38
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC("hg38")
+gc_dist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 sample_dir <- file.path("samples_dir")
@@ -290,7 +290,7 @@ library(methylTFRAnnotationHg38)
 rnb_set <- load.rnb.set("reports/data_import_data/rnb.set_preprocessed")
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC("hg38")
+gc_dist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 deviations <- run_methylTFR_RnBeads(
@@ -357,7 +357,7 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] methylTFR_0.99.7            SummarizedExperiment_1.42.0
+#>  [1] methylTFR_0.99.8            SummarizedExperiment_1.42.0
 #>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
 #>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
 #>  [7] S4Vectors_0.50.3            BiocGenerics_0.58.1        
@@ -380,8 +380,8 @@ sessionInfo()
 #> [34] cachem_1.1.0        abind_1.4-8         tidyselect_1.2.1   
 #> [37] digest_0.6.39       stringi_1.8.9       dplyr_1.2.1        
 #> [40] bookdown_0.48       fastmap_1.2.0       grid_4.6.1         
-#> [43] cli_3.6.6           SparseArray_1.12.2  logger_0.4.3       
-#> [46] magrittr_2.0.5      S4Arrays_1.12.0     h5mread_1.4.1      
+#> [43] cli_3.6.6           SparseArray_1.12.3  logger_0.4.3       
+#> [46] magrittr_2.0.5      S4Arrays_1.12.1     h5mread_1.4.1      
 #> [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.9         
 #> [52] rmarkdown_2.32      XVector_0.52.0      otel_0.2.0         
 #> [55] ragg_1.5.2          R.methodsS3_1.8.2   HDF5Array_1.40.0   

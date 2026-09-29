@@ -54,7 +54,7 @@ library(methylTFRAnnotationHg38) # annotation package for hg38
 library(methylTFR)
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC("hg38")
+gc_dist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 sample_dir <- file.path("samples_dir")
@@ -75,31 +75,25 @@ deviations <- run_methyltfr(sample_ann, # sample annotation file
 
 ## Citation
 
-Below is the citation output from using `citation('methylTFR')` in R.
-Please run this yourself to check for any updates on how to cite
-**methylTFR**.
+If you use `methylTFR` in your work, please cite:
 
-``` r
+> Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of
+> DNA methylation signatures in TFBS. R package version 0.99.8.
+> <https://github.com/EpigenomeInformatics/methylTFR>
 
-print(citation("methylTFR"), bibtex = TRUE)
-#> 
-#> To cite package 'methylTFR' in publications use:
-#> 
-#>   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2026).
-#>   methylTFR: Quantification of DNA Methylation Signatures in TFBS. R
-#>   package version 0.99.0.
-#>   https://github.com/EpigenomeInformatics/methylTFR
-#> 
-#> A BibTeX entry for LaTeX users is
-#> 
-#>   @Manual{,
-#>     title = {methylTFR: Quantification of DNA Methylation Signatures in TFBS},
-#>     author = {Irem B. Gündüz and Sarath Kumar Murugan and Fabian Muller},
-#>     year = {2026},
-#>     note = {R package version 0.99.0},
-#>     url = {https://github.com/EpigenomeInformatics/methylTFR},
-#>   }
+``` bibtex
+@Manual{methylTFR,
+  title = {methylTFR: Quantification of DNA methylation signatures in TFBS},
+  author = {Irem B. Gunduz and Sarath Kumar Murugan and Fabian Mueller},
+  year = {2026},
+  note = {R package version 0.99.8},
+  url = {https://github.com/EpigenomeInformatics/methylTFR},
+  doi = {10.18129/B9.bioc.methylTFR},
+}
 ```
+
+Run `citation("methylTFR")` in R to get the entry for the version you
+have installed.
 
 # Package index
 

@@ -9,7 +9,7 @@ RnBeads object, without exporting per-sample BED files first."><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -141,6 +141,12 @@ per-sample BED files.</p></div>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"RnBeads"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"RnBeads.hg38"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="co"># identifiers.column is a session option, not a property of the object,</span></span></span>
+<span class="r-in"><span>    <span class="co"># so it has to be set before the set is built or samples() falls back</span></span></span>
+<span class="r-in"><span>    <span class="co"># to row numbers and methylTFR cannot name the columns it returns</span></span></span>
+<span class="r-in"><span>    <span class="va">old_ids</span> <span class="op">&lt;-</span> <span class="fu">RnBeads</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/rnb.options.html" class="external-link">rnb.getOption</a></span><span class="op">(</span><span class="st">"identifiers.column"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">RnBeads</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/rnb.options.html" class="external-link">rnb.options</a></span><span class="op">(</span>identifiers.column <span class="op">=</span> <span class="st">"sampleName"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span>    <span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>        chr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        start <span class="op">=</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">start</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span>,</span></span>
@@ -150,8 +156,10 @@ per-sample BED files.</p></div>
 <span class="r-in"><span>    <span class="va">rnb_set</span> <span class="op">&lt;-</span> <span class="fu">RnBeads</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/RnBiseqSet-class.html" class="external-link">RnBiseqSet</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>        pheno <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>sampleName <span class="op">=</span> <span class="st">"sample_1"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        sites <span class="op">=</span> <span class="va">sites</span>,</span></span>
-<span class="r-in"><span>        meth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">score</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>        covg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">coverage</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        meth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">score</span>, ncol <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                      dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="st">"sample_1"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>        covg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">coverage</span>, ncol <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>                      dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="st">"sample_1"</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>        assembly <span class="op">=</span> <span class="st">"hg38"</span>,</span></span>
 <span class="r-in"><span>        summarize.regions <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
@@ -162,20 +170,21 @@ per-sample BED files.</p></div>
 <span class="r-in"><span>        gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span></span>
 <span class="r-in"><span>        gc_dist <span class="op">=</span> <span class="va">gcdist</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">RnBeads</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/rnb.options.html" class="external-link">rnb.options</a></span><span class="op">(</span>identifiers.column <span class="op">=</span> <span class="va">old_ids</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="deviations.html">deviations</a></span><span class="op">(</span><span class="va">devs</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting options('download.file.method.GEOquery'='auto')</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Setting options('GEOquery.inmemory.gpl'=FALSE)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-21 15:21:25] Annotation target: sites | assembly: hg38</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-21 15:21:29] Found 534 sites across 1 samples</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-21 15:21:29] Initializing the temp sink: methylTFR_tmp/methylTFR1a20143ad395.h5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-21 15:21:29] Initializing the temp sink: methylTFR_tmp/methylTFR1a2054c139c0.h5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-21 15:21:29] Sample 1: 534 of 534 sites retained (100%)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-21 15:21:29] Processing 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-21 15:21:32] Finished processing 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> SUCCESS [2026-09-21 15:21:32] Computed all deviations successfully</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BATF 2.009857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-29 15:09:19] Annotation target: sites | assembly: hg38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-29 15:09:23] Found 534 sites across 1 samples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-29 15:09:23] Initializing the temp sink: methylTFR_tmp/methylTFR538850521060.h5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-29 15:09:23] Initializing the temp sink: methylTFR_tmp/methylTFR53883d749e32.h5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-29 15:09:23] Sample 1: 534 of 534 sites retained (100%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-29 15:09:23] Processing sample_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INFO [2026-09-29 15:09:26] Finished processing sample_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> SUCCESS [2026-09-29 15:09:26] Computed all deviations successfully</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      sample_1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BATF 2.013891</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -183,7 +192,7 @@ per-sample BED files.</p></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller.</p>
+  <p>Developed by Irem B. Gündüz, Sarath Kumar Murugan, Fabian Mueller, ERA-NET Transcan-Neu III - EPILUNAR, Saarland University.</p>
 </div>
 
 <div class="pkgdown-footer-right">

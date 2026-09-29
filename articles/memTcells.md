@@ -615,7 +615,7 @@ sessionInfo()
 #> 
 #> other attached packages:
 #>  [1] circlize_0.4.18             ComplexHeatmap_2.28.0      
-#>  [3] ggplot2_4.0.3               methylTFR_0.99.7           
+#>  [3] ggplot2_4.0.3               methylTFR_0.99.8           
 #>  [5] SummarizedExperiment_1.42.0 Biobase_2.72.0             
 #>  [7] GenomicRanges_1.64.0        Seqinfo_1.2.0              
 #>  [9] IRanges_2.46.0              S4Vectors_0.50.3           
@@ -629,7 +629,7 @@ sessionInfo()
 #>  [7] digest_0.6.39       lifecycle_1.0.5     cluster_2.1.8.2    
 #> [10] magrittr_2.0.5      compiler_4.6.1      rlang_1.3.0        
 #> [13] sass_0.4.10         tools_4.6.1         yaml_2.3.12        
-#> [16] knitr_1.52          labeling_0.4.3      S4Arrays_1.12.0    
+#> [16] knitr_1.52          labeling_0.4.3      S4Arrays_1.12.1    
 #> [19] DelayedArray_0.38.2 RColorBrewer_1.1-3  abind_1.4-8        
 #> [22] BiocParallel_1.46.0 HDF5Array_1.40.0    withr_3.0.3        
 #> [25] desc_1.4.3          R.oo_1.27.1         colorspace_2.1-3   
@@ -648,7 +648,7 @@ sessionInfo()
 #> [64] pillar_1.11.1       htmltools_0.5.9     rhdf5filters_1.24.1
 #> [67] R6_2.6.1            textshaping_1.0.5   doParallel_1.0.17  
 #> [70] evaluate_1.0.5      lattice_0.22-9      R.methodsS3_1.8.2  
-#> [73] png_0.1-9           bslib_0.12.0        SparseArray_1.12.2 
+#> [73] png_0.1-9           bslib_0.12.0        SparseArray_1.12.3 
 #> [76] xfun_0.61           fs_2.1.0            pkgconfig_2.0.3    
 #> [79] GlobalOptions_0.1.4
 ```

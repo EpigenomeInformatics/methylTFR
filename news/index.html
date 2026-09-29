@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,18 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.99.8" id="methyltfr-0998">methylTFR 0.99.8<a class="anchor" aria-label="anchor" href="#methyltfr-0998"></a></h2>
+<p>BUG FIXES</p>
+<ul><li>
+<code>read_methylome(type = "encode")</code> returned methylation scores that were not fractions. <code>parse_encode()</code> divided column 11 by column 10, but in a bedMethyl file column 10 is read coverage and column 11 is the percentage of reads methylated, so a fully methylated CpG covered by five reads scored 20. The score is now the percentage over 100.</li>
+<li>
+<code>parse_encode()</code> skipped the first line of every file unconditionally. Files downloaded from ENCODE carry no header, so the first record was silently discarded. The header is now detected.</li>
+<li>
+<code><a href="../reference/read_methylome.html">read_methylome()</a></code> stops if the parsed scores fall outside 0 to 1 rather than passing them to the deviation calculation.</li>
+<li>The <code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code> example built an <code>RnBiseqSet</code> without setting <code>identifiers.column</code>, so <code><a href="https://rdrr.io/pkg/RnBeads/man/samples-methods.html" class="external-link">samples()</a></code> returned row numbers and the example stopped on the sample-identifier check. It now sets the option before building the set and restores it afterwards.</li>
+<li>The bundled <code>encode.tsv.gz</code> example has been rebuilt. Columns 10 and 11 are now named <code>coverage</code> and <code>percentMeth</code> rather than <code>blockCount</code> and <code>blockSizes</code>, and the percentages span 0 to 100, so the tests exercise the case the old example passed by luck.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.99.7" id="methyltfr-0997">methylTFR 0.99.7<a class="anchor" aria-label="anchor" href="#methyltfr-0997"></a></h2>
 <p>NEW FEATURES</p>
 <ul><li>Added <code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code>, which runs the methylTFR workflow directly on a preprocessed RnBeads object instead of per-sample BED files. Samples are read one column at a time, so disk-backed RnBeads sets are never loaded into memory in full.</li>
@@ -66,7 +78,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller.</p>
+  <p>Developed by Irem B. Gündüz, Sarath Kumar Murugan, Fabian Mueller, ERA-NET Transcan-Neu III - EPILUNAR, Saarland University.</p>
 </div>
 
 <div class="pkgdown-footer-right">

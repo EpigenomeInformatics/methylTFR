@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,7 +104,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/EpigenomeInformatics/methylTFR" class="external-link">methylTFR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gcfreqs</span> <span class="op">&lt;-</span> <span class="fu">getGCfreq</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
-<span><span class="va">gc_dist</span> <span class="op">&lt;-</span> <span class="fu">getGenomeGC</span><span class="op">(</span><span class="st">"hg38"</span><span class="op">)</span></span>
+<span><span class="va">gc_dist</span> <span class="op">&lt;-</span> <span class="fu">getGenomeGC</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">tf_bindsites</span> <span class="op">&lt;-</span> <span class="fu">getTFbindsites</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sample_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"samples_dir"</span><span class="op">)</span></span>
@@ -125,26 +125,19 @@
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>Below is the citation output from using <code>citation('methylTFR')</code> in R. Please run this yourself to check for any updates on how to cite <strong>methylTFR</strong>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"methylTFR"</span><span class="op">)</span>, bibtex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; To cite package 'methylTFR' in publications use:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Irem B. Gündüz, Sarath Kumar Murugan and Fabian Muller (2026).</span></span>
-<span><span class="co">#&gt;   methylTFR: Quantification of DNA Methylation Signatures in TFBS. R</span></span>
-<span><span class="co">#&gt;   package version 0.99.0.</span></span>
-<span><span class="co">#&gt;   https://github.com/EpigenomeInformatics/methylTFR</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; A BibTeX entry for LaTeX users is</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   @Manual{,</span></span>
-<span><span class="co">#&gt;     title = {methylTFR: Quantification of DNA Methylation Signatures in TFBS},</span></span>
-<span><span class="co">#&gt;     author = {Irem B. Gündüz and Sarath Kumar Murugan and Fabian Muller},</span></span>
-<span><span class="co">#&gt;     year = {2026},</span></span>
-<span><span class="co">#&gt;     note = {R package version 0.99.0},</span></span>
-<span><span class="co">#&gt;     url = {https://github.com/EpigenomeInformatics/methylTFR},</span></span>
-<span><span class="co">#&gt;   }</span></span></code></pre></div>
+<p>If you use <code>methylTFR</code> in your work, please cite:</p>
+<blockquote>
+<p>Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of DNA methylation signatures in TFBS. R package version 0.99.8. <a href="https://github.com/EpigenomeInformatics/methylTFR" class="external-link uri">https://github.com/EpigenomeInformatics/methylTFR</a></p>
+</blockquote>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="va">@Manual</span>{<span class="ot">methylTFR</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="dt">title</span> = {methylTFR: Quantification of DNA methylation signatures in TFBS},</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="dt">author</span> = {Irem B. Gunduz and Sarath Kumar Murugan and Fabian Mueller},</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="dt">year</span> = {2026},</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="dt">note</span> = {R package version 0.99.8},</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="dt">url</span> = {https://github.com/EpigenomeInformatics/methylTFR},</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="dt">doi</span> = {10.18129/B9.bioc.methylTFR},</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>}</span></code></pre></div>
+<p>Run <code>citation("methylTFR")</code> in R to get the entry for the version you have installed.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -177,7 +170,10 @@
 <ul class="list-unstyled">
 <li>Irem B. Gündüz <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-2641-0916" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Sarath Kumar Murugan <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-7378-7869" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>Fabian Muller <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-5809-2321" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Fabian Mueller <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0001-5809-2321" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>ERA-NET Transcan-Neu III - EPILUNAR <br><small class="roles"> Funder </small>   </li>
+<li>Saarland University <br><small class="roles"> Funder </small>   </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
@@ -195,7 +191,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller.</p>
+  <p>Developed by Irem B. Gündüz, Sarath Kumar Murugan, Fabian Mueller, ERA-NET Transcan-Neu III - EPILUNAR, Saarland University.</p>
 </div>
 
 <div class="pkgdown-footer-right">
