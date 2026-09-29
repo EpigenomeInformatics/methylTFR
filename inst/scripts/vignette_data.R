@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
 
 # Load the annotation
 gcfreqs <-  getGCfreq(motifSet = "jaspar2020_distal")
-gcdist <- getGenomeGC("hg38")
+gcdist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 # Read the data as GRanges object
@@ -54,8 +54,8 @@ tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylT
 ############################################################################
 # Load the full dataset
 msites <- read_methylome(filename,"bissnp",1)
-enhancer <- readRDS("/icbb/projects/share/annotations/methylTFRAnnotationHg38/inst/extdata/distal_regions.RDS")
-gcdist <- getGenomeGC("hg38")
+enhancer <- readRDS("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFRAnnotationHg38_old/inst/extdata/distal_regions.RDS")
+gcdist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 # Check the overlaps with gc_freqs

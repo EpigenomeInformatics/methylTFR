@@ -186,7 +186,7 @@ your working directory.
 library(methylTFRAnnotationHg38) # annotation package for hg38
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC("hg38")
+gc_dist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 sample_dir <- file.path("samples_dir")
@@ -226,7 +226,7 @@ library(methylTFRAnnotationHg38)
 rnb_set <- load.rnb.set("reports/data_import_data/rnb.set_preprocessed")
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC("hg38")
+gc_dist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 deviations <- run_methylTFR_RnBeads(
