@@ -1,5 +1,32 @@
 # Changelog
 
+## methylTFR 0.99.9
+
+CHANGES
+
+- `Authors@R` lists the funders (ERA-NET Transcan-Neu III - EPILUNAR,
+  grant 01KT2409; Saarland University NanoBioMed Young Investigator
+  Grant) with the `fnd` role.
+- `inst/CITATION` rewritten: the citation reads “Gunduz IB, Murugan SK,
+  Mueller F (year). methylTFR: … R package version x.y.z.”, takes the
+  version and year from DESCRIPTION, and carries the Bioconductor DOI.
+- The README shows the citation and BibTeX entry.
+- Added `CITATION.cff` (excluded from the build via `.Rbuildignore`).
+
+BUG FIXES
+
+- [`rnb_sample_ids()`](https://epigenomeinformatics.github.io/methylTFR/reference/rnb_sample_ids.md)
+  no longer calls
+  [`RnBeads::samples()`](https://rdrr.io/pkg/RnBeads/man/samples-methods.html),
+  which is not exported by all RnBeads versions (R CMD check: “Missing
+  or unexported object”). Sample identifiers are read from the
+  `identifiers.column` of
+  [`RnBeads::pheno()`](https://rdrr.io/pkg/RnBeads/man/pheno-methods.html),
+  with the previous fallbacks unchanged.
+- The vignette, README and `inst/scripts/vignette_data.R` call
+  `getGenomeGC()` without an argument, which works with every version of
+  the annotation packages.
+
 ## methylTFR 0.99.8
 
 BUG FIXES

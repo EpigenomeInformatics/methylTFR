@@ -22,14 +22,14 @@ Source:
 [`inst/CITATION`](https://github.com/EpigenomeInformatics/methylTFR/blob/main/inst/CITATION)
 
 Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of
-DNA methylation signatures in TFBS. R package version 0.99.8.
+DNA methylation signatures in TFBS. R package version 0.99.9.
 https://github.com/EpigenomeInformatics/methylTFR
 
     @Manual{,
       title = {methylTFR: Quantification of DNA methylation signatures in TFBS},
       author = {Irem B. Gunduz and Sarath Kumar Murugan and Fabian Mueller},
       year = {2026},
-      note = {R package version 0.99.8},
+      note = {R package version 0.99.9},
       url = {https://github.com/EpigenomeInformatics/methylTFR},
       doi = {10.18129/B9.bioc.methylTFR},
     }

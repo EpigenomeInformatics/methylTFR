@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,20 @@
       <small>Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.99.9" id="methyltfr-0999">methylTFR 0.99.9<a class="anchor" aria-label="anchor" href="#methyltfr-0999"></a></h2>
+<p>CHANGES</p>
+<ul><li>
+<code>Authors@R</code> lists the funders (ERA-NET Transcan-Neu III - EPILUNAR, grant 01KT2409; Saarland University NanoBioMed Young Investigator Grant) with the <code>fnd</code> role.</li>
+<li>
+<code>inst/CITATION</code> rewritten: the citation reads “Gunduz IB, Murugan SK, Mueller F (year). methylTFR: … R package version x.y.z.”, takes the version and year from DESCRIPTION, and carries the Bioconductor DOI.</li>
+<li>The README shows the citation and BibTeX entry.</li>
+<li>Added <code>CITATION.cff</code> (excluded from the build via <code>.Rbuildignore</code>).</li>
+</ul><p>BUG FIXES</p>
+<ul><li>
+<code><a href="../reference/rnb_sample_ids.html">rnb_sample_ids()</a></code> no longer calls <code><a href="https://rdrr.io/pkg/RnBeads/man/samples-methods.html" class="external-link">RnBeads::samples()</a></code>, which is not exported by all RnBeads versions (R CMD check: “Missing or unexported object”). Sample identifiers are read from the <code>identifiers.column</code> of <code><a href="https://rdrr.io/pkg/RnBeads/man/pheno-methods.html" class="external-link">RnBeads::pheno()</a></code>, with the previous fallbacks unchanged.</li>
+<li>The vignette, README and <code>inst/scripts/vignette_data.R</code> call <code>getGenomeGC()</code> without an argument, which works with every version of the annotation packages.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.99.8" id="methyltfr-0998">methylTFR 0.99.8<a class="anchor" aria-label="anchor" href="#methyltfr-0998"></a></h2>
 <p>BUG FIXES</p>
