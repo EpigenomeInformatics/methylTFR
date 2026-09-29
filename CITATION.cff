@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use methylTFR, please cite it as below."
+type: software
+title: "methylTFR: Quantification of DNA methylation signatures in TFBS"
+abstract: >-
+  methylTFR is an R/Bioconductor package for analyzing DNA methylation
+  signatures within transcription factor binding sites (TFBS) in individual
+  cells or samples. It computes a GC-bias-corrected deviation score of
+  methylation levels at TF binding sites.
+authors:
+  - family-names: Gunduz
+    given-names: Irem B.
+    email: irembgunduz@gmail.com
+    orcid: "https://orcid.org/0000-0003-2641-0916"
+  - family-names: Murugan
+    given-names: Sarath Kumar
+    orcid: "https://orcid.org/0000-0001-7378-7869"
+  - family-names: Mueller
+    given-names: Fabian
+    orcid: "https://orcid.org/0000-0001-5809-2321"
+version: 0.99.8
+date-released: "2026-08-19"
+doi: 10.18129/B9.bioc.methylTFR
+license: MIT
+repository-code: "https://github.com/EpigenomeInformatics/methylTFR"
+url: "https://epigenomeinformatics.github.io/methylTFR/"
+keywords:
+  - R
+  - Bioconductor
+  - DNA methylation
+  - transcription factor binding sites
+  - single-cell
+  - epigenetics
