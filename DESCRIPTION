@@ -1,14 +1,18 @@
 Package: methylTFR
 Title: Quantification of DNA Methylation Signatures in TFBS
-Version: 0.99.7
+Version: 0.99.8
 Date: 2026-08-19
 Authors@R: c(
     person("Irem B.", "Gündüz", , "irembgunduz@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2641-0916")),
     person("Sarath Kumar", "Murugan", , "sarath.murugan@outlook.com", role = "aut",
            comment = c(ORCID = "0000-0001-7378-7869")),
-    person("Fabian", "Muller", , "fabian.mueller@uni-saarland.de", role = "aut",
-           comment = c(ORCID = "0000-0001-5809-2321"))
+    person("Fabian", "Mueller", , "fabian.mueller@uni-saarland.de", role = "aut",
+           comment = c(ORCID = "0000-0001-5809-2321")),
+    person("ERA-NET Transcan-Neu III - EPILUNAR", role = "fnd",
+           comment = "Grant 01KT2409"),
+    person("Saarland University", role = "fnd",
+           comment = "NanoBioMed Young Investigator Grant")
   )
 Description: methylTFR is an extensive R package designed specifically for
     analyzing DNA methylation signatures within transcription factor

@@ -1,20 +1,33 @@
-pkgVer <- function(pkg) {
-    if (!exists("meta") || is.null(meta)) meta <- packageDescription(pkg)
-    ver <- meta$Version
-    paste0('https://github.com/EpigenomeInformatics/methylTFR', ' - R package version ', ver)
+if (!exists("meta") || is.null(meta)) {
+    meta <- packageDescription("methylTFR")
 }
 
-c(
-    bibentry(bibtype = "Manual",
-        title = "methylTFR: Quantification of DNA Methylation Signatures in TFBS",
-        author = personList(
-            as.person("Irem B. Gunduz"),
-            as.person("Sarath Kumar Murugan"),
-            as.person("Fabian Muller")
-        ),
-        year = format(Sys.Date(), "%Y"),
-        url = "https://github.com/EpigenomeInformatics/methylTFR",
-        note = pkgVer('methylTFR'),
-        doi = "10.18129/B9.bioc.methylTFR"
+pkg_year <- if (!is.null(meta$Date)) {
+    substr(meta$Date, 1, 4)
+} else if (!is.null(meta$`Date/Publication`)) {
+    substr(meta$`Date/Publication`, 1, 4)
+} else {
+    format(Sys.Date(), "%Y")
+}
+pkg_note <- sprintf("R package version %s", meta$Version)
+pkg_title <- "methylTFR: Quantification of DNA methylation signatures in TFBS"
+pkg_url <- "https://github.com/EpigenomeInformatics/methylTFR"
+
+bibentry(
+    bibtype = "Manual",
+    header = "To cite methylTFR in publications use:",
+    title = pkg_title,
+    author = c(
+        person("Irem B.", "Gunduz"),
+        person("Sarath Kumar", "Murugan"),
+        person("Fabian", "Mueller")
+    ),
+    year = pkg_year,
+    note = pkg_note,
+    url = pkg_url,
+    doi = "10.18129/B9.bioc.methylTFR",
+    textVersion = paste0(
+        "Gunduz IB, Murugan SK, Mueller F (", pkg_year, "). ",
+        pkg_title, ". ", pkg_note, ". ", pkg_url
     )
 )
