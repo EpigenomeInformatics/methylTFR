@@ -18,8 +18,8 @@ authors:
   - family-names: Mueller
     given-names: Fabian
     orcid: "https://orcid.org/0000-0001-5809-2321"
-version: 0.99.8
-date-released: "2026-08-19"
+version: 0.99.9
+date-released: "2026-09-29"
 doi: 10.18129/B9.bioc.methylTFR
 license: MIT
 repository-code: "https://github.com/EpigenomeInformatics/methylTFR"
