@@ -335,7 +335,7 @@ only needed if this entry point is used.
 ``` r
 
 sessionInfo()
-#> R version 4.6.1 (2026-06-24)
+#> R version 4.6.2 (2026-10-29)
 #> Platform: x86_64-pc-linux-gnu
 #> Running under: Ubuntu 24.04.5 LTS
 #> 
@@ -366,20 +366,20 @@ sessionInfo()
 #> [13] BiocStyle_2.40.0           
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] gtable_0.3.6        xfun_0.61           bslib_0.12.0       
-#>  [4] ggplot2_4.0.3       rhdf5_2.56.1        lattice_0.22-9     
-#>  [7] rhdf5filters_1.24.1 vctrs_0.7.3         tools_4.6.1        
-#> [10] parallel_4.6.1      tibble_3.3.1        pkgconfig_2.0.3    
-#> [13] R.oo_1.27.1         Matrix_1.7-5        RColorBrewer_1.1-3 
+#>  [1] gtable_0.3.6        xfun_0.62           bslib_0.12.0       
+#>  [4] ggplot2_4.0.3       rhdf5_2.56.1        lattice_0.23-1     
+#>  [7] rhdf5filters_1.24.1 vctrs_0.7.3         tools_4.6.2        
+#> [10] parallel_4.6.2      tibble_3.3.1        pkgconfig_2.0.3    
+#> [13] R.oo_1.27.1         Matrix_1.7-6        RColorBrewer_1.1-3 
 #> [16] S7_0.2.2            desc_1.4.3          lifecycle_1.0.5    
-#> [19] stringr_1.6.0       compiler_4.6.1      farver_2.1.2       
+#> [19] stringr_1.6.0       compiler_4.6.2      farver_2.1.2       
 #> [22] textshaping_1.0.5   codetools_0.2-20    GenomeInfoDb_1.48.0
 #> [25] htmltools_0.5.9     sass_0.4.10         yaml_2.3.12        
 #> [28] pillar_1.11.1       pkgdown_2.2.1       jquerylib_0.1.4    
 #> [31] R.utils_2.13.0      BiocParallel_1.46.0 DelayedArray_0.38.2
 #> [34] cachem_1.1.0        abind_1.4-8         tidyselect_1.2.1   
 #> [37] digest_0.6.39       stringi_1.8.9       dplyr_1.2.1        
-#> [40] bookdown_0.48       fastmap_1.2.0       grid_4.6.1         
+#> [40] bookdown_0.48       fastmap_1.2.0       grid_4.6.2         
 #> [43] cli_3.6.6           SparseArray_1.12.3  logger_0.4.3       
 #> [46] magrittr_2.0.5      S4Arrays_1.12.1     h5mread_1.4.1      
 #> [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.9         

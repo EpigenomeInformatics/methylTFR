@@ -131,14 +131,14 @@ if (requireNamespace("RnBeads", quietly = TRUE) &&
 }
 #> Setting options('download.file.method.GEOquery'='auto')
 #> Setting options('GEOquery.inmemory.gpl'=FALSE)
-#> INFO [2026-09-29 15:48:06] Annotation target: sites | assembly: hg38
-#> INFO [2026-09-29 15:48:08] Found 534 sites across 1 samples
-#> INFO [2026-09-29 15:48:08] Initializing the temp sink: methylTFR_tmp/methylTFR19235a2edc2d.h5
-#> INFO [2026-09-29 15:48:08] Initializing the temp sink: methylTFR_tmp/methylTFR19231290e1c9.h5
-#> INFO [2026-09-29 15:48:08] Sample 1: 534 of 534 sites retained (100%)
-#> INFO [2026-09-29 15:48:08] Processing sample_1
-#> INFO [2026-09-29 15:48:11] Finished processing sample_1
-#> SUCCESS [2026-09-29 15:48:11] Computed all deviations successfully
+#> INFO [2026-11-05 13:44:58] Annotation target: sites | assembly: hg38
+#> INFO [2026-11-05 13:45:02] Found 534 sites across 1 samples
+#> INFO [2026-11-05 13:45:02] Initializing the temp sink: methylTFR_tmp/methylTFR53a81c1aae11.h5
+#> INFO [2026-11-05 13:45:02] Initializing the temp sink: methylTFR_tmp/methylTFR53a8523dbc15.h5
+#> INFO [2026-11-05 13:45:02] Sample 1: 534 of 534 sites retained (100%)
+#> INFO [2026-11-05 13:45:02] Processing sample_1
+#> INFO [2026-11-05 13:45:05] Finished processing sample_1
+#> SUCCESS [2026-11-05 13:45:05] Computed all deviations successfully
 #>      sample_1
 #> BATF 2.013891
 ```

@@ -592,7 +592,7 @@ chemical exposure by multimodal single-cell profiling. *bioRxiv*
 ``` r
 
 sessionInfo()
-#> R version 4.6.1 (2026-06-24)
+#> R version 4.6.2 (2026-10-29)
 #> Platform: x86_64-pc-linux-gnu
 #> Running under: Ubuntu 24.04.5 LTS
 #> 
@@ -626,19 +626,19 @@ sessionInfo()
 #> loaded via a namespace (and not attached):
 #>  [1] tidyselect_1.2.1    dplyr_1.2.1         farver_2.1.2       
 #>  [4] R.utils_2.13.0      S7_0.2.2            fastmap_1.2.0      
-#>  [7] digest_0.6.39       lifecycle_1.0.5     cluster_2.1.8.2    
-#> [10] magrittr_2.0.5      compiler_4.6.1      rlang_1.3.0        
-#> [13] sass_0.4.10         tools_4.6.1         yaml_2.3.12        
+#>  [7] digest_0.6.39       lifecycle_1.0.5     cluster_2.1.8.3    
+#> [10] magrittr_2.0.5      compiler_4.6.2      rlang_1.3.0        
+#> [13] sass_0.4.10         tools_4.6.2         yaml_2.3.12        
 #> [16] knitr_1.52          labeling_0.4.3      S4Arrays_1.12.1    
 #> [19] DelayedArray_0.38.2 RColorBrewer_1.1-3  abind_1.4-8        
 #> [22] BiocParallel_1.46.0 HDF5Array_1.40.0    withr_3.0.3        
-#> [25] desc_1.4.3          R.oo_1.27.1         colorspace_2.1-3   
+#> [25] desc_1.4.3          R.oo_1.27.1         colorspace_2.1-4   
 #> [28] Rhdf5lib_2.0.0      scales_1.4.0        iterators_1.0.14   
 #> [31] cli_3.6.6           rmarkdown_2.32      crayon_1.5.3       
 #> [34] ragg_1.5.2          otel_0.2.0          httr_1.4.9         
 #> [37] rjson_0.2.23        cachem_1.1.0        rhdf5_2.56.1       
-#> [40] stringr_1.6.0       parallel_4.6.1      BiocManager_1.30.27
-#> [43] XVector_0.52.0      vctrs_0.7.3         Matrix_1.7-5       
+#> [40] stringr_1.6.0       parallel_4.6.2      BiocManager_1.30.27
+#> [43] XVector_0.52.0      vctrs_0.7.3         Matrix_1.7-6       
 #> [46] jsonlite_2.0.0      bookdown_0.48       GetoptLong_1.1.1   
 #> [49] clue_0.3-68         systemfonts_1.3.2   h5mread_1.4.1      
 #> [52] foreach_1.5.2       jquerylib_0.1.4     glue_1.8.1         
@@ -647,8 +647,8 @@ sessionInfo()
 #> [61] UCSC.utils_1.8.0    tibble_3.3.1        logger_0.4.3       
 #> [64] pillar_1.11.1       htmltools_0.5.9     rhdf5filters_1.24.1
 #> [67] R6_2.6.1            textshaping_1.0.5   doParallel_1.0.17  
-#> [70] evaluate_1.0.5      lattice_0.22-9      R.methodsS3_1.8.2  
+#> [70] evaluate_1.0.5      lattice_0.23-1      R.methodsS3_1.8.2  
 #> [73] png_0.1-9           bslib_0.12.0        SparseArray_1.12.3 
-#> [76] xfun_0.61           fs_2.1.0            pkgconfig_2.0.3    
+#> [76] xfun_0.62           fs_2.1.0            pkgconfig_2.0.3    
 #> [79] GlobalOptions_0.1.4
 ```
