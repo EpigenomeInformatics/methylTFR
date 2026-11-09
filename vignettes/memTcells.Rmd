@@ -40,12 +40,12 @@ The following `r Biocpkg("methylTFR")` functionality is demonstrated:
 | Access bias-corrected deviation scores | `deviations()` |
 | Access row-wise deviation Z-scores | `deviationZScores()` |
 | Rank motifs by activity variability | `computeZScoreVariability()` |
-| Test motifs between two groups | `differential_deviation_test()` |
+| Test motifs between two groups | `differentialDeviationTest()` |
 | Plot observed and expected methylation | `plotExpectedFootprint()` |
 | Plot the bias-corrected footprint | `plotMotifFootprint()` |
 
-Deviation scores themselves are computed with `run_methyltfr()` from
-per-sample methylation files, or with `run_methylTFR_RnBeads()` directly
+Deviation scores themselves are computed with `runMethylTFR()` from
+per-sample methylation files, or with `runMethylTFRFromRnBeads()` directly
 from a preprocessed `RnBeads` object. Both are covered in the
 [Get started](methylTFR.html) vignette; this one begins from their
 output.
@@ -191,15 +191,16 @@ Optional bootstrap confidence bounds are available via
 
 ## Testing between two groups
 
-`differential_deviation_test()` tests each motif for a difference in
+`differentialDeviationTest()` tests each motif for a difference in
 deviation scores between two groups. With two groups and
 `parametric = TRUE` the test is a Welch t-test; p-values are adjusted
 with the Benjamini-Hochberg procedure.
 
-The returned `mean_difference` column is unsigned, so the direction of
-each change is computed separately. Differences below are oriented as
-naive minus memory, so that a positive value indicates a higher
-deviation score in the naive state.
+With two groups, the returned `mean_difference` column is the mean of
+the first factor level minus the mean of the second. The levels below are
+naive then memory, so a positive value indicates a higher deviation score
+in the naive state. The helper also adds the same contrast on the Z-score
+scale.
 
 ```{r helper}
 compare_subsets <- function(object, naive, memory) {
@@ -211,15 +212,14 @@ compare_subsets <- function(object, naive, memory) {
     z_sub <- deviationZScores(object)[, keep, drop = FALSE]
     is_naive <- grp == naive
 
-    res <- differential_deviation_test(
+    res <- differentialDeviationTest(
         deviations = dev_sub,
         groups = grp,
         alternative = "two.sided",
         parametric = TRUE,
         padjMethod = "BH"
     )
-    res$diff <- rowMeans(dev_sub[, is_naive, drop = FALSE]) -
-        rowMeans(dev_sub[, !is_naive, drop = FALSE])
+    res$diff <- res$mean_difference
     res$zdiff <- rowMeans(z_sub[, is_naive, drop = FALSE]) -
         rowMeans(z_sub[, !is_naive, drop = FALSE])
     res[order(res$p_value_adjusted), ]
@@ -420,6 +420,11 @@ example data bundled with the package rather than the pseudobulk object
 above. `BATF` is an AP-1 family factor and appears among the motifs
 identified in the comparisons above.
 
+The example methylation data are derived from ENCODE whole-genome
+bisulfite sequencing (ENCSR663MXB, GRCh38). ENCODE data are released
+without restrictions. The script that creates them is
+`inst/scripts/vignette_data.R`.
+
 The bundled methylome is a single memory T helper sample, so the
 observed curve is drawn in that subset's colour from the palette used
 throughout this vignette, while the expected curve is kept neutral.
@@ -446,10 +451,10 @@ captures.
 ```{r expfootprint, fig.height = 4.2, message = FALSE}
 plotExpectedFootprint(
     motif = "BATF",
-    tf_bindsites = tf_bindsites,
+    tfBindsites = tf_bindsites,
     msites = msites_sub,
-    sample_name = batf_cell_type,
-    gc_dist = gcdist,
+    sampleName = batf_cell_type,
+    gcDist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     returnPlotData = FALSE
@@ -469,10 +474,10 @@ profile; `method = "division"` uses their ratio.
 ```{r fpdiff, fig.height = 4.2, message = FALSE}
 plotMotifFootprint(
     motif = "BATF",
-    tf_bindsites = tf_bindsites,
+    tfBindsites = tf_bindsites,
     msites = msites_sub,
-    sample_name = batf_cell_type,
-    gc_dist = gcdist,
+    sampleName = batf_cell_type,
+    gcDist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     method = "substraction",

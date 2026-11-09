@@ -98,8 +98,48 @@ test_that("computeZScoreVariability validates its input", {
     expect_error(
         suppressMessages(computeZScoreVariability(
             matrix(rnorm(30), nrow = 10, ncol = 3),
-            conf_level = 2
+            confLevel = 2
         )),
-        "conf_level must be a number between 0 and 1"
+        "confLevel must be a number between 0 and 1"
     )
+    expect_error(
+        suppressMessages(computeZScoreVariability(
+            matrix(rnorm(30), nrow = 10, ncol = 3),
+            bootstrap = NA_character_
+        )),
+        "bootstrap must be a single logical value"
+    )
+    expect_error(
+        computeZScoreVariability(matrix(letters[1:30], nrow = 10, ncol = 3)),
+        "must be numeric"
+    )
+    expect_error(
+        suppressMessages(computeZScoreVariability(
+            matrix(rnorm(30), nrow = 10, ncol = 3),
+            bootstrap = TRUE, niterations = 1
+        )),
+        "niterations must be a number greater than 1"
+    )
+})
+
+test_that("calibrateDeviations handles degenerate and gaussian scales", {
+    set.seed(5)
+    mat <- matrix(rnorm(60 * 4), nrow = 60, ncol = 4)
+    mat[, 1] <- 0
+    expect_warning(
+        z <- methylTFR:::calibrateDeviations(mat, method = "gaussian"),
+        "degenerate null scale"
+    )
+    expect_equal(dim(z), dim(mat))
+    expect_error(
+        methylTFR:::calibrateDeviations(matrix(0, 10, 3)),
+        "could not be estimated"
+    )
+})
+
+test_that("computeZScoreVariability names unnamed motifs", {
+    set.seed(9)
+    mat <- matrix(rnorm(60 * 4), nrow = 60, ncol = 4)
+    res <- computeZScoreVariability(mat)
+    expect_equal(res$motifs[1], "motif_1")
 })

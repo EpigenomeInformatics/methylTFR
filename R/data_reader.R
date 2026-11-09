@@ -1,72 +1,80 @@
-#' @title read_methylome
-#' @description read_methylome is a function to import methylation data into
-#' a GRanges object. Bed file should be in EPP, ALLC or BisSNP format.
-#' @param filename filename which contains methylation data
-#' @param type Type of file format. Currently supported epp, bissnp,
-#' bismarkCytosine, bismarkcov, allc and encode
-#' @param cov_threshold numeric, coverage threshold to filter out low coverage
-#' sites, default is 1
+#' @title readMethylome
+#' @description Import single-sample methylation calls into a
+#' \code{GRanges} object.
+#' @param filename Path to the methylation call file. Gzipped files are
+#' read directly.
+#' @param type Format of the file, one of \code{"epp"}, \code{"bissnp"},
+#' \code{"bismarkCytosine"}, \code{"bismarkCov"}, \code{"allc"} or
+#' \code{"encode"} (ENCODE bedMethyl). Case-insensitive.
+#' @param covThreshold Numeric. Sites with fewer reads than this are
+#' dropped. Default 1.
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @import data.table
 #' @import R.utils
 #' @importFrom data.table := .N fread
 #' @importFrom stringr str_split str_replace
-#' @return a \code{GenomicRange} object with methylation, coverage information
+#' @return A \code{GRanges} object with one range per CpG and the metadata
+#' columns \code{score} (methylation fraction between 0 and 1) and
+#' \code{coverage} (read count). This is the \code{msites} input of
+#' \code{\link{computeDeviation}}, \code{\link{addGCBinToMethylome}} and
+#' the footprint plots.
+#' @seealso \code{\link{runMethylTFR}}, which calls this function for every
+#' sample.
 #' @author Irem Gunduz
 #' @examples
 #' # Read bissnp file
-#' bissnp_path <- system.file(
+#' bissnpPath <- system.file(
 #'     "extdata",
 #'     "bissnp.tsv.gz",
 #'     package = "methylTFR"
 #' )
-#' bissnp <- read_methylome(bissnp_path, "bissnp")
+#' bissnp <- readMethylome(bissnpPath, "bissnp")
 #' @export
-read_methylome <- function(filename, type, cov_threshold = 1) {
+readMethylome <- function(filename, type, covThreshold = 1) {
     type <- tolower(type)
     if (!file.exists(filename)) {
         stop(filename, " doesn't exist or path is incorrect!")
     }
-    valid_types <- c(
+    validTypes <- c(
         "bissnp", "epp", "allc", "bismarkcytosine", "bismarkcov", "encode"
     )
-    if (!type %in% valid_types) {
+    if (!type %in% validTypes) {
         stop(type, " is not a valid file type!")
     }
-    if (!is.numeric(cov_threshold) || cov_threshold < 0) {
-        stop(cov_threshold, " is not a valid coverage threshold!")
+    if (!is.numeric(covThreshold) || covThreshold < 0) {
+        stop(covThreshold, " is not a valid coverage threshold!")
     }
 
-    parsed_data <- switch(type,
-        "epp" = parse_epp(filename),
-        "bissnp" = parse_bissnp(filename),
-        "allc" = parse_allc(filename),
-        "bismarkcytosine" = parse_bismarkcytosine(filename),
-        "bismarkcov" = parse_bismarkcov(filename),
-        "encode" = parse_encode(filename)
+    parsedData <- switch(type,
+        "epp" = parseEpp(filename),
+        "bissnp" = parseBissnp(filename),
+        "allc" = parseAllc(filename),
+        "bismarkcytosine" = parseBismarkCytosine(filename),
+        "bismarkcov" = parseBismarkCov(filename),
+        "encode" = parseEncode(filename)
     )
 
-    msites <- parsed_data$msites
+    msites <- parsedData$msites
     colnames(msites) <- c("chr", "start", "end", "strand")
 
-    gr_obj <- granges_helper(
+    grObj <- grangesHelper(
         grobj = msites,
         chr = msites$chr,
-        mscore = parsed_data$mscore,
-        cov = parsed_data$cov,
+        mscore = parsedData$mscore,
+        cov = parsedData$cov,
         startP = msites$start,
         endP = msites$end
     )
 
     # Filter low coverage sites
-    gr_obj <- gr_obj[gr_obj$coverage >= cov_threshold]
+    grObj <- grObj[grObj$coverage >= covThreshold]
 
     # A methylation score is a fraction. Anything else means the file did not
     # have the layout the requested type expects, and returning it silently
     # would put nonsense into every deviation computed downstream.
-    if (length(gr_obj) > 0) {
-        rng <- range(gr_obj$score, na.rm = TRUE)
+    if (length(grObj) > 0) {
+        rng <- range(grObj$score, na.rm = TRUE)
         if (is.finite(rng[1]) && (rng[1] < 0 || rng[2] > 1)) {
             stop(
                 "Methylation scores parsed from ", filename, " span ",
@@ -76,11 +84,14 @@ read_methylome <- function(filename, type, cov_threshold = 1) {
             )
         }
     }
-    return(gr_obj)
+    return(grObj)
 }
 
+#' @title Parse an EPP file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
-parse_epp <- function(filename) {
+parseEpp <- function(filename) {
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
     mcov <- unlist(stringr::str_split(msites$V4, "/"))
     mcov <- as.numeric(stringr::str_replace(mcov, "'", ""))
@@ -90,8 +101,11 @@ parse_epp <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse a BisSNP file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
-parse_bissnp <- function(filename) {
+parseBissnp <- function(filename) {
     msites <- data.table::fread(
         filename,
         header = FALSE, skip = 1, showProgress = FALSE
@@ -102,8 +116,11 @@ parse_bissnp <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse an ALLC file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
-parse_allc <- function(filename) {
+parseAllc <- function(filename) {
     allc <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
     if (ncol(allc) < 6) {
         logger::log_warn(sprintf("%s is an invalid allc file!", filename))
@@ -115,8 +132,11 @@ parse_allc <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse a Bismark cytosine report
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
-parse_bismarkcytosine <- function(filename) {
+parseBismarkCytosine <- function(filename) {
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
     if (ncol(msites) < 5) {
         logger::log_warn(
@@ -130,8 +150,11 @@ parse_bismarkcytosine <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse a Bismark coverage file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
-parse_bismarkcov <- function(filename) {
+parseBismarkCov <- function(filename) {
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
     if (ncol(msites) < 6) {
         logger::log_warn(sprintf("%s is an invalid bismarkCov file!", filename))
@@ -144,8 +167,11 @@ parse_bismarkcov <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse an ENCODE bedMethyl file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
-parse_encode <- function(filename) {
+parseEncode <- function(filename) {
     # bedMethyl: column 10 is read coverage and column 11 is the percentage of
     # reads methylated. Columns are taken by position, and the header is
     # detected rather than assumed, because files downloaded from ENCODE carry
@@ -173,7 +199,7 @@ parse_encode <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
-#' @title granges_helper
+#' @title grangesHelper
 #' @description helper function to convert msites in EPP GRanges format
 #' @param grobj GRanges object
 #' @param chr chromosome
@@ -183,17 +209,17 @@ parse_encode <- function(filename) {
 #' @param endP end position
 #' @return a \code{GenomicRanges} object with EPP format
 #' @keywords internal
-granges_helper <- function(grobj, chr, mscore, cov, startP, endP) {
-    gr_obj <- GenomicRanges::GRanges(
+grangesHelper <- function(grobj, chr, mscore, cov, startP, endP) {
+    grObj <- GenomicRanges::GRanges(
         seqnames = chr,
         ranges = IRanges::IRanges(start = startP, end = endP),
         strand = grobj$strand,
         score = mscore,
         coverage = cov
     )
-    if (any(is.na(gr_obj$score))) {
+    if (any(is.na(grObj$score))) {
         # Remove for NaN values
-        gr_obj <- gr_obj[!is.nan(gr_obj$score)]
+        grObj <- grObj[!is.nan(grObj$score)]
     }
-    return(gr_obj)
+    return(grObj)
 }

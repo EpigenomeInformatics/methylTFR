@@ -2,8 +2,7 @@
 % Please edit documentation in R/helpers.R
 \name{computeColZScore}
 \alias{computeColZScore}
-\title{Helper function to compute column-wise
-z-score of a matrix}
+\title{Column-wise Z-score of a matrix}
 \usage{
 computeColZScore(mat)
 }
@@ -14,7 +13,7 @@ computeColZScore(mat)
 A matrix with column-wise z-scores
 }
 \description{
-This function takes a matrix and
-computes column-wise z-scores.
+This function takes a matrix and computes column-wise
+z-scores.
 }
 \keyword{internal}

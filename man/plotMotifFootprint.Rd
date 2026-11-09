@@ -6,10 +6,10 @@
 \usage{
 plotMotifFootprint(
   motif,
-  tf_bindsites,
+  tfBindsites,
   msites,
-  sample_name = NULL,
-  gc_dist,
+  sampleName = NULL,
+  gcDist,
   gcfreqs,
   enhancer = NULL,
   method = "division",
@@ -17,71 +17,67 @@ plotMotifFootprint(
 )
 }
 \arguments{
-\item{motif}{Motif name as a character string}
+\item{motif}{Name of the motif, one of \code{names(tfBindsites)}.}
 
-\item{tf_bindsites}{Transcript Factor binding
-sites from the annotation package}
+\item{tfBindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{msites}{Methylation sites as a data frame}
+\item{msites}{A \code{GRanges} object with one range per CpG (width 1)
+and the metadata columns \code{score} (numeric methylation fraction
+between 0 and 1) and \code{coverage} (read count). Usually produced by
+\code{\link{readMethylome}}.}
 
-\item{sample_name}{Optional sample name as a
-character string, defaults to the file name if not provided}
+\item{sampleName}{Optional sample label used in the plot title.
+Default \code{"sample"}.}
 
-\item{gc_dist}{a \code{GRanges} object contains
-Genome wide GC distribution}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tfBindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
 
-\item{gcfreqs}{GC frequency of the genome used
-to compute expected methylation}
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
 
-\item{enhancer}{Specific region such as distal motif,
-proximal motif}
+\item{method}{How observed and expected profiles are combined, either
+\code{"substraction"} (observed minus expected) or \code{"division"}
+(observed over expected, the default).}
 
-\item{method}{Method to calculate the difference,
-either "substraction" or "division"}
-
-\item{flankNorm}{Numeric value indicating the flank normalization
-distance, default is 50}
+\item{flankNorm}{Width in base pairs of the outer flanking window used
+to normalise the curve. Default 50; \code{0} turns normalisation off.}
 }
 \value{
-A ggplot object of TF footprint difference plot
-for a single sample
+A \code{ggplot} object.
 }
 \description{
-Creates a footprint plot of bias
-corrected methylation for a given motif and sample
+Plot the bias-corrected methylation profile around the
+binding sites of one motif in one sample.
 }
 \examples{
-library(ggplot2)
-library(methylTFR)
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
-# Load the data
-load(system.file("extdata",
-    "BATF_tf_bindsites.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "example_data.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "BATF_gcfreqs.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "gcdist_subset.rda",
-    package = "methylTFR"
-))
-
-# Plot the expected footprint
 p <- plotMotifFootprint(
     motif = "BATF",
-    tf_bindsites = tf_bindsites,
+    tfBindsites = tf_bindsites,
     msites = msites,
-    sample_name = "Sample1",
-    gc_dist = gcdist,
+    sampleName = "Sample1",
+    gcDist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     method = "division"
 )
-
+}
+\seealso{
+\code{\link{plotExpectedFootprint}} for the two profiles
+before correction.
 }

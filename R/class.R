@@ -1,6 +1,6 @@
 #' @title methylTFRdeviations
 #' @description Class for storing results from
-#' \code{\link{run_methyltfr}} function.
+#' \code{\link{runMethylTFR}} and \code{\link{runMethylTFRFromRnBeads}}.
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
 #' @details This class inherits from
 #' \code{\link[SummarizedExperiment]{SummarizedExperiment}}, and most methods

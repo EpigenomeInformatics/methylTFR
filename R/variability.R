@@ -52,16 +52,16 @@ calibrateDeviations <- function(devs, method = c("robust", "gaussian")) {
 }
 
 
-#' @title check_variability_inputs
+#' @title checkVariabilityInputs
 #' @description Validate the inputs of \code{computeZScoreVariability} and
 #' return the deviation scores as a matrix.
 #' @param object A \code{methylTFRdeviations} object, matrix or data.frame.
 #' @param bootstrap Logical, whether bootstrap bounds were requested.
-#' @param conf_level Confidence level of the bootstrap bounds.
+#' @param confLevel Confidence level of the bootstrap bounds.
 #' @return The deviation scores as a numeric matrix.
 #' @importFrom methods is
 #' @keywords internal
-check_variability_inputs <- function(object, bootstrap, conf_level) {
+checkVariabilityInputs <- function(object, bootstrap, confLevel) {
     if (is(object, "methylTFRdeviations")) {
         devs <- deviations(object)
     } else if (is.matrix(object) || is.data.frame(object)) {
@@ -84,8 +84,8 @@ check_variability_inputs <- function(object, bootstrap, conf_level) {
     if (!is.logical(bootstrap) || length(bootstrap) != 1) {
         stop("bootstrap must be a single logical value")
     }
-    if (!is.numeric(conf_level) || conf_level <= 0 || conf_level >= 1) {
-        stop("conf_level must be a number between 0 and 1")
+    if (!is.numeric(confLevel) || confLevel <= 0 || confLevel >= 1) {
+        stop("confLevel must be a number between 0 and 1")
     }
     if (nrow(devs) < 50) {
         message(
@@ -97,7 +97,7 @@ check_variability_inputs <- function(object, bootstrap, conf_level) {
     return(devs)
 }
 
-#' @title variability_test
+#' @title variabilityTest
 #' @description Summarise the calibrated Z-scores into a variability per
 #' motif and test each against the chi-squared null.
 #' @param z The calibrated Z-score matrix.
@@ -106,7 +106,7 @@ check_variability_inputs <- function(object, bootstrap, conf_level) {
 #' \code{stats::p.adjust}.
 #' @return A \code{data.frame} with one row per motif.
 #' @keywords internal
-variability_test <- function(z, motif_names, padjMethod) {
+variabilityTest <- function(z, motif_names, padjMethod) {
     variability <- matrixStats::rowSds(z, na.rm = TRUE)
     n_obs <- rowSums(!is.na(z))
 
@@ -128,15 +128,15 @@ variability_test <- function(z, motif_names, padjMethod) {
     ))
 }
 
-#' @title bootstrap_variability
+#' @title bootstrapVariability
 #' @description Add bootstrap confidence bounds to a variability table.
 #' @param z The calibrated Z-score matrix.
 #' @param res The variability table to add the bounds to.
 #' @param niterations Number of bootstrap iterations.
-#' @param conf_level Confidence level of the bounds.
+#' @param confLevel Confidence level of the bounds.
 #' @return \code{res} with the two bound columns added.
 #' @keywords internal
-bootstrap_variability <- function(z, res, niterations, conf_level) {
+bootstrapVariability <- function(z, res, niterations, confLevel) {
     if (!is.numeric(niterations) || niterations < 2) {
         stop("niterations must be a number greater than 1")
     }
@@ -145,7 +145,7 @@ bootstrap_variability <- function(z, res, niterations, conf_level) {
         idx <- sample.int(ncol(z), ncol(z), replace = TRUE)
         matrixStats::rowSds(z[, idx, drop = FALSE], na.rm = TRUE)
     }, numeric(nrow(z)))
-    alpha <- (1 - conf_level) / 2
+    alpha <- (1 - confLevel) / 2
     res$bootstrap_lower_bound <- apply(
         boot, 1, stats::quantile,
         probs = alpha, na.rm = TRUE
@@ -199,7 +199,7 @@ bootstrap_variability <- function(z, res, niterations, conf_level) {
 #' variability estimates are computed by resampling samples with replacement.
 #' @param niterations Number of bootstrap iterations, used only when
 #' \code{bootstrap} is TRUE.
-#' @param conf_level Confidence level for the bootstrap bounds.
+#' @param confLevel Confidence level for the bootstrap bounds.
 #' @param padjMethod Method for p-value adjustment, passed to
 #' \code{\link[stats]{p.adjust}}. Default is "BH".
 #' @return A \code{data.frame} with one row per motif and the columns
@@ -210,7 +210,7 @@ bootstrap_variability <- function(z, res, niterations, conf_level) {
 #' @importFrom matrixStats rowSds
 #' @importFrom stats pchisq p.adjust median quantile
 #' @importFrom methods is
-#' @seealso \code{\link{differential_deviation_test}} for testing activity
+#' @seealso \code{\link{differentialDeviationTest}} for testing activity
 #' differences between predefined groups.
 #' @examples
 #' # Load example data
@@ -225,10 +225,10 @@ bootstrap_variability <- function(z, res, niterations, conf_level) {
 #' @export
 computeZScoreVariability <- function(
     object, method = c("robust", "gaussian"), bootstrap = FALSE,
-    niterations = 1000L, conf_level = 0.95, padjMethod = "BH"
+    niterations = 1000L, confLevel = 0.95, padjMethod = "BH"
 ) {
     method <- match.arg(method)
-    devs <- check_variability_inputs(object, bootstrap, conf_level)
+    devs <- checkVariabilityInputs(object, bootstrap, confLevel)
 
     motif_names <- rownames(devs)
     if (is.null(motif_names)) {
@@ -236,10 +236,10 @@ computeZScoreVariability <- function(
     }
 
     z <- calibrateDeviations(devs, method = method)
-    res <- variability_test(z, motif_names, padjMethod)
+    res <- variabilityTest(z, motif_names, padjMethod)
 
     if (bootstrap) {
-        res <- bootstrap_variability(z, res, niterations, conf_level)
+        res <- bootstrapVariability(z, res, niterations, confLevel)
     }
     return(res)
 }
