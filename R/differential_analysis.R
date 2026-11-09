@@ -1,11 +1,11 @@
-#' @title resolveDiffGroups
+#' @title resolve_diff_groups
 #' @description Derive and validate the group labels used by
-#' \code{differentialDeviationTest}.
+#' \code{differential_deviation_test}.
 #' @param deviations A matrix of deviation scores, motifs in rows.
 #' @param groups Group labels, or NULL to take them from the column names.
 #' @return The group labels as a \code{factor}.
 #' @keywords internal
-resolveDiffGroups <- function(deviations, groups) {
+resolve_diff_groups <- function(deviations, groups) {
     if (is.null(groups)) {
         groups <- colnames(deviations)
     }
@@ -25,7 +25,7 @@ resolveDiffGroups <- function(deviations, groups) {
     return(groups)
 }
 
-#' @title diffPvalues
+#' @title diff_pvalues
 #' @description Test every motif for a difference between the groups, with
 #' the test chosen from the number of groups and \code{parametric}.
 #' @param deviations A matrix of deviation scores, motifs in rows.
@@ -35,20 +35,20 @@ resolveDiffGroups <- function(deviations, groups) {
 #' @param alternative The alternative hypothesis of the two-group tests.
 #' @return A numeric vector of p-values, one per motif.
 #' @keywords internal
-diffPvalues <- function(deviations, groups, parametric, alternative) {
+diff_pvalues <- function(deviations, groups, parametric, alternative) {
     if (parametric) {
         if (nlevels(groups) == 2) {
-            return(apply(deviations, 1, tHelper, groups, alternative))
+            return(apply(deviations, 1, t_helper, groups, alternative))
         }
-        return(apply(deviations, 1, anovaHelper, groups))
+        return(apply(deviations, 1, anova_helper, groups))
     }
     if (nlevels(groups) == 2) {
-        return(apply(deviations, 1, wilcoxonHelper, groups, alternative))
+        return(apply(deviations, 1, wilcoxon_helper, groups, alternative))
     }
-    return(apply(deviations, 1, kwHelper, groups))
+    return(apply(deviations, 1, kw_helper, groups))
 }
 
-#' @title groupMeanDifference
+#' @title group_mean_difference
 #' @description Effect size per motif. For two groups, the mean of the
 #' first level minus the mean of the second level (signed). For more
 #' groups, the range of the group means (unsigned).
@@ -56,19 +56,19 @@ diffPvalues <- function(deviations, groups, parametric, alternative) {
 #' @param groups The group labels as a \code{factor}.
 #' @return A numeric vector with one value per motif.
 #' @keywords internal
-groupMeanDifference <- function(deviations, groups) {
-    groupMeans <- vapply(
+group_mean_difference <- function(deviations, groups) {
+    group_means <- vapply(
         levels(groups),
         function(g) rowMeans(deviations[, groups == g, drop = FALSE]),
         numeric(nrow(deviations))
     )
     if (nlevels(groups) == 2) {
-        return(groupMeans[, 1] - groupMeans[, 2])
+        return(group_means[, 1] - group_means[, 2])
     }
-    return(apply(groupMeans, 1, function(x) max(x) - min(x)))
+    return(apply(group_means, 1, function(x) max(x) - min(x)))
 }
 
-#' @title differentialDeviationTest
+#' @title differential_deviation_test
 #' @description Test which motifs have different deviation scores between
 #' groups of samples. Adapted from \code{chromVAR::differentialDeviations}.
 #' @details With two groups, a Welch t-test (\code{parametric = TRUE}) or a
@@ -106,16 +106,16 @@ groupMeanDifference <- function(deviations, groups) {
 #'     strsplit(colnames(devs), split = "_"), `[`, character(1), 1L
 #' ))
 #'
-#' tcResult <- differentialDeviationTest(
+#' tc_result <- differential_deviation_test(
 #'     deviations = devs,
 #'     groups = groups,
 #'     alternative = "two.sided",
 #'     parametric = TRUE,
 #'     padjMethod = "BH"
 #' )
-#' head(tcResult)
+#' head(tc_result)
 #' @export
-differentialDeviationTest <- function(
+differential_deviation_test <- function(
     deviations,
     groups = NULL,
     motifs = rownames(deviations),
@@ -134,18 +134,18 @@ differentialDeviationTest <- function(
         deviations <- deviations(deviations)
     }
     deviations <- as.matrix(deviations)
-    groups <- resolveDiffGroups(deviations, groups)
+    groups <- resolve_diff_groups(deviations, groups)
     if (length(alternative) > 1) {
         stop("Please indicate one of the alternatives only.")
     }
-    pVal <- diffPvalues(deviations, groups, parametric, alternative)
-    pAdj <- p.adjust(pVal, method = padjMethod)
-    meanDiff <- groupMeanDifference(deviations, groups)
+    p_val <- diff_pvalues(deviations, groups, parametric, alternative)
+    p_adj <- p.adjust(p_val, method = padjMethod)
+    mean_diff <- group_mean_difference(deviations, groups)
 
     return(data.frame(
         motifs = motifs,
-        p_value = pVal,
-        p_value_adjusted = pAdj,
-        mean_difference = meanDiff
+        p_value = p_val,
+        p_value_adjusted = p_adj,
+        mean_difference = mean_diff
     ))
 }

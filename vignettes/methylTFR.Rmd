@@ -112,12 +112,12 @@ library(methylTFR)
 
 ### Read a Sample File
 
-The `readMethylome()` function is used to import single-sample DNA
+The `read_methylome()` function is used to import single-sample DNA
 methylation data into a `GRanges` object. It supports several common file
 formats, including `EPP`, `ALLC`, `BisSNP`, `bismarkCytosine`, `bismarkCov`,
 and `ENCODE` bedMethyl.
 
-You can optionally filter out low-coverage sites using the `covThreshold`
+You can optionally filter out low-coverage sites using the `cov_threshold`
 parameter (default = 1), which excludes positions with insufficient read
 support.
 
@@ -125,8 +125,8 @@ Below is an example of reading an example `EPP`-formatted file provided
 in the package:
 
 ```{r readmethylome}
-eppPath <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
-epp <- readMethylome(eppPath, "EPP")
+epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
+epp <- read_methylome(epp_path, "EPP")
 epp
 ```
 
@@ -147,9 +147,9 @@ as follows:
 ```r
 library(methylTFRAnnotationHg38)
 
-tfBindsites <- getTFbindsites(motifSet = "jaspar2020")
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gcDist <- getGenomeGC()
+gc_dist <- getGenomeGC()
 ```
 
 To build annotations for a different assembly, motif set, or region
@@ -173,7 +173,7 @@ These annotations include:
 - **TF binding sites (`BATF_tf_bindsites`)**: A `GRanges` object containing
     the genomic coordinates of BATF binding sites.
 - **Example methylation data (`example_data`)**: A small subset of methylation
-    calls, read with `readMethylome()`, provided for demonstration purposes.
+    calls, read with `read_methylome()`, provided for demonstration purposes.
 
 The example methylation data in `inst/extdata` are derived from ENCODE
 whole-genome bisulfite sequencing (ENCSR663MXB, GRCh38). ENCODE data are
@@ -204,28 +204,28 @@ from GC frequency models.
 
 This example uses the `BATF` motif and the example methylation dataset loaded
 earlier. The methylation data must first be binned by GC content using
-`addGCBinToMethylome()` before computing the deviation.
+`addGCBintoMethylome()` before computing the deviation.
 
 ```{r single_deviation}
-binMeth <- addGCBinToMethylome(msites, gcdist, ignoreStrand = TRUE)
-binMeth
+bin_meth <- addGCBintoMethylome(msites, gcdist, ignoreStrand = TRUE)
+bin_meth
 
-deviationScore <- computeDeviation(
+deviation_score <- computeDeviation(
     motif = "BATF",
     msites = msites,
-    tfBindsites = tf_bindsites,
+    tf_bindsites = tf_bindsites,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     ignoreStrand = TRUE,
-    binMsites = binMeth
+    binMsites = bin_meth
 )
-deviationScore
+deviation_score
 ```
 
 
 ## Run methylTFR on multiple samples and motifs
 
-`runMethylTFR()` runs the analysis on every sample listed in a sample
+`run_methyltfr()` runs the analysis on every sample listed in a sample
 annotation file. The file must contain a column (by default `bedFile`)
 with the methylation file names; all its columns become the `colData`
 of the result.
@@ -235,39 +235,39 @@ from the bundled data by resampling the methylated reads at each CpG, and
 written to a temporary directory as `bismarkCov` files.
 
 ```{r multiple_samples}
-sampleDir <- file.path(tempdir(), "methylTFR_vignette")
-dir.create(sampleDir, showWarnings = FALSE)
+sample_dir <- file.path(tempdir(), "methylTFR_vignette")
+dir.create(sample_dir, showWarnings = FALSE)
 
 set.seed(1)
-sampleFiles <- paste0("sample_", 1:3, ".cov")
-for (f in sampleFiles) {
-    nMeth <- rbinom(length(msites), msites$coverage, msites$score)
+sample_files <- paste0("sample_", 1:3, ".cov")
+for (f in sample_files) {
+    n_meth <- rbinom(length(msites), msites$coverage, msites$score)
     write.table(
         data.frame(
             chr = as.character(GenomicRanges::seqnames(msites)),
             start = GenomicRanges::start(msites),
             end = GenomicRanges::end(msites),
-            percent = 100 * nMeth / msites$coverage,
-            meth = nMeth,
-            unmeth = msites$coverage - nMeth
+            percent = 100 * n_meth / msites$coverage,
+            meth = n_meth,
+            unmeth = msites$coverage - n_meth
         ),
-        file.path(sampleDir, f),
+        file.path(sample_dir, f),
         sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE
     )
 }
 write.table(
-    data.frame(sampleName = sub(".cov", "", sampleFiles), bedFile = sampleFiles),
-    file.path(sampleDir, "samples.tsv"),
+    data.frame(sampleName = sub(".cov", "", sample_files), bedFile = sample_files),
+    file.path(sample_dir, "samples.tsv"),
     sep = "\t", row.names = FALSE, quote = FALSE
 )
 
-devs <- runMethylTFR(
-    sampleAnn = "samples.tsv", # file in sampleDir
-    sampleDir = sampleDir, # where the methylation files are
+devs <- run_methyltfr(
+    sample_ann = "samples.tsv", # file in sample_dir
+    sample_dir = sample_dir, # where the methylation files are
     sampleColName = "bedFile", # column with the file names
-    tfBindsites = tf_bindsites,
+    tf_bindsites = tf_bindsites,
     gcfreqs = gcfreqs,
-    gcDist = gcdist,
+    gc_dist = gcdist,
     filetype = "bismarkCov",
     threads = 1,
     chunkSize = 10
@@ -288,12 +288,12 @@ binding sites stand in for a region set:
 regions <- GenomicRanges::reduce(
     GenomicRanges::resize(tf_bindsites$BATF, 2000, fix = "center")
 )
-devsRegions <- runMethylTFR(
-    sampleAnn = "samples.tsv",
-    sampleDir = sampleDir,
-    tfBindsites = tf_bindsites,
+devsRegions <- run_methyltfr(
+    sample_ann = "samples.tsv",
+    sample_dir = sample_dir,
+    tf_bindsites = tf_bindsites,
     gcfreqs = gcfreqs,
-    gcDist = gcdist,
+    gc_dist = gcdist,
     filetype = "bismarkCov",
     enhancer = regions
 )
@@ -305,8 +305,8 @@ deviations(devsRegions)
 
 If the methylation data has already been imported and preprocessed with
 `r Biocpkg("RnBeads")`, there is no need to export per-sample files first.
-`runMethylTFRFromRnBeads()` takes the `RnBSet` object directly and returns
-the same `methylTFRdeviations` object as `runMethylTFR()`.
+`run_methylTFR_RnBeads()` takes the `RnBSet` object directly and returns
+the same `methylTFRdeviations` object as `run_methyltfr()`.
 
 Methylation levels are read one sample column at a time, so disk-backed
 sets created with `disk.dump.big.matrices = TRUE` are never loaded into
@@ -321,7 +321,7 @@ library(RnBeads)
 
 # identifiers.column is a session option, so it is set before the set is
 # built
-oldIds <- rnb.getOption("identifiers.column")
+old_ids <- rnb.getOption("identifiers.column")
 rnb.options(identifiers.column = "sampleName")
 
 ids <- c("sample_1", "sample_2")
@@ -329,7 +329,7 @@ meth <- cbind(msites$score, msites$score)
 covg <- cbind(msites$coverage, msites$coverage)
 dimnames(meth) <- dimnames(covg) <- list(NULL, ids)
 
-rnbSet <- RnBiseqSet(
+rnb_set <- RnBiseqSet(
     pheno = data.frame(sampleName = ids),
     sites = data.frame(
         chr = as.character(GenomicRanges::seqnames(msites)),
@@ -342,12 +342,12 @@ rnbSet <- RnBiseqSet(
     summarize.regions = FALSE
 )
 
-devsRnb <- runMethylTFRFromRnBeads(
-    rnbSet = rnbSet, # preprocessed RnBeads object
-    tfBindsites = tf_bindsites,
+devsRnb <- run_methylTFR_RnBeads(
+    rnb_set = rnb_set, # preprocessed RnBeads object
+    tf_bindsites = tf_bindsites,
     gcfreqs = gcfreqs,
-    gcDist = gcdist,
-    covThreshold = 1 # minimum coverage per site
+    gc_dist = gcdist,
+    cov_threshold = 1 # minimum coverage per site
 )
 deviations(devsRnb)
 ```
@@ -358,27 +358,27 @@ footprint needs base-resolution calls. To restrict the analysis to a set
 of regulatory regions, pass them through the `enhancer` argument:
 
 ```{r rnbeads_distal, eval = hasRnBeads, message = FALSE}
-devsRnbRegions <- runMethylTFRFromRnBeads(
-    rnbSet = rnbSet,
-    tfBindsites = tf_bindsites,
+devsRnbRegions <- run_methylTFR_RnBeads(
+    rnb_set = rnb_set,
+    tf_bindsites = tf_bindsites,
     gcfreqs = gcfreqs,
-    gcDist = gcdist,
+    gc_dist = gcdist,
     enhancer = regions
 )
 deviations(devsRnbRegions)
 
-rnb.options(identifiers.column = oldIds)
+rnb.options(identifiers.column = old_ids)
 ```
 
 Coverage filtering applies only to sequencing-based sets
 (`RnBiseqSet`), which carry coverage information. Array-based sets are
-filtered by detection p-value through `dpvalThreshold`.
+filtered by detection p-value through `dpval_threshold`.
 
 `RnBeads` is a suggested dependency rather than a required one, so it is
 only needed if this entry point is used.
 
 ```{r cleanup, include = FALSE}
-unlink(sampleDir, recursive = TRUE)
+unlink(sample_dir, recursive = TRUE)
 ```
 
 ## Session Information

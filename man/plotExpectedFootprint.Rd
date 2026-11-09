@@ -6,19 +6,19 @@
 \usage{
 plotExpectedFootprint(
   motif,
-  tfBindsites,
+  tf_bindsites,
   msites,
-  sampleName = NULL,
-  gcDist,
+  sample_name = NULL,
+  gc_dist,
   gcfreqs,
   enhancer = NULL,
   returnPlotData = FALSE
 )
 }
 \arguments{
-\item{motif}{Name of the motif, one of \code{names(tfBindsites)}.}
+\item{motif}{Name of the motif, one of \code{names(tf_bindsites)}.}
 
-\item{tfBindsites}{A \code{GRangesList} named by motif. Each element is a
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
 \code{GRanges} of the occurrences of that motif. The names must include
 every name in \code{names(gcfreqs)}. Get it with
 \code{getTFbindsites(motifSet = "jaspar2020")} from the
@@ -28,13 +28,13 @@ or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 \item{msites}{A \code{GRanges} object with one range per CpG (width 1)
 and the metadata columns \code{score} (numeric methylation fraction
 between 0 and 1) and \code{coverage} (read count). Usually produced by
-\code{\link{readMethylome}}.}
+\code{\link{read_methylome}}.}
 
-\item{sampleName}{Optional sample label used in the plot title.
+\item{sample_name}{Optional sample label used in the plot title.
 Default \code{"sample"}.}
 
 \item{gcfreqs}{A named \code{list} with one element per motif, named as
-in \code{tfBindsites}. Each element is a numeric matrix with the five GC
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
 bins in rows and the positions across the binding-site window in
 columns. Get it with \code{getGCfreq(motifSet = ...)} from the
 annotation package.}
@@ -64,10 +64,10 @@ load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
 p <- plotExpectedFootprint(
     motif = "BATF",
-    tfBindsites = tf_bindsites,
+    tf_bindsites = tf_bindsites,
     msites = msites,
-    sampleName = "Sample1",
-    gcDist = gcdist,
+    sample_name = "Sample1",
+    gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     returnPlotData = FALSE

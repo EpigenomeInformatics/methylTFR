@@ -10,10 +10,10 @@ load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 test_that("plotExpectedFootprint returns a ggplot", {
     p <- plotExpectedFootprint(
         motif = "BATF",
-        tfBindsites = tf_bindsites,
+        tf_bindsites = tf_bindsites,
         msites = msites,
-        sampleName = NULL,
-        gcDist = gcdist,
+        sample_name = NULL,
+        gc_dist = gcdist,
         gcfreqs = gcfreqs,
         returnPlotData = FALSE,
         enhancer = NULL
@@ -24,9 +24,9 @@ test_that("plotExpectedFootprint returns a ggplot", {
 test_that("returnPlotData = TRUE returns the plot data", {
     result <- plotExpectedFootprint(
         motif = "BATF",
-        tfBindsites = tf_bindsites,
+        tf_bindsites = tf_bindsites,
         msites = msites,
-        gcDist = gcdist,
+        gc_dist = gcdist,
         gcfreqs = gcfreqs,
         returnPlotData = TRUE
     )
@@ -39,9 +39,9 @@ test_that("returnPlotData = TRUE returns the plot data", {
 test_that("plotExpectedFootprint works with an enhancer", {
     p <- plotExpectedFootprint(
         motif = "BATF",
-        tfBindsites = tf_bindsites,
+        tf_bindsites = tf_bindsites,
         msites = msites,
-        gcDist = gcdist,
+        gc_dist = gcdist,
         gcfreqs = gcfreqs,
         enhancer = range(msites)
     )
@@ -51,43 +51,43 @@ test_that("plotExpectedFootprint works with an enhancer", {
 test_that("plotExpectedFootprint validates its input", {
     expect_error(
         plotExpectedFootprint(
-            motif = "BATF", tfBindsites = tf_bindsites, msites = NULL,
-            gcDist = gcdist, gcfreqs = gcfreqs
+            motif = "BATF", tf_bindsites = tf_bindsites, msites = NULL,
+            gc_dist = gcdist, gcfreqs = gcfreqs
         ),
-        "readMethylome"
+        "read_methylome"
     )
     expect_error(
         plotExpectedFootprint(
-            motif = NULL, tfBindsites = tf_bindsites, msites = msites,
-            gcDist = gcdist, gcfreqs = gcfreqs
+            motif = NULL, tf_bindsites = tf_bindsites, msites = msites,
+            gc_dist = gcdist, gcfreqs = gcfreqs
         ),
         "Please provide a valid motif name"
     )
     expect_error(
         plotExpectedFootprint(
-            motif = "BATF", tfBindsites = NULL, msites = msites,
-            gcDist = gcdist, gcfreqs = gcfreqs
+            motif = "BATF", tf_bindsites = NULL, msites = msites,
+            gc_dist = gcdist, gcfreqs = gcfreqs
         ),
         "Please provide a valid tf binding sites"
     )
     expect_error(
         plotExpectedFootprint(
-            motif = "BATF", tfBindsites = tf_bindsites, msites = msites,
-            gcDist = NULL, gcfreqs = gcfreqs
+            motif = "BATF", tf_bindsites = tf_bindsites, msites = msites,
+            gc_dist = NULL, gcfreqs = gcfreqs
         ),
-        "Please provide a valid gcDist as GRanges"
+        "Please provide a valid gc_dist as GRanges"
     )
     expect_error(
         plotExpectedFootprint(
-            motif = "BATF", tfBindsites = tf_bindsites, msites = msites,
-            gcDist = gcdist, gcfreqs = NULL
+            motif = "BATF", tf_bindsites = tf_bindsites, msites = msites,
+            gc_dist = gcdist, gcfreqs = NULL
         ),
         "Please provide a valid gcfreqs as list"
     )
     expect_error(
         plotExpectedFootprint(
-            motif = "BATF", tfBindsites = tf_bindsites, msites = msites,
-            gcDist = gcdist, gcfreqs = gcfreqs, enhancer = "chr1"
+            motif = "BATF", tf_bindsites = tf_bindsites, msites = msites,
+            gc_dist = gcdist, gcfreqs = gcfreqs, enhancer = "chr1"
         ),
         "enhancer"
     )

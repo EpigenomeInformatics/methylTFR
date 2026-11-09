@@ -4,13 +4,13 @@
 \alias{computeExpectedFootprint}
 \title{computeExpectedFootprint}
 \usage{
-computeExpectedFootprint(motif, gcfreqs, gcDist, enhancer = NULL, msites)
+computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer = NULL, msites)
 }
 \arguments{
-\item{motif}{Name of the motif, one of \code{names(tfBindsites)}.}
+\item{motif}{Name of the motif, one of \code{names(tf_bindsites)}.}
 
 \item{gcfreqs}{A named \code{list} with one element per motif, named as
-in \code{tfBindsites}. Each element is a numeric matrix with the five GC
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
 bins in rows and the positions across the binding-site window in
 columns. Get it with \code{getGCfreq(motifSet = ...)} from the
 annotation package.}
@@ -24,7 +24,7 @@ the ENCODE candidate cis-regulatory elements (SCREEN) read with
 \item{msites}{A \code{GRanges} object with one range per CpG (width 1)
 and the metadata columns \code{score} (numeric methylation fraction
 between 0 and 1) and \code{coverage} (read count). Usually produced by
-\code{\link{readMethylome}}.}
+\code{\link{read_methylome}}.}
 }
 \value{
 a \code{data.table} with the columns \code{x} and

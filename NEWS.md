@@ -2,46 +2,16 @@
 
 Changes from the Bioconductor review.
 
-API CHANGES
-
-Exported functions and arguments now use camelCase. The package is not
-released yet, so the old names are removed without deprecation.
-
-| Old | New |
-|---|---|
-| `read_methylome()` | `readMethylome()` |
-| `run_methyltfr()` | `runMethylTFR()` |
-| `run_methylTFR_RnBeads()` | `runMethylTFRFromRnBeads()` |
-| `differential_deviation_test()` | `differentialDeviationTest()` |
-| `addGCBintoMethylome()` | `addGCBinToMethylome()` |
-
-| Old argument | New argument |
-|---|---|
-| `sample_ann`, `annfile` | `sampleAnn` |
-| `sample_dir` | `sampleDir` |
-| `tf_bindsites` | `tfBindsites` |
-| `gc_dist`, `gcdist` | `gcDist` |
-| `cov_threshold` | `covThreshold` |
-| `full_path` | `fullPath` |
-| `dpval_threshold` | `dpvalThreshold` |
-| `rnb_set` | `rnbSet` |
-| `sample_name` | `sampleName` |
-| `conf_level` | `confLevel` |
-
-* `runMethylTFR()` had both `sample_ann` and `annfile`. They are merged
-  into `sampleAnn`, which takes a file name in `sampleDir` or a path.
-* Internal helpers are renamed to camelCase as well.
-
 NEW FEATURES
 
-* `runMethylTFR()` and `runMethylTFRFromRnBeads()` take a `tempDir`
+* `run_methyltfr()` and `run_methylTFR_RnBeads()` take a `tempDir`
   argument. Temporary HDF5 files are written under `tempdir()` by default,
   not in the working directory, and are deleted when the run ends.
 * `computeDeviation()` takes `extendBy` (default 130) and `windowBreaks`
   (default `c(-250, -200, -25, 25, 200, 250)`), which were hard-coded.
 * Input checks: `msites` must have `score` and `coverage` columns,
-  `gcDist` must have a `GC_bin` column, and every motif in `gcfreqs` must
-  have binding sites in `tfBindsites`. Error messages name the function
+  `gc_dist` must have a `GC_bin` column, and every motif in `gcfreqs` must
+  have binding sites in `tf_bindsites`. Error messages name the function
   that produces the missing object.
 
 BUG FIXES
@@ -49,7 +19,7 @@ BUG FIXES
 * The deviation score is `NA` when the centre bin or either outer flank
   bin has no CpG. Before, an empty bin shifted the bins and gave a wrong
   ratio.
-* For two groups, `mean_difference` in `differentialDeviationTest()` is
+* For two groups, `mean_difference` in `differential_deviation_test()` is
   now signed (first group minus second group). It was the absolute value.
 * `cleanMem()` ran the garbage collector once whatever `iter.gc` was.
 

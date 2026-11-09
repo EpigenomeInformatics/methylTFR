@@ -1,4 +1,4 @@
-# Test differentialDeviationTest
+# Test differential_deviation_test
 
 library(methylTFR)
 
@@ -24,7 +24,7 @@ checkResult <- function(res, n) {
 }
 
 test_that("two groups use a t-test or a Wilcoxon test", {
-    tRes <- differentialDeviationTest(
+    tRes <- differential_deviation_test(
         mat2, groups2, alternative = "two.sided", parametric = TRUE
     )
     checkResult(tRes, 20)
@@ -33,7 +33,7 @@ test_that("two groups use a t-test or a Wilcoxon test", {
         t.test(mat2[1, 1:4], mat2[1, 5:8])$p.value
     )
 
-    wRes <- differentialDeviationTest(
+    wRes <- differential_deviation_test(
         mat2, groups2, alternative = "less", parametric = FALSE
     )
     checkResult(wRes, 20)
@@ -44,13 +44,13 @@ test_that("two groups use a t-test or a Wilcoxon test", {
 })
 
 test_that("more than two groups use ANOVA or Kruskal-Wallis", {
-    aRes <- differentialDeviationTest(
+    aRes <- differential_deviation_test(
         mat3, groups3, alternative = "two.sided", parametric = TRUE
     )
     checkResult(aRes, 20)
     expect_true(all(aRes$mean_difference >= 0))
 
-    kRes <- differentialDeviationTest(
+    kRes <- differential_deviation_test(
         mat3, groups3, alternative = "two.sided", parametric = FALSE
     )
     checkResult(kRes, 20)
@@ -66,29 +66,29 @@ test_that("data.frames and methylTFRdeviations objects are accepted", {
     devs <- cbind(tc_mem, tc_naive)
     groups <- rep(c("mem", "naive"), c(ncol(tc_mem), ncol(tc_naive)))
 
-    fromObject <- differentialDeviationTest(
+    fromObject <- differential_deviation_test(
         devs, groups, alternative = "two.sided"
     )
-    fromDf <- differentialDeviationTest(
+    fromDf <- differential_deviation_test(
         as.data.frame(deviations(devs)), groups, alternative = "two.sided"
     )
     expect_equal(fromObject$p_value, fromDf$p_value)
     expect_equal(fromObject$motifs, rownames(devs))
 })
 
-test_that("differentialDeviationTest validates its input", {
+test_that("differential_deviation_test validates its input", {
     expect_error(
-        differentialDeviationTest(list(1, 2), groups2),
+        differential_deviation_test(list(1, 2), groups2),
         "deviations must be a methylTFRdeviations"
     )
     expect_error(
-        differentialDeviationTest(mat2, groups2),
+        differential_deviation_test(mat2, groups2),
         "one of the alternatives only"
     )
     unnamed <- mat2
     colnames(unnamed) <- NULL
     expect_error(
-        differentialDeviationTest(unnamed, alternative = "two.sided"),
+        differential_deviation_test(unnamed, alternative = "two.sided"),
         "No group labels found"
     )
 })

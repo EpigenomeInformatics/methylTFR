@@ -222,7 +222,7 @@ for (nm in names(subset_pairs)) {
     grp <- factor(as.character(sample_annot$cell_type[keep]),
         levels = c(pair[["naive"]], pair[["memory"]])
     )
-    res <- differentialDeviationTest(
+    res <- differential_deviation_test(
         deviations = dev_mat[, keep, drop = FALSE],
         groups = grp,
         alternative = "two.sided",

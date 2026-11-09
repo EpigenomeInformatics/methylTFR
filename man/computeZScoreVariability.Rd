@@ -9,7 +9,7 @@ computeZScoreVariability(
   method = c("robust", "gaussian"),
   bootstrap = FALSE,
   niterations = 1000L,
-  confLevel = 0.95,
+  conf_level = 0.95,
   padjMethod = "BH"
 )
 }
@@ -28,7 +28,7 @@ variability estimates are computed by resampling samples with replacement.}
 \item{niterations}{Number of bootstrap iterations, used only when
 \code{bootstrap} is TRUE.}
 
-\item{confLevel}{Confidence level for the bootstrap bounds.}
+\item{conf_level}{Confidence level for the bootstrap bounds.}
 
 \item{padjMethod}{Method for p-value adjustment, passed to
 \code{\link[stats]{p.adjust}}. Default is "BH".}
@@ -85,7 +85,7 @@ var_res <- computeZScoreVariability(devs)
 head(var_res[order(-var_res$variability), ])
 }
 \seealso{
-\code{\link{differentialDeviationTest}} for testing activity
+\code{\link{differential_deviation_test}} for testing activity
 differences between predefined groups.
 }
 \author{

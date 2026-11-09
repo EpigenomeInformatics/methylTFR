@@ -40,12 +40,12 @@ The following `r Biocpkg("methylTFR")` functionality is demonstrated:
 | Access bias-corrected deviation scores | `deviations()` |
 | Access row-wise deviation Z-scores | `deviationZScores()` |
 | Rank motifs by activity variability | `computeZScoreVariability()` |
-| Test motifs between two groups | `differentialDeviationTest()` |
+| Test motifs between two groups | `differential_deviation_test()` |
 | Plot observed and expected methylation | `plotExpectedFootprint()` |
 | Plot the bias-corrected footprint | `plotMotifFootprint()` |
 
-Deviation scores themselves are computed with `runMethylTFR()` from
-per-sample methylation files, or with `runMethylTFRFromRnBeads()` directly
+Deviation scores themselves are computed with `run_methyltfr()` from
+per-sample methylation files, or with `run_methylTFR_RnBeads()` directly
 from a preprocessed `RnBeads` object. Both are covered in the
 [Get started](methylTFR.html) vignette; this one begins from their
 output.
@@ -191,7 +191,7 @@ Optional bootstrap confidence bounds are available via
 
 ## Testing between two groups
 
-`differentialDeviationTest()` tests each motif for a difference in
+`differential_deviation_test()` tests each motif for a difference in
 deviation scores between two groups. With two groups and
 `parametric = TRUE` the test is a Welch t-test; p-values are adjusted
 with the Benjamini-Hochberg procedure.
@@ -212,7 +212,7 @@ compare_subsets <- function(object, naive, memory) {
     z_sub <- deviationZScores(object)[, keep, drop = FALSE]
     is_naive <- grp == naive
 
-    res <- differentialDeviationTest(
+    res <- differential_deviation_test(
         deviations = dev_sub,
         groups = grp,
         alternative = "two.sided",
@@ -451,10 +451,10 @@ captures.
 ```{r expfootprint, fig.height = 4.2, message = FALSE}
 plotExpectedFootprint(
     motif = "BATF",
-    tfBindsites = tf_bindsites,
+    tf_bindsites = tf_bindsites,
     msites = msites_sub,
-    sampleName = batf_cell_type,
-    gcDist = gcdist,
+    sample_name = batf_cell_type,
+    gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     returnPlotData = FALSE
@@ -474,10 +474,10 @@ profile; `method = "division"` uses their ratio.
 ```{r fpdiff, fig.height = 4.2, message = FALSE}
 plotMotifFootprint(
     motif = "BATF",
-    tfBindsites = tf_bindsites,
+    tf_bindsites = tf_bindsites,
     msites = msites_sub,
-    sampleName = batf_cell_type,
-    gcDist = gcdist,
+    sample_name = batf_cell_type,
+    gc_dist = gcdist,
     gcfreqs = gcfreqs,
     enhancer = NULL,
     method = "substraction",

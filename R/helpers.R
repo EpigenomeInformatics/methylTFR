@@ -5,7 +5,7 @@
 #' @return a p-value
 #' @importFrom stats aov
 #' @keywords internal
-anovaHelper <- function(x, groups) {
+anova_helper <- function(x, groups) {
     tmpdf <- data.frame(groups = groups, devs = x)
     res <- aov(devs ~ groups, tmpdf)
     return(summary(res)[[1]][["Pr(>F)"]][1])
@@ -20,7 +20,7 @@ anovaHelper <- function(x, groups) {
 #' @return a p-value
 #' @importFrom stats t.test
 #' @keywords internal
-tHelper <- function(x, groups, alternative) {
+t_helper <- function(x, groups, alternative) {
     splitx <- split(x, groups)
     return(t.test(splitx[[1]], splitx[[2]],
         alternative = alternative,
@@ -39,7 +39,7 @@ tHelper <- function(x, groups, alternative) {
 #' @return a p-value
 #' @importFrom stats wilcox.test
 #' @keywords internal
-wilcoxonHelper <- function(x, groups, alternative) {
+wilcoxon_helper <- function(x, groups, alternative) {
     splitx <- split(x, groups)
     return(wilcox.test(splitx[[1]], splitx[[2]],
         alternative = alternative,
@@ -54,7 +54,7 @@ wilcoxonHelper <- function(x, groups, alternative) {
 #' @return a p-value
 #' @importFrom stats kruskal.test
 #' @keywords internal
-kwHelper <- function(x, groups) {
+kw_helper <- function(x, groups) {
     tmpdf <- data.frame(groups = groups, devs = x)
     return(kruskal.test(devs ~ groups, tmpdf)$p.value)
 }
