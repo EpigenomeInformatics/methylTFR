@@ -7,17 +7,12 @@
 anova_helper(x, groups)
 }
 \arguments{
-\item{x}{\itemize{
-\item a numeric vector of deviations
-}}
+\item{x}{a numeric vector of deviations}
 
-\item{groups}{\itemize{
-\item a character vector of group
-names or colnames(deviations)
-}}
+\item{groups}{a character vector of group names}
 }
 \value{
-a numeric vector of p-values
+a p-value
 }
 \description{
 anova test for multiple groups

@@ -8,9 +8,9 @@
 check_rnb_inputs <- function(rnb_set) {
     if (!requireNamespace("RnBeads", quietly = TRUE)) {
         stop(
-            "The RnBeads package is required for run_methylTFR_RnBeads(). ",
+            "The RnBeads package is required for runMethylTFRFromRnBeads(). ",
             "Install it with BiocManager::install('RnBeads'), or export ",
-            "your samples and use run_methyltfr() instead."
+            "your samples and use runMethylTFR() instead."
         )
     }
     if (is.null(rnb_set) || !is(rnb_set, "RnBSet")) {
@@ -44,7 +44,7 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 }
 
 
-#' @title run_methylTFR_RnBeads
+#' @title runMethylTFRFromRnBeads
 #' @description Run the methylTFR workflow directly on a preprocessed
 #' \pkg{RnBeads} object, without exporting per-sample BED files first.
 #'
@@ -54,20 +54,20 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #' (\code{RnBeadSet}) by detection p-value. The number of sites retained
 #' per sample is reported through \pkg{logger}.
 #'
-#' @param rnb_set A preprocessed \code{RnBSet} object.
-#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
-#' @param gcfreqs a \code{list} of GC bin frequency tables.
-#' @param gc_dist a \code{GRanges} of the genome-wide GC distribution.
-#' @param chunkSize Chunk size for parallel processing of motifs.
-#' @param threads Thread count for parallel processing.
-#' @param enhancer an optional \code{GRanges} of regions to restrict to.
-#' @param ignoreStrand if TRUE, strand information is ignored.
-#' @param cov_threshold numeric, minimum coverage of a retained site.
-#' @param dpval_threshold numeric, maximum detection p-value of a
-#' retained probe.
-#' @param sample_ann Optional \code{data.frame} of sample annotation.
-#' @return a \code{methylTFRdeviations} object with bias-corrected
-#' deviations and Z-scores.
+#' @inheritParams runMethylTFR
+#' @param rnb_set A preprocessed \code{RnBSet} object, for example loaded
+#' with \code{RnBeads::load.rnb.set()}.
+#' @param cov_threshold Numeric, minimum coverage of a retained site. Used
+#' only for sequencing sets. Default 1.
+#' @param dpval_threshold Numeric, maximum detection p-value of a retained
+#' probe. Used only for array sets. Default 0.05.
+#' @param sample_ann Optional \code{data.frame} with one row per sample, in
+#' the same order as the samples in \code{rnb_set}. All columns are kept as
+#' \code{colData} of the result; no column is required. Default
+#' \code{NULL} uses \code{RnBeads::pheno(rnb_set)}.
+#' @return A \code{\linkS4class{methylTFRdeviations}} object with the assays
+#' \code{deviations}, \code{z} and \code{expected}, motifs in rows and
+#' samples in columns.
 #' @examples
 #' # A minimal end-to-end run on the BATF example data bundled with the
 #' # package. The bundled calls are wrapped in an RnBiseqSet so that the
@@ -102,7 +102,7 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #'         summarize.regions = FALSE
 #'     )
 #'
-#'     devs <- run_methylTFR_RnBeads(
+#'     devs <- runMethylTFRFromRnBeads(
 #'         rnb_set = rnb_set,
 #'         tf_bindsites = tf_bindsites,
 #'         gcfreqs = gcfreqs,
@@ -111,15 +111,16 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #'     RnBeads::rnb.options(identifiers.column = old_ids)
 #'     deviations(devs)
 #' }
-#' @seealso \code{\link{run_methyltfr}} for running methylTFR from
+#' @seealso \code{\link{runMethylTFR}} for running methylTFR from
 #' per-sample BED files.
 #' @importFrom logger log_info
 #' @importFrom methods is
 #' @export
-run_methylTFR_RnBeads <- function(
+runMethylTFRFromRnBeads <- function(
     rnb_set, tf_bindsites = NULL, gcfreqs = NULL, gc_dist = NULL,
     chunkSize = 20, threads = 1, enhancer = NULL, ignoreStrand = TRUE,
-    cov_threshold = 1, dpval_threshold = 0.05, sample_ann = NULL
+    cov_threshold = 1, dpval_threshold = 0.05, sample_ann = NULL,
+    tempDir = file.path(tempdir(), "methylTFR")
 ) {
     check_rnb_inputs(rnb_set)
     check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
@@ -147,7 +148,7 @@ run_methylTFR_RnBeads <- function(
         samples = sample_ann, tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs, gc_dist = gc_dist, chunkSize = opts$chunkSize,
         threads = opts$threads, enhancer = enhancer,
-        ignoreStrand = opts$ignoreStrand
+        ignoreStrand = opts$ignoreStrand, tempDir = tempDir
     )
 }
 
@@ -158,9 +159,7 @@ run_methylTFR_RnBeads <- function(
 #' @return A character vector of sample identifiers.
 #' @keywords internal
 rnb_sample_ids <- function(rnb_set) {
-    # Same as RnBeads' samples(): the column named by the
-    # "identifiers.column" option. samples() is not exported by all
-    # RnBeads versions, so it is not called directly.
+    # Same as RnBeads::samples(), which not all versions export
     ids <- tryCatch({
         id_col <- RnBeads::rnb.getOption("identifiers.column")
         ph <- RnBeads::pheno(rnb_set)

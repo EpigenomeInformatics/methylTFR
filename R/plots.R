@@ -1,47 +1,22 @@
 #' @title check_footprint_inputs
 #' @description Validate the inputs shared by the two footprint plotting
 #' functions.
+#' @inheritParams computeDeviation
+#' @inheritParams runMethylTFR
 #' @param motif Motif name as a character string.
-#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
-#' @param msites Methylation sites as a \code{GRanges} object.
-#' @param gc_dist a \code{GRanges} of the genome-wide GC distribution.
-#' @param gcfreqs a \code{list} of GC bin frequency tables.
-#' @param enhancer a \code{GRanges} restricting the analysis (optional).
 #' @return Invisible \code{NULL}. Called for the errors it raises.
-#' @importFrom methods is
 #' @keywords internal
 check_footprint_inputs <- function(
     motif, tf_bindsites, msites, gc_dist, gcfreqs, enhancer = NULL
 ) {
-    if (is.null(msites)) {
-        stop(
-            "msites must be a data frame, ",
-            "please provide the methylation sites"
-        )
-    }
+    check_msites(msites)
     if (is.null(motif) || !is.character(motif)) {
         stop("Please provide a valid motif name")
     }
-    if (is.null(tf_bindsites) ||
-        !any(c(!is(tf_bindsites, "GRangesList") ||
-            !is.list(tf_bindsites)))) {
-        stop("Please provide a valid tf binding sites as GRangesList")
-    }
-    if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
-        stop("Please provide a valid enhancer regions")
-    }
-    if (is.null(gc_dist) || !is(gc_dist, "GRanges")) {
-        stop("Please provide a valid gc_dist as GRanges")
-    }
-    if (is.null(gcfreqs) || !is(gcfreqs, "list")) {
-        stop("Please provide a valid gcfreqs as list")
-    }
-    if (!is(msites, "GRanges")) {
-        stop(
-            "Please provide a valid methylation ",
-            "sites with read_methylome function"
-        )
-    }
+    check_tf_bindsites(tf_bindsites)
+    check_enhancer(enhancer)
+    check_gc_dist(gc_dist)
+    check_gcfreqs(gcfreqs)
     invisible(NULL)
 }
 
@@ -66,10 +41,7 @@ expected_footprint_plot <- function(combined_data, motif, sample_name) {
         xlab("Distance from motif center") +
         ylab("Methylation level") +
         theme_classic() +
-        ggtitle(paste(
-            "TF footprint for", motif, "in",
-            sample_name
-        )) +
+        ggtitle(paste("TF footprint for", motif, "in", sample_name)) +
         scale_color_manual(values = c(
             "Expected" = "blue",
             "Observed" = "red"
@@ -78,52 +50,27 @@ expected_footprint_plot <- function(combined_data, motif, sample_name) {
 }
 
 #' @title plotExpectedFootprint
-#' @description Creates a footprint plot of expected
-#' vs observed methylation
-#' for a given motif and a single methylation site.
-#' @param motif Motif name as a character string
-#' @param tf_bindsites Transcript Factor binding sites
-#' from the annotation package
-#' @param msites Methylation sites as a data frame
-#' @param sample_name Optional sample name as a character
-#'  string, defaults
-#' to the file name if not provided
-#' @param gc_dist a \code{GRanges} object contains Genome
-#'  wide GC distribution
-#' @param gcfreqs GC frequency of the genome used to
-#' compute expected methylation
-#' @param enhancer Specific region such as distal motif,
-#'  proximal motif
-#' @param returnPlotData Logical indicating whether to
-#'  return the plot data
-#' @return A ggplot object of TF footprint plot for a
-#'  single sample
+#' @description Plot the observed methylation profile around the binding
+#' sites of one motif together with the profile expected from GC content.
+#' @inheritParams computeDeviation
+#' @inheritParams runMethylTFR
+#' @param motif Name of the motif, one of \code{names(tf_bindsites)}.
+#' @param sample_name Optional sample label used in the plot title.
+#' Default \code{"sample"}.
+#' @param returnPlotData Logical. If \code{TRUE}, return the plot data as
+#' well as the plot.
+#' @return A \code{ggplot} object, or, if \code{returnPlotData} is
+#' \code{TRUE}, a list with the elements \code{plot} and \code{plotDF}.
+#' @seealso \code{\link{plotMotifFootprint}} for the bias-corrected
+#' profile, \code{\link{computeDeviation}} for the score it summarises.
 #' @export
-#' @importFrom methods is
-#' @importFrom ggplot2 aes xlab ylab scale_color_manual theme xlim
+#' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 #' @examples
-#' library(ggplot2)
-#' library(methylTFR)
+#' load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+#' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #'
-#' # Load the data
-#' load(system.file("extdata",
-#'     "BATF_tf_bindsites.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "example_data.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "BATF_gcfreqs.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "gcdist_subset.rda",
-#'     package = "methylTFR"
-#' ))
-#'
-#' # Plot the expected footprint
 #' p <- plotExpectedFootprint(
 #'     motif = "BATF",
 #'     tf_bindsites = tf_bindsites,
@@ -134,14 +81,11 @@ expected_footprint_plot <- function(combined_data, motif, sample_name) {
 #'     enhancer = NULL,
 #'     returnPlotData = FALSE
 #' )
-#'
-#' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotExpectedFootprint <- function(
     motif, tf_bindsites, msites,
     sample_name = NULL, gc_dist, gcfreqs,
     enhancer = NULL, returnPlotData = FALSE
 ) {
-    # If sample label is not provided, use file name as label
     if (is.null(sample_name)) {
         sample_name <- "sample"
     }
@@ -149,19 +93,11 @@ plotExpectedFootprint <- function(
         motif, tf_bindsites, msites, gc_dist, gcfreqs, enhancer
     )
 
-    # Compute footprint for the motif
-    plot_data <- computeFootprint(
-        motif,
-        tf_bindsites, msites, enhancer
-    )
-
-    # Compute expected footprint for the motif
+    plot_data <- computeFootprint(motif, tf_bindsites, msites, enhancer)
     exp_data <- computeExpectedFootprint(
-        motif,
-        gcfreqs, gc_dist, enhancer, msites
+        motif, gcfreqs, gc_dist, enhancer, msites
     )
 
-    # Add a new column to indicate whether the data is expected or observed
     exp_data[, type := "Expected"]
     plot_data[, type := "Observed"]
     combined_data <- rbindlist(list(
@@ -172,9 +108,8 @@ plotExpectedFootprint <- function(
     p1 <- expected_footprint_plot(combined_data, motif, sample_name)
     if (returnPlotData) {
         return(list(plot = p1, plotDF = combined_data))
-    } else {
-        return(p1)
     }
+    return(p1)
 }
 
 #' @title footprint_difference
@@ -189,30 +124,18 @@ plotExpectedFootprint <- function(
 #' @keywords internal
 footprint_difference <- function(plot_data, method, sample_name) {
     if (method == "substraction") {
-        # Calculate observed - expected methylation
         difference_data <- plot_data[, .(
             avg_methyl =
                 avg_methyl[type == "Observed"] - avg_methyl[type == "Expected"]
-        ),
-        by = x
-        ]
-        difference_data[, type := paste(
-            "Obs. sub. Exp.",
-            sample_name
-        )]
+        ), by = x]
+        difference_data[, type := paste("Obs. sub. Exp.", sample_name)]
         lab <- "(Observed - Expected)"
     } else {
-        # Calculate observed / expected methylation
         difference_data <- plot_data[, .(
             avg_methyl =
                 avg_methyl[type == "Observed"] / avg_methyl[type == "Expected"]
-        ),
-        by = x
-        ]
-        difference_data[, type := paste(
-            "Obs. div. Exp.",
-            sample_name
-        )]
+        ), by = x]
+        difference_data[, type := paste("Obs. div. Exp.", sample_name)]
         lab <- "(Observed / Expected)"
     }
     return(list(data = difference_data, lab = lab))
@@ -245,52 +168,26 @@ normalise_footprint_flank <- function(difference_data, method, flankNorm) {
 }
 
 #' @title plotMotifFootprint
-#' @description Creates a footprint plot of bias
-#' corrected methylation for a given motif and sample
-#' @param motif Motif name as a character string
-#' @param tf_bindsites Transcript Factor binding
-#' sites from the annotation package
-#' @param msites Methylation sites as a data frame
-#' @param sample_name Optional sample name as a
-#' character string, defaults to the file name if not provided
-#' @param gc_dist a \code{GRanges} object contains
-#'  Genome wide GC distribution
-#' @param gcfreqs GC frequency of the genome used
-#' to compute expected methylation
-#' @param enhancer Specific region such as distal motif,
-#'  proximal motif
-#' @param method Method to calculate the difference,
-#' either "substraction" or "division"
-#' @param flankNorm Numeric value indicating the flank normalization
-#' distance, default is 50
-#' @return A ggplot object of TF footprint difference plot
-#'  for a single sample
-#' @importFrom methods is
-#' @importFrom ggplot2 aes xlab ylab scale_color_manual theme xlim
+#' @description Plot the bias-corrected methylation profile around the
+#' binding sites of one motif in one sample.
+#' @inheritParams plotExpectedFootprint
+#' @param method How observed and expected profiles are combined, either
+#' \code{"substraction"} (observed minus expected) or \code{"division"}
+#' (observed over expected, the default).
+#' @param flankNorm Width in base pairs of the outer flanking window used
+#' to normalise the curve. Default 50; \code{0} turns normalisation off.
+#' @return A \code{ggplot} object.
+#' @seealso \code{\link{plotExpectedFootprint}} for the two profiles
+#' before correction.
+#' @importFrom ggplot2 aes xlab ylab theme xlim
+#' @importFrom ggplot2 ggplot geom_line ggtitle theme_classic
 #' @export
 #' @examples
-#' library(ggplot2)
-#' library(methylTFR)
+#' load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+#' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #'
-#' # Load the data
-#' load(system.file("extdata",
-#'     "BATF_tf_bindsites.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "example_data.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "BATF_gcfreqs.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "gcdist_subset.rda",
-#'     package = "methylTFR"
-#' ))
-#'
-#' # Plot the expected footprint
 #' p <- plotMotifFootprint(
 #'     motif = "BATF",
 #'     tf_bindsites = tf_bindsites,
@@ -301,21 +198,19 @@ normalise_footprint_flank <- function(difference_data, method, flankNorm) {
 #'     enhancer = NULL,
 #'     method = "division"
 #' )
-#'
-#' @importFrom ggplot2 ggplot geom_point geom_line ggtitle theme_classic
 plotMotifFootprint <- function(
-    motif,
-    tf_bindsites, msites,
+    motif, tf_bindsites, msites,
     sample_name = NULL, gc_dist, gcfreqs,
     enhancer = NULL, method = "division",
     flankNorm = 50
 ) {
-    if (is.null(method) ||
-        !method %in% c("substraction", "division")) {
+    if (is.null(method) || !method %in% c("substraction", "division")) {
         method <- "division"
-        warning("method is not provided,using default method substraction.")
+        warning("Invalid method, using the default method division.")
     }
-    # Get the expected methylation for the motif
+    if (is.null(sample_name)) {
+        sample_name <- "sample"
+    }
     plot_data <- plotExpectedFootprint(
         motif, tf_bindsites, msites,
         sample_name = sample_name,
@@ -324,28 +219,20 @@ plotMotifFootprint <- function(
     )$plotDF
 
     diff <- footprint_difference(plot_data, method, sample_name)
-    difference_data <- diff$data
-    lab <- diff$lab
-    difference_data <- normalise_footprint_flank(
-        difference_data, method, flankNorm
-    )
+    difference_data <- normalise_footprint_flank(diff$data, method, flankNorm)
 
-    p_combined <- ggplot(difference_data, aes(
+    ggplot(difference_data, aes(
         x = x,
         y = avg_methyl,
         color = type
     )) +
-        geom_line() + # Add lines for each type
+        geom_line() +
         xlab("Distance from motif center") +
-        ylab(paste0("Methylation difference ", lab)) +
+        ylab(paste0("Methylation difference ", diff$lab)) +
         theme_classic() +
         ggtitle(paste(
-            "TF footprint difference for",
-            motif, "in ",
-            sample_name
+            "TF footprint difference for", motif, "in", sample_name
         )) +
         theme(legend.position = "bottom") +
-        xlim(-200, 200) # Set the x-axis limits
-
-    return(p_combined)
+        xlim(-200, 200)
 }

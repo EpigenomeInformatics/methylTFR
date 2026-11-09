@@ -7,25 +7,17 @@
 t_helper(x, groups, alternative)
 }
 \arguments{
-\item{x}{\itemize{
-\item a numeric vector of deviations
-}}
+\item{x}{a numeric vector of deviations}
 
-\item{groups}{\itemize{
-\item a character vector of group
-names or colnames(deviations)
-}}
+\item{groups}{a character vector of group names}
 
-\item{alternative}{\itemize{
-\item a character string specifying
-the alternative hypothesis,
-must be one of "two.sided" (default), "greater" or "less".
-}}
+\item{alternative}{the alternative hypothesis, one of "two.sided",
+"greater" or "less".}
 }
 \value{
-a numeric vector of p-values
+a p-value
 }
 \description{
-t-test for two groups
+Welch t-test for two groups
 }
 \keyword{internal}

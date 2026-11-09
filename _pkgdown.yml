@@ -14,6 +14,31 @@ navbar:
         - text: "Case study: memory vs. naive T cells"
           href: articles/memTcells.html
 
+reference:
+  - title: Import
+    contents:
+      - readMethylome
+  - title: Compute deviations
+    contents:
+      - runMethylTFR
+      - runMethylTFRFromRnBeads
+      - computeDeviation
+      - addGCBinToMethylome
+  - title: Downstream analysis
+    contents:
+      - differentialDeviationTest
+      - computeZScoreVariability
+  - title: Footprints
+    contents:
+      - plotExpectedFootprint
+      - plotMotifFootprint
+  - title: Result class
+    contents:
+      - methylTFRdeviations-class
+      - deviations
+      - deviationZScores
+      - matches("-method$")
+
 articles:
   - title: Vignettes
     navbar: ~

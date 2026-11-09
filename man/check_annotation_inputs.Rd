@@ -7,14 +7,28 @@
 check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer = NULL)
 }
 \arguments{
-\item{tf_bindsites}{a \code{GRangesList} object of TF binding site
-positions.}
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{gcfreqs}{a \code{list} of GC bin frequency tables.}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
 
-\item{gc_dist}{a \code{GRanges} object of the genome-wide GC distribution.}
+\item{gc_dist}{A \code{GRanges} object of 30-bp genomic windows with an
+integer metadata column \code{GC_bin} (1 to 5). Get it with
+\code{getGenomeGC()} from the annotation package.}
 
-\item{enhancer}{an optional \code{GRanges} object of regions to restrict to.}
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
 }
 \value{
 invisible TRUE, called for the side effect of signalling errors.

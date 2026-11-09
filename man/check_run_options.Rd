@@ -12,13 +12,17 @@ check_run_options(
 )
 }
 \arguments{
-\item{chunkSize}{Chunk size for parallel processing of motifs.}
+\item{chunkSize}{Number of motifs processed together in one block.
+Default 20.}
 
-\item{threads}{Thread count for parallel processing.}
+\item{threads}{Number of workers used to process the motifs of a chunk in
+parallel. Default 1 (serial).}
 
-\item{ignoreStrand}{if TRUE, strand information is ignored.}
+\item{ignoreStrand}{Logical. If \code{TRUE} (default), strand is ignored
+when overlapping methylation sites with annotations.}
 
-\item{cov_threshold}{numeric coverage threshold.}
+\item{cov_threshold}{Numeric. Sites with fewer reads than this are
+dropped. Default 1.}
 }
 \value{
 A named list with the validated values.

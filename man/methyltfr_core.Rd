@@ -14,51 +14,71 @@ methyltfr_core(
   chunkSize = 20,
   threads = 1,
   enhancer = NULL,
-  ignoreStrand = TRUE
+  ignoreStrand = TRUE,
+  tempDir = file.path(tempdir(), "methylTFR")
 )
 }
 \arguments{
 \item{sample_ids}{A character vector of sample identifiers. Used for the
 column names of the resulting object and to size the sinks.}
 
-\item{msites_fun}{A function of a single integer \code{i} returning a
-\code{GRanges} object of methylation calls for sample \code{i}, with a
-numeric \code{score} metadata column holding methylation levels in
-\code{[0, 1]}.}
+\item{msites_fun}{A function of a single integer \code{i} returning the
+methylation sites of sample \code{i} as a \code{GRanges} with the
+metadata columns \code{score} and \code{coverage}.}
 
 \item{samples}{A \code{data.frame} of sample annotation with one row per
 entry of \code{sample_ids}, used as \code{colData}.}
 
-\item{tf_bindsites}{a \code{GRangesList} object containing TF binding site
-positions.}
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{gcfreqs}{a \code{list} of GC bin frequency tables.}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
 
-\item{gc_dist}{a \code{GRanges} object containing the genome-wide GC
-distribution.}
+\item{gc_dist}{A \code{GRanges} object of 30-bp genomic windows with an
+integer metadata column \code{GC_bin} (1 to 5). Get it with
+\code{getGenomeGC()} from the annotation package.}
 
-\item{chunkSize}{Chunk size for parallel processing of motifs.}
+\item{chunkSize}{Number of motifs processed together in one block.
+Default 20.}
 
-\item{threads}{Thread count for parallel processing.}
+\item{threads}{Number of workers used to process the motifs of a chunk in
+parallel. Default 1 (serial).}
 
-\item{enhancer}{a \code{GRanges} object restricting the analysis to a set of
-regions such as distal regulatory elements (optional).}
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
 
-\item{ignoreStrand}{if TRUE, strand information is ignored.}
+\item{ignoreStrand}{Logical. If \code{TRUE} (default), strand is ignored
+when overlapping methylation sites with annotations.}
+
+\item{tempDir}{Directory for the temporary HDF5 files written during a
+run. Default is a folder under \code{tempdir()}. The files are deleted
+when the run finishes.}
 }
 \value{
-a \code{methylTFRdeviations} object with bias-corrected deviations,
-row-wise Z-scores and expected deviations.
+a \code{methylTFRdeviations} object with bias-corrected
+deviations, row-wise Z-scores and expected deviations.
 }
 \description{
-Internal engine shared by \code{\link{run_methyltfr}} and
-\code{\link{run_methylTFR_RnBeads}}. It validates the motif set, allocates
-the on-disk sinks, iterates over samples, computes per-motif deviations in
-chunks and assembles the resulting \code{methylTFRdeviations} object.
+Internal engine shared by \code{\link{runMethylTFR}} and
+\code{\link{runMethylTFRFromRnBeads}}. It validates the motif set,
+allocates the on-disk sinks, iterates over samples, computes per-motif
+deviations in chunks and assembles the resulting
+\code{methylTFRdeviations} object.
 
 The only difference between the two public entry points is where the
-per-sample methylation calls come from. That difference is isolated in the
-\code{msites_fun} argument, so both entry points share identical numerical
-behaviour.
+per-sample methylation calls come from. That difference is isolated in
+the \code{msites_fun} argument, so both entry points share identical
+numerical behaviour.
 }
 \keyword{internal}

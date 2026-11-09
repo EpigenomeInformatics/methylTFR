@@ -6,48 +6,19 @@
 # Regenerates inst/extdata/immuneDeviations.rda, the example dataset
 # used by the T cell memory vignette.
 #
-# Source: pseudobulk methylTFR deviation scores from the single-cell
-# immune methylome atlas, scored against the JASPAR2020 motif set
-# restricted to distal regulatory regions ("jaspar2020_distal"). One
-# pseudobulk per donor sample per cell type.
+# Source: pseudobulk deviation scores (jaspar2020_distal) from
+#   Gunduz IB et al. bioRxiv 2025.09.09.675101.
+#   doi:10.1101/2025.09.09.675101
 #
-# Data citation:
-#   Gunduz IB, Wei B, Chen DC, Wang W, Hariharan M, Norell T, et al.
-#   Dissecting epigenome dynamics in human immune cells upon viral and
-#   chemical exposure by multimodal single-cell profiling.
-#   bioRxiv 2025.09.09.675101. doi:10.1101/2025.09.09.675101
-#
-# Conventions follow src/integration/10_zdiff.R of the atlas
-# manuscript, so that anything computed from this dataset lines up with
-# the published figures:
-#
-#   * cell type is taken from the sample name, as the token before the
-#     first underscore, with a trailing ".bedGraph" removed
-#   * differential testing is two-sided and parametric, BH-adjusted
-#   * differences are oriented NAIVE MINUS MEMORY, so a positive value
-#     means higher deviation in the naive state
-#
-# The full set is seven cell types x 632 motifs x 38 samples, too large
-# to ship in a Bioconductor package. It is reduced on the SAMPLE axis
-# only: a fixed number of donor samples per cell type. Every motif is
-# retained.
-#
-# Subsetting motifs would be the more obvious way to shrink the object,
-# but selecting motifs by variability and then demonstrating
-# computeZScoreVariability() on the result is circular, and pre-filtering
-# to variable motifs inflates the within-sample null that the function
-# calibrates against. Cutting samples leaves the motif distribution
-# untouched.
+# Samples are subset per cell type; all motifs are kept.
+# Differences are naive minus memory, as in 10_zdiff.R.
 #
 # Run from the package root:
-#     Rscript inst/scripts/tcell_data.R
-# or, to point it somewhere else:
 #     MTFR_PSEUDOBULK_DIR=/path/to/pseudobulks \
 #       Rscript inst/scripts/tcell_data.R
 #
 # Environment variables:
-#     MTFR_PSEUDOBULK_DIR  directory holding *_deviations.RDS
-#                          (defaults to the cluster path below)
+#     MTFR_PSEUDOBULK_DIR  directory holding *_deviations.RDS (required)
 #     MTFR_N_PER_TYPE      samples kept per cell type (default 15)
 #     MTFR_EXTDATA_DIR     output directory (default inst/extdata)
 #####################################################################
@@ -62,13 +33,8 @@ suppressPackageStartupMessages({
 ## Configuration
 ## ------------------------------------------------------------------
 
-# Defaults to the cluster location of the per-sample pseudobulks used in
-# 10_zdiff.R. Override with MTFR_PSEUDOBULK_DIR to run it anywhere else.
-default_pseudobulk_dir <- file.path(
-    "/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/",
-    "data", "sample_pseudobulks"
-)
-pseudobulk_dir <- Sys.getenv("MTFR_PSEUDOBULK_DIR", default_pseudobulk_dir)
+# Directory holding the per-sample pseudobulks used in 10_zdiff.R.
+pseudobulk_dir <- Sys.getenv("MTFR_PSEUDOBULK_DIR")
 if (!nzchar(pseudobulk_dir) || !dir.exists(pseudobulk_dir)) {
     stop(
         "Pseudobulk directory not found: ", pseudobulk_dir,
@@ -79,16 +45,13 @@ if (!nzchar(pseudobulk_dir) || !dir.exists(pseudobulk_dir)) {
 n_per_type <- as.integer(Sys.getenv("MTFR_N_PER_TYPE", "15"))
 extdata_dir <- Sys.getenv("MTFR_EXTDATA_DIR", file.path("inst", "extdata"))
 
-# The four T cell subsets carry the naive-to-memory contrast; the other
-# three provide the lineage contrast that makes an unsupervised
-# variability screen informative.
+# T cell subsets plus three other lineages
 keep_types <- c(
     "Tc-Naive", "Tc-Mem", "Th-Naive", "Th-Mem",
     "B-cell", "NK-cell", "Monocyte"
 )
 
-# Naive first, memory second. The order matters: differences are taken
-# as naive minus memory.
+# Naive first: differences are naive minus memory
 subset_pairs <- list(
     Tc = c(naive = "Tc-Naive", memory = "Tc-Mem"),
     Th = c(naive = "Th-Naive", memory = "Th-Mem")
@@ -135,8 +98,7 @@ dev_mat <- do.call(base::cbind, lapply(objs, function(x) {
     as.matrix(methylTFR::deviations(x))
 }))
 
-# Derive the cell type the same way 10_zdiff.R does, then check it
-# against the colData that the pseudobulk objects already carry.
+# Check parsed cell types against colData
 cell_type <- get_groupname(colnames(dev_mat))
 
 from_coldata <- unlist(lapply(objs, function(x) {
@@ -163,9 +125,6 @@ message(sprintf(
 ## ------------------------------------------------------------------
 ## 2. Drop motifs that are undefined in any sample
 ## ------------------------------------------------------------------
-## A motif has no deviation score in a sample where too few of its
-## binding sites are covered, which is expected for sparse pseudobulks.
-## This is the only motif-level filter applied.
 
 finite_motif <- apply(dev_mat, 1, function(r) all(is.finite(r)))
 if (any(!finite_motif)) {
@@ -197,11 +156,7 @@ message(sprintf(
 ## ------------------------------------------------------------------
 ## 4. Row-wise Z-scores
 ## ------------------------------------------------------------------
-## Recomputed on the subset rather than carried over, because row-wise
-## Z-scores depend on which samples are present. This is the same
-## transform 10_zdiff.R applies via computeRowZScore, so
-## deviationZScores() on the shipped object can be used directly for a
-## Z-score difference without reaching for an internal function.
+## Recomputed on the subset, as they depend on the samples present
 
 row_sd <- apply(dev_mat, 1, stats::sd)
 z_mat <- (dev_mat - rowMeans(dev_mat)) / row_sd
@@ -210,9 +165,6 @@ z_mat[!is.finite(z_mat)] <- 0
 ## ------------------------------------------------------------------
 ## 5. Sanity checks
 ## ------------------------------------------------------------------
-## Confirms that the shipped object still supports both analyses the
-## vignette performs: an unsupervised variability screen across all cell
-## types, and the naive-to-memory contrast within each T compartment.
 
 variability <- computeZScoreVariability(dev_mat, method = "robust")
 variability <- variability[order(-variability$variability), ]
@@ -228,7 +180,7 @@ for (nm in names(subset_pairs)) {
     grp <- factor(as.character(sample_annot$cell_type[keep]),
         levels = c(pair[["naive"]], pair[["memory"]])
     )
-    res <- differential_deviation_test(
+    res <- differentialDeviationTest(
         deviations = dev_mat[, keep, drop = FALSE],
         groups = grp,
         alternative = "two.sided",

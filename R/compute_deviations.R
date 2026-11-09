@@ -1,86 +1,102 @@
 #' @title check_deviation_inputs
 #' @description Validate the inputs of \code{computeDeviation}.
+#' @inheritParams computeDeviation
 #' @param motif Motif name as a character string.
-#' @param msites Methylation sites as a \code{GRanges} object.
-#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
-#' @param enhancer a \code{GRanges} restricting the analysis (optional).
+#' @param extendBy Number of base pairs added to each binding site.
+#' @param windowBreaks Break points of the distance bins.
 #' @return Invisible \code{NULL}. Called for the errors it raises.
-#' @importFrom methods is
 #' @keywords internal
 check_deviation_inputs <- function(
-    motif, msites, tf_bindsites, enhancer = NULL
+    motif, msites, tf_bindsites, gcfreqs, binMsites, enhancer = NULL,
+    extendBy = 130, windowBreaks = c(-250, -200, -25, 25, 200, 250)
 ) {
-    if (is.null(motif) || !is.character(motif)) {
+    if (is.null(motif) || !is.character(motif) || length(motif) != 1) {
         stop("Please provide a valid motif name")
     }
-    if (is.null(msites) || !is(msites, "GRanges")) {
+    check_msites(msites)
+    check_tf_bindsites(tf_bindsites)
+    check_gcfreqs(gcfreqs)
+    check_enhancer(enhancer)
+    if (!motif %in% names(tf_bindsites)) {
+        stop("Motif ", motif, " is not in names(tf_bindsites)")
+    }
+    if (!motif %in% names(gcfreqs)) {
+        stop("Motif ", motif, " is not in names(gcfreqs)")
+    }
+    if (!is.matrix(binMsites) ||
+        !all(c("gcbin", "avg_mscore") %in% colnames(binMsites))) {
         stop(
-            "Please provide a valid methylation sites with ",
-            "read_methylome function"
+            "binMsites must be the matrix returned by ",
+            "addGCBinToMethylome()"
         )
     }
-    if (is.null(tf_bindsites) ||
-        !any(c(!is(tf_bindsites, "GRangesList") ||
-            !is.list(tf_bindsites)))) {
-        stop("Please provide a valid tf binding sites as GRangesList")
+    if (!is.numeric(extendBy) || length(extendBy) != 1 || extendBy < 0) {
+        stop("extendBy must be a single non-negative number")
     }
-    if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
-        stop("Please provide a valid enhancer regions")
+    if (!is.numeric(windowBreaks) || length(windowBreaks) != 6 ||
+        is.unsorted(windowBreaks, strictly = TRUE)) {
+        stop("windowBreaks must be six strictly increasing numbers")
     }
     invisible(NULL)
 }
 
 #' @title computeDeviation
-#' @description computeDeviation is a function to calculate
-#'  the deviation in transcription factor
-#' binding sites for a given motif
-#' @param motif A character vector containing motif name
-#' @param msites imported methylation sites
-#' @param tf_bindsites a \code{GRangesList} object contains
-#'  tf binding sites positions
-#' @param enhancer  a \code{GRanges} object specifying regions
-#' such as distal motif (optional)
-#' @param ignoreStrand if TRUE, it ignores strand info from
-#' annotation
-#' @param binMsites A matrix object with GC bin with corresponding
-#'  avg methylation
-#' @param gcfreqs a \code{list} of GC bin frequency tables
-#'  (matrices for multiple motif)
-#' @return a \code{numeric} deviation score for a given motif
+#' @description Compute the bias-corrected deviation score of one motif in
+#' one sample.
+#' @details
+#' Each binding site is widened by \code{extendBy} base pairs and every CpG
+#' inside it is placed by its distance to the site centre. The distances
+#' are cut into five bins at \code{windowBreaks}: an outer left flank, an
+#' inner left region, the centre, an inner right region and an outer right
+#' flank. The observed score is the mean methylation in the centre bin
+#' divided by the mean of the two outer flank bins. The same ratio is
+#' computed for the methylation expected from GC content (see
+#' \code{\link{addGCBinToMethylome}}), and the deviation is the observed
+#' minus the expected ratio. If the centre or either outer flank bin holds
+#' no CpG, the score is \code{NA}.
+#'
+#' Every CpG counts once, whatever its read coverage: the bin means are
+#' unweighted means of the per-CpG methylation fractions. Coverage only
+#' enters through the \code{cov_threshold} filter applied when the data are
+#' read.
+#' @inheritParams runMethylTFR
+#' @param msites A \code{GRanges} object with one range per CpG (width 1)
+#' and the metadata columns \code{score} (numeric methylation fraction
+#' between 0 and 1) and \code{coverage} (read count). Usually produced by
+#' \code{\link{readMethylome}}.
+#' @param binMsites The matrix returned by \code{\link{addGCBinToMethylome}},
+#' with the columns \code{gcbin} and \code{avg_mscore}.
+#' @param motif Name of the motif, one of \code{names(tf_bindsites)}.
+#' @param extendBy Number of base pairs added to the width of each binding
+#' site before overlapping it with the methylation sites, split evenly
+#' between both sides. Default 130.
+#' @param windowBreaks Six strictly increasing distances from the site
+#' centre, in base pairs, that define the five distance bins. Bins 1 and 5
+#' are the outer flanks and bin 3 is the centre. Default
+#' \code{c(-250, -200, -25, 25, 200, 250)}.
+#' @return A \code{data.table} with one row and the columns \code{dev}
+#' (bias-corrected deviation) and \code{exp_dev} (expected deviation).
+#' @seealso \code{\link{runMethylTFR}} to score all motifs and samples at
+#' once, \code{\link{plotMotifFootprint}} to see the profile behind the
+#' score.
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
-#' @importFrom data.table data.table setDT
-#' @importFrom stats na.omit
+#' @importFrom IRanges subsetByOverlaps
+#' @importFrom data.table data.table
 #' @importFrom S4Vectors mcols
 #' @import data.table
 #' @examples
-#' library(methylTFR)
+#' load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+#' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+#' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+#' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #'
-#' # Load the data
-#' load(system.file("extdata",
-#'     "BATF_tf_bindsites.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "example_data.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "BATF_gcfreqs.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "gcdist_subset.rda",
-#'     package = "methylTFR"
-#' ))
+#' bin_meth <- addGCBinToMethylome(msites, gcdist, TRUE)
 #'
-#' # Compute binMsites
-#' bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
-#'
-#' # Compute the deviation
-#' devs <- computeDeviation("BATF",
-#'     msites,
-#'     tf_bindsites,
-#'     gcfreqs,
+#' computeDeviation(
+#'     motif = "BATF",
+#'     msites = msites,
+#'     tf_bindsites = tf_bindsites,
+#'     gcfreqs = gcfreqs,
 #'     enhancer = NULL,
 #'     ignoreStrand = TRUE,
 #'     binMsites = bin_meth
@@ -88,17 +104,19 @@ check_deviation_inputs <- function(
 #' @export
 computeDeviation <- function(
     motif, msites, tf_bindsites, gcfreqs, enhancer = NULL,
-    ignoreStrand = TRUE, binMsites
+    ignoreStrand = TRUE, binMsites, extendBy = 130,
+    windowBreaks = c(-250, -200, -25, 25, 200, 250)
 ) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
         ignoreStrand <- TRUE
     }
-    check_deviation_inputs(motif, msites, tf_bindsites, enhancer)
-    tfbs <- tf_bindsites[[motif]]
-    tfbs <- resize(tfbs, width(tfbs)[1] + 130,
-        fix = "center"
+    check_deviation_inputs(
+        motif, msites, tf_bindsites, gcfreqs, binMsites, enhancer,
+        extendBy, windowBreaks
     )
+    tfbs <- tf_bindsites[[motif]]
+    tfbs <- resize(tfbs, width(tfbs)[1] + extendBy, fix = "center")
     gcfreq <- gcfreqs[[motif]]
     if (!is.null(enhancer)) {
         tfbs <- subsetByOverlaps(tfbs, enhancer,
@@ -125,28 +143,29 @@ computeDeviation <- function(
     )
 
     # GC bias correction
-    obs_dev <- dev_helper(sum_meth)
-    exp_dev <- dev_helper(exp_meth)
+    obs_dev <- dev_helper(sum_meth, windowBreaks)
+    exp_dev <- dev_helper(exp_meth, windowBreaks)
     dev <- obs_dev - exp_dev
     return(data.table(dev, exp_dev))
 }
 
 #' @title dev_helper
-#' @description Helper function for computeDeviation
-#' @param data A data.table object with columns 'x', 'avg_methyl'
-#' @return A numeric value
+#' @description Ratio of the mean methylation in the centre bin to the mean
+#' of the two outer flank bins.
+#' @param data A \code{data.table} with the columns \code{x} (distance to
+#' the site centre) and \code{avg_methyl}.
+#' @param breaks Six strictly increasing break points defining five bins.
+#' @return A numeric value, or \code{NA} if the centre bin or either outer
+#' flank bin is empty.
 #' @keywords internal
-dev_helper <- function(data) {
-    data[, cuts := cut(x, c(-250, -200, -25, 25, 200, 250))]
-    interval_mean <- data[, .(n = .N, mean = mean(avg_methyl)), by = cuts]
-    interval_mean <- na.omit(interval_mean[order(cuts)])
-    num_intervals <- nrow(interval_mean)
-    if (num_intervals > 0) {
-        avg_first_last <- ((interval_mean$mean[1] +
-            interval_mean$mean[num_intervals]) / 2)
-        var <- interval_mean$mean[(num_intervals + 1) %/% 2] / avg_first_last
-    } else {
-        var <- NA
+dev_helper <- function(data, breaks = c(-250, -200, -25, 25, 200, 250)) {
+    data[, cuts := cut(x, breaks, labels = FALSE)]
+    bin_means <- data[!is.na(cuts), .(avg = mean(avg_methyl)), by = cuts]
+    centre <- bin_means[cuts == 3L, avg]
+    left <- bin_means[cuts == 1L, avg]
+    right <- bin_means[cuts == 5L, avg]
+    if (!length(centre) || !length(left) || !length(right)) {
+        return(NA_real_)
     }
-    return(var)
+    centre / ((left + right) / 2)
 }

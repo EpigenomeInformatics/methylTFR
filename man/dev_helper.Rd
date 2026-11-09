@@ -4,15 +4,20 @@
 \alias{dev_helper}
 \title{dev_helper}
 \usage{
-dev_helper(data)
+dev_helper(data, breaks = c(-250, -200, -25, 25, 200, 250))
 }
 \arguments{
-\item{data}{A data.table object with columns 'x', 'avg_methyl'}
+\item{data}{A \code{data.table} with the columns \code{x} (distance to
+the site centre) and \code{avg_methyl}.}
+
+\item{breaks}{Six strictly increasing break points defining five bins.}
 }
 \value{
-A numeric value
+A numeric value, or \code{NA} if the centre bin or either outer
+flank bin is empty.
 }
 \description{
-Helper function for computeDeviation
+Ratio of the mean methylation in the centre bin to the mean
+of the two outer flank bins.
 }
 \keyword{internal}

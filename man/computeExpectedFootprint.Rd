@@ -7,27 +7,35 @@
 computeExpectedFootprint(motif, gcfreqs, gc_dist, enhancer = NULL, msites)
 }
 \arguments{
-\item{motif}{chracter vector containing motif
-name eg: GATA string}
+\item{motif}{Name of the motif, one of \code{names(tf_bindsites)}.}
 
-\item{gcfreqs}{GC frequency of the genome used
-to compute expected methylation}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
 
-\item{gc_dist}{a \code{GRanges} object contains
-Genome wide GC distribution}
+\item{gc_dist}{A \code{GRanges} object of 30-bp genomic windows with an
+integer metadata column \code{GC_bin} (1 to 5). Get it with
+\code{getGenomeGC()} from the annotation package.}
 
-\item{enhancer}{Specific regions such as distal
-motif, proximal motif}
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
 
-\item{msites}{Methylation data}
+\item{msites}{A \code{GRanges} object with one range per CpG (width 1)
+and the metadata columns \code{score} (numeric methylation fraction
+between 0 and 1) and \code{coverage} (read count). Usually produced by
+\code{\link{readMethylome}}.}
 }
 \value{
-a \code{data.table} object to containing
-TF footprint
+a \code{data.table} with the columns \code{x} and
+\code{avg_methyl}.
 }
 \description{
-Compute expected footprint returns
-a data.table required to create a transcription
-factor footprint with label.
+Methylation profile expected from GC content around the
+binding sites of one motif.
 }
 \keyword{internal}

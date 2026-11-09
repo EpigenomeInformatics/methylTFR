@@ -1,13 +1,13 @@
 #' @title check_file_run_inputs
 #' @description Validate the file-specific arguments of
-#' \code{run_methyltfr}.
+#' \code{runMethylTFR}.
 #' @param filetype File type of the methylation call files.
 #' @param sampleColName Column name holding the file names.
 #' @param full_path if TRUE, the annotation file holds full paths.
 #' @return Invisible \code{NULL}. Called for the errors it raises.
 #' @keywords internal
 check_file_run_inputs <- function(filetype, sampleColName, full_path) {
-    if (!tolower(filetype) %in% c(
+    if (is.null(filetype) || !tolower(filetype) %in% c(
         "bissnp", "epp", "allc", "bismarkcytosine",
         "bismarkcov", "encode"
     )) {
@@ -60,9 +60,7 @@ resolve_annotation_file <- function(annfile, sample_ann, sample_dir) {
 #' @return A character vector of existing file paths.
 #' @importFrom logger log_success
 #' @keywords internal
-locate_sample_files <- function(
-    samples, sample_dir, sampleColName, full_path
-) {
+locate_sample_files <- function(samples, sample_dir, sampleColName, full_path) {
     if (full_path) {
         files_list <- samples[, sampleColName]
     } else {
@@ -78,54 +76,76 @@ locate_sample_files <- function(
     return(files_list)
 }
 
-#' @title run_methyltfr
-#' @description This function is a wrapper function to
-#' calculate the deviation
-#' in transcription factor
-#' footprint base for all given motifs per raw samples
-#' @param sample_ann A tab seperated file contains
-#' sample annotations
-#' @param sample_dir The directory where all bed file
-#'  and annotation file stored
-#' @param threads Thread count for parallel processing
-#' @param enhancer a \code{GRanges} object specifying
-#' regions such as distal motif (optional)
-#' @param tf_bindsites a \code{GRangesList} object contains
-#'  tf binding sites positions
-#' @param gcfreqs a \code{list} of GC bin frequency tables
-#'  (matrices for multiple motif)
-#' @param gc_dist a \code{GRanges} object contains
-#' Genome wide GC distribution
-#' @param sampleColName column name of the sample bed
-#'  file in the annotation file
-#' @param chunkSize Chunk size for parallel processing
-#'  of motifs (default: 20)
-#' @param full_path if TRUE, the bed file path in the
-#' annotation file is full path
-#' @param annfile if provided, the sample annotation file
-#'  is not read from the sample_dir
-#' @param filetype file type of the bed file,
-#' currently supported:
-#'  bissnp,epp,allc,bismarkcytosine,bismarkcov,encode
-#' @param ignoreStrand if TRUE, it ignores strand info from annotation
-#' @param cov_threshold - numeric, coverage threshold to
-#'  filter out low coverage sites,
-#' default is 1
+#' @title runMethylTFR
+#' @description Compute bias-corrected deviation scores for every motif and
+#' every sample listed in a sample annotation file.
+#' @details Each sample is read with \code{\link{readMethylome}}, binned by
+#' GC content with \code{\link{addGCBinToMethylome}} and scored per motif
+#' with \code{\link{computeDeviation}}.
+#' @param tf_bindsites A \code{GRangesList} named by motif. Each element is a
+#' \code{GRanges} of the occurrences of that motif. The names must include
+#' every name in \code{names(gcfreqs)}. Get it with
+#' \code{getTFbindsites(motifSet = "jaspar2020")} from the
+#' \pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+#' or build a custom set with \pkg{methylTFRAnnotationBuilder}.
+#' @param gcfreqs A named \code{list} with one element per motif, named as
+#' in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+#' bins in rows and the positions across the binding-site window in
+#' columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+#' annotation package.
+#' @param gc_dist A \code{GRanges} object of 30-bp genomic windows with an
+#' integer metadata column \code{GC_bin} (1 to 5). Get it with
+#' \code{getGenomeGC()} from the annotation package.
+#' @param enhancer An optional \code{GRanges} object of regions, for example
+#' distal regulatory elements. Binding sites outside these regions are
+#' dropped. Any region set imported as \code{GRanges} works, for example
+#' the ENCODE candidate cis-regulatory elements (SCREEN) read with
+#' \code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.
+#' @param ignoreStrand Logical. If \code{TRUE} (default), strand is ignored
+#' when overlapping methylation sites with annotations.
+#' @param chunkSize Number of motifs processed together in one block.
+#' Default 20.
+#' @param threads Number of workers used to process the motifs of a chunk in
+#' parallel. Default 1 (serial).
+#' @param cov_threshold Numeric. Sites with fewer reads than this are
+#' dropped. Default 1.
+#' @param tempDir Directory for the temporary HDF5 files written during a
+#' run. Default is a folder under \code{tempdir()}. The files are deleted
+#' when the run finishes.
+#' @param sample_ann Name of a tab-separated (\code{.tsv}) or comma-separated
+#' (\code{.csv}) sample annotation file in \code{sample_dir}. It must have
+#' a header and contain the column named by \code{sampleColName}, which
+#' holds the methylation file names. All columns are kept as
+#' \code{colData} of the result. Not used when \code{annfile} is given.
+#' @param annfile Optional path to the sample annotation file. If given,
+#' it is used instead of \code{sample_ann} in \code{sample_dir}.
+#' @param sample_dir Directory holding the methylation call files (and,
+#' usually, the sample annotation file).
+#' @param sampleColName Name of the column in \code{sample_ann} that holds
+#' the methylation file names. Default \code{"bedFile"}.
+#' @param full_path Logical. If \code{TRUE}, the file names in
+#' \code{sampleColName} are full paths and \code{sample_dir} is not
+#' prepended. Default \code{FALSE}.
+#' @param filetype Format of the methylation call files, one of
+#' \code{"bissnp"}, \code{"epp"}, \code{"allc"}, \code{"bismarkCytosine"},
+#' \code{"bismarkCov"} or \code{"encode"} (case-insensitive). See
+#' \code{\link{readMethylome}}.
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom IRanges subsetByOverlaps
 #' @importFrom data.table data.table
-#' @importFrom logger log_info log_error
+#' @importFrom logger log_info
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom DelayedArray DelayedArray close
 #' @importFrom utils read.table
 #' @importFrom methods as new
-#' @importFrom stats sd
 #' @import logger
-#' @return a \code{methylTFRdeviations} object with
-#' bias-corrected deviation and Z-scores
-#' @seealso \code{\link{run_methylTFR_RnBeads}} for running methylTFR
-#' directly on a preprocessed RnBeads object.
+#' @return A \code{\linkS4class{methylTFRdeviations}} object with the assays
+#' \code{deviations}, \code{z} and \code{expected}, motifs in rows and
+#' samples in columns.
+#' @seealso \code{\link{runMethylTFRFromRnBeads}} for running methylTFR
+#' directly on a preprocessed RnBeads object, \code{\link{deviations}} and
+#' \code{\link{deviationZScores}} to extract the scores.
 #' @examples
 #' # A minimal end-to-end run on the BATF example data bundled with the
 #' # package. The annotation objects cover a single motif, so the result
@@ -135,7 +155,7 @@ locate_sample_files <- function(
 #' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 #' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #'
-#' # run_methyltfr() reads per-sample calls from disk, so the bundled sites
+#' # runMethylTFR() reads per-sample calls from disk, so the bundled sites
 #' # are written out as a bismarkCov file first.
 #' sample_dir <- tempfile("methylTFR_example")
 #' dir.create(sample_dir)
@@ -158,31 +178,30 @@ locate_sample_files <- function(
 #'     sep = "\t", row.names = FALSE, quote = FALSE
 #' )
 #'
-#' devs <- run_methyltfr(
+#' devs <- runMethylTFR(
 #'     sample_ann = "samples.tsv",
 #'     sample_dir = sample_dir,
 #'     tf_bindsites = tf_bindsites,
 #'     gcfreqs = gcfreqs,
 #'     gc_dist = gcdist,
-#'     filetype = "bismarkcov"
+#'     filetype = "bismarkCov"
 #' )
 #' deviations(devs)
 #'
 #' unlink(sample_dir, recursive = TRUE)
 #' @export
-run_methyltfr <- function(
+runMethylTFR <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL,
     sampleColName = "bedFile", chunkSize = 20,
     full_path = FALSE, annfile = NULL, threads = 1,
     enhancer = NULL, filetype = NULL,
-    ignoreStrand = TRUE, cov_threshold = 1
+    ignoreStrand = TRUE, cov_threshold = 1,
+    tempDir = file.path(tempdir(), "methylTFR")
 ) {
     check_file_run_inputs(filetype, sampleColName, full_path)
     check_annotation_inputs(tf_bindsites, gcfreqs, gc_dist, enhancer)
-    opts <- check_run_options(
-        chunkSize, threads, ignoreStrand, cov_threshold
-    )
+    opts <- check_run_options(chunkSize, threads, ignoreStrand, cov_threshold)
 
     annfile <- resolve_annotation_file(annfile, sample_ann, sample_dir)
     samples <- read_sample_annotation(annfile, sampleColName)
@@ -192,7 +211,7 @@ run_methyltfr <- function(
 
     # Per-sample reader handed to the shared engine
     msites_fun <- function(i) {
-        read_methylome(files_list[i],
+        readMethylome(files_list[i],
             type = filetype,
             cov_threshold = opts$cov_threshold
         )
@@ -208,6 +227,7 @@ run_methyltfr <- function(
         chunkSize = opts$chunkSize,
         threads = opts$threads,
         enhancer = enhancer,
-        ignoreStrand = opts$ignoreStrand
+        ignoreStrand = opts$ignoreStrand,
+        tempDir = tempDir
     )
 }

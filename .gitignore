@@ -29,3 +29,6 @@ methylTFR_tmp/
 *.Rproj
 .DS_Store
 ._*
+
+# pkgdown site, published to gh-pages by the workflow
+docs/

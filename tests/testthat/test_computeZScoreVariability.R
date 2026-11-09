@@ -33,8 +33,6 @@ test_that("computeZScoreVariability accepts a plain matrix", {
 })
 
 test_that("the calibrated null is not degenerate, unlike row-wise Z-scores", {
-    # Row-wise Z-scores have a standard deviation of exactly 1 per motif by
-    # construction, which is why they must not be fed to this function.
     set.seed(42)
     mat <- matrix(rnorm(200 * 12), nrow = 200, ncol = 12)
     rownames(mat) <- paste0("motif_", seq_len(200))
@@ -47,8 +45,6 @@ test_that("the calibrated null is not degenerate, unlike row-wise Z-scores", {
 })
 
 test_that("variability is centred near 1 under the null", {
-    # Pure noise: calibrated variability should sit around 1 and almost
-    # nothing should be called significant.
     set.seed(1)
     mat <- matrix(rnorm(300 * 20), nrow = 300, ncol = 20)
     rownames(mat) <- paste0("motif_", seq_len(300))
@@ -102,4 +98,44 @@ test_that("computeZScoreVariability validates its input", {
         )),
         "conf_level must be a number between 0 and 1"
     )
+    expect_error(
+        suppressMessages(computeZScoreVariability(
+            matrix(rnorm(30), nrow = 10, ncol = 3),
+            bootstrap = NA_character_
+        )),
+        "bootstrap must be a single logical value"
+    )
+    expect_error(
+        computeZScoreVariability(matrix(letters[1:30], nrow = 10, ncol = 3)),
+        "must be numeric"
+    )
+    expect_error(
+        suppressMessages(computeZScoreVariability(
+            matrix(rnorm(30), nrow = 10, ncol = 3),
+            bootstrap = TRUE, niterations = 1
+        )),
+        "niterations must be a number greater than 1"
+    )
+})
+
+test_that("calibrateDeviations handles degenerate and gaussian scales", {
+    set.seed(5)
+    mat <- matrix(rnorm(60 * 4), nrow = 60, ncol = 4)
+    mat[, 1] <- 0
+    expect_warning(
+        z <- methylTFR:::calibrateDeviations(mat, method = "gaussian"),
+        "degenerate null scale"
+    )
+    expect_equal(dim(z), dim(mat))
+    expect_error(
+        methylTFR:::calibrateDeviations(matrix(0, 10, 3)),
+        "could not be estimated"
+    )
+})
+
+test_that("computeZScoreVariability names unnamed motifs", {
+    set.seed(9)
+    mat <- matrix(rnorm(60 * 4), nrow = 60, ncol = 4)
+    res <- computeZScoreVariability(mat)
+    expect_equal(res$motifs[1], "motif_1")
 })
