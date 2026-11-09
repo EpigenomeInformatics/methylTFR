@@ -46,8 +46,7 @@
 #       Rscript inst/scripts/tcell_data.R
 #
 # Environment variables:
-#     MTFR_PSEUDOBULK_DIR  directory holding *_deviations.RDS
-#                          (defaults to the cluster path below)
+#     MTFR_PSEUDOBULK_DIR  directory holding *_deviations.RDS (required)
 #     MTFR_N_PER_TYPE      samples kept per cell type (default 15)
 #     MTFR_EXTDATA_DIR     output directory (default inst/extdata)
 #####################################################################
@@ -62,13 +61,8 @@ suppressPackageStartupMessages({
 ## Configuration
 ## ------------------------------------------------------------------
 
-# Defaults to the cluster location of the per-sample pseudobulks used in
-# 10_zdiff.R. Override with MTFR_PSEUDOBULK_DIR to run it anywhere else.
-default_pseudobulk_dir <- file.path(
-    "/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/",
-    "data", "sample_pseudobulks"
-)
-pseudobulk_dir <- Sys.getenv("MTFR_PSEUDOBULK_DIR", default_pseudobulk_dir)
+# Directory holding the per-sample pseudobulks used in 10_zdiff.R.
+pseudobulk_dir <- Sys.getenv("MTFR_PSEUDOBULK_DIR")
 if (!nzchar(pseudobulk_dir) || !dir.exists(pseudobulk_dir)) {
     stop(
         "Pseudobulk directory not found: ", pseudobulk_dir,
@@ -228,7 +222,7 @@ for (nm in names(subset_pairs)) {
     grp <- factor(as.character(sample_annot$cell_type[keep]),
         levels = c(pair[["naive"]], pair[["memory"]])
     )
-    res <- differential_deviation_test(
+    res <- differentialDeviationTest(
         deviations = dev_mat[, keep, drop = FALSE],
         groups = grp,
         alternative = "two.sided",

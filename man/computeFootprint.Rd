@@ -4,25 +4,45 @@
 \alias{computeFootprint}
 \title{computeFootprint}
 \usage{
-computeFootprint(motif_name, tf_bindsites, msites, enhancer = NULL)
+computeFootprint(
+  motifName,
+  tfBindsites,
+  msites,
+  enhancer = NULL,
+  extendBy = 130
+)
 }
 \arguments{
-\item{motif_name}{chracter vector containing motif
-name eg: GATA string}
+\item{motifName}{Name of the motif.}
 
-\item{tf_bindsites}{TF binding sites positions
-from methTFRannotation package}
+\item{tfBindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{msites}{Methylation data}
+\item{msites}{A \code{GRanges} object with one range per CpG (width 1)
+and the metadata columns \code{score} (numeric methylation fraction
+between 0 and 1) and \code{coverage} (read count). Usually produced by
+\code{\link{readMethylome}}.}
 
-\item{enhancer}{Specific regions such as distal motif, proximal motif}
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
+
+\item{extendBy}{Number of base pairs added to the width of each binding
+site before overlapping it with the methylation sites, split evenly
+between both sides. Default 130.}
 }
 \value{
-a list containing plot.data and tfbs
+a \code{data.table} with one row per distance to the site
+centre.
 }
 \description{
-Compute footprint returns a data.table
-required to create a transcription
-factor footprint with label.
+Observed methylation profile around the binding sites of
+one motif.
 }
 \keyword{internal}

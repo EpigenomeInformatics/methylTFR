@@ -7,18 +7,15 @@
 computeExpectations(binMsites, gcfreq)
 }
 \arguments{
-\item{binMsites}{Imported methylation sites with GC bin}
+\item{binMsites}{The matrix returned by \code{addGCBinToMethylome}.}
 
-\item{gcfreq}{a \code{list} of GC bin frequency tables
-(matrices for multiple motif)}
+\item{gcfreq}{The GC bin frequency matrix of one motif.}
 }
 \value{
-a \code{data.table} object with GC bin with
-corresponding avg methylation
+a \code{data.table} with the columns \code{x} (distance to the
+site centre) and \code{avg_methyl}.
 }
 \description{
-This function is used to calculate expected
-methylation for a given
-motif and sample.
+Expected methylation profile of a motif in one sample.
 }
 \keyword{internal}

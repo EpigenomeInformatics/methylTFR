@@ -1,51 +1,145 @@
-#' @title check_annotation_inputs
-#' @description Validate the annotation objects required by both methylTFR
-#' entry points.
-#' @param tf_bindsites a \code{GRangesList} object of TF binding site
-#' positions.
-#' @param gcfreqs a \code{list} of GC bin frequency tables.
-#' @param gc_dist a \code{GRanges} object of the genome-wide GC distribution.
-#' @param enhancer an optional \code{GRanges} object of regions to restrict to.
-#' @return invisible TRUE, called for the side effect of signalling errors.
+#' @title checkMsites
+#' @description Check that methylation sites have the structure returned by
+#' \code{readMethylome}.
+#' @param msites The object to check.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @importFrom methods is
+#' @importFrom S4Vectors mcols
+#' @keywords internal
+checkMsites <- function(msites) {
+    if (is.null(msites) || !is(msites, "GRanges")) {
+        stop(
+            "msites must be a GRanges object of methylation sites; ",
+            "create it with readMethylome()"
+        )
+    }
+    missingCols <- setdiff(
+        c("score", "coverage"), colnames(S4Vectors::mcols(msites))
+    )
+    if (length(missingCols) > 0) {
+        stop(
+            "msites is missing the metadata column(s) ",
+            toString(missingCols), "; create it with readMethylome()"
+        )
+    }
+    invisible(NULL)
+}
+
+#' @title checkTfBindsites
+#' @description Check that TF binding sites are a named list of ranges.
+#' @param tfBindsites The object to check.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
 #' @importFrom methods is
 #' @keywords internal
-check_annotation_inputs <- function(
-    tf_bindsites, gcfreqs, gc_dist,
-    enhancer = NULL
+checkTfBindsites <- function(tfBindsites) {
+    if (is.null(tfBindsites) ||
+        !(is(tfBindsites, "GRangesList") || is.list(tfBindsites))) {
+        stop(
+            "Please provide a valid tf binding sites as GRangesList; ",
+            "get it with getTFbindsites() from the annotation package"
+        )
+    }
+    if (is.null(names(tfBindsites))) {
+        stop("tfBindsites must be named by motif")
+    }
+    invisible(NULL)
+}
+
+#' @title checkGcfreqs
+#' @description Check that GC frequency tables are a named list.
+#' @param gcfreqs The object to check.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @importFrom methods is
+#' @keywords internal
+checkGcfreqs <- function(gcfreqs) {
+    if (is.null(gcfreqs) || !is(gcfreqs, "list")) {
+        stop(
+            "Please provide a valid gcfreqs as list; ",
+            "get it with getGCfreq() from the annotation package"
+        )
+    }
+    if (is.null(names(gcfreqs))) {
+        stop("gcfreqs must be named by motif")
+    }
+    invisible(NULL)
+}
+
+#' @title checkGcDist
+#' @description Check that the genome-wide GC distribution is a
+#' \code{GRanges} object with a \code{GC_bin} column.
+#' @param gcDist The object to check.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @importFrom methods is
+#' @importFrom S4Vectors mcols
+#' @keywords internal
+checkGcDist <- function(gcDist) {
+    if (is.null(gcDist) || !is(gcDist, "GRanges")) {
+        stop(
+            "Please provide a valid gcDist as GRanges; ",
+            "get it with getGenomeGC() from the annotation package"
+        )
+    }
+    if (!"GC_bin" %in% colnames(S4Vectors::mcols(gcDist))) {
+        stop(
+            "gcDist must have a GC_bin metadata column; ",
+            "get it with getGenomeGC() from the annotation package"
+        )
+    }
+    invisible(NULL)
+}
+
+#' @title checkEnhancer
+#' @description Check the optional region set.
+#' @param enhancer The object to check, or \code{NULL}.
+#' @return Invisible \code{NULL}. Called for the errors it raises.
+#' @importFrom methods is
+#' @keywords internal
+checkEnhancer <- function(enhancer) {
+    if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
+        stop("Please provide a valid enhancer regions as GRanges")
+    }
+    invisible(NULL)
+}
+
+#' @title checkAnnotationInputs
+#' @description Validate the annotation objects required by both methylTFR
+#' entry points.
+#' @inheritParams runMethylTFR
+#' @return invisible TRUE, called for the side effect of signalling errors.
+#' @keywords internal
+checkAnnotationInputs <- function(
+    tfBindsites, gcfreqs, gcDist, enhancer = NULL
 ) {
     if (any(vapply(
-        list(tf_bindsites, gcfreqs, gc_dist), is.null, logical(1)
+        list(tfBindsites, gcfreqs, gcDist), is.null, logical(1)
     ))) {
         stop("Please load the annotation objects for given genome.")
     }
-    if (!is(tf_bindsites, "GRangesList") && !is.list(tf_bindsites)) {
-        stop("tf_bindsites must be a GRangesList object")
-    }
-    if (!is(gcfreqs, "list")) {
-        stop("gcfreqs must be a list object")
-    }
-    if (!is(gc_dist, "GRanges")) {
-        stop("gc_dist must be a GRanges object")
-    }
-    if (!is.null(enhancer) && !is(enhancer, "GRanges")) {
-        stop("enhancer must be a GRanges object")
+    checkTfBindsites(tfBindsites)
+    checkGcfreqs(gcfreqs)
+    checkGcDist(gcDist)
+    checkEnhancer(enhancer)
+    noSites <- setdiff(names(gcfreqs), names(tfBindsites))
+    if (length(noSites) > 0) {
+        stop(
+            "names(gcfreqs) and names(tfBindsites) do not match. ",
+            "No binding sites for: ", toString(utils::head(noSites, 5)),
+            if (length(noSites) > 5) ", ..." else "",
+            ". Use getTFbindsites() and getGCfreq() with matching motif sets."
+        )
     }
     invisible(TRUE)
 }
 
 
-#' @title check_run_options
+#' @title checkRunOptions
 #' @description Validate the run-time options shared by both methylTFR entry
 #' points, substituting documented defaults where a value is unusable.
-#' @param chunkSize Chunk size for parallel processing of motifs.
-#' @param threads Thread count for parallel processing.
-#' @param ignoreStrand if TRUE, strand information is ignored.
-#' @param cov_threshold numeric coverage threshold.
+#' @inheritParams runMethylTFR
 #' @return A named list with the validated values.
 #' @keywords internal
-check_run_options <- function(
-    chunkSize = 20, threads = 1,
-    ignoreStrand = TRUE, cov_threshold = 1
+checkRunOptions <- function(
+    chunkSize = 20, threads = 1, ignoreStrand = TRUE, covThreshold = 1
 ) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
@@ -59,36 +153,36 @@ check_run_options <- function(
         warning("Invalid thread count detected, using default thread count")
         threads <- 1
     }
-    if (!is.numeric(cov_threshold) || cov_threshold < 0) {
-        warning("Invalid cov_threshold detected, using default cov_threshold")
-        cov_threshold <- 1
+    if (!is.numeric(covThreshold) || covThreshold < 0) {
+        warning("Invalid covThreshold detected, using default covThreshold")
+        covThreshold <- 1
     }
     list(
         chunkSize = chunkSize, threads = threads,
-        ignoreStrand = ignoreStrand, cov_threshold = cov_threshold
+        ignoreStrand = ignoreStrand, covThreshold = covThreshold
     )
 }
 
 
-#' @title read_sample_annotation
+#' @title readSampleAnnotation
 #' @description Read a methylTFR sample annotation table.
-#' @param annfile Path to a \code{.csv} or \code{.tsv} annotation file.
+#' @param annFile Path to a \code{.csv} or \code{.tsv} annotation file.
 #' @param sampleColName Name of the column holding the per-sample file names.
 #' @return A \code{data.frame} of sample annotation.
 #' @importFrom utils read.table
 #' @keywords internal
-read_sample_annotation <- function(annfile, sampleColName) {
-    if (!file.exists(annfile)) {
+readSampleAnnotation <- function(annFile, sampleColName) {
+    if (!file.exists(annFile)) {
         stop(sprintf(
-            "%s does not exist, please check the file path !!", annfile
+            "%s does not exist, please check the file path !!", annFile
         ))
     }
-    if (endsWith(annfile, ".csv")) {
-        samples <- read.table(annfile,
+    if (endsWith(annFile, ".csv")) {
+        samples <- read.table(annFile,
             header = TRUE, sep = ",", stringsAsFactors = FALSE
         )
-    } else if (endsWith(annfile, ".tsv")) {
-        samples <- read.table(annfile,
+    } else if (endsWith(annFile, ".tsv")) {
+        samples <- read.table(annFile,
             header = TRUE, sep = "\t", stringsAsFactors = FALSE
         )
     } else {
@@ -107,50 +201,52 @@ read_sample_annotation <- function(annfile, sampleColName) {
 }
 
 
-#' @title check_core_inputs
+#' @title checkCoreInputs
 #' @description Validate the arguments shared by both methylTFR entry points.
-#' @param sample_ids A character vector of sample identifiers.
-#' @param msites_fun A function of a single integer sample index.
+#' @param sampleIds A character vector of sample identifiers.
+#' @param msitesFun A function of a single integer sample index.
 #' @param samples A \code{data.frame} with one row per sample.
+#' @param tempDir Directory for the temporary HDF5 files.
 #' @return Invisible \code{NULL}. Called for the errors it raises.
 #' @keywords internal
-check_core_inputs <- function(sample_ids, msites_fun, samples) {
-    if (!is.character(sample_ids) || length(sample_ids) == 0) {
+checkCoreInputs <- function(sampleIds, msitesFun, samples, tempDir) {
+    if (!is.character(sampleIds) || length(sampleIds) == 0) {
         stop("No samples to process.")
     }
-    if (!is.function(msites_fun)) {
-        stop("msites_fun must be a function of a single sample index.")
+    if (!is.function(msitesFun)) {
+        stop("msitesFun must be a function of a single sample index.")
     }
-    if (nrow(samples) != length(sample_ids)) {
+    if (nrow(samples) != length(sampleIds)) {
         stop("Sample annotation must have one row per sample.")
+    }
+    if (!is.character(tempDir) || length(tempDir) != 1 || !nzchar(tempDir)) {
+        stop("tempDir must be a single directory path")
     }
     invisible(NULL)
 }
 
-#' @title valid_core_motifs
+#' @title validCoreMotifs
 #' @description Drop motifs whose binding sites are empty or whose GC bin
 #' frequency matrix is missing.
-#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
-#' @param gcfreqs a \code{list} of GC bin frequency tables.
+#' @inheritParams runMethylTFR
 #' @return A character vector of the motif names that can be processed.
 #' @importFrom logger log_info
 #' @keywords internal
-valid_core_motifs <- function(tf_bindsites, gcfreqs) {
+validCoreMotifs <- function(tfBindsites, gcfreqs) {
     motifs <- names(gcfreqs)
-    valid_motifs <- vapply(motifs, function(m) {
-        has_tfbs <- !is.null(tf_bindsites[[m]]) &&
-            length(tf_bindsites[[m]]) > 0
-        has_matrix <- !is.null(gcfreqs[[m]])
-        return(has_tfbs && has_matrix)
+    validMotifs <- vapply(motifs, function(m) {
+        hasTfbs <- !is.null(tfBindsites[[m]]) &&
+            length(tfBindsites[[m]]) > 0
+        hasMatrix <- !is.null(gcfreqs[[m]])
+        return(hasTfbs && hasMatrix)
     }, logical(1))
 
-    if (any(!valid_motifs)) {
-        num_discarded <- sum(!valid_motifs)
+    if (any(!validMotifs)) {
         log_info(
-            "Discarding ", num_discarded,
+            "Discarding ", sum(!validMotifs),
             " motifs due to empty TFBS or missing matrix."
         )
-        motifs <- motifs[valid_motifs]
+        motifs <- motifs[validMotifs]
     }
 
     if (length(motifs) == 0) {
@@ -159,7 +255,7 @@ valid_core_motifs <- function(tf_bindsites, gcfreqs) {
     return(motifs)
 }
 
-#' @title bpparam_from_threads
+#' @title bpparamFromThreads
 #' @description Build the \pkg{BiocParallel} back-end used to spread the
 #' motifs of one chunk over workers.
 #' @details A forking back-end is used where the platform supports it and a
@@ -170,7 +266,7 @@ valid_core_motifs <- function(tf_bindsites, gcfreqs) {
 #' @return A \code{BiocParallelParam} object.
 #' @importFrom BiocParallel SerialParam MulticoreParam SnowParam
 #' @keywords internal
-bpparam_from_threads <- function(threads) {
+bpparamFromThreads <- function(threads) {
     if (is.null(threads) || !is.numeric(threads) || threads <= 1) {
         return(SerialParam())
     }
@@ -180,80 +276,69 @@ bpparam_from_threads <- function(threads) {
     return(MulticoreParam(workers = threads))
 }
 
-#' @title process_core_sample
+#' @title processCoreSample
 #' @description Compute and write the deviations of one sample, one motif
 #' chunk at a time.
-#' @param index Integer index of the sample within \code{sample_ids}.
-#' @param sample_ids A character vector of sample identifiers.
-#' @param msites_fun A function of a single integer sample index.
-#' @param motif_chunks A \code{list} of character vectors of motif names.
-#' @param tf_bindsites a \code{GRangesList} of TF binding site positions.
-#' @param gcfreqs a \code{list} of GC bin frequency tables.
-#' @param gc_dist a \code{GRanges} of the genome-wide GC distribution.
-#' @param dev_grid,exp_grid The grids the blocks are written on.
-#' @param dev_sink,exp_sink The sinks the blocks are written to.
+#' @inheritParams runMethylTFR
+#' @param index Integer index of the sample within \code{sampleIds}.
+#' @param sampleIds A character vector of sample identifiers.
+#' @param msitesFun A function of a single integer sample index.
+#' @param motifChunks A \code{list} of character vectors of motif names.
+#' @param devGrid,expGrid The grids the blocks are written on.
+#' @param devSink,expSink The sinks the blocks are written to.
 #' @param BPPARAM A \code{BiocParallelParam} object.
-#' @param enhancer a \code{GRanges} restricting the analysis (optional).
-#' @param ignoreStrand if TRUE, strand information is ignored.
 #' @return Invisible \code{NULL}. Called for its effect on the sinks.
 #' @importFrom BiocParallel bplapply
 #' @importFrom logger log_info
-#' @importFrom methods is
 #' @keywords internal
-process_core_sample <- function(
-    index, sample_ids, msites_fun, motif_chunks, tf_bindsites, gcfreqs,
-    gc_dist, dev_grid, exp_grid, dev_sink, exp_sink, BPPARAM, enhancer,
+processCoreSample <- function(
+    index, sampleIds, msitesFun, motifChunks, tfBindsites, gcfreqs,
+    gcDist, devGrid, expGrid, devSink, expSink, BPPARAM, enhancer,
     ignoreStrand
 ) {
-    sample_name <- sample_ids[index]
-    msites <- msites_fun(index)
-    if (!is(msites, "GRanges")) {
-        stop(
-            "msites_fun did not return a GRanges object for sample ",
-            sample_name
-        )
-    }
-    log_info("Processing ", sample_name)
-    bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
+    sampleName <- sampleIds[index]
+    msites <- msitesFun(index)
+    checkMsites(msites)
+    log_info("Processing ", sampleName)
+    binMeth <- addGCBinToMethylome(msites, gcDist, ignoreStrand)
 
     # Process motifs in chunks
-    for (j in seq_along(motif_chunks)) {
-        chunk_motifs <- motif_chunks[[j]]
+    for (j in seq_along(motifChunks)) {
+        chunkMotifs <- motifChunks[[j]]
 
-        sample_deviations <- bplapply(chunk_motifs,
+        sampleDeviations <- bplapply(chunkMotifs,
             computeDeviation,
             msites = msites,
-            tf_bindsites = tf_bindsites,
+            tfBindsites = tfBindsites,
             gcfreqs = gcfreqs,
-            binMsites = bin_meth,
+            binMsites = binMeth,
             enhancer = enhancer,
             ignoreStrand = ignoreStrand,
             BPPARAM = BPPARAM
         )
-        names(sample_deviations) <- chunk_motifs
+        names(sampleDeviations) <- chunkMotifs
 
-        # Write the block to the sink
-        write_block_to_sink(
-            lapply(sample_deviations, function(x) x$dev),
-            dev_grid, index, j, dev_sink
+        writeBlockToSink(
+            lapply(sampleDeviations, function(x) x$dev),
+            devGrid, index, j, devSink
         )
-        write_block_to_sink(
-            lapply(sample_deviations, function(x) x$exp_dev),
-            exp_grid, index, j, exp_sink
+        writeBlockToSink(
+            lapply(sampleDeviations, function(x) x$exp_dev),
+            expGrid, index, j, expSink
         )
-        rm(sample_deviations)
+        rm(sampleDeviations)
     }
     rm(msites)
     cleanMem()
-    log_info("Finished processing ", sample_name)
+    log_info("Finished processing ", sampleName)
     invisible(NULL)
 }
 
-#' @title assemble_core_result
+#' @title assembleCoreResult
 #' @description Close the sinks and assemble the deviations, their row-wise
 #' Z-scores and the expected deviations into a result object.
-#' @param dev_sink The sink holding the bias-corrected deviations.
-#' @param exp_sink The sink holding the expected deviations.
+#' @param devSink The sink holding the bias-corrected deviations.
+#' @param expSink The sink holding the expected deviations.
 #' @param samples A \code{data.frame} with one row per sample.
 #' @return a \code{methylTFRdeviations} object.
 #' @importFrom SummarizedExperiment SummarizedExperiment
@@ -261,17 +346,17 @@ process_core_sample <- function(
 #' @importFrom DelayedArray DelayedArray close
 #' @importFrom methods as new
 #' @keywords internal
-assemble_core_result <- function(dev_sink, exp_sink, samples) {
-    DelayedArray::close(dev_sink)
-    DelayedArray::close(exp_sink)
-    deviation <- as.matrix(t(as(dev_sink, "DelayedArray")))
-    exp_dev <- as.matrix(t(as(exp_sink, "DelayedArray")))
+assembleCoreResult <- function(devSink, expSink, samples) {
+    DelayedArray::close(devSink)
+    DelayedArray::close(expSink)
+    deviation <- as.matrix(t(as(devSink, "DelayedArray")))
+    expDev <- as.matrix(t(as(expSink, "DelayedArray")))
 
     se <- SummarizedExperiment(
         assays = list(
             deviations = deviation,
             z = computeRowZScore(deviation),
-            expected = exp_dev
+            expected = expDev
         ),
         colData = samples,
         rowData = DataFrame(motifs = row.names(deviation))
@@ -279,85 +364,72 @@ assemble_core_result <- function(dev_sink, exp_sink, samples) {
     return(new("methylTFRdeviations", se))
 }
 
-#' @title methyltfr_core
-#' @description Internal engine shared by \code{\link{run_methyltfr}} and
-#' \code{\link{run_methylTFR_RnBeads}}. It validates the motif set, allocates
-#' the on-disk sinks, iterates over samples, computes per-motif deviations in
-#' chunks and assembles the resulting \code{methylTFRdeviations} object.
+#' @title methylTFRCore
+#' @description Internal engine shared by \code{\link{runMethylTFR}} and
+#' \code{\link{runMethylTFRFromRnBeads}}. It validates the motif set,
+#' allocates the on-disk sinks, iterates over samples, computes per-motif
+#' deviations in chunks and assembles the resulting
+#' \code{methylTFRdeviations} object.
 #'
 #' The only difference between the two public entry points is where the
-#' per-sample methylation calls come from. That difference is isolated in the
-#' \code{msites_fun} argument, so both entry points share identical numerical
-#' behaviour.
-#' @param sample_ids A character vector of sample identifiers. Used for the
+#' per-sample methylation calls come from. That difference is isolated in
+#' the \code{msitesFun} argument, so both entry points share identical
+#' numerical behaviour.
+#' @inheritParams runMethylTFR
+#' @param sampleIds A character vector of sample identifiers. Used for the
 #' column names of the resulting object and to size the sinks.
-#' @param msites_fun A function of a single integer \code{i} returning a
-#' \code{GRanges} object of methylation calls for sample \code{i}, with a
-#' numeric \code{score} metadata column holding methylation levels in
-#' \code{[0, 1]}.
+#' @param msitesFun A function of a single integer \code{i} returning the
+#' methylation sites of sample \code{i} as a \code{GRanges} with the
+#' metadata columns \code{score} and \code{coverage}.
 #' @param samples A \code{data.frame} of sample annotation with one row per
-#' entry of \code{sample_ids}, used as \code{colData}.
-#' @param tf_bindsites a \code{GRangesList} object containing TF binding site
-#' positions.
-#' @param gcfreqs a \code{list} of GC bin frequency tables.
-#' @param gc_dist a \code{GRanges} object containing the genome-wide GC
-#' distribution.
-#' @param chunkSize Chunk size for parallel processing of motifs.
-#' @param threads Thread count for parallel processing.
-#' @param enhancer a \code{GRanges} object restricting the analysis to a set of
-#' regions such as distal regulatory elements (optional).
-#' @param ignoreStrand if TRUE, strand information is ignored.
-#' @return a \code{methylTFRdeviations} object with bias-corrected deviations,
-#' row-wise Z-scores and expected deviations.
-#' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' entry of \code{sampleIds}, used as \code{colData}.
+#' @return a \code{methylTFRdeviations} object with bias-corrected
+#' deviations, row-wise Z-scores and expected deviations.
 #' @importFrom IRanges subsetByOverlaps
-#' @importFrom logger log_info
-#' @importFrom SummarizedExperiment SummarizedExperiment
-#' @importFrom S4Vectors DataFrame
-#' @importFrom DelayedArray DelayedArray close
-#' @importFrom methods as new is
+#' @importFrom logger log_success
 #' @keywords internal
-methyltfr_core <- function(
-    sample_ids, msites_fun, samples, tf_bindsites, gcfreqs, gc_dist,
-    chunkSize = 20, threads = 1, enhancer = NULL, ignoreStrand = TRUE
+methylTFRCore <- function(
+    sampleIds, msitesFun, samples, tfBindsites, gcfreqs, gcDist,
+    chunkSize = 20, threads = 1, enhancer = NULL, ignoreStrand = TRUE,
+    tempDir = file.path(tempdir(), "methylTFR")
 ) {
-    check_core_inputs(sample_ids, msites_fun, samples)
-    motifs <- valid_core_motifs(tf_bindsites, gcfreqs)
-    BPPARAM <- bpparam_from_threads(threads)
+    checkCoreInputs(sampleIds, msitesFun, samples, tempDir)
+    motifs <- validCoreMotifs(tfBindsites, gcfreqs)
+    BPPARAM <- bpparamFromThreads(threads)
 
     # Split the motifs into chunks
     numChunks <- ceiling(length(motifs) / chunkSize)
-    motif_chunks <- split(motifs, rep(seq_len(numChunks),
+    motifChunks <- split(motifs, rep(seq_len(numChunks),
         each = chunkSize,
         length.out = length(motifs)
     ))
 
-    # Create the temp sinks
-    dev_sink <- create_sink(sample_ids, motifs)
-    exp_sink <- create_sink(sample_ids, motifs)
+    # Temporary HDF5 sinks, removed when the run ends
+    devSink <- createSink(sampleIds, motifs, tempDir = tempDir)
+    expSink <- createSink(sampleIds, motifs, tempDir = tempDir)
+    on.exit(unlink(c(devSink$path, expSink$path)), add = TRUE)
 
-    # Set the grids
-    dev_grid <- set_grid(sample_ids, motif_chunks)
-    exp_grid <- set_grid(sample_ids, motif_chunks)
+    devGrid <- setGrid(sampleIds, motifChunks)
+    expGrid <- setGrid(sampleIds, motifChunks)
 
     if (!is.null(enhancer)) {
-        gc_dist <- subsetByOverlaps(gc_dist,
+        gcDist <- subsetByOverlaps(gcDist,
             enhancer,
             ignore.strand = ignoreStrand
         )
     }
 
-    for (i in seq_along(sample_ids)) {
-        process_core_sample(
-            index = i, sample_ids = sample_ids, msites_fun = msites_fun,
-            motif_chunks = motif_chunks, tf_bindsites = tf_bindsites,
-            gcfreqs = gcfreqs, gc_dist = gc_dist, dev_grid = dev_grid,
-            exp_grid = exp_grid, dev_sink = dev_sink, exp_sink = exp_sink,
-            BPPARAM = BPPARAM, enhancer = enhancer,
-            ignoreStrand = ignoreStrand
+    for (i in seq_along(sampleIds)) {
+        processCoreSample(
+            index = i, sampleIds = sampleIds, msitesFun = msitesFun,
+            motifChunks = motifChunks, tfBindsites = tfBindsites,
+            gcfreqs = gcfreqs, gcDist = gcDist, devGrid = devGrid,
+            expGrid = expGrid, devSink = devSink$sink,
+            expSink = expSink$sink, BPPARAM = BPPARAM,
+            enhancer = enhancer, ignoreStrand = ignoreStrand
         )
     }
     log_success("Computed all deviations successfully")
 
-    return(assemble_core_result(dev_sink, exp_sink, samples))
+    return(assembleCoreResult(devSink$sink, expSink$sink, samples))
 }
