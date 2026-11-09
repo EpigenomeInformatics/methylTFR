@@ -15,6 +15,10 @@ bins in rows and the positions across the binding-site window in
 columns. Get it with \code{getGCfreq(motifSet = ...)} from the
 annotation package.}
 
+\item{gc_dist}{A \code{GRanges} object of 30-bp genomic windows with an
+integer metadata column \code{GC_bin} (1 to 5). Get it with
+\code{getGenomeGC()} from the annotation package.}
+
 \item{enhancer}{An optional \code{GRanges} object of regions, for example
 distal regulatory elements. Binding sites outside these regions are
 dropped. Any region set imported as \code{GRanges} works, for example
