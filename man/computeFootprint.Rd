@@ -5,17 +5,17 @@
 \title{computeFootprint}
 \usage{
 computeFootprint(
-  motifName,
-  tfBindsites,
+  motif_name,
+  tf_bindsites,
   msites,
   enhancer = NULL,
   extendBy = 130
 )
 }
 \arguments{
-\item{motifName}{Name of the motif.}
+\item{motif_name}{Name of the motif.}
 
-\item{tfBindsites}{A \code{GRangesList} named by motif. Each element is a
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
 \code{GRanges} of the occurrences of that motif. The names must include
 every name in \code{names(gcfreqs)}. Get it with
 \code{getTFbindsites(motifSet = "jaspar2020")} from the
@@ -25,7 +25,7 @@ or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 \item{msites}{A \code{GRanges} object with one range per CpG (width 1)
 and the metadata columns \code{score} (numeric methylation fraction
 between 0 and 1) and \code{coverage} (read count). Usually produced by
-\code{\link{readMethylome}}.}
+\code{\link{read_methylome}}.}
 
 \item{enhancer}{An optional \code{GRanges} object of regions, for example
 distal regulatory elements. Binding sites outside these regions are

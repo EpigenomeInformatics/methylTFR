@@ -8,13 +8,13 @@ test_that("computeDeviation", {
     load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-    binMeth <- addGCBinToMethylome(msites, gcdist, TRUE)
-    expect_true(is.matrix(binMeth))
-    expect_true(all(c("gcbin", "avg_mscore") %in% colnames(binMeth)))
+    bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
+    expect_true(is.matrix(bin_meth))
+    expect_true(all(c("gcbin", "avg_mscore") %in% colnames(bin_meth)))
 
     devs <- computeDeviation(
         "BATF", msites, tf_bindsites, gcfreqs,
-        enhancer = NULL, ignoreStrand = TRUE, binMeth
+        enhancer = NULL, ignoreStrand = TRUE, bin_meth
     )
     expect_type(devs$dev, "double")
     expect_type(devs$exp_dev, "double")
@@ -25,7 +25,7 @@ test_that("computeDeviation", {
     # Explicit defaults give the same result
     devs2 <- computeDeviation(
         "BATF", msites, tf_bindsites, gcfreqs,
-        binMsites = binMeth, extendBy = 130,
+        binMsites = bin_meth, extendBy = 130,
         windowBreaks = c(-250, -200, -25, 25, 200, 250)
     )
     expect_equal(devs, devs2)
@@ -33,79 +33,79 @@ test_that("computeDeviation", {
     # Enhancer restriction
     devsEnh <- computeDeviation(
         "BATF", msites, tf_bindsites, gcfreqs,
-        enhancer = range(msites), binMsites = binMeth
+        enhancer = range(msites), binMsites = bin_meth
     )
     expect_type(devsEnh$dev, "double")
 
     expect_error(
         computeDeviation(
             motif = NULL, msites, tf_bindsites, gcfreqs,
-            binMsites = binMeth
+            binMsites = bin_meth
         ),
         "Please provide a valid motif name"
     )
     expect_error(
         computeDeviation(
             "BATF", NULL, tf_bindsites, gcfreqs,
-            binMsites = binMeth
+            binMsites = bin_meth
         ),
-        "readMethylome"
+        "read_methylome"
     )
     noCov <- msites
     noCov$coverage <- NULL
     expect_error(
         computeDeviation(
             "BATF", noCov, tf_bindsites, gcfreqs,
-            binMsites = binMeth
+            binMsites = bin_meth
         ),
         "coverage"
     )
     expect_error(
         computeDeviation(
             "BATF", msites, NULL, gcfreqs,
-            binMsites = binMeth
+            binMsites = bin_meth
         ),
         "Please provide a valid tf binding sites"
     )
     expect_error(
         computeDeviation(
             "BATF", msites, tf_bindsites, NULL,
-            binMsites = binMeth
+            binMsites = bin_meth
         ),
         "getGCfreq"
     )
     expect_error(
         computeDeviation(
             "NOTAMOTIF", msites, tf_bindsites, gcfreqs,
-            binMsites = binMeth
+            binMsites = bin_meth
         ),
-        "not in names\\(tfBindsites\\)"
+        "not in names\\(tf_bindsites\\)"
     )
     expect_error(
         computeDeviation(
             "BATF", msites, tf_bindsites, gcfreqs,
             binMsites = matrix(1:4, 2)
         ),
-        "addGCBinToMethylome"
+        "addGCBintoMethylome"
     )
     expect_error(
         computeDeviation(
             "BATF", msites, tf_bindsites, gcfreqs,
-            enhancer = "chr1", binMsites = binMeth
+            enhancer = "chr1", binMsites = bin_meth
         ),
         "enhancer"
     )
     expect_error(
         computeDeviation(
             "BATF", msites, tf_bindsites, gcfreqs,
-            binMsites = binMeth, extendBy = -1
+            binMsites = bin_meth, extendBy = -1
         ),
         "extendBy"
     )
     expect_error(
         computeDeviation(
             "BATF", msites, tf_bindsites, gcfreqs,
-            binMsites = binMeth, windowBreaks = c(1, 2, 3)
+            binMsites = bin_meth, windowBreaks = c(1, 2, 3)
         ),
         "windowBreaks"
     )
@@ -113,30 +113,30 @@ test_that("computeDeviation", {
     expect_warning(
         computeDeviation(
             "BATF", msites, tf_bindsites, gcfreqs,
-            ignoreStrand = "invalid", binMsites = binMeth
+            ignoreStrand = "invalid", binMsites = bin_meth
         ),
         "Found invalid strand option, using the default"
     )
 })
 
-test_that("addGCBinToMethylome validates its input", {
+test_that("addGCBintoMethylome validates its input", {
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-    expect_error(addGCBinToMethylome(NULL, gcdist), "readMethylome")
-    expect_error(addGCBinToMethylome(msites, NULL), "getGenomeGC")
+    expect_error(addGCBintoMethylome(NULL, gcdist), "read_methylome")
+    expect_error(addGCBintoMethylome(msites, NULL), "getGenomeGC")
     noBin <- gcdist
     S4Vectors::mcols(noBin) <- NULL
-    expect_error(addGCBinToMethylome(msites, noBin), "GC_bin")
+    expect_error(addGCBintoMethylome(msites, noBin), "GC_bin")
     expect_warning(
-        addGCBinToMethylome(msites, gcdist, ignoreStrand = "x"),
+        addGCBintoMethylome(msites, gcdist, ignoreStrand = "x"),
         "invalid strand option"
     )
     farAway <- GenomicRanges::GRanges(
         "chrUn", IRanges::IRanges(1, 30), GC_bin = 1L
     )
     expect_error(
-        suppressWarnings(addGCBinToMethylome(msites, farAway)),
+        suppressWarnings(addGCBintoMethylome(msites, farAway)),
         "No methylation sites found in the GC distribution"
     )
 })

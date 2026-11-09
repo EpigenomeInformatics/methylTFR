@@ -4,12 +4,12 @@
 #' and returns one bias-corrected score per motif and sample.
 #'
 #' @section Getting started:
-#' 1. Import methylation calls with [readMethylome()].
+#' 1. Import methylation calls with [read_methylome()].
 #' 2. Load annotations from methylTFRAnnotationHg38 (`getTFbindsites()`,
 #'    `getGCfreq()`, `getGenomeGC()`).
-#' 3. Compute scores with [runMethylTFR()] or [runMethylTFRFromRnBeads()].
+#' 3. Compute scores with [run_methyltfr()] or [run_methylTFR_RnBeads()].
 #' 4. Explore with [deviations()], [deviationZScores()],
-#'    [computeZScoreVariability()], [differentialDeviationTest()],
+#'    [computeZScoreVariability()], [differential_deviation_test()],
 #'    [plotMotifFootprint()] and [plotExpectedFootprint()].
 #'
 #' See `vignette("methylTFR")` for a worked example.

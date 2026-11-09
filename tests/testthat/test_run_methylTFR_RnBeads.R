@@ -1,28 +1,28 @@
-# Test runMethylTFRFromRnBeads and the shared engine
+# Test run_methylTFR_RnBeads and the shared engine
 
 library(methylTFR)
 
-test_that("runMethylTFRFromRnBeads rejects objects that are not RnBSets", {
+test_that("run_methylTFR_RnBeads rejects objects that are not RnBSets", {
     skip_if_not_installed("RnBeads")
     expect_error(
-        runMethylTFRFromRnBeads(rnbSet = NULL),
+        run_methylTFR_RnBeads(rnb_set = NULL),
         "Please provide a valid RnBSet object"
     )
     expect_error(
-        runMethylTFRFromRnBeads(rnbSet = data.frame(a = 1)),
+        run_methylTFR_RnBeads(rnb_set = data.frame(a = 1)),
         "Please provide a valid RnBSet object"
     )
 })
 
-test_that("runMethylTFRFromRnBeads explains itself when RnBeads is absent", {
+test_that("run_methylTFR_RnBeads explains itself when RnBeads is absent", {
     skip_if(requireNamespace("RnBeads", quietly = TRUE))
     expect_error(
-        runMethylTFRFromRnBeads(rnbSet = NULL),
+        run_methylTFR_RnBeads(rnb_set = NULL),
         "RnBeads package is required"
     )
 })
 
-test_that("runMethylTFRFromRnBeads runs on a small RnBiseqSet", {
+test_that("run_methylTFR_RnBeads runs on a small RnBiseqSet", {
     skip_if_not_installed("RnBeads")
     skip_if_not_installed("RnBeads.hg38")
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
@@ -30,9 +30,9 @@ test_that("runMethylTFRFromRnBeads runs on a small RnBiseqSet", {
     load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-    oldIds <- RnBeads::rnb.getOption("identifiers.column")
+    old_ids <- RnBeads::rnb.getOption("identifiers.column")
     RnBeads::rnb.options(identifiers.column = "sampleName")
-    on.exit(RnBeads::rnb.options(identifiers.column = oldIds), add = TRUE)
+    on.exit(RnBeads::rnb.options(identifiers.column = old_ids), add = TRUE)
 
     ids <- c("sample_1", "sample_2")
     sites <- data.frame(
@@ -44,7 +44,7 @@ test_that("runMethylTFRFromRnBeads runs on a small RnBiseqSet", {
     meth <- cbind(msites$score, msites$score)
     covg <- cbind(msites$coverage, msites$coverage)
     dimnames(meth) <- dimnames(covg) <- list(NULL, ids)
-    rnbSet <- RnBeads::RnBiseqSet(
+    rnb_set <- RnBeads::RnBiseqSet(
         pheno = data.frame(sampleName = ids, group = c("a", "b")),
         sites = sites,
         meth = meth,
@@ -55,11 +55,11 @@ test_that("runMethylTFRFromRnBeads runs on a small RnBiseqSet", {
 
     tmpDir <- tempfile("methylTFR_h5")
     on.exit(unlink(tmpDir, recursive = TRUE), add = TRUE)
-    devs <- runMethylTFRFromRnBeads(
-        rnbSet = rnbSet,
-        tfBindsites = tf_bindsites,
+    devs <- run_methylTFR_RnBeads(
+        rnb_set = rnb_set,
+        tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
-        gcDist = gcdist,
+        gc_dist = gcdist,
         tempDir = tmpDir
     )
     expect_s4_class(devs, "methylTFRdeviations")
@@ -71,26 +71,26 @@ test_that("runMethylTFRFromRnBeads runs on a small RnBiseqSet", {
     expect_length(list.files(tmpDir, pattern = "\\.h5$"), 0)
 
     expect_error(
-        runMethylTFRFromRnBeads(
-            rnbSet = rnbSet, tfBindsites = tf_bindsites,
-            gcfreqs = gcfreqs, gcDist = gcdist,
-            sampleAnn = data.frame(x = 1)
+        run_methylTFR_RnBeads(
+            rnb_set = rnb_set, tf_bindsites = tf_bindsites,
+            gcfreqs = gcfreqs, gc_dist = gcdist,
+            sample_ann = data.frame(x = 1)
         ),
         "one row per sample"
     )
     expect_error(
-        runMethylTFRFromRnBeads(
-            rnbSet = rnbSet, tfBindsites = tf_bindsites,
-            gcfreqs = gcfreqs, gcDist = gcdist,
-            sampleAnn = "samples.tsv"
+        run_methylTFR_RnBeads(
+            rnb_set = rnb_set, tf_bindsites = tf_bindsites,
+            gcfreqs = gcfreqs, gc_dist = gcdist,
+            sample_ann = "samples.tsv"
         ),
-        "sampleAnn must be a data.frame"
+        "sample_ann must be a data.frame"
     )
     expect_error(
-        runMethylTFRFromRnBeads(
-            rnbSet = rnbSet, tfBindsites = tf_bindsites,
-            gcfreqs = gcfreqs, gcDist = gcdist,
-            covThreshold = 1e6
+        run_methylTFR_RnBeads(
+            rnb_set = rnb_set, tf_bindsites = tf_bindsites,
+            gcfreqs = gcfreqs, gc_dist = gcdist,
+            cov_threshold = 1e6
         ),
         "No sites passed the quality thresholds"
     )
@@ -102,65 +102,65 @@ test_that("the shared engine validates its arguments", {
     load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 
     expect_error(
-        methylTFR:::methylTFRCore(
-            sampleIds = character(0),
-            msitesFun = function(i) NULL,
+        methylTFR:::methyltfr_core(
+            sample_ids = character(0),
+            msites_fun = function(i) NULL,
             samples = data.frame(),
-            tfBindsites = tf_bindsites,
+            tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs,
-            gcDist = gcdist
+            gc_dist = gcdist
         ),
         "No samples to process"
     )
 
     expect_error(
-        methylTFR:::methylTFRCore(
-            sampleIds = c("a", "b"),
-            msitesFun = "not a function",
+        methylTFR:::methyltfr_core(
+            sample_ids = c("a", "b"),
+            msites_fun = "not a function",
             samples = data.frame(id = c("a", "b")),
-            tfBindsites = tf_bindsites,
+            tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs,
-            gcDist = gcdist
+            gc_dist = gcdist
         ),
-        "msitesFun must be a function"
+        "msites_fun must be a function"
     )
 
     expect_error(
-        methylTFR:::methylTFRCore(
-            sampleIds = c("a", "b"),
-            msitesFun = function(i) NULL,
+        methylTFR:::methyltfr_core(
+            sample_ids = c("a", "b"),
+            msites_fun = function(i) NULL,
             samples = data.frame(id = "a"),
-            tfBindsites = tf_bindsites,
+            tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs,
-            gcDist = gcdist
+            gc_dist = gcdist
         ),
         "one row per sample"
     )
 
     expect_error(
-        methylTFR:::methylTFRCore(
-            sampleIds = "a",
-            msitesFun = function(i) NULL,
+        methylTFR:::methyltfr_core(
+            sample_ids = "a",
+            msites_fun = function(i) NULL,
             samples = data.frame(id = "a"),
-            tfBindsites = tf_bindsites,
+            tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs,
-            gcDist = gcdist,
+            gc_dist = gcdist,
             tempDir = c("x", "y")
         ),
         "tempDir must be a single directory path"
     )
 
     expect_error(
-        methylTFR:::methylTFRCore(
-            sampleIds = "a",
-            msitesFun = function(i) data.frame(),
+        methylTFR:::methyltfr_core(
+            sample_ids = "a",
+            msites_fun = function(i) data.frame(),
             samples = data.frame(id = "a"),
-            tfBindsites = tf_bindsites,
+            tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs,
-            gcDist = gcdist,
+            gc_dist = gcdist,
             tempDir = tempfile()
         ),
-        "readMethylome"
+        "read_methylome"
     )
 })
 
@@ -170,17 +170,17 @@ test_that("the shared engine runs end to end on the example data", {
     load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-    sampleIds <- c("sample_1", "sample_2")
-    res <- methylTFR:::methylTFRCore(
-        sampleIds = sampleIds,
-        msitesFun = function(i) msites,
+    sample_ids <- c("sample_1", "sample_2")
+    res <- methylTFR:::methyltfr_core(
+        sample_ids = sample_ids,
+        msites_fun = function(i) msites,
         samples = data.frame(
-            sampleName = sampleIds,
+            sampleName = sample_ids,
             stringsAsFactors = FALSE
         ),
-        tfBindsites = tf_bindsites,
+        tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
-        gcDist = gcdist,
+        gc_dist = gcdist,
         chunkSize = 1,
         threads = 1,
         enhancer = range(msites)

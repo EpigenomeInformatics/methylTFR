@@ -12,12 +12,12 @@ and returns one bias-corrected score per motif and sample.
 \section{Getting started}{
 
 \enumerate{
-\item Import methylation calls with \code{\link[=readMethylome]{readMethylome()}}.
+\item Import methylation calls with \code{\link[=read_methylome]{read_methylome()}}.
 \item Load annotations from methylTFRAnnotationHg38 (\code{getTFbindsites()},
 \code{getGCfreq()}, \code{getGenomeGC()}).
-\item Compute scores with \code{\link[=runMethylTFR]{runMethylTFR()}} or \code{\link[=runMethylTFRFromRnBeads]{runMethylTFRFromRnBeads()}}.
+\item Compute scores with \code{\link[=run_methyltfr]{run_methyltfr()}} or \code{\link[=run_methylTFR_RnBeads]{run_methylTFR_RnBeads()}}.
 \item Explore with \code{\link[=deviations]{deviations()}}, \code{\link[=deviationZScores]{deviationZScores()}},
-\code{\link[=computeZScoreVariability]{computeZScoreVariability()}}, \code{\link[=differentialDeviationTest]{differentialDeviationTest()}},
+\code{\link[=computeZScoreVariability]{computeZScoreVariability()}}, \code{\link[=differential_deviation_test]{differential_deviation_test()}},
 \code{\link[=plotMotifFootprint]{plotMotifFootprint()}} and \code{\link[=plotExpectedFootprint]{plotExpectedFootprint()}}.
 }
 

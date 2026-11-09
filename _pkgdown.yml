@@ -17,16 +17,16 @@ navbar:
 reference:
   - title: Import
     contents:
-      - readMethylome
+      - read_methylome
   - title: Compute deviations
     contents:
-      - runMethylTFR
-      - runMethylTFRFromRnBeads
+      - run_methyltfr
+      - run_methylTFR_RnBeads
       - computeDeviation
-      - addGCBinToMethylome
+      - addGCBintoMethylome
   - title: Downstream analysis
     contents:
-      - differentialDeviationTest
+      - differential_deviation_test
       - computeZScoreVariability
   - title: Footprints
     contents:

@@ -1,6 +1,6 @@
-#' @title createSink
+#' @title create_sink
 #' @description Create a temporary HDF5 sink for storing methylTFR results.
-#' @param filesList A character vector of sample names.
+#' @param files_list A character vector of sample names.
 #' @param motifs A character vector of motifs.
 #' @param tempDir Directory the HDF5 file is written to. Created if it does
 #' not exist.
@@ -12,8 +12,8 @@
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info
 #' @keywords internal
-createSink <- function(
-    filesList, motifs, tempDir = file.path(tempdir(), "methylTFR"),
+create_sink <- function(
+    files_list, motifs, tempDir = file.path(tempdir(), "methylTFR"),
     pattern = "methylTFR", fileext = ".h5", verbose = TRUE
 ) {
     if (!dir.exists(tempDir)) {
@@ -22,8 +22,8 @@ createSink <- function(
     path <- tempfile(pattern = pattern, tmpdir = tempDir, fileext = fileext)
 
     sink <- HDF5Array::HDF5RealizationSink(
-        dim = c(length(filesList), length(motifs)),
-        dimnames = list(basename(filesList), motifs),
+        dim = c(length(files_list), length(motifs)),
+        dimnames = list(basename(files_list), motifs),
         type = "double",
         filepath = path,
         name = "methylTFRmat", level = 6
@@ -36,23 +36,23 @@ createSink <- function(
     return(list(sink = sink, path = path))
 }
 
-#' @title setGrid
+#' @title set_grid
 #' @description Set the grid for the methylTFR sink
-#' @param filesList A character vector of file names
-#' @param motifChunks A list of motif chunks
+#' @param files_list A character vector of file names
+#' @param motif_chunks A list of motif chunks
 #' @return A methylTFR grid
 #' @keywords internal
 #' @importFrom DelayedArray ArbitraryArrayGrid
-setGrid <- function(filesList, motifChunks) {
+set_grid <- function(files_list, motif_chunks) {
     DelayedArray::ArbitraryArrayGrid(list(
-        cumsum(lengths(filesList)),
-        cumsum(lengths(motifChunks))
+        cumsum(lengths(files_list)),
+        cumsum(lengths(motif_chunks))
     ))
 }
 
-#' @title writeBlockToSink
+#' @title write_block_to_sink
 #' @description Write the block to the methylTFR sink
-#' @param devValues A numeric vector of deviation values
+#' @param dev_values A numeric vector of deviation values
 #' @param grid A methylTFR grid
 #' @param i An integer specifying the row index
 #' @param j An integer specifying the column index
@@ -60,13 +60,13 @@ setGrid <- function(filesList, motifChunks) {
 #' @importFrom DelayedArray write_block
 #' @return Invisible \code{NULL}. Called for its effect on the sink.
 #' @keywords internal
-writeBlockToSink <- function(devValues, grid, i, j, sink) {
+write_block_to_sink <- function(dev_values, grid, i, j, sink) {
     DelayedArray::write_block(
-        block = as.matrix(t(unlist(devValues))),
+        block = as.matrix(t(unlist(dev_values))),
         viewport = grid[[as.integer(i), as.integer(j)]],
         sink = sink
     )
-    rm(devValues)
+    rm(dev_values)
     cleanMem()
 }
 

@@ -54,14 +54,14 @@ if (!file.exists(localBed)) {
 }
 
 ############################################################################
-# Example data for computeDeviation, runMethylTFR and related functions
+# Example data for computeDeviation, run_methyltfr and related functions
 ############################################################################
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
 gcdist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
-msitesAll <- readMethylome(localBed, "encode")
+msitesAll <- read_methylome(localBed, "encode")
 msitesAll <- msitesAll[seqnames(msitesAll) == "chr1"]
 
 # Keep chr1 CpGs within the BATF binding-site windows used by
@@ -86,7 +86,7 @@ saveCompressed(gcdist, file = "gcdist_subset.rda")
 # Example data for plotMotifFootprint and related functions
 ############################################################################
 
-msitesAll <- readMethylome(localBed, "encode")
+msitesAll <- read_methylome(localBed, "encode")
 gcdist <- getGenomeGC()
 
 msites_sub <- subsetByOverlaps(msitesAll, batfWindows, ignore.strand = TRUE)

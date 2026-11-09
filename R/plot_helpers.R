@@ -2,7 +2,7 @@
 #' @description Observed methylation profile around the binding sites of
 #' one motif.
 #' @inheritParams computeDeviation
-#' @param motifName Name of the motif.
+#' @param motif_name Name of the motif.
 #' @return a \code{data.table} with one row per distance to the site
 #' centre.
 #' @keywords internal
@@ -11,9 +11,9 @@
 #' @importFrom S4Vectors mcols
 #' @import data.table
 computeFootprint <- function(
-    motifName, tfBindsites, msites, enhancer = NULL, extendBy = 130
+    motif_name, tf_bindsites, msites, enhancer = NULL, extendBy = 130
 ) {
-    tfbs <- tfBindsites[[motifName]]
+    tfbs <- tf_bindsites[[motif_name]]
     tfbs <- resize(tfbs, width(tfbs)[1] + extendBy, fix = "center")
 
     if (!is.null(enhancer)) {
@@ -24,24 +24,24 @@ computeFootprint <- function(
     S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) +
         (start(tfbs) - end(tfbs)) / 2)
     x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
-    plotData <- data.table(
+    plot_data <- data.table(
         x = x,
         y1 = msites[hits@from]$score,
         y2 = msites[hits@from]$coverage
     )
 
-    plotData <- plotData[, .(
+    plot_data <- plot_data[, .(
         n = .N,
         avg_methyl = mean(y1),
         avg_cov = mean(y2),
-        motif = motifName,
+        motif = motif_name,
         label = fifelse(
             x == max(x),
-            as.character(motifName), NA_character_
+            as.character(motif_name), NA_character_
         )
     ), by = x]
 
-    return(plotData)
+    return(plot_data)
 }
 
 #' @title computeExpectedFootprint
@@ -54,13 +54,13 @@ computeFootprint <- function(
 #' @importFrom IRanges subsetByOverlaps
 #' @import data.table
 computeExpectedFootprint <- function(
-    motif, gcfreqs, gcDist, enhancer = NULL, msites
+    motif, gcfreqs, gc_dist, enhancer = NULL, msites
 ) {
     gcfreq <- gcfreqs[[motif]]
 
     if (!is.null(enhancer)) {
-        gcDist <- subsetByOverlaps(gcDist, enhancer, ignore.strand = TRUE)
+        gc_dist <- subsetByOverlaps(gc_dist, enhancer, ignore.strand = TRUE)
     }
-    binMeth <- addGCBinToMethylome(msites, gcDist)
-    return(computeExpectations(binMeth, gcfreq))
+    bin_meth <- addGCBintoMethylome(msites, gc_dist)
+    return(computeExpectations(bin_meth, gcfreq))
 }

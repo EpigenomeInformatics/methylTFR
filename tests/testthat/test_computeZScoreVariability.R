@@ -98,9 +98,9 @@ test_that("computeZScoreVariability validates its input", {
     expect_error(
         suppressMessages(computeZScoreVariability(
             matrix(rnorm(30), nrow = 10, ncol = 3),
-            confLevel = 2
+            conf_level = 2
         )),
-        "confLevel must be a number between 0 and 1"
+        "conf_level must be a number between 0 and 1"
     )
     expect_error(
         suppressMessages(computeZScoreVariability(

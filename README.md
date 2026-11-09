@@ -52,19 +52,19 @@ library(methylTFRAnnotationHg38) # annotation package for hg38
 library(methylTFR)
 
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gcDist <- getGenomeGC()
-tfBindsites <- getTFbindsites(motifSet = "jaspar2020")
+gc_dist <- getGenomeGC()
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 # deviation score matrix
-devs <- runMethylTFR(
-  sampleAnn = "samples.tsv", # sample annotation file in sampleDir
-  sampleDir = "samples_dir", # where the EPP files are
+devs <- run_methyltfr(
+  sample_ann = "samples.tsv", # sample annotation file in sample_dir
+  sample_dir = "samples_dir", # where the EPP files are
   threads = 8, # number of threads
   chunkSize = 10, # number of motifs per chunk
   sampleColName = "bedFile", # column with the EPP file names
-  tfBindsites = tfBindsites, # TF binding sites
+  tf_bindsites = tf_bindsites, # TF binding sites
   gcfreqs = gcfreqs, # GC frequency
-  gcDist = gcDist, # GC distribution
+  gc_dist = gc_dist, # GC distribution
   filetype = "EPP" # file type
 )
 ```
