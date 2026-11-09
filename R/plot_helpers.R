@@ -1,47 +1,36 @@
 #' @title computeFootprint
-#' @description Compute footprint returns a data.table
-#' required to create a transcription
-#' factor footprint with label.
-#' @param motif_name  chracter vector containing motif
-#' name eg: GATA string
-#' @param tf_bindsites  TF binding sites positions
-#' from methTFRannotation package
-#' @param msites Methylation data
-#' @param enhancer Specific regions such as distal motif, proximal motif
-#' @return a list containing plot.data and tfbs
+#' @description Observed methylation profile around the binding sites of
+#' one motif.
+#' @inheritParams computeDeviation
+#' @param motif_name Name of the motif.
+#' @return a \code{data.table} with one row per distance to the site
+#' centre.
 #' @keywords internal
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
+#' @importFrom IRanges subsetByOverlaps
 #' @importFrom S4Vectors mcols
 #' @import data.table
 computeFootprint <- function(
-    motif_name,
-    tf_bindsites,
-    msites, enhancer = NULL
+    motif_name, tf_bindsites, msites, enhancer = NULL, extendBy = 130
 ) {
     tfbs <- tf_bindsites[[motif_name]]
-    w <- width(tfbs)[1]
-    tfbs <- resize(tfbs, w + 130, fix = "center")
+    tfbs <- resize(tfbs, width(tfbs)[1] + extendBy, fix = "center")
 
     if (!is.null(enhancer)) {
-        tfbs <- subsetByOverlaps(tfbs, enhancer,
-            ignore.strand = TRUE
-        )
+        tfbs <- subsetByOverlaps(tfbs, enhancer, ignore.strand = TRUE)
     }
 
-    # Find overlaps
-    hits <- findOverlaps(msites, tfbs,
-        type = "within", ignore.strand = TRUE
-    )
+    hits <- findOverlaps(msites, tfbs, type = "within", ignore.strand = TRUE)
     S4Vectors::mcols(tfbs)$mid_point <- round(end(tfbs) +
         (start(tfbs) - end(tfbs)) / 2)
     x <- start(msites[hits@from]) - tfbs[hits@to]$mid_point
-    plot.data <- data.table(
+    plot_data <- data.table(
         x = x,
         y1 = msites[hits@from]$score,
         y2 = msites[hits@from]$coverage
     )
 
-    plot.data <- plot.data[, .(
+    plot_data <- plot_data[, .(
         n = .N,
         avg_methyl = mean(y1),
         avg_cov = mean(y2),
@@ -52,41 +41,27 @@ computeFootprint <- function(
         )
     ), by = x]
 
-    return(plot.data)
+    return(plot_data)
 }
 
 #' @title computeExpectedFootprint
-#' @description Compute expected footprint returns
-#' a data.table required to create a transcription
-#' factor footprint with label.
-#' @param motif  chracter vector containing motif
-#' name eg: GATA string
-#' @param gcfreqs GC frequency of the genome used
-#' to compute expected methylation
-#' @param gc_dist a \code{GRanges} object contains
-#'  Genome wide GC distribution
-#' @param enhancer Specific regions such as distal
-#' motif, proximal motif
-#' @param msites Methylation data
-#' @return a \code{data.table} object to containing
-#' TF footprint
+#' @description Methylation profile expected from GC content around the
+#' binding sites of one motif.
+#' @inheritParams computeDeviation
+#' @inheritParams runMethylTFR
+#' @return a \code{data.table} with the columns \code{x} and
+#' \code{avg_methyl}.
 #' @keywords internal
-#' @importFrom GenomicRanges GRanges findOverlaps
-#'  width resize start end
-#' @importFrom S4Vectors mcols
+#' @importFrom IRanges subsetByOverlaps
 #' @import data.table
 computeExpectedFootprint <- function(
-    motif, gcfreqs, gc_dist,
-    enhancer = NULL, msites
+    motif, gcfreqs, gc_dist, enhancer = NULL, msites
 ) {
     gcfreq <- gcfreqs[[motif]]
 
     if (!is.null(enhancer)) {
-        gc_dist <- subsetByOverlaps(gc_dist, enhancer,
-            ignore.strand = TRUE
-        )
+        gc_dist <- subsetByOverlaps(gc_dist, enhancer, ignore.strand = TRUE)
     }
-    bin_meth <- addGCBintoMethylome(msites, gc_dist)
-    exp_meth <- computeExpectations(bin_meth, gcfreq)
-    return(exp_meth)
+    bin_meth <- addGCBinToMethylome(msites, gc_dist)
+    return(computeExpectations(bin_meth, gcfreq))
 }

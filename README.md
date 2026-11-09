@@ -48,8 +48,6 @@ This is a basic example which shows you how to run `methylTFR` :
 
 
 ```r
-library(GenomicRanges)
-library(dplyr)
 library(methylTFRAnnotationHg38) # annotation package for hg38
 library(methylTFR)
 
@@ -57,15 +55,13 @@ gcfreqs <- getGCfreq(motifSet = "jaspar2020")
 gc_dist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
-sample_dir <- file.path("samples_dir")
-sample_ann <- "samples.tsv" # should contain column name bedFile
-
 # deviation score matrix
-deviations <- run_methyltfr(sample_ann, # sample annotation file
-  sample_dir, # where the EPP files are
+devs <- runMethylTFR(
+  sample_ann = "samples.tsv", # sample annotation file in sample_dir
+  sample_dir = "samples_dir", # where the EPP files are
   threads = 8, # number of threads
-  chunkSize = 10, # number of chunks to process
-  sampleColName = "bedFile", # column name for EPP file paths in sample_ann
+  chunkSize = 10, # number of motifs per chunk
+  sampleColName = "bedFile", # column with the EPP file names
   tf_bindsites = tf_bindsites, # TF binding sites
   gcfreqs = gcfreqs, # GC frequency
   gc_dist = gc_dist, # GC distribution
@@ -73,18 +69,24 @@ deviations <- run_methyltfr(sample_ann, # sample annotation file
 )
 ```
 
+## Example data
+
+The example methylation data in `inst/extdata` are derived from ENCODE
+whole-genome bisulfite sequencing (ENCSR663MXB, GRCh38). ENCODE data are
+released without restrictions.
+
 ## Citation
 
 If you use `methylTFR` in your work, please cite:
 
-> Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of DNA methylation signatures in TFBS. R package version 0.99.9. https://github.com/EpigenomeInformatics/methylTFR
+> Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of DNA methylation signatures in TFBS. R package version 0.99.10. https://github.com/EpigenomeInformatics/methylTFR
 
 ```bibtex
 @Manual{methylTFR,
   title = {methylTFR: Quantification of DNA methylation signatures in TFBS},
   author = {Irem B. Gunduz and Sarath Kumar Murugan and Fabian Mueller},
   year = {2026},
-  note = {R package version 0.99.9},
+  note = {R package version 0.99.10},
   url = {https://github.com/EpigenomeInformatics/methylTFR},
   doi = {10.18129/B9.bioc.methylTFR},
 }

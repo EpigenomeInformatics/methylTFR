@@ -16,61 +16,56 @@ plotExpectedFootprint(
 )
 }
 \arguments{
-\item{motif}{Motif name as a character string}
+\item{motif}{Name of the motif, one of \code{names(tf_bindsites)}.}
 
-\item{tf_bindsites}{Transcript Factor binding sites
-from the annotation package}
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{msites}{Methylation sites as a data frame}
+\item{msites}{A \code{GRanges} object with one range per CpG (width 1)
+and the metadata columns \code{score} (numeric methylation fraction
+between 0 and 1) and \code{coverage} (read count). Usually produced by
+\code{\link{readMethylome}}.}
 
-\item{sample_name}{Optional sample name as a character
-string, defaults
-to the file name if not provided}
+\item{sample_name}{Optional sample label used in the plot title.
+Default \code{"sample"}.}
 
-\item{gc_dist}{a \code{GRanges} object contains Genome
-wide GC distribution}
+\item{gc_dist}{A \code{GRanges} object of 30-bp genomic windows with an
+integer metadata column \code{GC_bin} (1 to 5). Get it with
+\code{getGenomeGC()} from the annotation package.}
 
-\item{gcfreqs}{GC frequency of the genome used to
-compute expected methylation}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
 
-\item{enhancer}{Specific region such as distal motif,
-proximal motif}
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
 
-\item{returnPlotData}{Logical indicating whether to
-return the plot data}
+\item{returnPlotData}{Logical. If \code{TRUE}, return the plot data as
+well as the plot.}
 }
 \value{
-A ggplot object of TF footprint plot for a
-single sample
+A \code{ggplot} object, or, if \code{returnPlotData} is
+\code{TRUE}, a list with the elements \code{plot} and \code{plotDF}.
 }
 \description{
-Creates a footprint plot of expected
-vs observed methylation
-for a given motif and a single methylation site.
+Plot the observed methylation profile around the binding
+sites of one motif together with the profile expected from GC content.
 }
 \examples{
-library(ggplot2)
-library(methylTFR)
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
-# Load the data
-load(system.file("extdata",
-    "BATF_tf_bindsites.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "example_data.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "BATF_gcfreqs.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "gcdist_subset.rda",
-    package = "methylTFR"
-))
-
-# Plot the expected footprint
 p <- plotExpectedFootprint(
     motif = "BATF",
     tf_bindsites = tf_bindsites,
@@ -81,5 +76,8 @@ p <- plotExpectedFootprint(
     enhancer = NULL,
     returnPlotData = FALSE
 )
-
+}
+\seealso{
+\code{\link{plotMotifFootprint}} for the bias-corrected
+profile, \code{\link{computeDeviation}} for the score it summarises.
 }

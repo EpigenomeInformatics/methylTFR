@@ -1,103 +1,87 @@
-# Example WGBS data downloaded from European Genome-Phenome Archive. 
-# It is converted to GRanges format, so it can be directly used as example data.
-# source from https://ega-archive.org/studies/EGAS00001001624
+# Example WGBS data from ENCODE (ENCSR663MXB, GRCh38), open access.
+# https://www.encodeproject.org/experiments/ENCSR663MXB/
+# Run from the package root.
 
 suppressPackageStartupMessages({
-  library(data.table)
-  library(dplyr)
-  library(methylTFR)
-  library(GenomicRanges)
-  library(methylTFRAnnotationHg38)
-  library(logger)
-  library(rtracklayer)
+    library(methylTFR)
+    library(GenomicRanges)
+    library(methylTFRAnnotationHg38)
+    library(jsonlite)
 })
 
+extdata <- file.path("inst", "extdata")
+
+saveCompressed <- function(..., file) {
+    path <- file.path(extdata, file)
+    save(..., file = path)
+    tools::resaveRdaFiles(path, compress = "auto")
+}
+
+# Download the CpG bedMethyl file
+encodeUrl <- "https://www.encodeproject.org"
+meta <- fromJSON(
+    paste0(encodeUrl, "/experiments/ENCSR663MXB/?format=json"),
+    simplifyVector = FALSE
+)
+bedFile <- Filter(function(f) {
+    identical(f$file_format, "bed") &&
+        identical(f$output_type, "methylation state at CpG") &&
+        identical(f$assembly, "GRCh38") &&
+        identical(f$status, "released")
+}, meta$files)[[1]]
+localBed <- file.path(tempdir(), paste0(bedFile$accession, ".bed.gz"))
+if (!file.exists(localBed)) {
+    download.file(paste0(encodeUrl, bedFile$href), localBed, mode = "wb")
+}
+
 # Load the annotation
-gcfreqs <-  getGCfreq(motifSet = "jaspar2020_distal")
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
 gcdist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
-# Read the data as GRanges object
-filename <- "/icbb/projects/skumar/memoryTcells/bed/51_Hf03_BlEM_Ct_WGBS_S_1.MCSv3.20170714.GRCh38.cpg.filtered.CG.bed"
-msites <- read_methylome(filename,"bissnp")
-
-#Subset data and gcdist to chr1
-msites <- msites[seqnames(msites) == "chr1"]
-gcdist <- gcdist[seqnames(gcdist) == "chr1"]
-
-#Subset to first 1000 rows
-msites <- msites[1:1000]
-gcdist <- subsetByOverlaps(gcdist, msites)
-
-# Extract BATF annotations
-tf_bindsites <- tf_bindsites[["BATF"]]
-tf_bindsites <- list(tf_bindsites)
-names(tf_bindsites) <- "BATF"
-gcfreqs <- gcfreqs[["BATF"]]
-gcfreqs <- list(gcfreqs)
-names(gcfreqs) <- "BATF"
-
-# Save the data as RDA files
-save(msites, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/example_data.rda")
-save(tf_bindsites, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/BATF_tf_bindsites.rda")
-save(gcfreqs, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/BATF_gcfreqs.rda")
-save(gcdist, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/gcdist_subset.rda")
-
-# Compresse the data
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/example_data.rda", "auto")
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/BATF_tf_bindsites.rda", "auto")
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/BATF_gcfreqs.rda", "auto")
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/gcdist_subset.rda", "auto")
+batf <- tf_bindsites[["BATF"]]
+batfWindows <- resize(batf, width(batf)[1] + 130, fix = "center")
+msitesAll <- readMethylome(localBed, "encode")
 
 ############################################################################
-# Example data for plotMotifFootprint and related functions
+# Example data for computeDeviation and runMethylTFR
 ############################################################################
-# Load the full dataset
-msites <- read_methylome(filename,"bissnp",1)
-enhancer <- readRDS("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFRAnnotationHg38_old/inst/extdata/distal_regions.RDS")
-gcdist <- getGenomeGC()
-tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+# First 1000 chr1 CpGs in BATF windows
+msites <- msitesAll[seqnames(msitesAll) == "chr1"]
+msites <- subsetByOverlaps(msites, batfWindows, ignore.strand = TRUE)
+msites <- msites[seq_len(min(1000, length(msites)))]
+gcdist_sub <- subsetByOverlaps(gcdist[seqnames(gcdist) == "chr1"], msites)
 
-# Check the overlaps with gc_freqs
-motif <- "BATF"
-tfbs <- tf_bindsites[[motif]]
-tfbs <- resize(tfbs, width(tfbs)[1] + 130, fix = "center")
-tfbs <- subsetByOverlaps(tfbs, enhancer, ignore.strand = TRUE)
-gcfreq <- gcfreqs[[motif]]
+tf_bindsites <- list(BATF = batf)
+gcfreqs <- list(BATF = gcfreqs[["BATF"]])
 
-# Save the subsetted data
-msites_sub <- subsetByOverlaps(msites, tfbs, ignore.strand = TRUE)
-gcdist <- subsetByOverlaps(gcdist, tfbs, ignore.strand = TRUE)
+saveCompressed(msites, file = "example_data.rda")
+saveCompressed(tf_bindsites, file = "BATF_tf_bindsites.rda")
+saveCompressed(gcfreqs, file = "BATF_gcfreqs.rda")
+gcdist <- gcdist_sub
+saveCompressed(gcdist, file = "gcdist_subset.rda")
 
-# Remove x chromosome
-msites_sub <- msites_sub[seqnames(msites_sub) != "chrX"]
-save(msites_sub, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/msites_sub.rda")
-save(gcdist, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/gcdist_BATF.rda")
+############################################################################
+# Example data for plotMotifFootprint
+############################################################################
+# chr1 CpGs in BATF windows, and only the GC windows they fall in
+msites_sub <- msitesAll[seqnames(msitesAll) == "chr1"]
+msites_sub <- subsetByOverlaps(msites_sub, batfWindows, ignore.strand = TRUE)
+gcdist <- subsetByOverlaps(getGenomeGC(), msites_sub, ignore.strand = TRUE)
 
-# Compress the data
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/msites_sub.rda", "auto")
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/gcdist_BATF.rda", "auto")
+saveCompressed(msites_sub, file = "msites_sub.rda")
+saveCompressed(gcdist, file = "gcdist_BATF.rda")
 
 ############################################################################
 # Example deviations from Gunduz 2025 paper
 ############################################################################
-
-# Load methylTFRdeviations objects
-tc_mem <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/data/sample_pseudobulks/Tc-Mem_deviations.RDS")
-tc_naive <- readRDS("/icbb/projects/igunduz/irem_github/exposure_atlas_manuscript/data/sample_pseudobulks/Tc-Naive_deviations.RDS")
-
-# Merge the two objects
-#devs <- cbind(tc_mem[1:10,1:5], tc_naive[1:10,1:5])
-tc_mem <- tc_mem[1:10,1:5]
-tc_naive <- tc_naive[1:10,1:5]
-
-# Save the subsetted objects
-save(tc_mem, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/tc_mem.rda")
-save(tc_naive, file = "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/tc_naive.rda")
-
-# Compress the data
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/tc_mem.rda", "auto")
-tools::resaveRdaFiles("/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/tc_naive.rda", "auto")
-
-############################################################################
-
+# Set MTFR_PSEUDOBULK_DIR to the folder with the *_deviations.RDS files
+pseudobulkDir <- Sys.getenv("MTFR_PSEUDOBULK_DIR")
+if (nzchar(pseudobulkDir)) {
+    tc_mem <- readRDS(file.path(pseudobulkDir, "Tc-Mem_deviations.RDS"))
+    tc_naive <- readRDS(file.path(pseudobulkDir, "Tc-Naive_deviations.RDS"))
+    tc_mem <- tc_mem[1:10, 1:5]
+    tc_naive <- tc_naive[1:10, 1:5]
+    saveCompressed(tc_mem, file = "tc_mem.rda")
+    saveCompressed(tc_naive, file = "tc_naive.rda")
+}

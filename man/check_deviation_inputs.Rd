@@ -4,16 +4,50 @@
 \alias{check_deviation_inputs}
 \title{check_deviation_inputs}
 \usage{
-check_deviation_inputs(motif, msites, tf_bindsites, enhancer = NULL)
+check_deviation_inputs(
+  motif,
+  msites,
+  tf_bindsites,
+  gcfreqs,
+  binMsites,
+  enhancer = NULL,
+  extendBy = 130,
+  windowBreaks = c(-250, -200, -25, 25, 200, 250)
+)
 }
 \arguments{
 \item{motif}{Motif name as a character string.}
 
-\item{msites}{Methylation sites as a \code{GRanges} object.}
+\item{msites}{A \code{GRanges} object with one range per CpG (width 1)
+and the metadata columns \code{score} (numeric methylation fraction
+between 0 and 1) and \code{coverage} (read count). Usually produced by
+\code{\link{readMethylome}}.}
 
-\item{tf_bindsites}{a \code{GRangesList} of TF binding site positions.}
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{enhancer}{a \code{GRanges} restricting the analysis (optional).}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
+
+\item{binMsites}{The matrix returned by \code{\link{addGCBinToMethylome}},
+with the columns \code{gcbin} and \code{avg_mscore}.}
+
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
+
+\item{extendBy}{Number of base pairs added to each binding site.}
+
+\item{windowBreaks}{Break points of the distance bins.}
 }
 \value{
 Invisible \code{NULL}. Called for the errors it raises.

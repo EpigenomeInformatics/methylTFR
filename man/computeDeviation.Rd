@@ -11,68 +11,98 @@ computeDeviation(
   gcfreqs,
   enhancer = NULL,
   ignoreStrand = TRUE,
-  binMsites
+  binMsites,
+  extendBy = 130,
+  windowBreaks = c(-250, -200, -25, 25, 200, 250)
 )
 }
 \arguments{
-\item{motif}{A character vector containing motif name}
+\item{motif}{Name of the motif, one of \code{names(tf_bindsites)}.}
 
-\item{msites}{imported methylation sites}
+\item{msites}{A \code{GRanges} object with one range per CpG (width 1)
+and the metadata columns \code{score} (numeric methylation fraction
+between 0 and 1) and \code{coverage} (read count). Usually produced by
+\code{\link{readMethylome}}.}
 
-\item{tf_bindsites}{a \code{GRangesList} object contains
-tf binding sites positions}
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{gcfreqs}{a \code{list} of GC bin frequency tables
-(matrices for multiple motif)}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
 
-\item{enhancer}{a \code{GRanges} object specifying regions
-such as distal motif (optional)}
+\item{enhancer}{An optional \code{GRanges} object of regions, for example
+distal regulatory elements. Binding sites outside these regions are
+dropped. Any region set imported as \code{GRanges} works, for example
+the ENCODE candidate cis-regulatory elements (SCREEN) read with
+\code{rtracklayer::import()}. Default \code{NULL} uses all binding sites.}
 
-\item{ignoreStrand}{if TRUE, it ignores strand info from
-annotation}
+\item{ignoreStrand}{Logical. If \code{TRUE} (default), strand is ignored
+when overlapping methylation sites with annotations.}
 
-\item{binMsites}{A matrix object with GC bin with corresponding
-avg methylation}
+\item{binMsites}{The matrix returned by \code{\link{addGCBinToMethylome}},
+with the columns \code{gcbin} and \code{avg_mscore}.}
+
+\item{extendBy}{Number of base pairs added to the width of each binding
+site before overlapping it with the methylation sites, split evenly
+between both sides. Default 130.}
+
+\item{windowBreaks}{Six strictly increasing distances from the site
+centre, in base pairs, that define the five distance bins. Bins 1 and 5
+are the outer flanks and bin 3 is the centre. Default
+\code{c(-250, -200, -25, 25, 200, 250)}.}
 }
 \value{
-a \code{numeric} deviation score for a given motif
+A \code{data.table} with one row and the columns \code{dev}
+(bias-corrected deviation) and \code{exp_dev} (expected deviation).
 }
 \description{
-computeDeviation is a function to calculate
-the deviation in transcription factor
-binding sites for a given motif
+Compute the bias-corrected deviation score of one motif in
+one sample.
+}
+\details{
+Each binding site is widened by \code{extendBy} base pairs and every CpG
+inside it is placed by its distance to the site centre. The distances
+are cut into five bins at \code{windowBreaks}: an outer left flank, an
+inner left region, the centre, an inner right region and an outer right
+flank. The observed score is the mean methylation in the centre bin
+divided by the mean of the two outer flank bins. The same ratio is
+computed for the methylation expected from GC content (see
+\code{\link{addGCBinToMethylome}}), and the deviation is the observed
+minus the expected ratio. If the centre or either outer flank bin holds
+no CpG, the score is \code{NA}.
+
+Every CpG counts once, whatever its read coverage: the bin means are
+unweighted means of the per-CpG methylation fractions. Coverage only
+enters through the \code{cov_threshold} filter applied when the data are
+read.
 }
 \examples{
-library(methylTFR)
+load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
+load(system.file("extdata", "example_data.rda", package = "methylTFR"))
+load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
+load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 
-# Load the data
-load(system.file("extdata",
-    "BATF_tf_bindsites.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "example_data.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "BATF_gcfreqs.rda",
-    package = "methylTFR"
-))
-load(system.file("extdata",
-    "gcdist_subset.rda",
-    package = "methylTFR"
-))
+bin_meth <- addGCBinToMethylome(msites, gcdist, TRUE)
 
-# Compute binMsites
-bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
-
-# Compute the deviation
-devs <- computeDeviation("BATF",
-    msites,
-    tf_bindsites,
-    gcfreqs,
+computeDeviation(
+    motif = "BATF",
+    msites = msites,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
     enhancer = NULL,
     ignoreStrand = TRUE,
     binMsites = bin_meth
 )
+}
+\seealso{
+\code{\link{runMethylTFR}} to score all motifs and samples at
+once, \code{\link{plotMotifFootprint}} to see the profile behind the
+score.
 }

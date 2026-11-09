@@ -16,6 +16,6 @@ The group labels as a \code{factor}.
 }
 \description{
 Derive and validate the group labels used by
-\code{differential_deviation_test}.
+\code{differentialDeviationTest}.
 }
 \keyword{internal}

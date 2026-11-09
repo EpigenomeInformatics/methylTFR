@@ -1,6 +1,6 @@
 #' @title resolve_diff_groups
 #' @description Derive and validate the group labels used by
-#' \code{differential_deviation_test}.
+#' \code{differentialDeviationTest}.
 #' @param deviations A matrix of deviation scores, motifs in rows.
 #' @param groups Group labels, or NULL to take them from the column names.
 #' @return The group labels as a \code{factor}.
@@ -38,23 +38,20 @@ resolve_diff_groups <- function(deviations, groups) {
 diff_pvalues <- function(deviations, groups, parametric, alternative) {
     if (parametric) {
         if (nlevels(groups) == 2) {
-            # t-test
             return(apply(deviations, 1, t_helper, groups, alternative))
         }
-        # anova
         return(apply(deviations, 1, anova_helper, groups))
     }
     if (nlevels(groups) == 2) {
-        # wilcoxon
         return(apply(deviations, 1, wilcoxon_helper, groups, alternative))
     }
-    # kruskal-wallis
     return(apply(deviations, 1, kw_helper, groups))
 }
 
 #' @title group_mean_difference
-#' @description Unsigned effect size: the difference of the group means for
-#' two groups, and their range for more.
+#' @description Effect size per motif. For two groups, the mean of the
+#' first level minus the mean of the second level (signed). For more
+#' groups, the range of the group means (unsigned).
 #' @param deviations A matrix of deviation scores, motifs in rows.
 #' @param groups The group labels as a \code{factor}.
 #' @return A numeric vector with one value per motif.
@@ -66,66 +63,59 @@ group_mean_difference <- function(deviations, groups) {
         numeric(nrow(deviations))
     )
     if (nlevels(groups) == 2) {
-        return(abs(group_means[, 1] - group_means[, 2]))
+        return(group_means[, 1] - group_means[, 2])
     }
     return(apply(group_means, 1, function(x) max(x) - min(x)))
 }
 
-#' @title  differential_deviation_test
-#' @description Differential analysis is to test which
-#'  motifs are having significant
-#' deviations among different groups. Adapted from
-#' chromVAR::differential_test
-#' @param deviations a \code{data.frame} contains deviations
-#' for each motif
-#' @param groups a character vector of group names or
-#' colnames(deviations)
-#' @param motifs a character vector of motif names used
-#' in analysis or rownames(deviations)
-#' @param alternative a character string specifying the
-#' alternative hypothesis,
-#' must be one of "two.sided" (default), "greater" or "less".
-#' @param parametric logical, if TRUE, parametric tests
-#'  are used,
-#' otherwise non-parametric tests are used.
-#' @param padjMethod method for p-value adjustment,
-#' default is "BH"
-#' @return a \code{data.frame} contains motifs with
-#' corresponding p-value and
-#' adjusted p-value
-#' @importFrom stats aggregate p.adjust
+#' @title differentialDeviationTest
+#' @description Test which motifs have different deviation scores between
+#' groups of samples. Adapted from \code{chromVAR::differentialDeviations}.
+#' @details With two groups, a Welch t-test (\code{parametric = TRUE}) or a
+#' Wilcoxon rank sum test is used; with more groups, a one-way ANOVA or a
+#' Kruskal-Wallis test.
+#' @param deviations A \code{\linkS4class{methylTFRdeviations}} object, or
+#' a matrix or \code{data.frame} of deviation scores with motifs in rows
+#' and samples in columns.
+#' @param groups A vector with one group label per sample. If \code{NULL},
+#' the column names of \code{deviations} are used. For two groups, the
+#' factor levels set the direction of \code{mean_difference}.
+#' @param motifs Motif names, by default \code{rownames(deviations)}.
+#' @param alternative The alternative hypothesis of the two-group tests,
+#' one of \code{"two.sided"}, \code{"less"} or \code{"greater"}.
+#' @param parametric Logical. If \code{TRUE} (default), parametric tests
+#' are used, otherwise non-parametric tests.
+#' @param padjMethod Method for p-value adjustment, passed to
+#' \code{\link[stats]{p.adjust}}. Default \code{"BH"}.
+#' @return A \code{data.frame} with one row per motif and the columns
+#' \code{motifs}, \code{p_value}, \code{p_value_adjusted} and
+#' \code{mean_difference}. For two groups, \code{mean_difference} is the
+#' mean of the first group minus the mean of the second; for more groups,
+#' it is the range of the group means.
+#' @seealso \code{\link{computeZScoreVariability}} for ranking motifs
+#' without group labels.
+#' @importFrom stats p.adjust
+#' @importFrom methods is
 #' @examples
-#' # Load example data
-#' load(system.file("extdata",
-#'     "tc_mem.rda",
-#'     package = "methylTFR"
-#' ))
-#' load(system.file("extdata",
-#'     "tc_naive.rda",
-#'     package = "methylTFR"
-#' ))
+#' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
+#' load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
 #' devs <- cbind(tc_mem, tc_naive)
 #'
 #' # Construct group labels from sample names
-#' get_groupname <- function(x) {
-#'     return(unlist(strsplit(x, split = "_"))[1])
-#' }
-#' groups <- sub(".bedGraph", "", unlist(lapply(
-#'     FUN = get_groupname,
-#'     X = colnames(devs)
-#' )))
+#' groups <- sub("\\.bedGraph.*$", "", vapply(
+#'     strsplit(colnames(devs), split = "_"), `[`, character(1), 1L
+#' ))
 #'
-#' # Perform differential analysis
-#' tc_result <- differential_deviation_test(
+#' tc_result <- differentialDeviationTest(
 #'     deviations = devs,
 #'     groups = groups,
-#'     motifs = rownames(devs),
 #'     alternative = "two.sided",
 #'     parametric = TRUE,
 #'     padjMethod = "BH"
 #' )
+#' head(tc_result)
 #' @export
-differential_deviation_test <- function(
+differentialDeviationTest <- function(
     deviations,
     groups = NULL,
     motifs = rownames(deviations),
@@ -143,11 +133,10 @@ differential_deviation_test <- function(
     if (is(deviations, "methylTFRdeviations")) {
         deviations <- deviations(deviations)
     }
+    deviations <- as.matrix(deviations)
     groups <- resolve_diff_groups(deviations, groups)
     if (length(alternative) > 1) {
-        stop(
-            "Please indicate one of the alternatives only."
-        )
+        stop("Please indicate one of the alternatives only.")
     }
     p_val <- diff_pvalues(deviations, groups, parametric, alternative)
     p_adj <- p.adjust(p_val, method = padjMethod)

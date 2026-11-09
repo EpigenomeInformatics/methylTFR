@@ -85,7 +85,7 @@ var_res <- computeZScoreVariability(devs)
 head(var_res[order(-var_res$variability), ])
 }
 \seealso{
-\code{\link{differential_deviation_test}} for testing activity
+\code{\link{differentialDeviationTest}} for testing activity
 differences between predefined groups.
 }
 \author{

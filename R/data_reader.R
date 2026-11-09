@@ -1,18 +1,26 @@
-#' @title read_methylome
-#' @description read_methylome is a function to import methylation data into
-#' a GRanges object. Bed file should be in EPP, ALLC or BisSNP format.
-#' @param filename filename which contains methylation data
-#' @param type Type of file format. Currently supported epp, bissnp,
-#' bismarkCytosine, bismarkcov, allc and encode
-#' @param cov_threshold numeric, coverage threshold to filter out low coverage
-#' sites, default is 1
+#' @title readMethylome
+#' @description Import single-sample methylation calls into a
+#' \code{GRanges} object.
+#' @param filename Path to the methylation call file. Gzipped files are
+#' read directly.
+#' @param type Format of the file, one of \code{"epp"}, \code{"bissnp"},
+#' \code{"bismarkCytosine"}, \code{"bismarkCov"}, \code{"allc"} or
+#' \code{"encode"} (ENCODE bedMethyl). Case-insensitive.
+#' @param cov_threshold Numeric. Sites with fewer reads than this are
+#' dropped. Default 1.
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @import data.table
 #' @import R.utils
 #' @importFrom data.table := .N fread
 #' @importFrom stringr str_split str_replace
-#' @return a \code{GenomicRange} object with methylation, coverage information
+#' @return A \code{GRanges} object with one range per CpG and the metadata
+#' columns \code{score} (methylation fraction between 0 and 1) and
+#' \code{coverage} (read count). This is the \code{msites} input of
+#' \code{\link{computeDeviation}}, \code{\link{addGCBinToMethylome}} and
+#' the footprint plots.
+#' @seealso \code{\link{runMethylTFR}}, which calls this function for every
+#' sample.
 #' @author Irem Gunduz
 #' @examples
 #' # Read bissnp file
@@ -21,9 +29,9 @@
 #'     "bissnp.tsv.gz",
 #'     package = "methylTFR"
 #' )
-#' bissnp <- read_methylome(bissnp_path, "bissnp")
+#' bissnp <- readMethylome(bissnp_path, "bissnp")
 #' @export
-read_methylome <- function(filename, type, cov_threshold = 1) {
+readMethylome <- function(filename, type, cov_threshold = 1) {
     type <- tolower(type)
     if (!file.exists(filename)) {
         stop(filename, " doesn't exist or path is incorrect!")
@@ -60,11 +68,10 @@ read_methylome <- function(filename, type, cov_threshold = 1) {
     )
 
     # Filter low coverage sites
-    gr_obj <- gr_obj[gr_obj$coverage >= cov_threshold]
+    gr_obj <- gr_obj[!is.na(gr_obj$coverage) &
+        gr_obj$coverage >= cov_threshold]
 
-    # A methylation score is a fraction. Anything else means the file did not
-    # have the layout the requested type expects, and returning it silently
-    # would put nonsense into every deviation computed downstream.
+    # Scores must be fractions
     if (length(gr_obj) > 0) {
         rng <- range(gr_obj$score, na.rm = TRUE)
         if (is.finite(rng[1]) && (rng[1] < 0 || rng[2] > 1)) {
@@ -79,6 +86,9 @@ read_methylome <- function(filename, type, cov_threshold = 1) {
     return(gr_obj)
 }
 
+#' @title Parse an EPP file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
 parse_epp <- function(filename) {
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
@@ -90,6 +100,9 @@ parse_epp <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse a BisSNP file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
 parse_bissnp <- function(filename) {
     msites <- data.table::fread(
@@ -102,6 +115,9 @@ parse_bissnp <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse an ALLC file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
 parse_allc <- function(filename) {
     allc <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
@@ -115,6 +131,9 @@ parse_allc <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse a Bismark cytosine report
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
 parse_bismarkcytosine <- function(filename) {
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
@@ -130,6 +149,9 @@ parse_bismarkcytosine <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse a Bismark coverage file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
 parse_bismarkcov <- function(filename) {
     msites <- data.table::fread(filename, header = FALSE, showProgress = FALSE)
@@ -144,12 +166,12 @@ parse_bismarkcov <- function(filename) {
     list(msites = msites, mscore = mscore, cov = cov)
 }
 
+#' @title Parse an ENCODE bedMethyl file
+#' @param filename Path to the file.
+#' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
 parse_encode <- function(filename) {
-    # bedMethyl: column 10 is read coverage and column 11 is the percentage of
-    # reads methylated. Columns are taken by position, and the header is
-    # detected rather than assumed, because files downloaded from ENCODE carry
-    # no header line while the bundled example does.
+    # bedMethyl: column 10 is coverage, column 11 is percent methylated
     msites <- data.table::fread(
         filename,
         header = "auto", showProgress = FALSE

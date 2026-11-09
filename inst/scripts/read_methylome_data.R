@@ -1,14 +1,8 @@
 # Create simulated data formats for the methylTFR tests
-output_dir <- "/scratch/icbb/igunduz/methylTFR_manuscript/github/methylTFR/inst/extdata/"
+# Run from the package root
+output_dir <- file.path("inst", "extdata", "")
 
-# Encode data, bedMethyl (bed9+2). Columns 10 and 11 are read coverage and the
-# percentage of reads methylated; the earlier version of this file named them
-# blockCount and blockSizes after the generic BED12 fields.
-#
-# The percentages deliberately span 0 to 100 and are paired with low as well as
-# high coverage. Dividing column 11 by column 10, which is what parse_encode()
-# used to do, returns 20 for the fourth row, so this example fails against that
-# bug instead of passing by luck.
+# Encode bedMethyl: column 10 is coverage, column 11 is percent methylated
 Encode <- data.frame(
   chrom = rep("chr1", 6),
   start = c(1000170, 1000190, 1000191, 1000198, 1000199, 1000206),

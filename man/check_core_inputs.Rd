@@ -4,7 +4,7 @@
 \alias{check_core_inputs}
 \title{check_core_inputs}
 \usage{
-check_core_inputs(sample_ids, msites_fun, samples)
+check_core_inputs(sample_ids, msites_fun, samples, tempDir)
 }
 \arguments{
 \item{sample_ids}{A character vector of sample identifiers.}
@@ -12,6 +12,8 @@ check_core_inputs(sample_ids, msites_fun, samples)
 \item{msites_fun}{A function of a single integer sample index.}
 
 \item{samples}{A \code{data.frame} with one row per sample.}
+
+\item{tempDir}{Directory for the temporary HDF5 files.}
 }
 \value{
 Invisible \code{NULL}. Called for the errors it raises.

@@ -7,30 +7,31 @@
 create_sink(
   files_list,
   motifs,
-  temp_dir = "methylTFR_tmp",
+  tempDir = file.path(tempdir(), "methylTFR"),
   pattern = "methylTFR",
   fileext = ".h5",
   verbose = TRUE
 )
 }
 \arguments{
-\item{files_list}{A character vector of file names}
+\item{files_list}{A character vector of sample names.}
 
-\item{motifs}{A character vector of motifs}
+\item{motifs}{A character vector of motifs.}
 
-\item{temp_dir}{A character vector specifying the temp directory}
+\item{tempDir}{Directory the HDF5 file is written to. Created if it does
+not exist.}
 
-\item{pattern}{A character vector specifying the pattern for the temp file}
+\item{pattern}{Prefix of the temporary file name.}
 
-\item{fileext}{A character vector specifying the file extension
-for the temp file}
+\item{fileext}{File extension of the temporary file.}
 
-\item{verbose}{A logical indicating whether to print messages}
+\item{verbose}{A logical indicating whether to print messages.}
 }
 \value{
-A methylTFR sink
+An \code{HDF5RealizationSink}. Its file is in
+\code{sink@filepath}.
 }
 \description{
-Create a temp sink for storing methylTFR results
+Create a temporary HDF5 sink for storing methylTFR results.
 }
 \keyword{internal}

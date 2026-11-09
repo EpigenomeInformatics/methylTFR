@@ -7,9 +7,18 @@
 valid_core_motifs(tf_bindsites, gcfreqs)
 }
 \arguments{
-\item{tf_bindsites}{a \code{GRangesList} of TF binding site positions.}
+\item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
+\code{GRanges} of the occurrences of that motif. The names must include
+every name in \code{names(gcfreqs)}. Get it with
+\code{getTFbindsites(motifSet = "jaspar2020")} from the
+\pkg{methylTFRAnnotationHg38} (or \pkg{methylTFRAnnotationMm10}) package,
+or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 
-\item{gcfreqs}{a \code{list} of GC bin frequency tables.}
+\item{gcfreqs}{A named \code{list} with one element per motif, named as
+in \code{tf_bindsites}. Each element is a numeric matrix with the five GC
+bins in rows and the positions across the binding-site window in
+columns. Get it with \code{getGCfreq(motifSet = ...)} from the
+annotation package.}
 }
 \value{
 A character vector of the motif names that can be processed.
