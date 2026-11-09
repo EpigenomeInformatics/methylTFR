@@ -78,6 +78,11 @@ The example methylation data in `inst/extdata` are derived from ENCODE
 whole-genome bisulfite sequencing (ENCSR663MXB, GRCh38). ENCODE data are
 released without restrictions.
 
+`immuneDeviations`, `tc_mem` and `tc_naive` are per-motif deviation scores
+computed from pseudobulk methylomes of the immune cell atlas in Gündüz
+*et al.* (2025, [doi:10.1101/2025.09.09.675101](https://doi.org/10.1101/2025.09.09.675101)).
+They contain no methylation calls.
+
 ## Citation
 
 If you use `methylTFR` in your work, please cite:
