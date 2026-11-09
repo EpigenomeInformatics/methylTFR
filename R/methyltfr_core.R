@@ -1,6 +1,6 @@
 #' @title check_msites
 #' @description Check that methylation sites have the structure returned by
-#' \code{read_methylome}.
+#' \code{readMethylome}.
 #' @param msites The object to check.
 #' @return Invisible \code{NULL}. Called for the errors it raises.
 #' @importFrom methods is
@@ -10,7 +10,7 @@ check_msites <- function(msites) {
     if (is.null(msites) || !is(msites, "GRanges")) {
         stop(
             "msites must be a GRanges object of methylation sites; ",
-            "create it with read_methylome()"
+            "create it with readMethylome()"
         )
     }
     missing_cols <- setdiff(
@@ -19,7 +19,7 @@ check_msites <- function(msites) {
     if (length(missing_cols) > 0) {
         stop(
             "msites is missing the metadata column(s) ",
-            toString(missing_cols), "; create it with read_methylome()"
+            toString(missing_cols), "; create it with readMethylome()"
         )
     }
     invisible(NULL)
@@ -104,7 +104,7 @@ check_enhancer <- function(enhancer) {
 #' @title check_annotation_inputs
 #' @description Validate the annotation objects required by both methylTFR
 #' entry points.
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @return invisible TRUE, called for the side effect of signalling errors.
 #' @keywords internal
 check_annotation_inputs <- function(
@@ -135,7 +135,7 @@ check_annotation_inputs <- function(
 #' @title check_run_options
 #' @description Validate the run-time options shared by both methylTFR entry
 #' points, substituting documented defaults where a value is unusable.
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @return A named list with the validated values.
 #' @keywords internal
 check_run_options <- function(
@@ -228,7 +228,7 @@ check_core_inputs <- function(sample_ids, msites_fun, samples, tempDir) {
 #' @title valid_core_motifs
 #' @description Drop motifs whose binding sites are empty or whose GC bin
 #' frequency matrix is missing.
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @return A character vector of the motif names that can be processed.
 #' @importFrom logger log_info
 #' @keywords internal
@@ -279,7 +279,7 @@ bpparam_from_threads <- function(threads) {
 #' @title process_core_sample
 #' @description Compute and write the deviations of one sample, one motif
 #' chunk at a time.
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @param index Integer index of the sample within \code{sample_ids}.
 #' @param sample_ids A character vector of sample identifiers.
 #' @param msites_fun A function of a single integer sample index.
@@ -300,7 +300,7 @@ process_core_sample <- function(
     msites <- msites_fun(index)
     check_msites(msites)
     log_info("Processing ", sample_name)
-    bin_meth <- addGCBintoMethylome(msites, gc_dist, ignoreStrand)
+    bin_meth <- addGCBinToMethylome(msites, gc_dist, ignoreStrand)
 
     # Process motifs in chunks
     for (j in seq_along(motif_chunks)) {
@@ -326,10 +326,7 @@ process_core_sample <- function(
             lapply(sample_deviations, function(x) x$exp_dev),
             exp_grid, index, j, exp_sink
         )
-        rm(sample_deviations)
     }
-    rm(msites)
-    cleanMem()
     log_info("Finished processing ", sample_name)
     invisible(NULL)
 }
@@ -365,8 +362,8 @@ assemble_core_result <- function(dev_sink, exp_sink, samples) {
 }
 
 #' @title methyltfr_core
-#' @description Internal engine shared by \code{\link{run_methyltfr}} and
-#' \code{\link{run_methylTFR_RnBeads}}. It validates the motif set,
+#' @description Internal engine shared by \code{\link{runMethylTFR}} and
+#' \code{\link{runMethylTFRFromRnBeads}}. It validates the motif set,
 #' allocates the on-disk sinks, iterates over samples, computes per-motif
 #' deviations in chunks and assembles the resulting
 #' \code{methylTFRdeviations} object.
@@ -375,7 +372,7 @@ assemble_core_result <- function(dev_sink, exp_sink, samples) {
 #' per-sample methylation calls come from. That difference is isolated in
 #' the \code{msites_fun} argument, so both entry points share identical
 #' numerical behaviour.
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @param sample_ids A character vector of sample identifiers. Used for the
 #' column names of the resulting object and to size the sinks.
 #' @param msites_fun A function of a single integer \code{i} returning the
@@ -407,7 +404,7 @@ methyltfr_core <- function(
     # Temporary HDF5 sinks, removed when the run ends
     dev_sink <- create_sink(sample_ids, motifs, tempDir = tempDir)
     exp_sink <- create_sink(sample_ids, motifs, tempDir = tempDir)
-    on.exit(unlink(c(dev_sink$path, exp_sink$path)), add = TRUE)
+    on.exit(unlink(c(dev_sink@filepath, exp_sink@filepath)), add = TRUE)
 
     dev_grid <- set_grid(sample_ids, motif_chunks)
     exp_grid <- set_grid(sample_ids, motif_chunks)
@@ -424,12 +421,12 @@ methyltfr_core <- function(
             index = i, sample_ids = sample_ids, msites_fun = msites_fun,
             motif_chunks = motif_chunks, tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs, gc_dist = gc_dist, dev_grid = dev_grid,
-            exp_grid = exp_grid, dev_sink = dev_sink$sink,
-            exp_sink = exp_sink$sink, BPPARAM = BPPARAM,
+            exp_grid = exp_grid, dev_sink = dev_sink,
+            exp_sink = exp_sink, BPPARAM = BPPARAM,
             enhancer = enhancer, ignoreStrand = ignoreStrand
         )
     }
     log_success("Computed all deviations successfully")
 
-    return(assemble_core_result(dev_sink$sink, exp_sink$sink, samples))
+    return(assemble_core_result(dev_sink, exp_sink, samples))
 }

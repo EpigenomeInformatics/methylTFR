@@ -2,7 +2,7 @@
 
 library(methylTFR)
 
-test_that("run_methyltfr accepts .csv sample annotation files", {
+test_that("runMethylTFR accepts .csv sample annotation files", {
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
     load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
     load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
@@ -16,9 +16,8 @@ test_that("run_methyltfr accepts .csv sample annotation files", {
         row.names = FALSE, quote = FALSE
     )
 
-    # The call should get past parsing and fail on the missing BED file.
     expect_error(
-        run_methyltfr(
+        runMethylTFR(
             sample_ann = "samples.csv", sample_dir = tmp,
             tf_bindsites = tf_bindsites, gcfreqs = gcfreqs,
             gc_dist = gcdist, filetype = "epp"
@@ -27,7 +26,7 @@ test_that("run_methyltfr accepts .csv sample annotation files", {
     )
 })
 
-test_that("run_methyltfr reports a missing sample column clearly", {
+test_that("runMethylTFR reports a missing sample column clearly", {
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
     load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
     load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
@@ -42,7 +41,7 @@ test_that("run_methyltfr reports a missing sample column clearly", {
     )
 
     expect_error(
-        run_methyltfr(
+        runMethylTFR(
             sample_ann = "samples.tsv", sample_dir = tmp,
             tf_bindsites = tf_bindsites, gcfreqs = gcfreqs,
             gc_dist = gcdist, filetype = "epp"
@@ -51,7 +50,7 @@ test_that("run_methyltfr reports a missing sample column clearly", {
     )
 })
 
-test_that("differential_deviation_test falls back to column names", {
+test_that("differentialDeviationTest falls back to column names", {
     load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
     load(system.file("extdata", "tc_naive.rda", package = "methylTFR"))
     devs <- cbind(tc_mem, tc_naive)
@@ -59,7 +58,7 @@ test_that("differential_deviation_test falls back to column names", {
     mat <- deviations(devs)
     colnames(mat) <- rep(c("mem", "naive"), each = ncol(mat) / 2)
 
-    res <- differential_deviation_test(
+    res <- differentialDeviationTest(
         deviations = mat,
         groups = NULL,
         alternative = "two.sided",
@@ -70,12 +69,12 @@ test_that("differential_deviation_test falls back to column names", {
     expect_true(all(res$p_value >= 0 & res$p_value <= 1, na.rm = TRUE))
 })
 
-test_that("differential_deviation_test rejects mismatched group labels", {
+test_that("differentialDeviationTest rejects mismatched group labels", {
     load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
     mat <- deviations(tc_mem)
 
     expect_error(
-        differential_deviation_test(
+        differentialDeviationTest(
             deviations = mat,
             groups = c("a", "b"),
             alternative = "two.sided"
@@ -83,7 +82,7 @@ test_that("differential_deviation_test rejects mismatched group labels", {
         "one entry per column"
     )
     expect_error(
-        differential_deviation_test(
+        differentialDeviationTest(
             deviations = mat,
             groups = rep("a", ncol(mat)),
             alternative = "two.sided"
@@ -127,7 +126,7 @@ test_that("mean_difference is signed for two groups", {
         down = c(0, 0.1, -0.1, 1, 1.1, 0.9)
     )
     groups <- factor(rep(c("a", "b"), each = 3), levels = c("a", "b"))
-    res <- differential_deviation_test(
+    res <- differentialDeviationTest(
         mat, groups, alternative = "two.sided"
     )
     expect_equal(res$mean_difference, c(1, -1))

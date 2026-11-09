@@ -18,6 +18,6 @@ Invisible \code{NULL}. Called for the errors it raises.
 }
 \description{
 Validate the file-specific arguments of
-\code{run_methyltfr}.
+\code{runMethylTFR}.
 }
 \keyword{internal}

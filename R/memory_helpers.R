@@ -7,8 +7,8 @@
 #' @param pattern Prefix of the temporary file name.
 #' @param fileext File extension of the temporary file.
 #' @param verbose A logical indicating whether to print messages.
-#' @return A list with the elements \code{sink}, the
-#' \code{HDF5RealizationSink}, and \code{path}, the file it writes to.
+#' @return An \code{HDF5RealizationSink}. Its file is in
+#' \code{sink@filepath}.
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom logger log_info
 #' @keywords internal
@@ -33,7 +33,7 @@ create_sink <- function(
         logger::log_info(paste0("Initializing the temp sink: ", path))
     }
 
-    return(list(sink = sink, path = path))
+    return(sink)
 }
 
 #' @title set_grid
@@ -66,18 +66,5 @@ write_block_to_sink <- function(dev_values, grid, i, j, sink) {
         viewport = grid[[as.integer(i), as.integer(j)]],
         sink = sink
     )
-    rm(dev_values)
-    cleanMem()
-}
-
-#' @title cleanMem
-#' @description cleanMem is a function to clean the memory
-#' @param iter.gc - number of times to run the garbage collector
-#' @return invisible NULL
-#' @keywords internal
-cleanMem <- function(iter.gc = 1L) {
-    for (i in seq_len(iter.gc)) {
-        gc()
-    }
     invisible(NULL)
 }

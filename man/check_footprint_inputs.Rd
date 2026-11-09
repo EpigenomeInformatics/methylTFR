@@ -26,7 +26,7 @@ or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 \item{msites}{A \code{GRanges} object with one range per CpG (width 1)
 and the metadata columns \code{score} (numeric methylation fraction
 between 0 and 1) and \code{coverage} (read count). Usually produced by
-\code{\link{read_methylome}}.}
+\code{\link{readMethylome}}.}
 
 \item{gc_dist}{A \code{GRanges} object of 30-bp genomic windows with an
 integer metadata column \code{GC_bin} (1 to 5). Get it with

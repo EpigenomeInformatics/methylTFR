@@ -28,8 +28,8 @@ not exist.}
 \item{verbose}{A logical indicating whether to print messages.}
 }
 \value{
-A list with the elements \code{sink}, the
-\code{HDF5RealizationSink}, and \code{path}, the file it writes to.
+An \code{HDF5RealizationSink}. Its file is in
+\code{sink@filepath}.
 }
 \description{
 Create a temporary HDF5 sink for storing methylTFR results.

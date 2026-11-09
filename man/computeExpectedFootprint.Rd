@@ -28,7 +28,7 @@ the ENCODE candidate cis-regulatory elements (SCREEN) read with
 \item{msites}{A \code{GRanges} object with one range per CpG (width 1)
 and the metadata columns \code{score} (numeric methylation fraction
 between 0 and 1) and \code{coverage} (read count). Usually produced by
-\code{\link{read_methylome}}.}
+\code{\link{readMethylome}}.}
 }
 \value{
 a \code{data.table} with the columns \code{x} and

@@ -7,7 +7,7 @@
 computeExpectations(binMsites, gcfreq)
 }
 \arguments{
-\item{binMsites}{The matrix returned by \code{addGCBintoMethylome}.}
+\item{binMsites}{The matrix returned by \code{addGCBinToMethylome}.}
 
 \item{gcfreq}{The GC bin frequency matrix of one motif.}
 }

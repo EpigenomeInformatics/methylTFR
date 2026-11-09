@@ -70,8 +70,8 @@ a \code{methylTFRdeviations} object with bias-corrected
 deviations, row-wise Z-scores and expected deviations.
 }
 \description{
-Internal engine shared by \code{\link{run_methyltfr}} and
-\code{\link{run_methylTFR_RnBeads}}. It validates the motif set,
+Internal engine shared by \code{\link{runMethylTFR}} and
+\code{\link{runMethylTFRFromRnBeads}}. It validates the motif set,
 allocates the on-disk sinks, iterates over samples, computes per-motif
 deviations in chunks and assembles the resulting
 \code{methylTFRdeviations} object.

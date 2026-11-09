@@ -1,6 +1,6 @@
 #' @title check_file_run_inputs
 #' @description Validate the file-specific arguments of
-#' \code{run_methyltfr}.
+#' \code{runMethylTFR}.
 #' @param filetype File type of the methylation call files.
 #' @param sampleColName Column name holding the file names.
 #' @param full_path if TRUE, the annotation file holds full paths.
@@ -76,11 +76,11 @@ locate_sample_files <- function(samples, sample_dir, sampleColName, full_path) {
     return(files_list)
 }
 
-#' @title run_methyltfr
+#' @title runMethylTFR
 #' @description Compute bias-corrected deviation scores for every motif and
 #' every sample listed in a sample annotation file.
-#' @details Each sample is read with \code{\link{read_methylome}}, binned by
-#' GC content with \code{\link{addGCBintoMethylome}} and scored per motif
+#' @details Each sample is read with \code{\link{readMethylome}}, binned by
+#' GC content with \code{\link{addGCBinToMethylome}} and scored per motif
 #' with \code{\link{computeDeviation}}.
 #' @param tf_bindsites A \code{GRangesList} named by motif. Each element is a
 #' \code{GRanges} of the occurrences of that motif. The names must include
@@ -129,22 +129,21 @@ locate_sample_files <- function(samples, sample_dir, sampleColName, full_path) {
 #' @param filetype Format of the methylation call files, one of
 #' \code{"bissnp"}, \code{"epp"}, \code{"allc"}, \code{"bismarkCytosine"},
 #' \code{"bismarkCov"} or \code{"encode"} (case-insensitive). See
-#' \code{\link{read_methylome}}.
+#' \code{\link{readMethylome}}.
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom IRanges subsetByOverlaps
 #' @importFrom data.table data.table
-#' @importFrom logger log_info log_error
+#' @importFrom logger log_info
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom S4Vectors DataFrame
 #' @importFrom DelayedArray DelayedArray close
 #' @importFrom utils read.table
 #' @importFrom methods as new
-#' @importFrom stats sd
 #' @import logger
 #' @return A \code{\linkS4class{methylTFRdeviations}} object with the assays
 #' \code{deviations}, \code{z} and \code{expected}, motifs in rows and
 #' samples in columns.
-#' @seealso \code{\link{run_methylTFR_RnBeads}} for running methylTFR
+#' @seealso \code{\link{runMethylTFRFromRnBeads}} for running methylTFR
 #' directly on a preprocessed RnBeads object, \code{\link{deviations}} and
 #' \code{\link{deviationZScores}} to extract the scores.
 #' @examples
@@ -156,7 +155,7 @@ locate_sample_files <- function(samples, sample_dir, sampleColName, full_path) {
 #' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 #' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #'
-#' # run_methyltfr() reads per-sample calls from disk, so the bundled sites
+#' # runMethylTFR() reads per-sample calls from disk, so the bundled sites
 #' # are written out as a bismarkCov file first.
 #' sample_dir <- tempfile("methylTFR_example")
 #' dir.create(sample_dir)
@@ -179,7 +178,7 @@ locate_sample_files <- function(samples, sample_dir, sampleColName, full_path) {
 #'     sep = "\t", row.names = FALSE, quote = FALSE
 #' )
 #'
-#' devs <- run_methyltfr(
+#' devs <- runMethylTFR(
 #'     sample_ann = "samples.tsv",
 #'     sample_dir = sample_dir,
 #'     tf_bindsites = tf_bindsites,
@@ -191,7 +190,7 @@ locate_sample_files <- function(samples, sample_dir, sampleColName, full_path) {
 #'
 #' unlink(sample_dir, recursive = TRUE)
 #' @export
-run_methyltfr <- function(
+runMethylTFR <- function(
     sample_ann, sample_dir, tf_bindsites = NULL,
     gcfreqs = NULL, gc_dist = NULL,
     sampleColName = "bedFile", chunkSize = 20,
@@ -212,7 +211,7 @@ run_methyltfr <- function(
 
     # Per-sample reader handed to the shared engine
     msites_fun <- function(i) {
-        read_methylome(files_list[i],
+        readMethylome(files_list[i],
             type = filetype,
             cov_threshold = opts$cov_threshold
         )

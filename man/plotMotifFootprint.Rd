@@ -29,7 +29,7 @@ or build a custom set with \pkg{methylTFRAnnotationBuilder}.}
 \item{msites}{A \code{GRanges} object with one range per CpG (width 1)
 and the metadata columns \code{score} (numeric methylation fraction
 between 0 and 1) and \code{coverage} (read count). Usually produced by
-\code{\link{read_methylome}}.}
+\code{\link{readMethylome}}.}
 
 \item{sample_name}{Optional sample label used in the plot title.
 Default \code{"sample"}.}

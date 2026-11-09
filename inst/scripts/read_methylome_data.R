@@ -2,8 +2,7 @@
 # Run from the package root
 output_dir <- file.path("inst", "extdata", "")
 
-# Encode data, bedMethyl (bed9+2). Columns 10 and 11 are read coverage and the
-# percentage of reads methylated.
+# Encode bedMethyl: column 10 is coverage, column 11 is percent methylated
 Encode <- data.frame(
   chrom = rep("chr1", 6),
   start = c(1000170, 1000190, 1000191, 1000198, 1000199, 1000206),
