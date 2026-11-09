@@ -64,9 +64,10 @@ saveCompressed(gcdist, file = "gcdist_subset.rda")
 ############################################################################
 # Example data for plotMotifFootprint
 ############################################################################
-msites_sub <- subsetByOverlaps(msitesAll, batfWindows, ignore.strand = TRUE)
-msites_sub <- msites_sub[!seqnames(msites_sub) %in% c("chrX", "chrY")]
-gcdist <- subsetByOverlaps(getGenomeGC(), batfWindows, ignore.strand = TRUE)
+# chr1 CpGs in BATF windows, and only the GC windows they fall in
+msites_sub <- msitesAll[seqnames(msitesAll) == "chr1"]
+msites_sub <- subsetByOverlaps(msites_sub, batfWindows, ignore.strand = TRUE)
+gcdist <- subsetByOverlaps(getGenomeGC(), msites_sub, ignore.strand = TRUE)
 
 saveCompressed(msites_sub, file = "msites_sub.rda")
 saveCompressed(gcdist, file = "gcdist_BATF.rda")
