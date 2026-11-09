@@ -32,4 +32,4 @@ write_block_to_sink(dev_values, grid, i, j, sink)
 
 ## Value
 
-sink
+Invisible `NULL`. Called for its effect on the sink.

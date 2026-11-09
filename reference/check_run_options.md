@@ -18,19 +18,21 @@ check_run_options(
 
 - chunkSize:
 
-  Chunk size for parallel processing of motifs.
+  Number of motifs processed together in one block. Default 20.
 
 - threads:
 
-  Thread count for parallel processing.
+  Number of workers used to process the motifs of a chunk in parallel.
+  Default 1 (serial).
 
 - ignoreStrand:
 
-  if TRUE, strand information is ignored.
+  Logical. If `TRUE` (default), strand is ignored when overlapping
+  methylation sites with annotations.
 
 - cov_threshold:
 
-  numeric coverage threshold.
+  Numeric. Sites with fewer reads than this are dropped. Default 1.
 
 ## Value
 

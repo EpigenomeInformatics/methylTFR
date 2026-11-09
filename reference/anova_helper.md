@@ -12,12 +12,12 @@ anova_helper(x, groups)
 
 - x:
 
-  - a numeric vector of deviations
+  a numeric vector of deviations
 
 - groups:
 
-  - a character vector of group names or colnames(deviations)
+  a character vector of group names
 
 ## Value
 
-a numeric vector of p-values
+a p-value

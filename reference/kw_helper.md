@@ -1,6 +1,6 @@
-# Kruskal-Wallis Rank Sum Test for multiple groups
+# Kruskal-Wallis rank sum test for multiple groups
 
-Kruskal-Wallis Rank Sum Test for multiple groups
+Kruskal-Wallis rank sum test for multiple groups
 
 ## Usage
 
@@ -12,12 +12,12 @@ kw_helper(x, groups)
 
 - x:
 
-  - a numeric vector of deviations
+  a numeric vector of deviations
 
 - groups:
 
-  - a character vector of group names or colnames(deviations)
+  a character vector of group names
 
 ## Value
 
-a numeric vector of p-values
+a p-value

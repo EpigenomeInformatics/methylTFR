@@ -21,6 +21,34 @@ methylation footprints.
 
 ![](../reference/figures/overview.png)
 
+### Related Bioconductor packages
+
+| Package | Input | Output unit | Needs expression or groups? |
+|----|----|----|----|
+| *[chromVAR](https://bioconductor.org/packages/3.23/chromVAR)* | Chromatin accessibility counts | Motif x sample | No |
+| *[ELMER](https://bioconductor.org/packages/3.23/ELMER)* | Methylation (mainly arrays) + expression | Probe-gene pairs, TFs | Expression and groups |
+| *[RnBeads](https://bioconductor.org/packages/3.23/RnBeads)*, *[methylKit](https://bioconductor.org/packages/3.23/methylKit)*, *[DSS](https://bioconductor.org/packages/3.23/DSS)*, *[bsseq](https://bioconductor.org/packages/3.23/bsseq)*, *[dmrseq](https://bioconductor.org/packages/3.23/dmrseq)*, *[DMRcate](https://bioconductor.org/packages/3.23/DMRcate)* | CpG methylation | CpG, region or DMR | Groups for differential tests |
+| *[LOLA](https://bioconductor.org/packages/3.23/LOLA)* | Region sets (e.g. DMRs) | Enrichment per comparison | A thresholded query set |
+| *[viper](https://bioconductor.org/packages/3.23/viper)*, *[dorothea](https://bioconductor.org/packages/3.23/dorothea)*, *[decoupleR](https://bioconductor.org/packages/3.23/decoupleR)* | Expression + regulons | TF x sample | Expression |
+| `methylTFR` | CpG methylation | Motif x sample | No |
+
+`methylTFR` is closest to
+*[chromVAR](https://bioconductor.org/packages/3.23/chromVAR)*, which
+scores motif deviations per sample from chromatin accessibility;
+`methylTFR` does the same from methylation, against a GC-based
+expectation. *[ELMER](https://bioconductor.org/packages/3.23/ELMER)*
+also infers TFs from methylation, but needs matched expression and works
+on differential probes. The CpG and DMR packages give no TF-level
+summary, and `methylTFR` can read an `RnBeads` object directly.
+*[LOLA](https://bioconductor.org/packages/3.23/LOLA)* returns enrichment
+per comparison rather than a score per sample. Expression-based tools
+such as *[viper](https://bioconductor.org/packages/3.23/viper)*
+complement `methylTFR`. Motif matching upstream, when the annotation
+packages are built, uses
+*[motifmatchr](https://bioconductor.org/packages/3.23/motifmatchr)*,
+*[TFBSTools](https://bioconductor.org/packages/3.23/TFBSTools)* and
+*[JASPAR2020](https://bioconductor.org/packages/3.23/JASPAR2020)*.
+
 ## Installation
 
 `methylTFR` is currently under review for Bioconductor. Until it is
@@ -58,10 +86,11 @@ library(methylTFR)
 ### Read a Sample File
 
 The
-[`read_methylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.md)
+[`readMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/readMethylome.md)
 function is used to import single-sample DNA methylation data into a
 `GRanges` object. It supports several common file formats, including
-`EPP`, `ALLC`, `BisSNP`, `bismarkCytosine`, `bismarkcov`, and `ENCODE`.
+`EPP`, `ALLC`, `BisSNP`, `bismarkCytosine`, `bismarkCov`, and `ENCODE`
+bedMethyl.
 
 You can optionally filter out low-coverage sites using the
 `cov_threshold` parameter (default = 1), which excludes positions with
@@ -73,7 +102,7 @@ in the package:
 ``` r
 
 epp_path <- system.file("extdata", "epp.tsv.gz", package = "methylTFR")
-epp <- read_methylome(epp_path, "EPP")
+epp <- readMethylome(epp_path, "EPP")
 epp
 #> GRanges object with 6 ranges and 2 metadata columns:
 #>       seqnames          ranges strand |     score  coverage
@@ -94,19 +123,26 @@ Computing expected deviations requires precomputed annotations for the
 genome of interest: transcription factor binding sites, a genome-wide GC
 distribution, and per-motif GC frequency tables. These are distributed
 separately from `methylTFR`, in an annotation package named after the
-assembly, for example `methylTFRAnnotationHg38`. Keeping them out of the
-package is a practical necessity: the binding sites alone run to several
-gigabytes for a full motif set.
+assembly, for example `methylTFRAnnotationHg38`, because the binding
+sites alone take several gigabytes for a full motif set.
 
 With the annotation package installed, the three resources are retrieved
-with `getTFbindsites()`, `getGenomeGC()` and `getGCfreq()`, as shown in
-the multi-sample section below.
+as follows:
+
+``` r
+
+library(methylTFRAnnotationHg38)
+
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+gc_dist <- getGenomeGC()
+```
 
 To build annotations for a different assembly, motif set, or region
 restriction, use
 [`methylTFRAnnotationBuilder`](https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder).
 
-The examples in this section instead use a small `BATF` subset bundled
+The examples in this vignette instead use a small `BATF` subset bundled
 with `methylTFR`, so they run without any annotation package.
 
 ### Input Data
@@ -116,48 +152,51 @@ estimate expected methylation levels at transcription factor binding
 sites (TFBS). These annotations include:
 
 - **GC distribution (`gcdist_subset`)**: Genome-wide GC content
-  distribution around cytosines, used to model methylation expectations.
+  distribution in 30-bp windows, used to model methylation expectations.
 - **Motif GC frequency (`BATF_gcfreqs`)**: GC frequency profile specific
   to the BATF motif across TFBS, used to correct for sequence
   composition bias.
 - **TF binding sites (`BATF_tf_bindsites`)**: A `GRanges` object
   containing the genomic coordinates of BATF binding sites.
 - **Example methylation data (`example_data`)**: A small subset of
-  methylation calls in EPP format, read using the
-  [`read_methylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.md)
-  function, provided for demonstration purposes.
+  methylation calls, read with
+  [`readMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/readMethylome.md),
+  provided for demonstration purposes.
+
+The example methylation data in `inst/extdata` are derived from ENCODE
+whole-genome bisulfite sequencing (ENCSR663MXB, GRCh38). ENCODE data are
+released without restrictions. The script that creates them is
+`inst/scripts/vignette_data.R`.
 
 The following code loads these example datasets and displays the first
 few entries:
 
 ``` r
 
-# Load the data
 load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
 load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-# Check the data
 head(gcdist)
 #> GRanges object with 6 ranges and 2 metadata columns:
 #>       seqnames      ranges strand |   GC_bias    GC_bin
 #>          <Rle>   <IRanges>  <Rle> | <numeric> <integer>
-#>   [1]     chr1 10471-10500      * |  0.866667         5
-#>   [2]     chr1 10591-10620      * |  0.633333         5
-#>   [3]     chr1 10621-10650      * |  0.800000         5
-#>   [4]     chr1 13051-13080      * |  0.700000         5
-#>   [5]     chr1 13261-13290      * |  0.666667         5
-#>   [6]     chr1 13291-13320      * |  0.600000         5
+#>   [1]     chr1 13741-13770      * |  0.700000         5
+#>   [2]     chr1 13801-13830      * |  0.600000         5
+#>   [3]     chr1 47161-47190      * |  0.333333         2
+#>   [4]     chr1 47191-47220      * |  0.333333         2
+#>   [5]     chr1 52231-52260      * |  0.366667         3
+#>   [6]     chr1 52351-52380      * |  0.333333         2
 #>   -------
 #>   seqinfo: 24 sequences from an unspecified genome; no seqlengths
 head(gcfreqs$BATF[, 1:5])
-#>            [,1]       [,2]      [,3]       [,4]       [,5]
-#> [1,] 0.08855923 0.08616168 0.0865363 0.08608676 0.08646138
-#> [2,] 0.20513973 0.20791189 0.2102345 0.20971005 0.21173297
-#> [3,] 0.19622387 0.20011988 0.1965985 0.19734772 0.19165356
-#> [4,] 0.27346969 0.27062261 0.2724957 0.27182138 0.27699108
-#> [5,] 0.23660748 0.23518394 0.2341350 0.23503409 0.23316101
+#>           [,1]      [,2]      [,3]      [,4]      [,5]
+#> [1,] 0.1216832 0.1212626 0.1208012 0.1209724 0.1206374
+#> [2,] 0.2540062 0.2544714 0.2551190 0.2541142 0.2549292
+#> [3,] 0.1953771 0.1957679 0.1957418 0.1958386 0.1953064
+#> [4,] 0.2333033 0.2332140 0.2330019 0.2339583 0.2334522
+#> [5,] 0.1956302 0.1952841 0.1953362 0.1951166 0.1956748
 head(tf_bindsites)
 #> $BATF
 #> GRanges object with 268717 ranges and 1 metadata column:
@@ -179,15 +218,15 @@ head(tf_bindsites)
 head(msites)
 #> GRanges object with 6 ranges and 2 metadata columns:
 #>       seqnames      ranges strand |     score  coverage
-#>          <Rle>   <IRanges>  <Rle> | <numeric> <integer>
-#>   [1]     chr1 10471-10472      - |         1         9
-#>   [2]     chr1 10608-10609      + |         0         2
-#>   [3]     chr1 10609-10610      - |         1         1
-#>   [4]     chr1 10616-10617      + |         0         2
-#>   [5]     chr1 10617-10618      - |         1         1
-#>   [6]     chr1 10619-10620      + |         0         2
+#>          <Rle>   <IRanges>  <Rle> | <numeric> <numeric>
+#>   [1]     chr1 13749-13750      + |       0.8         5
+#>   [2]     chr1 13755-13756      + |       0.8         5
+#>   [3]     chr1 13822-13823      + |       0.6         5
+#>   [4]     chr1 13827-13828      + |       1.0         5
+#>   [5]     chr1 47175-47176      + |       1.0         1
+#>   [6]     chr1 47176-47177      - |       1.0         3
 #>   -------
-#>   seqinfo: 170 sequences from an unspecified genome; no seqlengths
+#>   seqinfo: 195 sequences from an unspecified genome; no seqlengths
 ```
 
 ## Compute Deviation Score for a Single Sample and Single Motif
@@ -202,23 +241,20 @@ derived from GC frequency models.
 This example uses the `BATF` motif and the example methylation dataset
 loaded earlier. The methylation data must first be binned by GC content
 using
-[`addGCBintoMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/addGCBintoMethylome.md)
+[`addGCBinToMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/addGCBinToMethylome.md)
 before computing the deviation.
 
 ``` r
 
-# Add GC bins to methylation data
-bin_meth <- addGCBintoMethylome(msites, gcdist, ignoreStrand = TRUE)
-#> Loading required namespace: GenomeInfoDb
+bin_meth <- addGCBinToMethylome(msites, gcdist, ignoreStrand = TRUE)
 bin_meth
 #>      gcbin avg_mscore
-#> [1,]     1  0.8125000
-#> [2,]     2  0.5871203
-#> [3,]     3  0.7217031
-#> [4,]     4  0.7091566
-#> [5,]     5  0.7838198
+#> [1,]     1  0.5562500
+#> [2,]     2  0.7409375
+#> [3,]     3  0.8235556
+#> [4,]     4  0.7962617
+#> [5,]     5  0.7528302
 
-# Compute deviation score for BATF motif
 deviation_score <- computeDeviation(
     motif = "BATF",
     msites = msites,
@@ -228,80 +264,194 @@ deviation_score <- computeDeviation(
     ignoreStrand = TRUE,
     binMsites = bin_meth
 )
-
-# View the result
 deviation_score
-#>         dev   exp_dev
-#>       <num>     <num>
-#> 1: 1.747427 0.9798459
+#>           dev   exp_dev
+#>         <num>     <num>
+#> 1: -0.1167365 0.9992794
 ```
 
 ## Run methylTFR on multiple samples and motifs
 
-The `methylTFR` package provides a `run_methyltfr` function to run the
-analysis on multiple samples and motif sites. You need to download the
-annotation package for the human genome (*hg38*) and place it in your
-working directory.
+[`runMethylTFR()`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFR.md)
+runs the analysis on every sample listed in a sample annotation file.
+The file must contain a column (by default `bedFile`) with the
+methylation file names; all its columns become the `colData` of the
+result.
+
+To keep this example self-contained, three small samples are simulated
+from the bundled data by resampling the methylated reads at each CpG,
+and written to a temporary directory as `bismarkCov` files.
 
 ``` r
 
-library(methylTFRAnnotationHg38) # annotation package for hg38
+sample_dir <- file.path(tempdir(), "methylTFR_vignette")
+dir.create(sample_dir, showWarnings = FALSE)
 
-gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC()
-tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
-
-sample_dir <- file.path("samples_dir")
-sample_ann <- "samples.tsv" # should contain column name bedFile
-
-# deviation score matrix
-deviations <- run_methyltfr(
-    annfile = sample_ann, # sample annotation file
-    sample_dir = sample_dir, # where the EPP files are
-    threads = 8, # number of threads
-    chunkSize = 10, # number of chunks to process
-    sampleColName = "bedFile", # column name for EPP file paths in sample_ann
-    tf_bindsites = tf_bindsites, # TF binding sites
-    gcfreqs = gcfreqs, # GC frequency
-    gc_dist = gc_dist, # GC distribution
-    filetype = "EPP" # file type
+set.seed(1)
+sample_files <- paste0("sample_", 1:3, ".cov")
+cov <- round(msites$coverage)
+keep <- is.finite(msites$score) & msites$score >= 0 &
+    msites$score <= 1 & is.finite(cov) & cov >= 1
+m <- msites[keep]
+cov <- cov[keep]
+for (f in sample_files) {
+    n_meth <- rbinom(length(m), cov, m$score)
+    write.table(
+        data.frame(
+            chr = as.character(GenomicRanges::seqnames(m)),
+            start = GenomicRanges::start(m),
+            end = GenomicRanges::end(m),
+            percent = 100 * n_meth / cov,
+            meth = n_meth,
+            unmeth = cov - n_meth
+        ),
+        file.path(sample_dir, f),
+        sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE
+    )
+}
+write.table(
+    data.frame(sampleName = sub(".cov", "", sample_files), bedFile = sample_files),
+    file.path(sample_dir, "samples.tsv"),
+    sep = "\t", row.names = FALSE, quote = FALSE
 )
+
+devs <- runMethylTFR(
+    sample_ann = "samples.tsv", # file in sample_dir
+    sample_dir = sample_dir, # where the methylation files are
+    sampleColName = "bedFile", # column with the file names
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    gc_dist = gcdist,
+    filetype = "bismarkCov",
+    threads = 1,
+    chunkSize = 10
+)
+#> SUCCESS [2026-11-09 14:51:20] The samples are successfully located
+#> INFO [2026-11-09 14:51:20] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da245843080.h5
+#> INFO [2026-11-09 14:51:20] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da229881ce4.h5
+#> INFO [2026-11-09 14:51:20] Processing sample_1.cov
+#> INFO [2026-11-09 14:51:20] Finished processing sample_1.cov
+#> INFO [2026-11-09 14:51:20] Processing sample_2.cov
+#> INFO [2026-11-09 14:51:20] Finished processing sample_2.cov
+#> INFO [2026-11-09 14:51:20] Processing sample_3.cov
+#> INFO [2026-11-09 14:51:21] Finished processing sample_3.cov
+#> SUCCESS [2026-11-09 14:51:21] Computed all deviations successfully
+devs
+#> class: methylTFRdeviations 
+#> dim: 1 3 
+#> metadata(0):
+#> assays(3): deviations z expected
+#> rownames(1): BATF
+#> rowData names(1): motifs
+#> colnames(3): sample_1.cov sample_2.cov sample_3.cov
+#> colData names(2): sampleName bedFile
+deviations(devs)
+#>      sample_1.cov sample_2.cov sample_3.cov
+#> BATF    -0.126291   -0.1011316   -0.1371465
+```
+
+For a real analysis, the annotation objects come from the annotation
+package and the per-sample files are your own methylation calls; the
+call is otherwise the same.
+
+To restrict the analysis to a set of regulatory regions, pass them as a
+`GRanges` through the `enhancer` argument. Here, windows of 2 kb around
+the binding sites stand in for a region set:
+
+``` r
+
+regions <- GenomicRanges::reduce(
+    GenomicRanges::resize(tf_bindsites$BATF, 2000, fix = "center")
+)
+devsRegions <- runMethylTFR(
+    sample_ann = "samples.tsv",
+    sample_dir = sample_dir,
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    gc_dist = gcdist,
+    filetype = "bismarkCov",
+    enhancer = regions
+)
+#> SUCCESS [2026-11-09 14:51:21] The samples are successfully located
+#> INFO [2026-11-09 14:51:21] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27efb0261.h5
+#> INFO [2026-11-09 14:51:21] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27150fb4a.h5
+#> INFO [2026-11-09 14:51:21] Processing sample_1.cov
+#> INFO [2026-11-09 14:51:21] Finished processing sample_1.cov
+#> INFO [2026-11-09 14:51:21] Processing sample_2.cov
+#> INFO [2026-11-09 14:51:21] Finished processing sample_2.cov
+#> INFO [2026-11-09 14:51:21] Processing sample_3.cov
+#> INFO [2026-11-09 14:51:21] Finished processing sample_3.cov
+#> SUCCESS [2026-11-09 14:51:21] Computed all deviations successfully
+deviations(devsRegions)
+#>      sample_1.cov sample_2.cov sample_3.cov
+#> BATF    -0.126291   -0.1011316   -0.1371465
 ```
 
 ## Run methylTFR directly on an RnBeads object
 
 If the methylation data has already been imported and preprocessed with
-[`RnBeads`](https://bioconductor.org/packages/RnBeads), there is no need
-to export per-sample files first.
-[`run_methylTFR_RnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)
+*[RnBeads](https://bioconductor.org/packages/3.23/RnBeads)*, there is no
+need to export per-sample files first.
+[`runMethylTFRFromRnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFRFromRnBeads.md)
 takes the `RnBSet` object directly and returns the same
 `methylTFRdeviations` object as
-[`run_methyltfr()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methyltfr.md).
+[`runMethylTFR()`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFR.md).
 
 Methylation levels are read one sample column at a time, so disk-backed
 sets created with `disk.dump.big.matrices = TRUE` are never loaded into
 memory in full.
 
+A preprocessed set is usually loaded with
+[`RnBeads::load.rnb.set()`](https://rdrr.io/pkg/RnBeads/man/load.rnb.set.html).
+Here, a small `RnBiseqSet` is built from the bundled data. This chunk
+runs only when `RnBeads` and `RnBeads.hg38` are installed.
+
 ``` r
 
 library(RnBeads)
-library(methylTFRAnnotationHg38)
 
-rnb_set <- load.rnb.set("reports/data_import_data/rnb.set_preprocessed")
+old_ids <- rnb.getOption("identifiers.column")
+rnb.options(identifiers.column = "sampleName")
 
-gcfreqs <- getGCfreq(motifSet = "jaspar2020")
-gc_dist <- getGenomeGC()
-tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+ids <- c("sample_1", "sample_2")
+meth <- cbind(msites$score, msites$score)
+covg <- cbind(msites$coverage, msites$coverage)
+dimnames(meth) <- dimnames(covg) <- list(NULL, ids)
 
-deviations <- run_methylTFR_RnBeads(
+rnb_set <- RnBiseqSet(
+    pheno = data.frame(sampleName = ids),
+    sites = data.frame(
+        chr = as.character(GenomicRanges::seqnames(msites)),
+        start = GenomicRanges::start(msites),
+        strand = "*"
+    ),
+    meth = meth,
+    covg = covg,
+    assembly = "hg38",
+    summarize.regions = FALSE
+)
+
+devsRnb <- runMethylTFRFromRnBeads(
     rnb_set = rnb_set, # preprocessed RnBeads object
-    tf_bindsites = tf_bindsites, # TF binding sites
-    gcfreqs = gcfreqs, # GC frequency
-    gc_dist = gc_dist, # GC distribution
-    threads = 8, # number of threads
-    chunkSize = 10, # number of motifs per chunk
+    tf_bindsites = tf_bindsites,
+    gcfreqs = gcfreqs,
+    gc_dist = gcdist,
     cov_threshold = 1 # minimum coverage per site
 )
+#> INFO [2026-11-09 14:51:46] Annotation target: sites | assembly: hg38
+#> INFO [2026-11-09 14:51:49] Found 516 sites across 2 samples
+#> INFO [2026-11-09 14:51:49] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da25eac237f.h5
+#> INFO [2026-11-09 14:51:49] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da2264f4bcd.h5
+#> INFO [2026-11-09 14:51:49] Sample 1: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 14:51:49] Processing sample_1
+#> INFO [2026-11-09 14:51:49] Finished processing sample_1
+#> INFO [2026-11-09 14:51:49] Sample 2: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 14:51:49] Processing sample_2
+#> INFO [2026-11-09 14:51:49] Finished processing sample_2
+#> SUCCESS [2026-11-09 14:51:49] Computed all deviations successfully
+deviations(devsRnb)
+#>       sample_1  sample_2
+#> BATF -0.124932 -0.124932
 ```
 
 Methylation calls are always read at single-cytosine resolution. Region
@@ -311,21 +461,34 @@ of regulatory regions, pass them through the `enhancer` argument:
 
 ``` r
 
-distal <- readRDS("distal_regions.RDS") # a GRanges of distal regions
-
-deviations_distal <- run_methylTFR_RnBeads(
+devsRnbRegions <- runMethylTFRFromRnBeads(
     rnb_set = rnb_set,
     tf_bindsites = tf_bindsites,
-    gcfreqs = getGCfreq(motifSet = "jaspar2020_distal"),
-    gc_dist = gc_dist,
-    enhancer = distal,
-    threads = 8
+    gcfreqs = gcfreqs,
+    gc_dist = gcdist,
+    enhancer = regions
 )
+#> INFO [2026-11-09 14:51:49] Annotation target: sites | assembly: hg38
+#> INFO [2026-11-09 14:51:51] Found 516 sites across 2 samples
+#> INFO [2026-11-09 14:51:51] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da217a04718.h5
+#> INFO [2026-11-09 14:51:51] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27c2e163d.h5
+#> INFO [2026-11-09 14:51:51] Sample 1: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 14:51:51] Processing sample_1
+#> INFO [2026-11-09 14:51:51] Finished processing sample_1
+#> INFO [2026-11-09 14:51:51] Sample 2: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 14:51:51] Processing sample_2
+#> INFO [2026-11-09 14:51:51] Finished processing sample_2
+#> SUCCESS [2026-11-09 14:51:51] Computed all deviations successfully
+deviations(devsRnbRegions)
+#>       sample_1  sample_2
+#> BATF -0.124932 -0.124932
+
+rnb.options(identifiers.column = old_ids)
 ```
 
 Coverage filtering applies only to sequencing-based sets (`RnBiseqSet`),
-which carry coverage information. For array-based sets `cov_threshold`
-is ignored and a message is emitted.
+which carry coverage information. Array-based sets are filtered by
+detection p-value through `dpval_threshold`.
 
 `RnBeads` is a suggested dependency rather than a required one, so it is
 only needed if this entry point is used.
@@ -353,40 +516,113 @@ sessionInfo()
 #> tzcode source: system (glibc)
 #> 
 #> attached base packages:
-#> [1] stats4    stats     graphics  grDevices utils     datasets  methods  
-#> [8] base     
+#>  [1] parallel  grid      stats4    stats     graphics  grDevices utils    
+#>  [8] datasets  methods   base     
 #> 
 #> other attached packages:
-#>  [1] methylTFR_0.99.9            SummarizedExperiment_1.42.0
-#>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
-#>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
-#>  [7] S4Vectors_0.50.3            BiocGenerics_0.58.1        
-#>  [9] generics_0.1.4              MatrixGenerics_1.24.0      
-#> [11] matrixStats_1.5.0           data.table_1.18.6.1        
-#> [13] BiocStyle_2.40.0           
+#>  [1] RnBeads.hg38_1.44.0                     
+#>  [2] RnBeads_2.30.0                          
+#>  [3] plyr_1.8.9                              
+#>  [4] methylumi_2.58.1                        
+#>  [5] minfi_1.58.0                            
+#>  [6] bumphunter_1.54.0                       
+#>  [7] locfit_1.5-9.12                         
+#>  [8] iterators_1.0.14                        
+#>  [9] foreach_1.5.2                           
+#> [10] Biostrings_2.80.2                       
+#> [11] XVector_0.52.0                          
+#> [12] FDb.InfiniumMethylation.hg19_2.2.0      
+#> [13] org.Hs.eg.db_3.23.1                     
+#> [14] TxDb.Hsapiens.UCSC.hg19.knownGene_3.22.1
+#> [15] GenomicFeatures_1.64.0                  
+#> [16] AnnotationDbi_1.74.0                    
+#> [17] reshape2_1.4.5                          
+#> [18] scales_1.4.0                            
+#> [19] illuminaio_0.54.0                       
+#> [20] limma_3.68.5                            
+#> [21] gridExtra_2.3.1                         
+#> [22] gplots_3.3.0                            
+#> [23] ggplot2_4.0.3                           
+#> [24] fields_18.0                             
+#> [25] RColorBrewer_1.1-3                      
+#> [26] viridisLite_0.4.3                       
+#> [27] spam_2.11-4                             
+#> [28] ff_4.5.3                                
+#> [29] bit_4.6.0                               
+#> [30] cluster_2.1.8.3                         
+#> [31] MASS_7.3-66                             
+#> [32] methylTFR_0.99.10                       
+#> [33] SummarizedExperiment_1.42.0             
+#> [34] Biobase_2.72.0                          
+#> [35] GenomicRanges_1.64.0                    
+#> [36] Seqinfo_1.2.0                           
+#> [37] IRanges_2.46.0                          
+#> [38] S4Vectors_0.50.3                        
+#> [39] BiocGenerics_0.58.1                     
+#> [40] generics_0.1.4                          
+#> [41] MatrixGenerics_1.24.0                   
+#> [42] matrixStats_1.5.0                       
+#> [43] data.table_1.18.6.1                     
+#> [44] BiocStyle_2.40.0                        
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] gtable_0.3.6        xfun_0.62           bslib_0.12.0       
-#>  [4] ggplot2_4.0.3       rhdf5_2.56.1        lattice_0.23-1     
-#>  [7] rhdf5filters_1.24.1 vctrs_0.7.3         tools_4.6.2        
-#> [10] parallel_4.6.2      tibble_3.3.1        pkgconfig_2.0.3    
-#> [13] R.oo_1.27.1         Matrix_1.7-6        RColorBrewer_1.1-3 
-#> [16] S7_0.2.2            desc_1.4.3          lifecycle_1.0.5    
-#> [19] stringr_1.6.0       compiler_4.6.2      farver_2.1.2       
-#> [22] textshaping_1.0.5   codetools_0.2-20    GenomeInfoDb_1.48.0
-#> [25] htmltools_0.5.9     sass_0.4.10         yaml_2.3.12        
-#> [28] pillar_1.11.1       pkgdown_2.2.1       jquerylib_0.1.4    
-#> [31] R.utils_2.13.0      BiocParallel_1.46.0 DelayedArray_0.38.2
-#> [34] cachem_1.1.0        abind_1.4-8         tidyselect_1.2.1   
-#> [37] digest_0.6.39       stringi_1.8.9       dplyr_1.2.1        
-#> [40] bookdown_0.48       fastmap_1.2.0       grid_4.6.2         
-#> [43] cli_3.6.6           SparseArray_1.12.3  logger_0.4.3       
-#> [46] magrittr_2.0.5      S4Arrays_1.12.1     h5mread_1.4.1      
-#> [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.9         
-#> [52] rmarkdown_2.32      XVector_0.52.0      otel_0.2.0         
-#> [55] ragg_1.5.2          R.methodsS3_1.8.2   HDF5Array_1.40.0   
-#> [58] evaluate_1.0.5      knitr_1.52          rlang_1.3.0        
-#> [61] glue_1.8.1          BiocManager_1.30.27 jsonlite_2.0.0     
-#> [64] R6_2.6.1            Rhdf5lib_2.0.0      systemfonts_1.3.2  
-#> [67] fs_2.1.0
+#>   [1] splines_4.6.2             BiocIO_1.22.0            
+#>   [3] bitops_1.1-0              R.oo_1.27.1              
+#>   [5] tibble_3.3.1              preprocessCore_1.74.0    
+#>   [7] XML_3.99-0.25             lifecycle_1.0.5          
+#>   [9] lattice_0.23-1            base64_2.0.2             
+#>  [11] scrime_1.3.7              magrittr_2.0.5           
+#>  [13] sass_0.4.10               rmarkdown_2.32           
+#>  [15] jquerylib_0.1.4           yaml_2.3.12              
+#>  [17] otel_0.3.0                doRNG_1.8.6.3            
+#>  [19] askpass_1.2.1             DBI_1.3.0                
+#>  [21] maps_3.4.4                abind_1.4-8              
+#>  [23] quadprog_1.5-8            purrr_1.2.2              
+#>  [25] R.utils_2.13.0            RCurl_1.98-1.20          
+#>  [27] rentrez_1.2.4             genefilter_1.94.0        
+#>  [29] annotate_1.90.0           pkgdown_2.2.1            
+#>  [31] DelayedMatrixStats_1.34.0 codetools_0.2-20         
+#>  [33] DelayedArray_0.38.2       xml2_1.6.0               
+#>  [35] tidyselect_1.2.1          UCSC.utils_1.8.0         
+#>  [37] farver_2.1.2              beanplot_1.3.1           
+#>  [39] GenomicAlignments_1.48.0  jsonlite_2.0.0           
+#>  [41] multtest_2.68.0           survival_3.8-12          
+#>  [43] systemfonts_1.3.2         tools_4.6.2              
+#>  [45] ragg_1.5.2                Rcpp_1.1.2               
+#>  [47] glue_1.8.1                SparseArray_1.12.3       
+#>  [49] xfun_0.62                 GenomeInfoDb_1.48.0      
+#>  [51] dplyr_1.2.1               HDF5Array_1.40.0         
+#>  [53] withr_3.0.3               BiocManager_1.30.27      
+#>  [55] fastmap_1.2.0             rhdf5filters_1.24.1      
+#>  [57] openssl_2.5.0             caTools_1.18.4           
+#>  [59] digest_0.6.39             R6_2.6.1                 
+#>  [61] textshaping_1.0.5         gtools_3.9.5             
+#>  [63] RSQLite_3.53.3            R.methodsS3_1.8.2        
+#>  [65] cigarillo_1.2.1           h5mread_1.4.1            
+#>  [67] tidyr_1.3.2               rtracklayer_1.72.0       
+#>  [69] httr_1.4.9                S4Arrays_1.12.1          
+#>  [71] pkgconfig_2.0.3           gtable_0.3.6             
+#>  [73] blob_1.3.0                S7_0.2.2                 
+#>  [75] siggenes_1.86.0           htmltools_0.5.9          
+#>  [77] dotCall64_1.2             bookdown_0.48            
+#>  [79] png_0.1-9                 knitr_1.52               
+#>  [81] tzdb_0.5.0                rjson_0.2.23             
+#>  [83] nlme_3.1-171              curl_8.1.0               
+#>  [85] cachem_1.1.0              rhdf5_2.56.1             
+#>  [87] stringr_1.6.0             KernSmooth_2.23-27       
+#>  [89] restfulr_0.0.17           desc_1.4.3               
+#>  [91] logger_0.4.3              GEOquery_2.80.1          
+#>  [93] pillar_1.11.1             reshape_0.8.10           
+#>  [95] vctrs_0.7.3               xtable_1.8-8             
+#>  [97] evaluate_1.0.5            readr_2.2.0              
+#>  [99] cli_3.6.6                 compiler_4.6.2           
+#> [101] Rsamtools_2.28.0          rlang_1.3.0              
+#> [103] crayon_1.5.3              rngtools_1.5.2           
+#> [105] nor1mix_1.3-3             mclust_6.1.3             
+#> [107] fs_2.1.0                  stringi_1.8.9            
+#> [109] BiocParallel_1.46.0       Matrix_1.7-6             
+#> [111] hms_1.1.4                 sparseMatrixStats_1.24.0 
+#> [113] bit64_4.8.6               Rhdf5lib_2.0.0           
+#> [115] KEGGREST_1.52.2           statmod_1.5.2            
+#> [117] memoise_2.0.1             bslib_0.12.0
 ```

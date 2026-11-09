@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>methylTFR: DNA Methylation Signatures in TFBS • methylTFR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -20,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">methylTFR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +66,7 @@
                         <h4 data-toc-skip class="author">Irem B. Gündüz,
 Sarath Kumar Murugan, Fabian Muller</h4>
             
-            <h4 data-toc-skip class="date">2026-11-05</h4>
+            <h4 data-toc-skip class="date">2026-11-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/EpigenomeInformatics/methylTFR/blob/main/vignettes/methylTFR.Rmd" class="external-link"><code>vignettes/methylTFR.Rmd</code></a></small>
       <div class="d-none name"><code>methylTFR.Rmd</code></div>
@@ -89,6 +94,87 @@ samples, suitable for downstream analyses such as dimensionality
 reduction (e.g., PCA, UMAP), clustering, differential testing, and
 visualization of TF-specific methylation footprints.</p>
 <p><img src="../reference/figures/overview.png" style="width:80.0%"></p>
+<div class="section level3">
+<h3 id="related-bioconductor-packages">Related Bioconductor packages<a class="anchor" aria-label="anchor" href="#related-bioconductor-packages"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="15%">
+<col width="12%">
+<col width="22%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Package</th>
+<th>Input</th>
+<th>Output unit</th>
+<th>Needs expression or groups?</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><em><a href="https://bioconductor.org/packages/3.23/chromVAR" class="external-link">chromVAR</a></em></td>
+<td>Chromatin accessibility counts</td>
+<td>Motif x sample</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><em><a href="https://bioconductor.org/packages/3.23/ELMER" class="external-link">ELMER</a></em></td>
+<td>Methylation (mainly arrays) + expression</td>
+<td>Probe-gene pairs, TFs</td>
+<td>Expression and groups</td>
+</tr>
+<tr class="odd">
+<td>
+<em><a href="https://bioconductor.org/packages/3.23/RnBeads" class="external-link">RnBeads</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/methylKit" class="external-link">methylKit</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/DSS" class="external-link">DSS</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/bsseq" class="external-link">bsseq</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/dmrseq" class="external-link">dmrseq</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/DMRcate" class="external-link">DMRcate</a></em>
+</td>
+<td>CpG methylation</td>
+<td>CpG, region or DMR</td>
+<td>Groups for differential tests</td>
+</tr>
+<tr class="even">
+<td><em><a href="https://bioconductor.org/packages/3.23/LOLA" class="external-link">LOLA</a></em></td>
+<td>Region sets (e.g. DMRs)</td>
+<td>Enrichment per comparison</td>
+<td>A thresholded query set</td>
+</tr>
+<tr class="odd">
+<td>
+<em><a href="https://bioconductor.org/packages/3.23/viper" class="external-link">viper</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/dorothea" class="external-link">dorothea</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/decoupleR" class="external-link">decoupleR</a></em>
+</td>
+<td>Expression + regulons</td>
+<td>TF x sample</td>
+<td>Expression</td>
+</tr>
+<tr class="even">
+<td><code>methylTFR</code></td>
+<td>CpG methylation</td>
+<td>Motif x sample</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><code>methylTFR</code> is closest to <em><a href="https://bioconductor.org/packages/3.23/chromVAR" class="external-link">chromVAR</a></em>,
+which scores motif deviations per sample from chromatin accessibility;
+<code>methylTFR</code> does the same from methylation, against a
+GC-based expectation. <em><a href="https://bioconductor.org/packages/3.23/ELMER" class="external-link">ELMER</a></em> also
+infers TFs from methylation, but needs matched expression and works on
+differential probes. The CpG and DMR packages give no TF-level summary,
+and <code>methylTFR</code> can read an <code>RnBeads</code> object
+directly. <em><a href="https://bioconductor.org/packages/3.23/LOLA" class="external-link">LOLA</a></em> returns
+enrichment per comparison rather than a score per sample.
+Expression-based tools such as <em><a href="https://bioconductor.org/packages/3.23/viper" class="external-link">viper</a></em>
+complement <code>methylTFR</code>. Motif matching upstream, when the
+annotation packages are built, uses <em><a href="https://bioconductor.org/packages/3.23/motifmatchr" class="external-link">motifmatchr</a></em>,
+<em><a href="https://bioconductor.org/packages/3.23/TFBSTools" class="external-link">TFBSTools</a></em>
+and <em><a href="https://bioconductor.org/packages/3.23/JASPAR2020" class="external-link">JASPAR2020</a></em>.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -118,11 +204,11 @@ its dependencies:</p>
 <div class="section level3">
 <h3 id="read-a-sample-file">Read a Sample File<a class="anchor" aria-label="anchor" href="#read-a-sample-file"></a>
 </h3>
-<p>The <code><a href="../reference/read_methylome.html">read_methylome()</a></code> function is used to import
+<p>The <code><a href="../reference/readMethylome.html">readMethylome()</a></code> function is used to import
 single-sample DNA methylation data into a <code>GRanges</code> object.
 It supports several common file formats, including <code>EPP</code>,
 <code>ALLC</code>, <code>BisSNP</code>, <code>bismarkCytosine</code>,
-<code>bismarkcov</code>, and <code>ENCODE</code>.</p>
+<code>bismarkCov</code>, and <code>ENCODE</code> bedMethyl.</p>
 <p>You can optionally filter out low-coverage sites using the
 <code>cov_threshold</code> parameter (default = 1), which excludes
 positions with insufficient read support.</p>
@@ -130,7 +216,7 @@ positions with insufficient read support.</p>
 file provided in the package:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">epp_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"epp.tsv.gz"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span></span>
-<span><span class="va">epp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/read_methylome.html">read_methylome</a></span><span class="op">(</span><span class="va">epp_path</span>, <span class="st">"EPP"</span><span class="op">)</span></span>
+<span><span class="va">epp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/readMethylome.html">readMethylome</a></span><span class="op">(</span><span class="va">epp_path</span>, <span class="st">"EPP"</span><span class="op">)</span></span>
 <span><span class="va">epp</span></span>
 <span><span class="co">#&gt; GRanges object with 6 ranges and 2 metadata columns:</span></span>
 <span><span class="co">#&gt;       seqnames          ranges strand |     score  coverage</span></span>
@@ -153,16 +239,19 @@ the genome of interest: transcription factor binding sites, a
 genome-wide GC distribution, and per-motif GC frequency tables. These
 are distributed separately from <code>methylTFR</code>, in an annotation
 package named after the assembly, for example
-<code>methylTFRAnnotationHg38</code>. Keeping them out of the package is
-a practical necessity: the binding sites alone run to several gigabytes
-for a full motif set.</p>
+<code>methylTFRAnnotationHg38</code>, because the binding sites alone
+take several gigabytes for a full motif set.</p>
 <p>With the annotation package installed, the three resources are
-retrieved with <code>getTFbindsites()</code>, <code>getGenomeGC()</code>
-and <code>getGCfreq()</code>, as shown in the multi-sample section
-below.</p>
+retrieved as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">methylTFRAnnotationHg38</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tf_bindsites</span> <span class="op">&lt;-</span> <span class="fu">getTFbindsites</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
+<span><span class="va">gcfreqs</span> <span class="op">&lt;-</span> <span class="fu">getGCfreq</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
+<span><span class="va">gc_dist</span> <span class="op">&lt;-</span> <span class="fu">getGenomeGC</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>To build annotations for a different assembly, motif set, or region
 restriction, use <a href="https://github.com/EpigenomeInformatics/methylTFRAnnotationBuilder" class="external-link"><code>methylTFRAnnotationBuilder</code></a>.</p>
-<p>The examples in this section instead use a small <code>BATF</code>
+<p>The examples in this vignette instead use a small <code>BATF</code>
 subset bundled with <code>methylTFR</code>, so they run without any
 annotation package.</p>
 <div class="section level3">
@@ -174,7 +263,7 @@ factor binding sites (TFBS). These annotations include:</p>
 <ul>
 <li>
 <strong>GC distribution (<code>gcdist_subset</code>)</strong>:
-Genome-wide GC content distribution around cytosines, used to model
+Genome-wide GC content distribution in 30-bp windows, used to model
 methylation expectations.</li>
 <li>
 <strong>Motif GC frequency (<code>BATF_gcfreqs</code>)</strong>: GC
@@ -187,38 +276,40 @@ binding sites.</li>
 <li>
 <strong>Example methylation data
 (<code>example_data</code>)</strong>: A small subset of methylation
-calls in EPP format, read using the <code><a href="../reference/read_methylome.html">read_methylome()</a></code>
-function, provided for demonstration purposes.</li>
+calls, read with <code><a href="../reference/readMethylome.html">readMethylome()</a></code>, provided for
+demonstration purposes.</li>
 </ul>
+<p>The example methylation data in <code>inst/extdata</code> are derived
+from ENCODE whole-genome bisulfite sequencing (ENCSR663MXB, GRCh38).
+ENCODE data are released without restrictions. The script that creates
+them is <code>inst/scripts/vignette_data.R</code>.</p>
 <p>The following code loads these example datasets and displays the
 first few entries:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load the data</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gcdist_subset.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"gcdist_subset.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_gcfreqs.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"BATF_tf_bindsites.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_data.rda"</span>, package <span class="op">=</span> <span class="st">"methylTFR"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Check the data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gcdist</span><span class="op">)</span></span>
 <span><span class="co">#&gt; GRanges object with 6 ranges and 2 metadata columns:</span></span>
 <span><span class="co">#&gt;       seqnames      ranges strand |   GC_bias    GC_bin</span></span>
 <span><span class="co">#&gt;          &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt; &lt;integer&gt;</span></span>
-<span><span class="co">#&gt;   [1]     chr1 10471-10500      * |  0.866667         5</span></span>
-<span><span class="co">#&gt;   [2]     chr1 10591-10620      * |  0.633333         5</span></span>
-<span><span class="co">#&gt;   [3]     chr1 10621-10650      * |  0.800000         5</span></span>
-<span><span class="co">#&gt;   [4]     chr1 13051-13080      * |  0.700000         5</span></span>
-<span><span class="co">#&gt;   [5]     chr1 13261-13290      * |  0.666667         5</span></span>
-<span><span class="co">#&gt;   [6]     chr1 13291-13320      * |  0.600000         5</span></span>
+<span><span class="co">#&gt;   [1]     chr1 13741-13770      * |  0.700000         5</span></span>
+<span><span class="co">#&gt;   [2]     chr1 13801-13830      * |  0.600000         5</span></span>
+<span><span class="co">#&gt;   [3]     chr1 47161-47190      * |  0.333333         2</span></span>
+<span><span class="co">#&gt;   [4]     chr1 47191-47220      * |  0.333333         2</span></span>
+<span><span class="co">#&gt;   [5]     chr1 52231-52260      * |  0.366667         3</span></span>
+<span><span class="co">#&gt;   [6]     chr1 52351-52380      * |  0.333333         2</span></span>
 <span><span class="co">#&gt;   -------</span></span>
 <span><span class="co">#&gt;   seqinfo: 24 sequences from an unspecified genome; no seqlengths</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">gcfreqs</span><span class="op">$</span><span class="va">BATF</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            [,1]       [,2]      [,3]       [,4]       [,5]</span></span>
-<span><span class="co">#&gt; [1,] 0.08855923 0.08616168 0.0865363 0.08608676 0.08646138</span></span>
-<span><span class="co">#&gt; [2,] 0.20513973 0.20791189 0.2102345 0.20971005 0.21173297</span></span>
-<span><span class="co">#&gt; [3,] 0.19622387 0.20011988 0.1965985 0.19734772 0.19165356</span></span>
-<span><span class="co">#&gt; [4,] 0.27346969 0.27062261 0.2724957 0.27182138 0.27699108</span></span>
-<span><span class="co">#&gt; [5,] 0.23660748 0.23518394 0.2341350 0.23503409 0.23316101</span></span>
+<span><span class="co">#&gt;           [,1]      [,2]      [,3]      [,4]      [,5]</span></span>
+<span><span class="co">#&gt; [1,] 0.1216832 0.1212626 0.1208012 0.1209724 0.1206374</span></span>
+<span><span class="co">#&gt; [2,] 0.2540062 0.2544714 0.2551190 0.2541142 0.2549292</span></span>
+<span><span class="co">#&gt; [3,] 0.1953771 0.1957679 0.1957418 0.1958386 0.1953064</span></span>
+<span><span class="co">#&gt; [4,] 0.2333033 0.2332140 0.2330019 0.2339583 0.2334522</span></span>
+<span><span class="co">#&gt; [5,] 0.1956302 0.1952841 0.1953362 0.1951166 0.1956748</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tf_bindsites</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $BATF</span></span>
 <span><span class="co">#&gt; GRanges object with 268717 ranges and 1 metadata column:</span></span>
@@ -240,15 +331,15 @@ first few entries:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">msites</span><span class="op">)</span></span>
 <span><span class="co">#&gt; GRanges object with 6 ranges and 2 metadata columns:</span></span>
 <span><span class="co">#&gt;       seqnames      ranges strand |     score  coverage</span></span>
-<span><span class="co">#&gt;          &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt; &lt;integer&gt;</span></span>
-<span><span class="co">#&gt;   [1]     chr1 10471-10472      - |         1         9</span></span>
-<span><span class="co">#&gt;   [2]     chr1 10608-10609      + |         0         2</span></span>
-<span><span class="co">#&gt;   [3]     chr1 10609-10610      - |         1         1</span></span>
-<span><span class="co">#&gt;   [4]     chr1 10616-10617      + |         0         2</span></span>
-<span><span class="co">#&gt;   [5]     chr1 10617-10618      - |         1         1</span></span>
-<span><span class="co">#&gt;   [6]     chr1 10619-10620      + |         0         2</span></span>
+<span><span class="co">#&gt;          &lt;Rle&gt;   &lt;IRanges&gt;  &lt;Rle&gt; | &lt;numeric&gt; &lt;numeric&gt;</span></span>
+<span><span class="co">#&gt;   [1]     chr1 13749-13750      + |       0.8         5</span></span>
+<span><span class="co">#&gt;   [2]     chr1 13755-13756      + |       0.8         5</span></span>
+<span><span class="co">#&gt;   [3]     chr1 13822-13823      + |       0.6         5</span></span>
+<span><span class="co">#&gt;   [4]     chr1 13827-13828      + |       1.0         5</span></span>
+<span><span class="co">#&gt;   [5]     chr1 47175-47176      + |       1.0         1</span></span>
+<span><span class="co">#&gt;   [6]     chr1 47176-47177      - |       1.0         3</span></span>
 <span><span class="co">#&gt;   -------</span></span>
-<span><span class="co">#&gt;   seqinfo: 170 sequences from an unspecified genome; no seqlengths</span></span></code></pre></div>
+<span><span class="co">#&gt;   seqinfo: 195 sequences from an unspecified genome; no seqlengths</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -260,21 +351,18 @@ It compares the observed methylation at TF binding sites (TFBS) to the
 expected methylation derived from GC frequency models.</p>
 <p>This example uses the <code>BATF</code> motif and the example
 methylation dataset loaded earlier. The methylation data must first be
-binned by GC content using <code><a href="../reference/addGCBintoMethylome.html">addGCBintoMethylome()</a></code> before
+binned by GC content using <code><a href="../reference/addGCBinToMethylome.html">addGCBinToMethylome()</a></code> before
 computing the deviation.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Add GC bins to methylation data</span></span>
-<span><span class="va">bin_meth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/addGCBintoMethylome.html">addGCBintoMethylome</a></span><span class="op">(</span><span class="va">msites</span>, <span class="va">gcdist</span>, ignoreStrand <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required namespace: GenomeInfoDb</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bin_meth</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/addGCBinToMethylome.html">addGCBinToMethylome</a></span><span class="op">(</span><span class="va">msites</span>, <span class="va">gcdist</span>, ignoreStrand <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">bin_meth</span></span>
 <span><span class="co">#&gt;      gcbin avg_mscore</span></span>
-<span><span class="co">#&gt; [1,]     1  0.8125000</span></span>
-<span><span class="co">#&gt; [2,]     2  0.5871203</span></span>
-<span><span class="co">#&gt; [3,]     3  0.7217031</span></span>
-<span><span class="co">#&gt; [4,]     4  0.7091566</span></span>
-<span><span class="co">#&gt; [5,]     5  0.7838198</span></span>
+<span><span class="co">#&gt; [1,]     1  0.5562500</span></span>
+<span><span class="co">#&gt; [2,]     2  0.7409375</span></span>
+<span><span class="co">#&gt; [3,]     3  0.8235556</span></span>
+<span><span class="co">#&gt; [4,]     4  0.7962617</span></span>
+<span><span class="co">#&gt; [5,]     5  0.7528302</span></span>
 <span></span>
-<span><span class="co"># Compute deviation score for BATF motif</span></span>
 <span><span class="va">deviation_score</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/computeDeviation.html">computeDeviation</a></span><span class="op">(</span></span>
 <span>    motif <span class="op">=</span> <span class="st">"BATF"</span>,</span>
 <span>    msites <span class="op">=</span> <span class="va">msites</span>,</span>
@@ -284,102 +372,222 @@ computing the deviation.</p>
 <span>    ignoreStrand <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    binMsites <span class="op">=</span> <span class="va">bin_meth</span></span>
 <span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># View the result</span></span>
 <span><span class="va">deviation_score</span></span>
-<span><span class="co">#&gt;         dev   exp_dev</span></span>
-<span><span class="co">#&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 1.747427 0.9798459</span></span></code></pre></div>
+<span><span class="co">#&gt;           dev   exp_dev</span></span>
+<span><span class="co">#&gt;         &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: -0.1167365 0.9992794</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="run-methyltfr-on-multiple-samples-and-motifs">Run methylTFR on multiple samples and motifs<a class="anchor" aria-label="anchor" href="#run-methyltfr-on-multiple-samples-and-motifs"></a>
 </h2>
-<p>The <code>methylTFR</code> package provides a
-<code>run_methyltfr</code> function to run the analysis on multiple
-samples and motif sites. You need to download the annotation package for
-the human genome (<em>hg38</em>) and place it in your working
-directory.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">methylTFRAnnotationHg38</span><span class="op">)</span> <span class="co"># annotation package for hg38</span></span>
+<p><code><a href="../reference/runMethylTFR.html">runMethylTFR()</a></code> runs the analysis on every sample listed
+in a sample annotation file. The file must contain a column (by default
+<code>bedFile</code>) with the methylation file names; all its columns
+become the <code>colData</code> of the result.</p>
+<p>To keep this example self-contained, three small samples are
+simulated from the bundled data by resampling the methylated reads at
+each CpG, and written to a temporary directory as
+<code>bismarkCov</code> files.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sample_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"methylTFR_vignette"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">sample_dir</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">gcfreqs</span> <span class="op">&lt;-</span> <span class="fu">getGCfreq</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
-<span><span class="va">gc_dist</span> <span class="op">&lt;-</span> <span class="fu">getGenomeGC</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">tf_bindsites</span> <span class="op">&lt;-</span> <span class="fu">getTFbindsites</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">sample_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"sample_"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="st">".cov"</span><span class="op">)</span></span>
+<span><span class="va">cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">coverage</span><span class="op">)</span></span>
+<span><span class="va">keep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">score</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">msites</span><span class="op">$</span><span class="va">score</span> <span class="op">&gt;=</span> <span class="fl">0</span> <span class="op">&amp;</span></span>
+<span>    <span class="va">msites</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;=</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">cov</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">cov</span> <span class="op">&gt;=</span> <span class="fl">1</span></span>
+<span><span class="va">m</span> <span class="op">&lt;-</span> <span class="va">msites</span><span class="op">[</span><span class="va">keep</span><span class="op">]</span></span>
+<span><span class="va">cov</span> <span class="op">&lt;-</span> <span class="va">cov</span><span class="op">[</span><span class="va">keep</span><span class="op">]</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">f</span> <span class="kw">in</span> <span class="va">sample_files</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">n_meth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span>, <span class="va">cov</span>, <span class="va">m</span><span class="op">$</span><span class="va">score</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></span><span class="op">(</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>            chr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>            start <span class="op">=</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">start</span><span class="op">(</span><span class="va">m</span><span class="op">)</span>,</span>
+<span>            end <span class="op">=</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">end</span><span class="op">(</span><span class="va">m</span><span class="op">)</span>,</span>
+<span>            percent <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="va">n_meth</span> <span class="op">/</span> <span class="va">cov</span>,</span>
+<span>            meth <span class="op">=</span> <span class="va">n_meth</span>,</span>
+<span>            unmeth <span class="op">=</span> <span class="va">cov</span> <span class="op">-</span> <span class="va">n_meth</span></span>
+<span>        <span class="op">)</span>,</span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">sample_dir</span>, <span class="va">f</span><span class="op">)</span>,</span>
+<span>        sep <span class="op">=</span> <span class="st">"\t"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span>, col.names <span class="op">=</span> <span class="cn">FALSE</span>, quote <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>sampleName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">".cov"</span>, <span class="st">""</span>, <span class="va">sample_files</span><span class="op">)</span>, bedFile <span class="op">=</span> <span class="va">sample_files</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">sample_dir</span>, <span class="st">"samples.tsv"</span><span class="op">)</span>,</span>
+<span>    sep <span class="op">=</span> <span class="st">"\t"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span>, quote <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sample_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"samples_dir"</span><span class="op">)</span></span>
-<span><span class="va">sample_ann</span> <span class="op">&lt;-</span> <span class="st">"samples.tsv"</span> <span class="co"># should contain column name bedFile</span></span>
-<span></span>
-<span><span class="co"># deviation score matrix</span></span>
-<span><span class="va">deviations</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_methyltfr.html">run_methyltfr</a></span><span class="op">(</span></span>
-<span>    annfile <span class="op">=</span> <span class="va">sample_ann</span>, <span class="co"># sample annotation file</span></span>
-<span>    sample_dir <span class="op">=</span> <span class="va">sample_dir</span>, <span class="co"># where the EPP files are</span></span>
-<span>    threads <span class="op">=</span> <span class="fl">8</span>, <span class="co"># number of threads</span></span>
-<span>    chunkSize <span class="op">=</span> <span class="fl">10</span>, <span class="co"># number of chunks to process</span></span>
-<span>    sampleColName <span class="op">=</span> <span class="st">"bedFile"</span>, <span class="co"># column name for EPP file paths in sample_ann</span></span>
-<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>, <span class="co"># TF binding sites</span></span>
-<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>, <span class="co"># GC frequency</span></span>
-<span>    gc_dist <span class="op">=</span> <span class="va">gc_dist</span>, <span class="co"># GC distribution</span></span>
-<span>    filetype <span class="op">=</span> <span class="st">"EPP"</span> <span class="co"># file type</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">devs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runMethylTFR.html">runMethylTFR</a></span><span class="op">(</span></span>
+<span>    sample_ann <span class="op">=</span> <span class="st">"samples.tsv"</span>, <span class="co"># file in sample_dir</span></span>
+<span>    sample_dir <span class="op">=</span> <span class="va">sample_dir</span>, <span class="co"># where the methylation files are</span></span>
+<span>    sampleColName <span class="op">=</span> <span class="st">"bedFile"</span>, <span class="co"># column with the file names</span></span>
+<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
+<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
+<span>    filetype <span class="op">=</span> <span class="st">"bismarkCov"</span>,</span>
+<span>    threads <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    chunkSize <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; SUCCESS [2026-11-09 14:51:20] The samples are successfully located</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:20] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da245843080.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:20] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da229881ce4.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:20] Processing sample_1.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:20] Finished processing sample_1.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:20] Processing sample_2.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:20] Finished processing sample_2.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:20] Processing sample_3.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Finished processing sample_3.cov</span></span>
+<span><span class="co">#&gt; SUCCESS [2026-11-09 14:51:21] Computed all deviations successfully</span></span>
+<span><span class="va">devs</span></span>
+<span><span class="co">#&gt; class: methylTFRdeviations </span></span>
+<span><span class="co">#&gt; dim: 1 3 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(3): deviations z expected</span></span>
+<span><span class="co">#&gt; rownames(1): BATF</span></span>
+<span><span class="co">#&gt; rowData names(1): motifs</span></span>
+<span><span class="co">#&gt; colnames(3): sample_1.cov sample_2.cov sample_3.cov</span></span>
+<span><span class="co">#&gt; colData names(2): sampleName bedFile</span></span>
+<span><span class="fu"><a href="../reference/deviations.html">deviations</a></span><span class="op">(</span><span class="va">devs</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      sample_1.cov sample_2.cov sample_3.cov</span></span>
+<span><span class="co">#&gt; BATF    -0.126291   -0.1011316   -0.1371465</span></span></code></pre></div>
+<p>For a real analysis, the annotation objects come from the annotation
+package and the per-sample files are your own methylation calls; the
+call is otherwise the same.</p>
+<p>To restrict the analysis to a set of regulatory regions, pass them as
+a <code>GRanges</code> through the <code>enhancer</code> argument. Here,
+windows of 2 kb around the binding sites stand in for a region set:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">regions</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/inter-range-methods.html" class="external-link">reduce</a></span><span class="op">(</span></span>
+<span>    <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/intra-range-methods.html" class="external-link">resize</a></span><span class="op">(</span><span class="va">tf_bindsites</span><span class="op">$</span><span class="va">BATF</span>, <span class="fl">2000</span>, fix <span class="op">=</span> <span class="st">"center"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">devsRegions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runMethylTFR.html">runMethylTFR</a></span><span class="op">(</span></span>
+<span>    sample_ann <span class="op">=</span> <span class="st">"samples.tsv"</span>,</span>
+<span>    sample_dir <span class="op">=</span> <span class="va">sample_dir</span>,</span>
+<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
+<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
+<span>    filetype <span class="op">=</span> <span class="st">"bismarkCov"</span>,</span>
+<span>    enhancer <span class="op">=</span> <span class="va">regions</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; SUCCESS [2026-11-09 14:51:21] The samples are successfully located</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27efb0261.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27150fb4a.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Processing sample_1.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Finished processing sample_1.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Processing sample_2.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Finished processing sample_2.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Processing sample_3.cov</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:21] Finished processing sample_3.cov</span></span>
+<span><span class="co">#&gt; SUCCESS [2026-11-09 14:51:21] Computed all deviations successfully</span></span>
+<span><span class="fu"><a href="../reference/deviations.html">deviations</a></span><span class="op">(</span><span class="va">devsRegions</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      sample_1.cov sample_2.cov sample_3.cov</span></span>
+<span><span class="co">#&gt; BATF    -0.126291   -0.1011316   -0.1371465</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="run-methyltfr-directly-on-an-rnbeads-object">Run methylTFR directly on an RnBeads object<a class="anchor" aria-label="anchor" href="#run-methyltfr-directly-on-an-rnbeads-object"></a>
 </h2>
 <p>If the methylation data has already been imported and preprocessed
-with <a href="https://bioconductor.org/packages/RnBeads" class="external-link"><code>RnBeads</code></a>,
+with <em><a href="https://bioconductor.org/packages/3.23/RnBeads" class="external-link">RnBeads</a></em>,
 there is no need to export per-sample files first.
-<code><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads()</a></code> takes the <code>RnBSet</code>
+<code><a href="../reference/runMethylTFRFromRnBeads.html">runMethylTFRFromRnBeads()</a></code> takes the <code>RnBSet</code>
 object directly and returns the same <code>methylTFRdeviations</code>
-object as <code><a href="../reference/run_methyltfr.html">run_methyltfr()</a></code>.</p>
+object as <code><a href="../reference/runMethylTFR.html">runMethylTFR()</a></code>.</p>
 <p>Methylation levels are read one sample column at a time, so
 disk-backed sets created with <code>disk.dump.big.matrices = TRUE</code>
 are never loaded into memory in full.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p>A preprocessed set is usually loaded with
+<code><a href="https://rdrr.io/pkg/RnBeads/man/load.rnb.set.html" class="external-link">RnBeads::load.rnb.set()</a></code>. Here, a small
+<code>RnBiseqSet</code> is built from the bundled data. This chunk runs
+only when <code>RnBeads</code> and <code>RnBeads.hg38</code> are
+installed.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RnBeads</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">methylTFRAnnotationHg38</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">rnb_set</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/load.rnb.set.html" class="external-link">load.rnb.set</a></span><span class="op">(</span><span class="st">"reports/data_import_data/rnb.set_preprocessed"</span><span class="op">)</span></span>
+<span><span class="va">old_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/rnb.options.html" class="external-link">rnb.getOption</a></span><span class="op">(</span><span class="st">"identifiers.column"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/rnb.options.html" class="external-link">rnb.options</a></span><span class="op">(</span>identifiers.column <span class="op">=</span> <span class="st">"sampleName"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">gcfreqs</span> <span class="op">&lt;-</span> <span class="fu">getGCfreq</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
-<span><span class="va">gc_dist</span> <span class="op">&lt;-</span> <span class="fu">getGenomeGC</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">tf_bindsites</span> <span class="op">&lt;-</span> <span class="fu">getTFbindsites</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020"</span><span class="op">)</span></span>
+<span><span class="va">ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample_1"</span>, <span class="st">"sample_2"</span><span class="op">)</span></span>
+<span><span class="va">meth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">score</span>, <span class="va">msites</span><span class="op">$</span><span class="va">score</span><span class="op">)</span></span>
+<span><span class="va">covg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">msites</span><span class="op">$</span><span class="va">coverage</span>, <span class="va">msites</span><span class="op">$</span><span class="va">coverage</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">meth</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">covg</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="va">ids</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">deviations</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads</a></span><span class="op">(</span></span>
+<span><span class="va">rnb_set</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/RnBiseqSet-class.html" class="external-link">RnBiseqSet</a></span><span class="op">(</span></span>
+<span>    pheno <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>sampleName <span class="op">=</span> <span class="va">ids</span><span class="op">)</span>,</span>
+<span>    sites <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>        chr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">seqnames</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        start <span class="op">=</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu">start</span><span class="op">(</span><span class="va">msites</span><span class="op">)</span>,</span>
+<span>        strand <span class="op">=</span> <span class="st">"*"</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    meth <span class="op">=</span> <span class="va">meth</span>,</span>
+<span>    covg <span class="op">=</span> <span class="va">covg</span>,</span>
+<span>    assembly <span class="op">=</span> <span class="st">"hg38"</span>,</span>
+<span>    summarize.regions <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">devsRnb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runMethylTFRFromRnBeads.html">runMethylTFRFromRnBeads</a></span><span class="op">(</span></span>
 <span>    rnb_set <span class="op">=</span> <span class="va">rnb_set</span>, <span class="co"># preprocessed RnBeads object</span></span>
-<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>, <span class="co"># TF binding sites</span></span>
-<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>, <span class="co"># GC frequency</span></span>
-<span>    gc_dist <span class="op">=</span> <span class="va">gc_dist</span>, <span class="co"># GC distribution</span></span>
-<span>    threads <span class="op">=</span> <span class="fl">8</span>, <span class="co"># number of threads</span></span>
-<span>    chunkSize <span class="op">=</span> <span class="fl">10</span>, <span class="co"># number of motifs per chunk</span></span>
+<span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
+<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
 <span>    cov_threshold <span class="op">=</span> <span class="fl">1</span> <span class="co"># minimum coverage per site</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:46] Annotation target: sites | assembly: hg38</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Found 516 sites across 2 samples</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da25eac237f.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da2264f4bcd.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Sample 1: 516 of 516 sites retained (100%)</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Processing sample_1</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Finished processing sample_1</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Sample 2: 516 of 516 sites retained (100%)</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Processing sample_2</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Finished processing sample_2</span></span>
+<span><span class="co">#&gt; SUCCESS [2026-11-09 14:51:49] Computed all deviations successfully</span></span>
+<span><span class="fu"><a href="../reference/deviations.html">deviations</a></span><span class="op">(</span><span class="va">devsRnb</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       sample_1  sample_2</span></span>
+<span><span class="co">#&gt; BATF -0.124932 -0.124932</span></span></code></pre></div>
 <p>Methylation calls are always read at single-cytosine resolution.
 Region summaries such as <code>tiling1kb</code> or <code>distal</code>
 cannot be used, because a footprint needs base-resolution calls. To
 restrict the analysis to a set of regulatory regions, pass them through
 the <code>enhancer</code> argument:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">distal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"distal_regions.RDS"</span><span class="op">)</span> <span class="co"># a GRanges of distal regions</span></span>
-<span></span>
-<span><span class="va">deviations_distal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_methylTFR_RnBeads.html">run_methylTFR_RnBeads</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">devsRnbRegions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runMethylTFRFromRnBeads.html">runMethylTFRFromRnBeads</a></span><span class="op">(</span></span>
 <span>    rnb_set <span class="op">=</span> <span class="va">rnb_set</span>,</span>
 <span>    tf_bindsites <span class="op">=</span> <span class="va">tf_bindsites</span>,</span>
-<span>    gcfreqs <span class="op">=</span> <span class="fu">getGCfreq</span><span class="op">(</span>motifSet <span class="op">=</span> <span class="st">"jaspar2020_distal"</span><span class="op">)</span>,</span>
-<span>    gc_dist <span class="op">=</span> <span class="va">gc_dist</span>,</span>
-<span>    enhancer <span class="op">=</span> <span class="va">distal</span>,</span>
-<span>    threads <span class="op">=</span> <span class="fl">8</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span>    gcfreqs <span class="op">=</span> <span class="va">gcfreqs</span>,</span>
+<span>    gc_dist <span class="op">=</span> <span class="va">gcdist</span>,</span>
+<span>    enhancer <span class="op">=</span> <span class="va">regions</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:49] Annotation target: sites | assembly: hg38</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Found 516 sites across 2 samples</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da217a04718.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27c2e163d.h5</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Sample 1: 516 of 516 sites retained (100%)</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Processing sample_1</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Finished processing sample_1</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Sample 2: 516 of 516 sites retained (100%)</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Processing sample_2</span></span>
+<span><span class="co">#&gt; INFO [2026-11-09 14:51:51] Finished processing sample_2</span></span>
+<span><span class="co">#&gt; SUCCESS [2026-11-09 14:51:51] Computed all deviations successfully</span></span>
+<span><span class="fu"><a href="../reference/deviations.html">deviations</a></span><span class="op">(</span><span class="va">devsRnbRegions</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       sample_1  sample_2</span></span>
+<span><span class="co">#&gt; BATF -0.124932 -0.124932</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/RnBeads/man/rnb.options.html" class="external-link">rnb.options</a></span><span class="op">(</span>identifiers.column <span class="op">=</span> <span class="va">old_ids</span><span class="op">)</span></span></code></pre></div>
 <p>Coverage filtering applies only to sequencing-based sets
-(<code>RnBiseqSet</code>), which carry coverage information. For
-array-based sets <code>cov_threshold</code> is ignored and a message is
-emitted.</p>
+(<code>RnBiseqSet</code>), which carry coverage information. Array-based
+sets are filtered by detection p-value through
+<code>dpval_threshold</code>.</p>
 <p><code>RnBeads</code> is a suggested dependency rather than a required
 one, so it is only needed if this entry point is used.</p>
 </div>
 <div class="section level2">
 <h2 id="session-information">Session Information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.6.2 (2026-10-29)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
@@ -399,42 +607,115 @@ one, so it is only needed if this entry point is used.</p>
 <span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; attached base packages:</span></span>
-<span><span class="co">#&gt; [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
-<span><span class="co">#&gt; [8] base     </span></span>
+<span><span class="co">#&gt;  [1] parallel  grid      stats4    stats     graphics  grDevices utils    </span></span>
+<span><span class="co">#&gt;  [8] datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt;  [1] methylTFR_0.99.9            SummarizedExperiment_1.42.0</span></span>
-<span><span class="co">#&gt;  [3] Biobase_2.72.0              GenomicRanges_1.64.0       </span></span>
-<span><span class="co">#&gt;  [5] Seqinfo_1.2.0               IRanges_2.46.0             </span></span>
-<span><span class="co">#&gt;  [7] S4Vectors_0.50.3            BiocGenerics_0.58.1        </span></span>
-<span><span class="co">#&gt;  [9] generics_0.1.4              MatrixGenerics_1.24.0      </span></span>
-<span><span class="co">#&gt; [11] matrixStats_1.5.0           data.table_1.18.6.1        </span></span>
-<span><span class="co">#&gt; [13] BiocStyle_2.40.0           </span></span>
+<span><span class="co">#&gt;  [1] RnBeads.hg38_1.44.0                     </span></span>
+<span><span class="co">#&gt;  [2] RnBeads_2.30.0                          </span></span>
+<span><span class="co">#&gt;  [3] plyr_1.8.9                              </span></span>
+<span><span class="co">#&gt;  [4] methylumi_2.58.1                        </span></span>
+<span><span class="co">#&gt;  [5] minfi_1.58.0                            </span></span>
+<span><span class="co">#&gt;  [6] bumphunter_1.54.0                       </span></span>
+<span><span class="co">#&gt;  [7] locfit_1.5-9.12                         </span></span>
+<span><span class="co">#&gt;  [8] iterators_1.0.14                        </span></span>
+<span><span class="co">#&gt;  [9] foreach_1.5.2                           </span></span>
+<span><span class="co">#&gt; [10] Biostrings_2.80.2                       </span></span>
+<span><span class="co">#&gt; [11] XVector_0.52.0                          </span></span>
+<span><span class="co">#&gt; [12] FDb.InfiniumMethylation.hg19_2.2.0      </span></span>
+<span><span class="co">#&gt; [13] org.Hs.eg.db_3.23.1                     </span></span>
+<span><span class="co">#&gt; [14] TxDb.Hsapiens.UCSC.hg19.knownGene_3.22.1</span></span>
+<span><span class="co">#&gt; [15] GenomicFeatures_1.64.0                  </span></span>
+<span><span class="co">#&gt; [16] AnnotationDbi_1.74.0                    </span></span>
+<span><span class="co">#&gt; [17] reshape2_1.4.5                          </span></span>
+<span><span class="co">#&gt; [18] scales_1.4.0                            </span></span>
+<span><span class="co">#&gt; [19] illuminaio_0.54.0                       </span></span>
+<span><span class="co">#&gt; [20] limma_3.68.5                            </span></span>
+<span><span class="co">#&gt; [21] gridExtra_2.3.1                         </span></span>
+<span><span class="co">#&gt; [22] gplots_3.3.0                            </span></span>
+<span><span class="co">#&gt; [23] ggplot2_4.0.3                           </span></span>
+<span><span class="co">#&gt; [24] fields_18.0                             </span></span>
+<span><span class="co">#&gt; [25] RColorBrewer_1.1-3                      </span></span>
+<span><span class="co">#&gt; [26] viridisLite_0.4.3                       </span></span>
+<span><span class="co">#&gt; [27] spam_2.11-4                             </span></span>
+<span><span class="co">#&gt; [28] ff_4.5.3                                </span></span>
+<span><span class="co">#&gt; [29] bit_4.6.0                               </span></span>
+<span><span class="co">#&gt; [30] cluster_2.1.8.3                         </span></span>
+<span><span class="co">#&gt; [31] MASS_7.3-66                             </span></span>
+<span><span class="co">#&gt; [32] methylTFR_0.99.10                       </span></span>
+<span><span class="co">#&gt; [33] SummarizedExperiment_1.42.0             </span></span>
+<span><span class="co">#&gt; [34] Biobase_2.72.0                          </span></span>
+<span><span class="co">#&gt; [35] GenomicRanges_1.64.0                    </span></span>
+<span><span class="co">#&gt; [36] Seqinfo_1.2.0                           </span></span>
+<span><span class="co">#&gt; [37] IRanges_2.46.0                          </span></span>
+<span><span class="co">#&gt; [38] S4Vectors_0.50.3                        </span></span>
+<span><span class="co">#&gt; [39] BiocGenerics_0.58.1                     </span></span>
+<span><span class="co">#&gt; [40] generics_0.1.4                          </span></span>
+<span><span class="co">#&gt; [41] MatrixGenerics_1.24.0                   </span></span>
+<span><span class="co">#&gt; [42] matrixStats_1.5.0                       </span></span>
+<span><span class="co">#&gt; [43] data.table_1.18.6.1                     </span></span>
+<span><span class="co">#&gt; [44] BiocStyle_2.40.0                        </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] gtable_0.3.6        xfun_0.62           bslib_0.12.0       </span></span>
-<span><span class="co">#&gt;  [4] ggplot2_4.0.3       rhdf5_2.56.1        lattice_0.23-1     </span></span>
-<span><span class="co">#&gt;  [7] rhdf5filters_1.24.1 vctrs_0.7.3         tools_4.6.2        </span></span>
-<span><span class="co">#&gt; [10] parallel_4.6.2      tibble_3.3.1        pkgconfig_2.0.3    </span></span>
-<span><span class="co">#&gt; [13] R.oo_1.27.1         Matrix_1.7-6        RColorBrewer_1.1-3 </span></span>
-<span><span class="co">#&gt; [16] S7_0.2.2            desc_1.4.3          lifecycle_1.0.5    </span></span>
-<span><span class="co">#&gt; [19] stringr_1.6.0       compiler_4.6.2      farver_2.1.2       </span></span>
-<span><span class="co">#&gt; [22] textshaping_1.0.5   codetools_0.2-20    GenomeInfoDb_1.48.0</span></span>
-<span><span class="co">#&gt; [25] htmltools_0.5.9     sass_0.4.10         yaml_2.3.12        </span></span>
-<span><span class="co">#&gt; [28] pillar_1.11.1       pkgdown_2.2.1       jquerylib_0.1.4    </span></span>
-<span><span class="co">#&gt; [31] R.utils_2.13.0      BiocParallel_1.46.0 DelayedArray_0.38.2</span></span>
-<span><span class="co">#&gt; [34] cachem_1.1.0        abind_1.4-8         tidyselect_1.2.1   </span></span>
-<span><span class="co">#&gt; [37] digest_0.6.39       stringi_1.8.9       dplyr_1.2.1        </span></span>
-<span><span class="co">#&gt; [40] bookdown_0.48       fastmap_1.2.0       grid_4.6.2         </span></span>
-<span><span class="co">#&gt; [43] cli_3.6.6           SparseArray_1.12.3  logger_0.4.3       </span></span>
-<span><span class="co">#&gt; [46] magrittr_2.0.5      S4Arrays_1.12.1     h5mread_1.4.1      </span></span>
-<span><span class="co">#&gt; [49] UCSC.utils_1.8.0    scales_1.4.0        httr_1.4.9         </span></span>
-<span><span class="co">#&gt; [52] rmarkdown_2.32      XVector_0.52.0      otel_0.2.0         </span></span>
-<span><span class="co">#&gt; [55] ragg_1.5.2          R.methodsS3_1.8.2   HDF5Array_1.40.0   </span></span>
-<span><span class="co">#&gt; [58] evaluate_1.0.5      knitr_1.52          rlang_1.3.0        </span></span>
-<span><span class="co">#&gt; [61] glue_1.8.1          BiocManager_1.30.27 jsonlite_2.0.0     </span></span>
-<span><span class="co">#&gt; [64] R6_2.6.1            Rhdf5lib_2.0.0      systemfonts_1.3.2  </span></span>
-<span><span class="co">#&gt; [67] fs_2.1.0</span></span></code></pre></div>
+<span><span class="co">#&gt;   [1] splines_4.6.2             BiocIO_1.22.0            </span></span>
+<span><span class="co">#&gt;   [3] bitops_1.1-0              R.oo_1.27.1              </span></span>
+<span><span class="co">#&gt;   [5] tibble_3.3.1              preprocessCore_1.74.0    </span></span>
+<span><span class="co">#&gt;   [7] XML_3.99-0.25             lifecycle_1.0.5          </span></span>
+<span><span class="co">#&gt;   [9] lattice_0.23-1            base64_2.0.2             </span></span>
+<span><span class="co">#&gt;  [11] scrime_1.3.7              magrittr_2.0.5           </span></span>
+<span><span class="co">#&gt;  [13] sass_0.4.10               rmarkdown_2.32           </span></span>
+<span><span class="co">#&gt;  [15] jquerylib_0.1.4           yaml_2.3.12              </span></span>
+<span><span class="co">#&gt;  [17] otel_0.3.0                doRNG_1.8.6.3            </span></span>
+<span><span class="co">#&gt;  [19] askpass_1.2.1             DBI_1.3.0                </span></span>
+<span><span class="co">#&gt;  [21] maps_3.4.4                abind_1.4-8              </span></span>
+<span><span class="co">#&gt;  [23] quadprog_1.5-8            purrr_1.2.2              </span></span>
+<span><span class="co">#&gt;  [25] R.utils_2.13.0            RCurl_1.98-1.20          </span></span>
+<span><span class="co">#&gt;  [27] rentrez_1.2.4             genefilter_1.94.0        </span></span>
+<span><span class="co">#&gt;  [29] annotate_1.90.0           pkgdown_2.2.1            </span></span>
+<span><span class="co">#&gt;  [31] DelayedMatrixStats_1.34.0 codetools_0.2-20         </span></span>
+<span><span class="co">#&gt;  [33] DelayedArray_0.38.2       xml2_1.6.0               </span></span>
+<span><span class="co">#&gt;  [35] tidyselect_1.2.1          UCSC.utils_1.8.0         </span></span>
+<span><span class="co">#&gt;  [37] farver_2.1.2              beanplot_1.3.1           </span></span>
+<span><span class="co">#&gt;  [39] GenomicAlignments_1.48.0  jsonlite_2.0.0           </span></span>
+<span><span class="co">#&gt;  [41] multtest_2.68.0           survival_3.8-12          </span></span>
+<span><span class="co">#&gt;  [43] systemfonts_1.3.2         tools_4.6.2              </span></span>
+<span><span class="co">#&gt;  [45] ragg_1.5.2                Rcpp_1.1.2               </span></span>
+<span><span class="co">#&gt;  [47] glue_1.8.1                SparseArray_1.12.3       </span></span>
+<span><span class="co">#&gt;  [49] xfun_0.62                 GenomeInfoDb_1.48.0      </span></span>
+<span><span class="co">#&gt;  [51] dplyr_1.2.1               HDF5Array_1.40.0         </span></span>
+<span><span class="co">#&gt;  [53] withr_3.0.3               BiocManager_1.30.27      </span></span>
+<span><span class="co">#&gt;  [55] fastmap_1.2.0             rhdf5filters_1.24.1      </span></span>
+<span><span class="co">#&gt;  [57] openssl_2.5.0             caTools_1.18.4           </span></span>
+<span><span class="co">#&gt;  [59] digest_0.6.39             R6_2.6.1                 </span></span>
+<span><span class="co">#&gt;  [61] textshaping_1.0.5         gtools_3.9.5             </span></span>
+<span><span class="co">#&gt;  [63] RSQLite_3.53.3            R.methodsS3_1.8.2        </span></span>
+<span><span class="co">#&gt;  [65] cigarillo_1.2.1           h5mread_1.4.1            </span></span>
+<span><span class="co">#&gt;  [67] tidyr_1.3.2               rtracklayer_1.72.0       </span></span>
+<span><span class="co">#&gt;  [69] httr_1.4.9                S4Arrays_1.12.1          </span></span>
+<span><span class="co">#&gt;  [71] pkgconfig_2.0.3           gtable_0.3.6             </span></span>
+<span><span class="co">#&gt;  [73] blob_1.3.0                S7_0.2.2                 </span></span>
+<span><span class="co">#&gt;  [75] siggenes_1.86.0           htmltools_0.5.9          </span></span>
+<span><span class="co">#&gt;  [77] dotCall64_1.2             bookdown_0.48            </span></span>
+<span><span class="co">#&gt;  [79] png_0.1-9                 knitr_1.52               </span></span>
+<span><span class="co">#&gt;  [81] tzdb_0.5.0                rjson_0.2.23             </span></span>
+<span><span class="co">#&gt;  [83] nlme_3.1-171              curl_8.1.0               </span></span>
+<span><span class="co">#&gt;  [85] cachem_1.1.0              rhdf5_2.56.1             </span></span>
+<span><span class="co">#&gt;  [87] stringr_1.6.0             KernSmooth_2.23-27       </span></span>
+<span><span class="co">#&gt;  [89] restfulr_0.0.17           desc_1.4.3               </span></span>
+<span><span class="co">#&gt;  [91] logger_0.4.3              GEOquery_2.80.1          </span></span>
+<span><span class="co">#&gt;  [93] pillar_1.11.1             reshape_0.8.10           </span></span>
+<span><span class="co">#&gt;  [95] vctrs_0.7.3               xtable_1.8-8             </span></span>
+<span><span class="co">#&gt;  [97] evaluate_1.0.5            readr_2.2.0              </span></span>
+<span><span class="co">#&gt;  [99] cli_3.6.6                 compiler_4.6.2           </span></span>
+<span><span class="co">#&gt; [101] Rsamtools_2.28.0          rlang_1.3.0              </span></span>
+<span><span class="co">#&gt; [103] crayon_1.5.3              rngtools_1.5.2           </span></span>
+<span><span class="co">#&gt; [105] nor1mix_1.3-3             mclust_6.1.3             </span></span>
+<span><span class="co">#&gt; [107] fs_2.1.0                  stringi_1.8.9            </span></span>
+<span><span class="co">#&gt; [109] BiocParallel_1.46.0       Matrix_1.7-6             </span></span>
+<span><span class="co">#&gt; [111] hms_1.1.4                 sparseMatrixStats_1.24.0 </span></span>
+<span><span class="co">#&gt; [113] bit64_4.8.6               Rhdf5lib_2.0.0           </span></span>
+<span><span class="co">#&gt; [115] KEGGREST_1.52.2           statmod_1.5.2            </span></span>
+<span><span class="co">#&gt; [117] memoise_2.0.1             bslib_0.12.0</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

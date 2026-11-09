@@ -5,7 +5,7 @@ Validate the arguments shared by both methylTFR entry points.
 ## Usage
 
 ``` r
-check_core_inputs(sample_ids, msites_fun, samples)
+check_core_inputs(sample_ids, msites_fun, samples, tempDir)
 ```
 
 ## Arguments
@@ -21,6 +21,10 @@ check_core_inputs(sample_ids, msites_fun, samples)
 - samples:
 
   A `data.frame` with one row per sample.
+
+- tempDir:
+
+  Directory for the temporary HDF5 files.
 
 ## Value
 

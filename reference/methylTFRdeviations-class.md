@@ -1,8 +1,9 @@
 # methylTFRdeviations
 
 Class for storing results from
-[`run_methyltfr`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methyltfr.md)
-function.
+[`runMethylTFR`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFR.md)
+and
+[`runMethylTFRFromRnBeads`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFRFromRnBeads.md).
 
 ## Details
 

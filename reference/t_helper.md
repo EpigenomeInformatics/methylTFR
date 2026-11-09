@@ -1,6 +1,6 @@
 # t-test for two groups
 
-t-test for two groups
+Welch t-test for two groups
 
 ## Usage
 
@@ -12,17 +12,16 @@ t_helper(x, groups, alternative)
 
 - x:
 
-  - a numeric vector of deviations
+  a numeric vector of deviations
 
 - groups:
 
-  - a character vector of group names or colnames(deviations)
+  a character vector of group names
 
 - alternative:
 
-  - a character string specifying the alternative hypothesis, must be
-    one of "two.sided" (default), "greater" or "less".
+  the alternative hypothesis, one of "two.sided", "greater" or "less".
 
 ## Value
 
-a numeric vector of p-values
+a p-value

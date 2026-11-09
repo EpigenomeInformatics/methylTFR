@@ -91,7 +91,7 @@ cost of assuming that most motifs are inactive in any given sample.
 
 ## See also
 
-[`differential_deviation_test`](https://epigenomeinformatics.github.io/methylTFR/reference/differential_deviation_test.md)
+[`differentialDeviationTest`](https://epigenomeinformatics.github.io/methylTFR/reference/differentialDeviationTest.md)
 for testing activity differences between predefined groups.
 
 ## Author

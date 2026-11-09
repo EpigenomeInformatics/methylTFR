@@ -1,36 +1,48 @@
 # Package index
 
-## All functions
+## Import
 
-- [`addGCBintoMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/addGCBintoMethylome.md)
-  : addGCBintoMethylome
-- [`cbind(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-method.md)
-  : cbind
+- [`readMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/readMethylome.md)
+  : readMethylome
+
+## Compute deviations
+
+- [`runMethylTFR()`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFR.md)
+  : runMethylTFR
+- [`runMethylTFRFromRnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFRFromRnBeads.md)
+  : runMethylTFRFromRnBeads
 - [`computeDeviation()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeDeviation.md)
   : computeDeviation
+- [`addGCBinToMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/addGCBinToMethylome.md)
+  : addGCBinToMethylome
+
+## Downstream analysis
+
+- [`differentialDeviationTest()`](https://epigenomeinformatics.github.io/methylTFR/reference/differentialDeviationTest.md)
+  : differentialDeviationTest
 - [`computeZScoreVariability()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeZScoreVariability.md)
   : computeZScoreVariability
-- [`deviationZScores(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores-methylTFRdeviations-method.md)
-  : deviationZScores
-- [`deviationZScores()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores.md)
-  : deviationZScores
-- [`deviations(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviations-methylTFRdeviations-method.md)
-  : deviations
-- [`deviations()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviations.md)
-  : deviations
-- [`differential_deviation_test()`](https://epigenomeinformatics.github.io/methylTFR/reference/differential_deviation_test.md)
-  : differential_deviation_test
-- [`methylTFRdeviations-class`](https://epigenomeinformatics.github.io/methylTFR/reference/methylTFRdeviations-class.md)
-  : methylTFRdeviations
+
+## Footprints
+
 - [`plotExpectedFootprint()`](https://epigenomeinformatics.github.io/methylTFR/reference/plotExpectedFootprint.md)
   : plotExpectedFootprint
 - [`plotMotifFootprint()`](https://epigenomeinformatics.github.io/methylTFR/reference/plotMotifFootprint.md)
   : plotMotifFootprint
+
+## Result class
+
+- [`methylTFRdeviations-class`](https://epigenomeinformatics.github.io/methylTFR/reference/methylTFRdeviations-class.md)
+  : methylTFRdeviations
+- [`deviations()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviations.md)
+  : deviations
+- [`deviationZScores()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores.md)
+  : deviationZScores
+- [`cbind(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-method.md)
+  : cbind
+- [`deviationZScores(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores-methylTFRdeviations-method.md)
+  : deviationZScores
+- [`deviations(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviations-methylTFRdeviations-method.md)
+  : deviations
 - [`rbind(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/rbind-methylTFRdeviations-method.md)
   : rbind
-- [`read_methylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/read_methylome.md)
-  : read_methylome
-- [`run_methylTFR_RnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methylTFR_RnBeads.md)
-  : run_methylTFR_RnBeads
-- [`run_methyltfr()`](https://epigenomeinformatics.github.io/methylTFR/reference/run_methyltfr.md)
-  : run_methyltfr

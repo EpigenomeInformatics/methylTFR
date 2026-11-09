@@ -1,7 +1,6 @@
 # computeExpectations
 
-This function is used to calculate expected methylation for a given
-motif and sample.
+Expected methylation profile of a motif in one sample.
 
 ## Usage
 
@@ -13,12 +12,13 @@ computeExpectations(binMsites, gcfreq)
 
 - binMsites:
 
-  Imported methylation sites with GC bin
+  The matrix returned by `addGCBinToMethylome`.
 
 - gcfreq:
 
-  a `list` of GC bin frequency tables (matrices for multiple motif)
+  The GC bin frequency matrix of one motif.
 
 ## Value
 
-a `data.table` object with GC bin with corresponding avg methylation
+a `data.table` with the columns `x` (distance to the site centre) and
+`avg_methyl`.

@@ -1,4 +1,4 @@
-# helper function to compute row-wise z-score of a matrix
+# Row-wise Z-score of a matrix
 
 This function takes a matrix and computes row-wise z-scores.
 

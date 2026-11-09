@@ -1,6 +1,6 @@
 # check_file_run_inputs
 
-Validate the file-specific arguments of `run_methyltfr`.
+Validate the file-specific arguments of `runMethylTFR`.
 
 ## Usage
 

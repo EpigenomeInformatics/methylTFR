@@ -1,6 +1,6 @@
 # create_sink
 
-Create a temp sink for storing methylTFR results
+Create a temporary HDF5 sink for storing methylTFR results.
 
 ## Usage
 
@@ -8,7 +8,7 @@ Create a temp sink for storing methylTFR results
 create_sink(
   files_list,
   motifs,
-  temp_dir = "methylTFR_tmp",
+  tempDir = file.path(tempdir(), "methylTFR"),
   pattern = "methylTFR",
   fileext = ".h5",
   verbose = TRUE
@@ -19,28 +19,28 @@ create_sink(
 
 - files_list:
 
-  A character vector of file names
+  A character vector of sample names.
 
 - motifs:
 
-  A character vector of motifs
+  A character vector of motifs.
 
-- temp_dir:
+- tempDir:
 
-  A character vector specifying the temp directory
+  Directory the HDF5 file is written to. Created if it does not exist.
 
 - pattern:
 
-  A character vector specifying the pattern for the temp file
+  Prefix of the temporary file name.
 
 - fileext:
 
-  A character vector specifying the file extension for the temp file
+  File extension of the temporary file.
 
 - verbose:
 
-  A logical indicating whether to print messages
+  A logical indicating whether to print messages.
 
 ## Value
 
-A methylTFR sink
+An `HDF5RealizationSink`. Its file is in `sink@filepath`.

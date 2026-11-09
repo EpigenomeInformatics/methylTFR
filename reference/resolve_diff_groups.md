@@ -1,7 +1,7 @@
 # resolve_diff_groups
 
 Derive and validate the group labels used by
-`differential_deviation_test`.
+`differentialDeviationTest`.
 
 ## Usage
 
