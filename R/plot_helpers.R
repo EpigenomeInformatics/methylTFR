@@ -48,6 +48,7 @@ computeFootprint <- function(
 #' @description Methylation profile expected from GC content around the
 #' binding sites of one motif.
 #' @inheritParams computeDeviation
+#' @inheritParams run_methyltfr
 #' @return a \code{data.table} with the columns \code{x} and
 #' \code{avg_methyl}.
 #' @keywords internal

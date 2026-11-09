@@ -2,6 +2,7 @@
 #' @description Validate the inputs shared by the two footprint plotting
 #' functions.
 #' @inheritParams computeDeviation
+#' @inheritParams run_methyltfr
 #' @param motif Motif name as a character string.
 #' @return Invisible \code{NULL}. Called for the errors it raises.
 #' @keywords internal
@@ -52,6 +53,7 @@ expected_footprint_plot <- function(combined_data, motif, sample_name) {
 #' @description Plot the observed methylation profile around the binding
 #' sites of one motif together with the profile expected from GC content.
 #' @inheritParams computeDeviation
+#' @inheritParams run_methyltfr
 #' @param motif Name of the motif, one of \code{names(tf_bindsites)}.
 #' @param sample_name Optional sample label used in the plot title.
 #' Default \code{"sample"}.
