@@ -67,8 +67,11 @@ per donor sample and one row per JASPAR2020 motif. Four of the seven are
 T cell subsets, naive and memory in the cytotoxic and helper
 compartments; the remaining three provide a lineage contrast.
 
-The underlying methylomes are from Gündüz *et al.* (2025); see the
-References section.
+The scores were computed with `methylTFR` from the single-cell immune
+methylome atlas of Gündüz *et al.* (2025,
+[doi:10.1101/2025.09.09.675101](https://doi.org/10.1101/2025.09.09.675101)),
+one pseudobulk per donor sample and cell type. The package ships only
+these per-motif scores, not the underlying methylation calls.
 
 ``` r
 

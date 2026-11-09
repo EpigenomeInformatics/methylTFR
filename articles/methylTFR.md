@@ -337,16 +337,16 @@ devs <- runMethylTFR(
     threads = 1,
     chunkSize = 10
 )
-#> SUCCESS [2026-11-09 15:12:33] The samples are successfully located
-#> INFO [2026-11-09 15:12:33] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd256ebf6c.h5
-#> INFO [2026-11-09 15:12:34] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd18f82c45.h5
-#> INFO [2026-11-09 15:12:34] Processing sample_1.cov
-#> INFO [2026-11-09 15:12:34] Finished processing sample_1.cov
-#> INFO [2026-11-09 15:12:34] Processing sample_2.cov
-#> INFO [2026-11-09 15:12:34] Finished processing sample_2.cov
-#> INFO [2026-11-09 15:12:34] Processing sample_3.cov
-#> INFO [2026-11-09 15:12:35] Finished processing sample_3.cov
-#> SUCCESS [2026-11-09 15:12:35] Computed all deviations successfully
+#> SUCCESS [2026-11-09 15:30:29] The samples are successfully located
+#> INFO [2026-11-09 15:30:29] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e39835cce.h5
+#> INFO [2026-11-09 15:30:29] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e3973e6b9cd.h5
+#> INFO [2026-11-09 15:30:29] Processing sample_1.cov
+#> INFO [2026-11-09 15:30:29] Finished processing sample_1.cov
+#> INFO [2026-11-09 15:30:29] Processing sample_2.cov
+#> INFO [2026-11-09 15:30:29] Finished processing sample_2.cov
+#> INFO [2026-11-09 15:30:29] Processing sample_3.cov
+#> INFO [2026-11-09 15:30:30] Finished processing sample_3.cov
+#> SUCCESS [2026-11-09 15:30:30] Computed all deviations successfully
 devs
 #> class: methylTFRdeviations 
 #> dim: 1 3 
@@ -383,16 +383,16 @@ devsRegions <- runMethylTFR(
     filetype = "bismarkCov",
     enhancer = regions
 )
-#> SUCCESS [2026-11-09 15:12:35] The samples are successfully located
-#> INFO [2026-11-09 15:12:35] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd538e1741.h5
-#> INFO [2026-11-09 15:12:35] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd1a12983b.h5
-#> INFO [2026-11-09 15:12:35] Processing sample_1.cov
-#> INFO [2026-11-09 15:12:35] Finished processing sample_1.cov
-#> INFO [2026-11-09 15:12:35] Processing sample_2.cov
-#> INFO [2026-11-09 15:12:36] Finished processing sample_2.cov
-#> INFO [2026-11-09 15:12:36] Processing sample_3.cov
-#> INFO [2026-11-09 15:12:36] Finished processing sample_3.cov
-#> SUCCESS [2026-11-09 15:12:36] Computed all deviations successfully
+#> SUCCESS [2026-11-09 15:30:31] The samples are successfully located
+#> INFO [2026-11-09 15:30:31] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e3950507f54.h5
+#> INFO [2026-11-09 15:30:31] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e39751563a3.h5
+#> INFO [2026-11-09 15:30:31] Processing sample_1.cov
+#> INFO [2026-11-09 15:30:31] Finished processing sample_1.cov
+#> INFO [2026-11-09 15:30:31] Processing sample_2.cov
+#> INFO [2026-11-09 15:30:31] Finished processing sample_2.cov
+#> INFO [2026-11-09 15:30:31] Processing sample_3.cov
+#> INFO [2026-11-09 15:30:31] Finished processing sample_3.cov
+#> SUCCESS [2026-11-09 15:30:31] Computed all deviations successfully
 deviations(devsRegions)
 #>      sample_1.cov sample_2.cov sample_3.cov
 #> BATF    -0.126291   -0.1011316   -0.1371465
@@ -449,17 +449,17 @@ devsRnb <- runMethylTFRFromRnBeads(
     gc_dist = gcdist,
     cov_threshold = 1 # minimum coverage per site
 )
-#> INFO [2026-11-09 15:13:11] Annotation target: sites | assembly: hg38
-#> INFO [2026-11-09 15:13:15] Found 516 sites across 2 samples
-#> INFO [2026-11-09 15:13:15] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd227ef85d.h5
-#> INFO [2026-11-09 15:13:15] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd632ffb3b.h5
-#> INFO [2026-11-09 15:13:15] Sample 1: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 15:13:15] Processing sample_1
-#> INFO [2026-11-09 15:13:15] Finished processing sample_1
-#> INFO [2026-11-09 15:13:15] Sample 2: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 15:13:15] Processing sample_2
-#> INFO [2026-11-09 15:13:16] Finished processing sample_2
-#> SUCCESS [2026-11-09 15:13:16] Computed all deviations successfully
+#> INFO [2026-11-09 15:31:04] Annotation target: sites | assembly: hg38
+#> INFO [2026-11-09 15:31:08] Found 516 sites across 2 samples
+#> INFO [2026-11-09 15:31:08] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e3934aba01d.h5
+#> INFO [2026-11-09 15:31:08] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e397bad097d.h5
+#> INFO [2026-11-09 15:31:08] Sample 1: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:31:09] Processing sample_1
+#> INFO [2026-11-09 15:31:09] Finished processing sample_1
+#> INFO [2026-11-09 15:31:09] Sample 2: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:31:09] Processing sample_2
+#> INFO [2026-11-09 15:31:09] Finished processing sample_2
+#> SUCCESS [2026-11-09 15:31:09] Computed all deviations successfully
 deviations(devsRnb)
 #>       sample_1  sample_2
 #> BATF -0.124932 -0.124932
@@ -479,17 +479,17 @@ devsRnbRegions <- runMethylTFRFromRnBeads(
     gc_dist = gcdist,
     enhancer = regions
 )
-#> INFO [2026-11-09 15:13:16] Annotation target: sites | assembly: hg38
-#> INFO [2026-11-09 15:13:19] Found 516 sites across 2 samples
-#> INFO [2026-11-09 15:13:19] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd7d429376.h5
-#> INFO [2026-11-09 15:13:19] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd4a6984f2.h5
-#> INFO [2026-11-09 15:13:19] Sample 1: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 15:13:19] Processing sample_1
-#> INFO [2026-11-09 15:13:19] Finished processing sample_1
-#> INFO [2026-11-09 15:13:19] Sample 2: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 15:13:19] Processing sample_2
-#> INFO [2026-11-09 15:13:19] Finished processing sample_2
-#> SUCCESS [2026-11-09 15:13:19] Computed all deviations successfully
+#> INFO [2026-11-09 15:31:09] Annotation target: sites | assembly: hg38
+#> INFO [2026-11-09 15:31:12] Found 516 sites across 2 samples
+#> INFO [2026-11-09 15:31:12] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e3970c26d20.h5
+#> INFO [2026-11-09 15:31:12] Initializing the temp sink: /tmp/RtmpnhvBUn/methylTFR/methylTFR1e397d98081f.h5
+#> INFO [2026-11-09 15:31:12] Sample 1: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:31:12] Processing sample_1
+#> INFO [2026-11-09 15:31:12] Finished processing sample_1
+#> INFO [2026-11-09 15:31:12] Sample 2: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:31:12] Processing sample_2
+#> INFO [2026-11-09 15:31:13] Finished processing sample_2
+#> SUCCESS [2026-11-09 15:31:13] Computed all deviations successfully
 deviations(devsRnbRegions)
 #>       sample_1  sample_2
 #> BATF -0.124932 -0.124932
