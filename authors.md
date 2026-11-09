@@ -33,3 +33,16 @@ https://github.com/EpigenomeInformatics/methylTFR
       url = {https://github.com/EpigenomeInformatics/methylTFR},
       doi = {10.18129/B9.bioc.methylTFR},
     }
+
+Gunduz IB, Nitsch R, Murugan SK, Mueller F (2026). methylTFR:
+Quantification of transcription factor activity from DNA methylation.
+bioRxiv. https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1
+
+    @Article{,
+      title = {methylTFR: Quantification of transcription factor activity from DNA methylation},
+      author = {Irem B. Gunduz and Regina Nitsch and Sarath Kumar Murugan and Fabian Mueller},
+      journal = {bioRxiv},
+      year = {2026},
+      doi = {10.64898/2026.09.29.755279},
+      url = {https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1},
+    }

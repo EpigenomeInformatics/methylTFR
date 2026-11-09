@@ -2,22 +2,33 @@
 
 ## Introduction
 
-DNA methylation can modulate transcription factor (TF) binding,
-particularly when occurring within transcription factor binding sites
-(TFBS). `methylTFR` is an R package that identifies DNA methylation
-signatures at TFBS using whole-genome bisulfite sequencing (WGBS) data.
+DNA methylation modulates transcription factor (TF) binding and plays an
+important role in regulating gene expression. TF activity is usually
+inferred from gene expression or from chromatin accessibility aggregated
+over TF binding motifs. `methylTFR` infers it from DNA methylation
+instead. It summarises methylation at the binding sites of each motif
+and reports one activity score per TF and sample, rather than per locus.
+The result is low-dimensional, interpretable and directly comparable to
+accessibility- and expression-based measures.
 
-For each sample, methylation levels are first aggregated across all
-genomic regions corresponding to TFBS. This yields the **observed
-deviation**, which captures the raw signal of methylation enrichment or
-depletion for each TF. To account for sequence composition biases,
-`methylTFR` then estimates an **expected deviation** using genomic
-background models derived from TF motif GC content and genome-wide GC
-frequency. This deviation matrix provides a compact and interpretable
-representation of TFBS methylation across samples, suitable for
-downstream analyses such as dimensionality reduction (e.g., PCA, UMAP),
-clustering, differential testing, and visualization of TF-specific
-methylation footprints.
+`methylTFR` takes CpG-level methylation calls from bulk or aggregated
+single-cell experiments, together with a sample annotation file. For
+each motif, it compares methylation at the centre of the binding sites
+with the flanking regions (the **observed deviation**). Because
+methylation depends on local GC content, it also computes the deviation
+expected from the GC content of the motif and the genome-wide GC
+distribution (the **expected deviation**). The difference between the
+two is the bias-corrected deviation score.
+
+The genome-specific annotations (binding sites, motif GC frequency
+tables and the genome-wide GC distribution) are provided by the
+`methylTFRAnnotation` packages for hg38 and mm10, or can be built for
+any assembly with `methylTFRAnnotationBuilder`. The scores can then be
+used for dimensionality reduction, differential activity testing,
+variability analysis and footprint plots, all included in the package.
+
+The method and its applications are described in the [methylTFR
+preprint](https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1).
 
 ![](../reference/figures/overview.png)
 
@@ -326,16 +337,16 @@ devs <- runMethylTFR(
     threads = 1,
     chunkSize = 10
 )
-#> SUCCESS [2026-11-09 14:51:20] The samples are successfully located
-#> INFO [2026-11-09 14:51:20] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da245843080.h5
-#> INFO [2026-11-09 14:51:20] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da229881ce4.h5
-#> INFO [2026-11-09 14:51:20] Processing sample_1.cov
-#> INFO [2026-11-09 14:51:20] Finished processing sample_1.cov
-#> INFO [2026-11-09 14:51:20] Processing sample_2.cov
-#> INFO [2026-11-09 14:51:20] Finished processing sample_2.cov
-#> INFO [2026-11-09 14:51:20] Processing sample_3.cov
-#> INFO [2026-11-09 14:51:21] Finished processing sample_3.cov
-#> SUCCESS [2026-11-09 14:51:21] Computed all deviations successfully
+#> SUCCESS [2026-11-09 15:12:33] The samples are successfully located
+#> INFO [2026-11-09 15:12:33] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd256ebf6c.h5
+#> INFO [2026-11-09 15:12:34] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd18f82c45.h5
+#> INFO [2026-11-09 15:12:34] Processing sample_1.cov
+#> INFO [2026-11-09 15:12:34] Finished processing sample_1.cov
+#> INFO [2026-11-09 15:12:34] Processing sample_2.cov
+#> INFO [2026-11-09 15:12:34] Finished processing sample_2.cov
+#> INFO [2026-11-09 15:12:34] Processing sample_3.cov
+#> INFO [2026-11-09 15:12:35] Finished processing sample_3.cov
+#> SUCCESS [2026-11-09 15:12:35] Computed all deviations successfully
 devs
 #> class: methylTFRdeviations 
 #> dim: 1 3 
@@ -372,16 +383,16 @@ devsRegions <- runMethylTFR(
     filetype = "bismarkCov",
     enhancer = regions
 )
-#> SUCCESS [2026-11-09 14:51:21] The samples are successfully located
-#> INFO [2026-11-09 14:51:21] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27efb0261.h5
-#> INFO [2026-11-09 14:51:21] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27150fb4a.h5
-#> INFO [2026-11-09 14:51:21] Processing sample_1.cov
-#> INFO [2026-11-09 14:51:21] Finished processing sample_1.cov
-#> INFO [2026-11-09 14:51:21] Processing sample_2.cov
-#> INFO [2026-11-09 14:51:21] Finished processing sample_2.cov
-#> INFO [2026-11-09 14:51:21] Processing sample_3.cov
-#> INFO [2026-11-09 14:51:21] Finished processing sample_3.cov
-#> SUCCESS [2026-11-09 14:51:21] Computed all deviations successfully
+#> SUCCESS [2026-11-09 15:12:35] The samples are successfully located
+#> INFO [2026-11-09 15:12:35] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd538e1741.h5
+#> INFO [2026-11-09 15:12:35] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd1a12983b.h5
+#> INFO [2026-11-09 15:12:35] Processing sample_1.cov
+#> INFO [2026-11-09 15:12:35] Finished processing sample_1.cov
+#> INFO [2026-11-09 15:12:35] Processing sample_2.cov
+#> INFO [2026-11-09 15:12:36] Finished processing sample_2.cov
+#> INFO [2026-11-09 15:12:36] Processing sample_3.cov
+#> INFO [2026-11-09 15:12:36] Finished processing sample_3.cov
+#> SUCCESS [2026-11-09 15:12:36] Computed all deviations successfully
 deviations(devsRegions)
 #>      sample_1.cov sample_2.cov sample_3.cov
 #> BATF    -0.126291   -0.1011316   -0.1371465
@@ -438,17 +449,17 @@ devsRnb <- runMethylTFRFromRnBeads(
     gc_dist = gcdist,
     cov_threshold = 1 # minimum coverage per site
 )
-#> INFO [2026-11-09 14:51:46] Annotation target: sites | assembly: hg38
-#> INFO [2026-11-09 14:51:49] Found 516 sites across 2 samples
-#> INFO [2026-11-09 14:51:49] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da25eac237f.h5
-#> INFO [2026-11-09 14:51:49] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da2264f4bcd.h5
-#> INFO [2026-11-09 14:51:49] Sample 1: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 14:51:49] Processing sample_1
-#> INFO [2026-11-09 14:51:49] Finished processing sample_1
-#> INFO [2026-11-09 14:51:49] Sample 2: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 14:51:49] Processing sample_2
-#> INFO [2026-11-09 14:51:49] Finished processing sample_2
-#> SUCCESS [2026-11-09 14:51:49] Computed all deviations successfully
+#> INFO [2026-11-09 15:13:11] Annotation target: sites | assembly: hg38
+#> INFO [2026-11-09 15:13:15] Found 516 sites across 2 samples
+#> INFO [2026-11-09 15:13:15] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd227ef85d.h5
+#> INFO [2026-11-09 15:13:15] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd632ffb3b.h5
+#> INFO [2026-11-09 15:13:15] Sample 1: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:13:15] Processing sample_1
+#> INFO [2026-11-09 15:13:15] Finished processing sample_1
+#> INFO [2026-11-09 15:13:15] Sample 2: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:13:15] Processing sample_2
+#> INFO [2026-11-09 15:13:16] Finished processing sample_2
+#> SUCCESS [2026-11-09 15:13:16] Computed all deviations successfully
 deviations(devsRnb)
 #>       sample_1  sample_2
 #> BATF -0.124932 -0.124932
@@ -468,17 +479,17 @@ devsRnbRegions <- runMethylTFRFromRnBeads(
     gc_dist = gcdist,
     enhancer = regions
 )
-#> INFO [2026-11-09 14:51:49] Annotation target: sites | assembly: hg38
-#> INFO [2026-11-09 14:51:51] Found 516 sites across 2 samples
-#> INFO [2026-11-09 14:51:51] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da217a04718.h5
-#> INFO [2026-11-09 14:51:51] Initializing the temp sink: /tmp/RtmpBF2p2M/methylTFR/methylTFR1da27c2e163d.h5
-#> INFO [2026-11-09 14:51:51] Sample 1: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 14:51:51] Processing sample_1
-#> INFO [2026-11-09 14:51:51] Finished processing sample_1
-#> INFO [2026-11-09 14:51:51] Sample 2: 516 of 516 sites retained (100%)
-#> INFO [2026-11-09 14:51:51] Processing sample_2
-#> INFO [2026-11-09 14:51:51] Finished processing sample_2
-#> SUCCESS [2026-11-09 14:51:51] Computed all deviations successfully
+#> INFO [2026-11-09 15:13:16] Annotation target: sites | assembly: hg38
+#> INFO [2026-11-09 15:13:19] Found 516 sites across 2 samples
+#> INFO [2026-11-09 15:13:19] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd7d429376.h5
+#> INFO [2026-11-09 15:13:19] Initializing the temp sink: /tmp/RtmpaTezEm/methylTFR/methylTFR1edd4a6984f2.h5
+#> INFO [2026-11-09 15:13:19] Sample 1: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:13:19] Processing sample_1
+#> INFO [2026-11-09 15:13:19] Finished processing sample_1
+#> INFO [2026-11-09 15:13:19] Sample 2: 516 of 516 sites retained (100%)
+#> INFO [2026-11-09 15:13:19] Processing sample_2
+#> INFO [2026-11-09 15:13:19] Finished processing sample_2
+#> SUCCESS [2026-11-09 15:13:19] Computed all deviations successfully
 deviations(devsRnbRegions)
 #>       sample_1  sample_2
 #> BATF -0.124932 -0.124932

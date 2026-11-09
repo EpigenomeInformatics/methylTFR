@@ -1,7 +1,5 @@
 # *methylTFR* : Quantification of DNA Methylation Patterns in TFBS
 
-![methylTFR logo](reference/figures/logo.png)
-
 `methylTFR` is an R-package to analyze DNA methylation signatures in
 transcription factor binding sites in each individual cells or samples.
 
@@ -82,6 +80,13 @@ If you use `methylTFR` in your work, please cite:
 > Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of
 > DNA methylation signatures in TFBS. R package version 0.99.10.
 > <https://github.com/EpigenomeInformatics/methylTFR>
+
+The method is described in the preprint:
+
+> Gündüz IB, Nitsch R, Murugan SK, Müller F (2026). methylTFR:
+> Quantification of transcription factor activity from DNA methylation.
+> bioRxiv.
+> <https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1>
 
 ``` bibtex
 @Manual{methylTFR,
