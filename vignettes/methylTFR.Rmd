@@ -22,21 +22,33 @@ hasRnBeads <- requireNamespace("RnBeads", quietly = TRUE) &&
 
 ## Introduction
 
-DNA methylation can modulate transcription factor (TF) binding, particularly
-when occurring within transcription factor binding sites (TFBS). `methylTFR`
-is an R package that identifies DNA methylation signatures at TFBS using
-whole-genome bisulfite sequencing (WGBS) data.
+DNA methylation modulates transcription factor (TF) binding and plays an
+important role in regulating gene expression. TF activity is usually
+inferred from gene expression or from chromatin accessibility aggregated
+over TF binding motifs. `methylTFR` infers it from DNA methylation instead.
+It summarises methylation at the binding sites of each motif and reports
+one activity score per TF and sample, rather than per locus. The result is
+low-dimensional, interpretable and directly comparable to accessibility-
+and expression-based measures.
 
-For each sample, methylation levels are first aggregated across all genomic
-regions corresponding to TFBS. This yields the **observed deviation**, which
-captures the raw signal of methylation enrichment or depletion for each TF.
-To account for sequence composition biases, `methylTFR` then estimates an
-**expected deviation** using genomic background models derived from TF motif
-GC content and genome-wide GC frequency. This deviation matrix provides a
-compact and interpretable representation of TFBS methylation across samples,
-suitable for downstream analyses such as dimensionality reduction (e.g., PCA,
-UMAP), clustering, differential testing, and visualization of TF-specific
-methylation footprints.
+`methylTFR` takes CpG-level methylation calls from bulk or aggregated
+single-cell experiments, together with a sample annotation file. For each
+motif, it compares methylation at the centre of the binding sites with the
+flanking regions (the **observed deviation**). Because methylation depends
+on local GC content, it also computes the deviation expected from the GC
+content of the motif and the genome-wide GC distribution (the **expected
+deviation**). The difference between the two is the bias-corrected
+deviation score.
+
+The genome-specific annotations (binding sites, motif GC frequency tables
+and the genome-wide GC distribution) are provided by the
+`methylTFRAnnotation` packages for hg38 and mm10, or can be built for any
+assembly with `methylTFRAnnotationBuilder`. The scores can then be used
+for dimensionality reduction, differential activity testing, variability
+analysis and footprint plots, all included in the package.
+
+The method and its applications are described in the
+[methylTFR preprint](https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1).
 
 ![](../man/figures/overview.png){width=80%}
 

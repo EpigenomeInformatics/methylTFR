@@ -31,3 +31,28 @@ bibentry(
         pkg_title, ". ", pkg_note, ". ", pkg_url
     )
 )
+
+bibentry(
+    bibtype = "Article",
+    header = "The method is described in:",
+    title = paste(
+        "methylTFR: Quantification of transcription factor activity",
+        "from DNA methylation"
+    ),
+    author = c(
+        person("Irem B.", "Gunduz"),
+        person("Regina", "Nitsch"),
+        person("Sarath Kumar", "Murugan"),
+        person("Fabian", "Mueller")
+    ),
+    journal = "bioRxiv",
+    year = "2026",
+    doi = "10.64898/2026.09.29.755279",
+    url = "https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1",
+    textVersion = paste(
+        "Gunduz IB, Nitsch R, Murugan SK, Mueller F (2026).",
+        "methylTFR: Quantification of transcription factor activity from",
+        "DNA methylation. bioRxiv.",
+        "https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1"
+    )
+)

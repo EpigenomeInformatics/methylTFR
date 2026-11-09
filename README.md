@@ -1,8 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# *methylTFR* : Quantification of DNA Methylation Patterns in TFBS
-
-<img src="man/figures/logo.png" align="right" height="139" alt="methylTFR logo" />
+# *methylTFR* : Quantification of DNA Methylation Patterns in TFBS <img src="man/figures/logo.png" align="right" height="139" alt="methylTFR logo" />
 
 <!-- badges: start -->
 [![Test R-universe](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml/badge.svg)](https://github.com/EpigenomeInformatics/methylTFR/actions/workflows/r-universe.yml)
@@ -80,6 +78,10 @@ released without restrictions.
 If you use `methylTFR` in your work, please cite:
 
 > Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of DNA methylation signatures in TFBS. R package version 0.99.10. https://github.com/EpigenomeInformatics/methylTFR
+
+The method is described in the preprint:
+
+> Gündüz IB, Nitsch R, Murugan SK, Müller F (2026). methylTFR: Quantification of transcription factor activity from DNA methylation. bioRxiv. https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1
 
 ```bibtex
 @Manual{methylTFR,
