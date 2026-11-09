@@ -27,7 +27,7 @@ check_deviation_inputs <- function(
         !all(c("gcbin", "avg_mscore") %in% colnames(binMsites))) {
         stop(
             "binMsites must be the matrix returned by ",
-            "addGCBintoMethylome()"
+            "addGCBinToMethylome()"
         )
     }
     if (!is.numeric(extendBy) || length(extendBy) != 1 || extendBy < 0) {
@@ -51,7 +51,7 @@ check_deviation_inputs <- function(
 #' flank. The observed score is the mean methylation in the centre bin
 #' divided by the mean of the two outer flank bins. The same ratio is
 #' computed for the methylation expected from GC content (see
-#' \code{\link{addGCBintoMethylome}}), and the deviation is the observed
+#' \code{\link{addGCBinToMethylome}}), and the deviation is the observed
 #' minus the expected ratio. If the centre or either outer flank bin holds
 #' no CpG, the score is \code{NA}.
 #'
@@ -59,12 +59,12 @@ check_deviation_inputs <- function(
 #' unweighted means of the per-CpG methylation fractions. Coverage only
 #' enters through the \code{cov_threshold} filter applied when the data are
 #' read.
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @param msites A \code{GRanges} object with one range per CpG (width 1)
 #' and the metadata columns \code{score} (numeric methylation fraction
 #' between 0 and 1) and \code{coverage} (read count). Usually produced by
-#' \code{\link{read_methylome}}.
-#' @param binMsites The matrix returned by \code{\link{addGCBintoMethylome}},
+#' \code{\link{readMethylome}}.
+#' @param binMsites The matrix returned by \code{\link{addGCBinToMethylome}},
 #' with the columns \code{gcbin} and \code{avg_mscore}.
 #' @param motif Name of the motif, one of \code{names(tf_bindsites)}.
 #' @param extendBy Number of base pairs added to the width of each binding
@@ -76,12 +76,12 @@ check_deviation_inputs <- function(
 #' \code{c(-250, -200, -25, 25, 200, 250)}.
 #' @return A \code{data.table} with one row and the columns \code{dev}
 #' (bias-corrected deviation) and \code{exp_dev} (expected deviation).
-#' @seealso \code{\link{run_methyltfr}} to score all motifs and samples at
+#' @seealso \code{\link{runMethylTFR}} to score all motifs and samples at
 #' once, \code{\link{plotMotifFootprint}} to see the profile behind the
 #' score.
 #' @importFrom GenomicRanges GRanges findOverlaps width resize start end
 #' @importFrom IRanges subsetByOverlaps
-#' @importFrom data.table data.table setDT
+#' @importFrom data.table data.table
 #' @importFrom S4Vectors mcols
 #' @import data.table
 #' @examples
@@ -90,7 +90,7 @@ check_deviation_inputs <- function(
 #' load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 #' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #'
-#' bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
+#' bin_meth <- addGCBinToMethylome(msites, gcdist, TRUE)
 #'
 #' computeDeviation(
 #'     motif = "BATF",

@@ -1,12 +1,7 @@
-# Creates the example data in inst/extdata from open-access data.
-#
-# Methylation calls: ENCODE whole-genome bisulfite sequencing, experiment
-# ENCSR663MXB (GRCh38), CpG bedMethyl file. ENCODE data are released without
-# restrictions: https://www.encodeproject.org/experiments/ENCSR663MXB/
-#
-# Annotations: methylTFRAnnotationHg38
-# (https://github.com/EpigenomeInformatics/methylTFRAnnotationHg38).
-#
+# Example WGBS data from ENCODE (ENCSR663MXB, GRCh38), open access.
+# https://www.encodeproject.org/experiments/ENCSR663MXB/
+# Run from the package root.
+
 suppressPackageStartupMessages({
     library(methylTFR)
     library(GenomicRanges)
@@ -14,65 +9,48 @@ suppressPackageStartupMessages({
     library(jsonlite)
 })
 
-extdataDir <- Sys.getenv("MTFR_EXTDATA_DIR", file.path("inst", "extdata"))
-dir.create(extdataDir, showWarnings = FALSE, recursive = TRUE)
+extdata <- file.path("inst", "extdata")
 
 saveCompressed <- function(..., file) {
-    path <- file.path(extdataDir, file)
+    path <- file.path(extdata, file)
     save(..., file = path)
     tools::resaveRdaFiles(path, compress = "auto")
 }
 
-############################################################################
-# Download the ENCODE CpG bedMethyl file
-############################################################################
-
+# Download the CpG bedMethyl file
 encodeUrl <- "https://www.encodeproject.org"
-experiment <- "ENCSR663MXB"
-meta <- fromJSON(sprintf(
-    "%s/experiments/%s/?format=json", encodeUrl, experiment
-), simplifyVector = FALSE)
-
-isCpgBed <- function(f) {
+meta <- fromJSON(
+    paste0(encodeUrl, "/experiments/ENCSR663MXB/?format=json"),
+    simplifyVector = FALSE
+)
+bedFile <- Filter(function(f) {
     identical(f$file_format, "bed") &&
         identical(f$output_type, "methylation state at CpG") &&
         identical(f$assembly, "GRCh38") &&
         identical(f$status, "released")
-}
-cpgFiles <- Filter(isCpgBed, meta$files)
-if (length(cpgFiles) == 0) {
-    stop("No released GRCh38 CpG bedMethyl file found for ", experiment)
-}
-bedFile <- cpgFiles[[1]]
-message("Using ", bedFile$accession, " from ", experiment)
-
+}, meta$files)[[1]]
 localBed <- file.path(tempdir(), paste0(bedFile$accession, ".bed.gz"))
 if (!file.exists(localBed)) {
-    utils::download.file(
-        paste0(encodeUrl, bedFile$href), localBed, mode = "wb"
-    )
+    download.file(paste0(encodeUrl, bedFile$href), localBed, mode = "wb")
 }
 
-############################################################################
-# Example data for computeDeviation, run_methyltfr and related functions
-############################################################################
-
+# Load the annotation
 gcfreqs <- getGCfreq(motifSet = "jaspar2020")
 gcdist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
-msitesAll <- read_methylome(localBed, "encode")
-msitesAll <- msitesAll[seqnames(msitesAll) == "chr1"]
-
-# Keep chr1 CpGs within the BATF binding-site windows used by
-# computeDeviation(), and the first 1000 of them
 batf <- tf_bindsites[["BATF"]]
 batfWindows <- resize(batf, width(batf)[1] + 130, fix = "center")
-msites <- subsetByOverlaps(msitesAll, batfWindows, ignore.strand = TRUE)
-msites <- msites[seq_len(min(1000, length(msites)))]
+msitesAll <- readMethylome(localBed, "encode")
 
-gcdist <- gcdist[seqnames(gcdist) == "chr1"]
-gcdist <- subsetByOverlaps(gcdist, msites)
+############################################################################
+# Example data for computeDeviation and runMethylTFR
+############################################################################
+# First 1000 chr1 CpGs in BATF windows
+msites <- msitesAll[seqnames(msitesAll) == "chr1"]
+msites <- subsetByOverlaps(msites, batfWindows, ignore.strand = TRUE)
+msites <- msites[seq_len(min(1000, length(msites)))]
+gcdist_sub <- subsetByOverlaps(gcdist[seqnames(gcdist) == "chr1"], msites)
 
 tf_bindsites <- list(BATF = batf)
 gcfreqs <- list(BATF = gcfreqs[["BATF"]])
@@ -80,28 +58,23 @@ gcfreqs <- list(BATF = gcfreqs[["BATF"]])
 saveCompressed(msites, file = "example_data.rda")
 saveCompressed(tf_bindsites, file = "BATF_tf_bindsites.rda")
 saveCompressed(gcfreqs, file = "BATF_gcfreqs.rda")
+gcdist <- gcdist_sub
 saveCompressed(gcdist, file = "gcdist_subset.rda")
 
 ############################################################################
-# Example data for plotMotifFootprint and related functions
+# Example data for plotMotifFootprint
 ############################################################################
-
-msitesAll <- read_methylome(localBed, "encode")
-gcdist <- getGenomeGC()
-
 msites_sub <- subsetByOverlaps(msitesAll, batfWindows, ignore.strand = TRUE)
 msites_sub <- msites_sub[!seqnames(msites_sub) %in% c("chrX", "chrY")]
-gcdist <- subsetByOverlaps(gcdist, batfWindows, ignore.strand = TRUE)
+gcdist <- subsetByOverlaps(getGenomeGC(), batfWindows, ignore.strand = TRUE)
 
 saveCompressed(msites_sub, file = "msites_sub.rda")
 saveCompressed(gcdist, file = "gcdist_BATF.rda")
 
 ############################################################################
-# Example deviations from the immune methylome atlas (Gunduz et al. 2025)
+# Example deviations from Gunduz 2025 paper
 ############################################################################
-# These are per-motif pseudobulk deviation scores, not CpG calls. Set
-# MTFR_PSEUDOBULK_DIR to the directory holding the *_deviations.RDS files.
-
+# Set MTFR_PSEUDOBULK_DIR to the folder with the *_deviations.RDS files
 pseudobulkDir <- Sys.getenv("MTFR_PSEUDOBULK_DIR")
 if (nzchar(pseudobulkDir)) {
     tc_mem <- readRDS(file.path(pseudobulkDir, "Tc-Mem_deviations.RDS"))
@@ -110,6 +83,4 @@ if (nzchar(pseudobulkDir)) {
     tc_naive <- tc_naive[1:10, 1:5]
     saveCompressed(tc_mem, file = "tc_mem.rda")
     saveCompressed(tc_naive, file = "tc_naive.rda")
-} else {
-    message("MTFR_PSEUDOBULK_DIR not set; tc_mem.rda and tc_naive.rda kept")
 }

@@ -1,4 +1,4 @@
-# Test run_methyltfr
+# Test runMethylTFR
 
 library(methylTFR)
 
@@ -12,16 +12,21 @@ writeExampleSamples <- function(sample_dir, n = 2) {
     dir.create(sample_dir, showWarnings = FALSE)
     set.seed(1)
     files <- paste0("sample_", seq_len(n), ".cov")
+    cov <- round(msites$coverage)
+    keep <- is.finite(msites$score) & msites$score >= 0 &
+        msites$score <= 1 & is.finite(cov) & cov >= 1
+    m <- msites[keep]
+    cov <- cov[keep]
     for (f in files) {
-        n_meth <- stats::rbinom(length(msites), msites$coverage, msites$score)
+        n_meth <- stats::rbinom(length(m), cov, m$score)
         write.table(
             data.frame(
-                chr = as.character(GenomicRanges::seqnames(msites)),
-                start = GenomicRanges::start(msites),
-                end = GenomicRanges::end(msites),
-                percent = 100 * n_meth / msites$coverage,
+                chr = as.character(GenomicRanges::seqnames(m)),
+                start = GenomicRanges::start(m),
+                end = GenomicRanges::end(m),
+                percent = 100 * n_meth / cov,
                 meth = n_meth,
-                unmeth = msites$coverage - n_meth
+                unmeth = cov - n_meth
             ),
             file.path(sample_dir, f),
             sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE
@@ -35,39 +40,39 @@ writeExampleSamples <- function(sample_dir, n = 2) {
     files
 }
 
-test_that("run_methyltfr validates its input", {
-    expect_error(run_methyltfr(
+test_that("runMethylTFR validates its input", {
+    expect_error(runMethylTFR(
         sample_ann = "sample_ann.tsv", sample_dir = ".",
         filetype = "invalid"
     ), "Please provide a valid file type")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "sample_ann.tsv", sample_dir = ".",
         filetype = NULL
     ), "Please provide a valid file type")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "sample_ann.tsv", sample_dir = ".",
         filetype = "epp", sampleColName = NULL
     ), "Please provide a valid sample column name")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "sample_ann.tsv", sample_dir = ".",
         filetype = "epp", full_path = "yes"
     ), "Invalid full path flag")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "sample_ann.tsv", sample_dir = ".",
         filetype = "epp"
     ), "Please load the annotation objects for given genome.")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "sample_ann.tsv", sample_dir = "no_such_dir",
         tf_bindsites = tf_bindsites, gcfreqs = gcfreqs, gc_dist = gcdist,
         filetype = "epp"
     ), "Sample directory does not exist")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "sample_ann.txt", sample_dir = ".",
         tf_bindsites = tf_bindsites, gcfreqs = gcfreqs, gc_dist = gcdist,
         filetype = "epp"
@@ -75,7 +80,7 @@ test_that("run_methyltfr validates its input", {
 })
 
 test_that("annotation inputs are checked against each other", {
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "s.tsv", sample_dir = ".",
         tf_bindsites = tf_bindsites, gcfreqs = list(OTHER = gcfreqs$BATF),
         gc_dist = gcdist, filetype = "epp"
@@ -83,32 +88,32 @@ test_that("annotation inputs are checked against each other", {
 
     noBin <- gcdist
     S4Vectors::mcols(noBin) <- NULL
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "s.tsv", sample_dir = ".",
         tf_bindsites = tf_bindsites, gcfreqs = gcfreqs,
         gc_dist = noBin, filetype = "epp"
     ), "GC_bin")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "s.tsv", sample_dir = ".",
         tf_bindsites = tf_bindsites, gcfreqs = unname(gcfreqs),
         gc_dist = gcdist, filetype = "epp"
     ), "gcfreqs must be named")
 
-    expect_error(run_methyltfr(
+    expect_error(runMethylTFR(
         sample_ann = "s.tsv", sample_dir = ".",
         tf_bindsites = tf_bindsites, gcfreqs = gcfreqs,
         gc_dist = gcdist, filetype = "epp", enhancer = "chr1"
     ), "enhancer")
 })
 
-test_that("run_methyltfr runs end to end on files", {
+test_that("runMethylTFR runs end to end on files", {
     sample_dir <- tempfile("methylTFR_run")
     tmpDir <- tempfile("methylTFR_h5")
     on.exit(unlink(c(sample_dir, tmpDir), recursive = TRUE), add = TRUE)
     files <- writeExampleSamples(sample_dir, n = 3)
 
-    devs <- run_methyltfr(
+    devs <- runMethylTFR(
         sample_ann = "samples.tsv",
         sample_dir = sample_dir,
         tf_bindsites = tf_bindsites,
@@ -125,7 +130,7 @@ test_that("run_methyltfr runs end to end on files", {
     expect_length(list.files(tmpDir, pattern = "\\.h5$"), 0)
 
     # annfile takes a full path to the annotation file
-    devs2 <- run_methyltfr(
+    devs2 <- runMethylTFR(
         annfile = file.path(sample_dir, "samples.tsv"),
         sample_dir = sample_dir,
         tf_bindsites = tf_bindsites,

@@ -210,7 +210,7 @@ bootstrap_variability <- function(z, res, niterations, conf_level) {
 #' @importFrom matrixStats rowSds
 #' @importFrom stats pchisq p.adjust median quantile
 #' @importFrom methods is
-#' @seealso \code{\link{differential_deviation_test}} for testing activity
+#' @seealso \code{\link{differentialDeviationTest}} for testing activity
 #' differences between predefined groups.
 #' @examples
 #' # Load example data

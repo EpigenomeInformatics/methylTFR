@@ -56,7 +56,7 @@ gc_dist <- getGenomeGC()
 tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
 
 # deviation score matrix
-devs <- run_methyltfr(
+devs <- runMethylTFR(
   sample_ann = "samples.tsv", # sample annotation file in sample_dir
   sample_dir = "samples_dir", # where the EPP files are
   threads = 8, # number of threads

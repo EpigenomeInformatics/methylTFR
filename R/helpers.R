@@ -72,17 +72,3 @@ computeRowZScore <- function(mat) {
     mat[base::is.nan(mat)] <- 0
     return(mat)
 }
-
-#' @title Column-wise Z-score of a matrix
-#' @description This function takes a matrix and computes column-wise
-#' z-scores.
-#' @param mat A matrix
-#' @return A matrix with column-wise z-scores
-#' @importFrom matrixStats colMeans2 colSds
-#' @keywords internal
-computeColZScore <- function(mat) {
-    mat <- (mat - matrixStats::colMeans2(mat)) /
-        matrixStats::colSds(mat)
-    mat[base::is.nan(mat)] <- 0
-    return(mat)
-}

@@ -54,7 +54,7 @@ test_that("plotExpectedFootprint validates its input", {
             motif = "BATF", tf_bindsites = tf_bindsites, msites = NULL,
             gc_dist = gcdist, gcfreqs = gcfreqs
         ),
-        "read_methylome"
+        "readMethylome"
     )
     expect_error(
         plotExpectedFootprint(

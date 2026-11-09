@@ -14,6 +14,6 @@ Invisible \code{NULL}. Called for the errors it raises.
 }
 \description{
 Check that methylation sites have the structure returned by
-\code{read_methylome}.
+\code{readMethylome}.
 }
 \keyword{internal}

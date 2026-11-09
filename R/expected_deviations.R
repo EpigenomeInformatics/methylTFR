@@ -1,4 +1,4 @@
-#' @title addGCBintoMethylome
+#' @title addGCBinToMethylome
 #' @description Assign each methylation site to the GC bin of the genomic
 #' window it falls in, and compute the average methylation per GC bin.
 #' @details The result describes how methylation depends on local GC
@@ -12,7 +12,7 @@
 #' @return A \code{matrix} with one row per GC bin and the columns
 #' \code{gcbin} and \code{avg_mscore}. Pass it as \code{binMsites} to
 #' \code{\link{computeDeviation}}.
-#' @seealso \code{\link{computeDeviation}}, \code{\link{read_methylome}}
+#' @seealso \code{\link{computeDeviation}}, \code{\link{readMethylome}}
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom data.table data.table
 #' @export
@@ -20,10 +20,10 @@
 #' load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
 #' load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 #'
-#' bin_meth <- addGCBintoMethylome(msites, gcdist)
+#' bin_meth <- addGCBinToMethylome(msites, gcdist)
 #' bin_meth
 #' @author Irem Gunduz
-addGCBintoMethylome <- function(msites, gcdist, ignoreStrand = TRUE) {
+addGCBinToMethylome <- function(msites, gcdist, ignoreStrand = TRUE) {
     if (!is.logical(ignoreStrand)) {
         warning("Found invalid strand option, using the default")
         ignoreStrand <- TRUE
@@ -46,7 +46,7 @@ addGCBintoMethylome <- function(msites, gcdist, ignoreStrand = TRUE) {
 
 #' @title computeExpectations
 #' @description Expected methylation profile of a motif in one sample.
-#' @param binMsites The matrix returned by \code{addGCBintoMethylome}.
+#' @param binMsites The matrix returned by \code{addGCBinToMethylome}.
 #' @param gcfreq The GC bin frequency matrix of one motif.
 #' @return a \code{data.table} with the columns \code{x} (distance to the
 #' site centre) and \code{avg_methyl}.

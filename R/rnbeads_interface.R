@@ -8,9 +8,9 @@
 check_rnb_inputs <- function(rnb_set) {
     if (!requireNamespace("RnBeads", quietly = TRUE)) {
         stop(
-            "The RnBeads package is required for run_methylTFR_RnBeads(). ",
+            "The RnBeads package is required for runMethylTFRFromRnBeads(). ",
             "Install it with BiocManager::install('RnBeads'), or export ",
-            "your samples and use run_methyltfr() instead."
+            "your samples and use runMethylTFR() instead."
         )
     }
     if (is.null(rnb_set) || !is(rnb_set, "RnBSet")) {
@@ -44,7 +44,7 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 }
 
 
-#' @title run_methylTFR_RnBeads
+#' @title runMethylTFRFromRnBeads
 #' @description Run the methylTFR workflow directly on a preprocessed
 #' \pkg{RnBeads} object, without exporting per-sample BED files first.
 #'
@@ -54,7 +54,7 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #' (\code{RnBeadSet}) by detection p-value. The number of sites retained
 #' per sample is reported through \pkg{logger}.
 #'
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @param rnb_set A preprocessed \code{RnBSet} object, for example loaded
 #' with \code{RnBeads::load.rnb.set()}.
 #' @param cov_threshold Numeric, minimum coverage of a retained site. Used
@@ -102,7 +102,7 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #'         summarize.regions = FALSE
 #'     )
 #'
-#'     devs <- run_methylTFR_RnBeads(
+#'     devs <- runMethylTFRFromRnBeads(
 #'         rnb_set = rnb_set,
 #'         tf_bindsites = tf_bindsites,
 #'         gcfreqs = gcfreqs,
@@ -111,12 +111,12 @@ resolve_rnb_sample_ann <- function(rnb_set, sample_ann, sample_ids) {
 #'     RnBeads::rnb.options(identifiers.column = old_ids)
 #'     deviations(devs)
 #' }
-#' @seealso \code{\link{run_methyltfr}} for running methylTFR from
+#' @seealso \code{\link{runMethylTFR}} for running methylTFR from
 #' per-sample BED files.
 #' @importFrom logger log_info
 #' @importFrom methods is
 #' @export
-run_methylTFR_RnBeads <- function(
+runMethylTFRFromRnBeads <- function(
     rnb_set, tf_bindsites = NULL, gcfreqs = NULL, gc_dist = NULL,
     chunkSize = 20, threads = 1, enhancer = NULL, ignoreStrand = TRUE,
     cov_threshold = 1, dpval_threshold = 0.05, sample_ann = NULL,
@@ -159,9 +159,7 @@ run_methylTFR_RnBeads <- function(
 #' @return A character vector of sample identifiers.
 #' @keywords internal
 rnb_sample_ids <- function(rnb_set) {
-    # Same as RnBeads' samples(): the column named by the
-    # "identifiers.column" option. samples() is not exported by all
-    # RnBeads versions, so it is not called directly.
+    # Same as RnBeads::samples(), which not all versions export
     ids <- tryCatch({
         id_col <- RnBeads::rnb.getOption("identifiers.column")
         ph <- RnBeads::pheno(rnb_set)

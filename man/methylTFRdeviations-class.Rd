@@ -6,7 +6,7 @@
 \title{methylTFRdeviations}
 \description{
 Class for storing results from
-\code{\link{run_methyltfr}} and \code{\link{run_methylTFR_RnBeads}}.
+\code{\link{runMethylTFR}} and \code{\link{runMethylTFRFromRnBeads}}.
 }
 \details{
 This class inherits from

@@ -2,9 +2,21 @@
 
 Changes from the Bioconductor review.
 
+API CHANGES
+
+Exported functions now use camelCase consistently. Arguments are unchanged.
+
+| Old | New |
+|---|---|
+| `read_methylome()` | `readMethylome()` |
+| `run_methyltfr()` | `runMethylTFR()` |
+| `run_methylTFR_RnBeads()` | `runMethylTFRFromRnBeads()` |
+| `differential_deviation_test()` | `differentialDeviationTest()` |
+| `addGCBintoMethylome()` | `addGCBinToMethylome()` |
+
 NEW FEATURES
 
-* `run_methyltfr()` and `run_methylTFR_RnBeads()` take a `tempDir`
+* `runMethylTFR()` and `runMethylTFRFromRnBeads()` take a `tempDir`
   argument. Temporary HDF5 files are written under `tempdir()` by default,
   not in the working directory, and are deleted when the run ends.
 * `computeDeviation()` takes `extendBy` (default 130) and `windowBreaks`
@@ -19,9 +31,10 @@ BUG FIXES
 * The deviation score is `NA` when the centre bin or either outer flank
   bin has no CpG. Before, an empty bin shifted the bins and gave a wrong
   ratio.
-* For two groups, `mean_difference` in `differential_deviation_test()` is
+* For two groups, `mean_difference` in `differentialDeviationTest()` is
   now signed (first group minus second group). It was the absolute value.
-* `cleanMem()` ran the garbage collector once whatever `iter.gc` was.
+* Removed `cleanMem()`, which forced garbage collection after every
+  block written, and the unused `computeColZScore()`.
 
 DOCUMENTATION
 

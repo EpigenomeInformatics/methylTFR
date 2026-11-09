@@ -8,7 +8,7 @@ test_that("computeDeviation", {
     load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-    bin_meth <- addGCBintoMethylome(msites, gcdist, TRUE)
+    bin_meth <- addGCBinToMethylome(msites, gcdist, TRUE)
     expect_true(is.matrix(bin_meth))
     expect_true(all(c("gcbin", "avg_mscore") %in% colnames(bin_meth)))
 
@@ -49,7 +49,7 @@ test_that("computeDeviation", {
             "BATF", NULL, tf_bindsites, gcfreqs,
             binMsites = bin_meth
         ),
-        "read_methylome"
+        "readMethylome"
     )
     noCov <- msites
     noCov$coverage <- NULL
@@ -86,7 +86,7 @@ test_that("computeDeviation", {
             "BATF", msites, tf_bindsites, gcfreqs,
             binMsites = matrix(1:4, 2)
         ),
-        "addGCBintoMethylome"
+        "addGCBinToMethylome"
     )
     expect_error(
         computeDeviation(
@@ -119,24 +119,24 @@ test_that("computeDeviation", {
     )
 })
 
-test_that("addGCBintoMethylome validates its input", {
+test_that("addGCBinToMethylome validates its input", {
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
     load(system.file("extdata", "example_data.rda", package = "methylTFR"))
 
-    expect_error(addGCBintoMethylome(NULL, gcdist), "read_methylome")
-    expect_error(addGCBintoMethylome(msites, NULL), "getGenomeGC")
+    expect_error(addGCBinToMethylome(NULL, gcdist), "readMethylome")
+    expect_error(addGCBinToMethylome(msites, NULL), "getGenomeGC")
     noBin <- gcdist
     S4Vectors::mcols(noBin) <- NULL
-    expect_error(addGCBintoMethylome(msites, noBin), "GC_bin")
+    expect_error(addGCBinToMethylome(msites, noBin), "GC_bin")
     expect_warning(
-        addGCBintoMethylome(msites, gcdist, ignoreStrand = "x"),
+        addGCBinToMethylome(msites, gcdist, ignoreStrand = "x"),
         "invalid strand option"
     )
     farAway <- GenomicRanges::GRanges(
         "chrUn", IRanges::IRanges(1, 30), GC_bin = 1L
     )
     expect_error(
-        suppressWarnings(addGCBintoMethylome(msites, farAway)),
+        suppressWarnings(addGCBinToMethylome(msites, farAway)),
         "No methylation sites found in the GC distribution"
     )
 })

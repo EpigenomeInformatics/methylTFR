@@ -1,28 +1,28 @@
-# Test run_methylTFR_RnBeads and the shared engine
+# Test runMethylTFRFromRnBeads and the shared engine
 
 library(methylTFR)
 
-test_that("run_methylTFR_RnBeads rejects objects that are not RnBSets", {
+test_that("runMethylTFRFromRnBeads rejects objects that are not RnBSets", {
     skip_if_not_installed("RnBeads")
     expect_error(
-        run_methylTFR_RnBeads(rnb_set = NULL),
+        runMethylTFRFromRnBeads(rnb_set = NULL),
         "Please provide a valid RnBSet object"
     )
     expect_error(
-        run_methylTFR_RnBeads(rnb_set = data.frame(a = 1)),
+        runMethylTFRFromRnBeads(rnb_set = data.frame(a = 1)),
         "Please provide a valid RnBSet object"
     )
 })
 
-test_that("run_methylTFR_RnBeads explains itself when RnBeads is absent", {
+test_that("runMethylTFRFromRnBeads explains itself when RnBeads is absent", {
     skip_if(requireNamespace("RnBeads", quietly = TRUE))
     expect_error(
-        run_methylTFR_RnBeads(rnb_set = NULL),
+        runMethylTFRFromRnBeads(rnb_set = NULL),
         "RnBeads package is required"
     )
 })
 
-test_that("run_methylTFR_RnBeads runs on a small RnBiseqSet", {
+test_that("runMethylTFRFromRnBeads runs on a small RnBiseqSet", {
     skip_if_not_installed("RnBeads")
     skip_if_not_installed("RnBeads.hg38")
     load(system.file("extdata", "gcdist_subset.rda", package = "methylTFR"))
@@ -55,7 +55,7 @@ test_that("run_methylTFR_RnBeads runs on a small RnBiseqSet", {
 
     tmpDir <- tempfile("methylTFR_h5")
     on.exit(unlink(tmpDir, recursive = TRUE), add = TRUE)
-    devs <- run_methylTFR_RnBeads(
+    devs <- runMethylTFRFromRnBeads(
         rnb_set = rnb_set,
         tf_bindsites = tf_bindsites,
         gcfreqs = gcfreqs,
@@ -71,7 +71,7 @@ test_that("run_methylTFR_RnBeads runs on a small RnBiseqSet", {
     expect_length(list.files(tmpDir, pattern = "\\.h5$"), 0)
 
     expect_error(
-        run_methylTFR_RnBeads(
+        runMethylTFRFromRnBeads(
             rnb_set = rnb_set, tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs, gc_dist = gcdist,
             sample_ann = data.frame(x = 1)
@@ -79,7 +79,7 @@ test_that("run_methylTFR_RnBeads runs on a small RnBiseqSet", {
         "one row per sample"
     )
     expect_error(
-        run_methylTFR_RnBeads(
+        runMethylTFRFromRnBeads(
             rnb_set = rnb_set, tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs, gc_dist = gcdist,
             sample_ann = "samples.tsv"
@@ -87,7 +87,7 @@ test_that("run_methylTFR_RnBeads runs on a small RnBiseqSet", {
         "sample_ann must be a data.frame"
     )
     expect_error(
-        run_methylTFR_RnBeads(
+        runMethylTFRFromRnBeads(
             rnb_set = rnb_set, tf_bindsites = tf_bindsites,
             gcfreqs = gcfreqs, gc_dist = gcdist,
             cov_threshold = 1e6
@@ -160,7 +160,7 @@ test_that("the shared engine validates its arguments", {
             gc_dist = gcdist,
             tempDir = tempfile()
         ),
-        "read_methylome"
+        "readMethylome"
     )
 })
 
@@ -192,9 +192,7 @@ test_that("the shared engine runs end to end on the example data", {
         c("deviations", "z", "expected") %in%
             SummarizedExperiment::assayNames(res)
     ))
-    # The same methylation calls were handed in twice, so both columns must
-    # agree. This is what guarantees that the file-based and RnBeads-based
-    # entry points cannot drift apart.
+    # Same input twice, so both columns must agree
     expect_equal(
         unname(deviations(res)[, 1]),
         unname(deviations(res)[, 2])

@@ -21,7 +21,7 @@ check_deviation_inputs(
 \item{msites}{A \code{GRanges} object with one range per CpG (width 1)
 and the metadata columns \code{score} (numeric methylation fraction
 between 0 and 1) and \code{coverage} (read count). Usually produced by
-\code{\link{read_methylome}}.}
+\code{\link{readMethylome}}.}
 
 \item{tf_bindsites}{A \code{GRangesList} named by motif. Each element is a
 \code{GRanges} of the occurrences of that motif. The names must include
@@ -36,7 +36,7 @@ bins in rows and the positions across the binding-site window in
 columns. Get it with \code{getGCfreq(motifSet = ...)} from the
 annotation package.}
 
-\item{binMsites}{The matrix returned by \code{\link{addGCBintoMethylome}},
+\item{binMsites}{The matrix returned by \code{\link{addGCBinToMethylome}},
 with the columns \code{gcbin} and \code{avg_mscore}.}
 
 \item{enhancer}{An optional \code{GRanges} object of regions, for example

@@ -33,8 +33,6 @@ test_that("computeZScoreVariability accepts a plain matrix", {
 })
 
 test_that("the calibrated null is not degenerate, unlike row-wise Z-scores", {
-    # Row-wise Z-scores have a standard deviation of exactly 1 per motif by
-    # construction, which is why they must not be fed to this function.
     set.seed(42)
     mat <- matrix(rnorm(200 * 12), nrow = 200, ncol = 12)
     rownames(mat) <- paste0("motif_", seq_len(200))
@@ -47,8 +45,6 @@ test_that("the calibrated null is not degenerate, unlike row-wise Z-scores", {
 })
 
 test_that("variability is centred near 1 under the null", {
-    # Pure noise: calibrated variability should sit around 1 and almost
-    # nothing should be called significant.
     set.seed(1)
     mat <- matrix(rnorm(300 * 20), nrow = 300, ncol = 20)
     rownames(mat) <- paste0("motif_", seq_len(300))

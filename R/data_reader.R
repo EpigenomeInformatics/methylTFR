@@ -1,4 +1,4 @@
-#' @title read_methylome
+#' @title readMethylome
 #' @description Import single-sample methylation calls into a
 #' \code{GRanges} object.
 #' @param filename Path to the methylation call file. Gzipped files are
@@ -17,9 +17,9 @@
 #' @return A \code{GRanges} object with one range per CpG and the metadata
 #' columns \code{score} (methylation fraction between 0 and 1) and
 #' \code{coverage} (read count). This is the \code{msites} input of
-#' \code{\link{computeDeviation}}, \code{\link{addGCBintoMethylome}} and
+#' \code{\link{computeDeviation}}, \code{\link{addGCBinToMethylome}} and
 #' the footprint plots.
-#' @seealso \code{\link{run_methyltfr}}, which calls this function for every
+#' @seealso \code{\link{runMethylTFR}}, which calls this function for every
 #' sample.
 #' @author Irem Gunduz
 #' @examples
@@ -29,9 +29,9 @@
 #'     "bissnp.tsv.gz",
 #'     package = "methylTFR"
 #' )
-#' bissnp <- read_methylome(bissnp_path, "bissnp")
+#' bissnp <- readMethylome(bissnp_path, "bissnp")
 #' @export
-read_methylome <- function(filename, type, cov_threshold = 1) {
+readMethylome <- function(filename, type, cov_threshold = 1) {
     type <- tolower(type)
     if (!file.exists(filename)) {
         stop(filename, " doesn't exist or path is incorrect!")
@@ -68,11 +68,10 @@ read_methylome <- function(filename, type, cov_threshold = 1) {
     )
 
     # Filter low coverage sites
-    gr_obj <- gr_obj[gr_obj$coverage >= cov_threshold]
+    gr_obj <- gr_obj[!is.na(gr_obj$coverage) &
+        gr_obj$coverage >= cov_threshold]
 
-    # A methylation score is a fraction. Anything else means the file did not
-    # have the layout the requested type expects, and returning it silently
-    # would put nonsense into every deviation computed downstream.
+    # Scores must be fractions
     if (length(gr_obj) > 0) {
         rng <- range(gr_obj$score, na.rm = TRUE)
         if (is.finite(rng[1]) && (rng[1] < 0 || rng[2] > 1)) {
@@ -172,10 +171,7 @@ parse_bismarkcov <- function(filename) {
 #' @return A list with the elements msites, mscore and cov.
 #' @keywords internal
 parse_encode <- function(filename) {
-    # bedMethyl: column 10 is read coverage and column 11 is the percentage of
-    # reads methylated. Columns are taken by position, and the header is
-    # detected rather than assumed, because files downloaded from ENCODE carry
-    # no header line while the bundled example does.
+    # bedMethyl: column 10 is coverage, column 11 is percent methylated
     msites <- data.table::fread(
         filename,
         header = "auto", showProgress = FALSE

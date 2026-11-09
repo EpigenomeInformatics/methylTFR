@@ -1,6 +1,6 @@
 #' @title resolve_diff_groups
 #' @description Derive and validate the group labels used by
-#' \code{differential_deviation_test}.
+#' \code{differentialDeviationTest}.
 #' @param deviations A matrix of deviation scores, motifs in rows.
 #' @param groups Group labels, or NULL to take them from the column names.
 #' @return The group labels as a \code{factor}.
@@ -68,7 +68,7 @@ group_mean_difference <- function(deviations, groups) {
     return(apply(group_means, 1, function(x) max(x) - min(x)))
 }
 
-#' @title differential_deviation_test
+#' @title differentialDeviationTest
 #' @description Test which motifs have different deviation scores between
 #' groups of samples. Adapted from \code{chromVAR::differentialDeviations}.
 #' @details With two groups, a Welch t-test (\code{parametric = TRUE}) or a
@@ -94,7 +94,7 @@ group_mean_difference <- function(deviations, groups) {
 #' it is the range of the group means.
 #' @seealso \code{\link{computeZScoreVariability}} for ranking motifs
 #' without group labels.
-#' @importFrom stats aggregate p.adjust
+#' @importFrom stats p.adjust
 #' @importFrom methods is
 #' @examples
 #' load(system.file("extdata", "tc_mem.rda", package = "methylTFR"))
@@ -106,7 +106,7 @@ group_mean_difference <- function(deviations, groups) {
 #'     strsplit(colnames(devs), split = "_"), `[`, character(1), 1L
 #' ))
 #'
-#' tc_result <- differential_deviation_test(
+#' tc_result <- differentialDeviationTest(
 #'     deviations = devs,
 #'     groups = groups,
 #'     alternative = "two.sided",
@@ -115,7 +115,7 @@ group_mean_difference <- function(deviations, groups) {
 #' )
 #' head(tc_result)
 #' @export
-differential_deviation_test <- function(
+differentialDeviationTest <- function(
     deviations,
     groups = NULL,
     motifs = rownames(deviations),

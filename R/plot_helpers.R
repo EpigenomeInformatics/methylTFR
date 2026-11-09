@@ -48,7 +48,7 @@ computeFootprint <- function(
 #' @description Methylation profile expected from GC content around the
 #' binding sites of one motif.
 #' @inheritParams computeDeviation
-#' @inheritParams run_methyltfr
+#' @inheritParams runMethylTFR
 #' @return a \code{data.table} with the columns \code{x} and
 #' \code{avg_methyl}.
 #' @keywords internal
@@ -62,6 +62,6 @@ computeExpectedFootprint <- function(
     if (!is.null(enhancer)) {
         gc_dist <- subsetByOverlaps(gc_dist, enhancer, ignore.strand = TRUE)
     }
-    bin_meth <- addGCBintoMethylome(msites, gc_dist)
+    bin_meth <- addGCBinToMethylome(msites, gc_dist)
     return(computeExpectations(bin_meth, gcfreq))
 }
