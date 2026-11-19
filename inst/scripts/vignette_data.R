@@ -52,7 +52,8 @@ msites <- subsetByOverlaps(msites, batfWindows, ignore.strand = TRUE)
 msites <- msites[seq_len(min(1000, length(msites)))]
 gcdist_sub <- subsetByOverlaps(gcdist[seqnames(gcdist) == "chr1"], msites)
 
-tf_bindsites <- list(BATF = batf)
+# All example CpGs are on chr1, so only chr1 sites are kept
+tf_bindsites <- list(BATF = batf[seqnames(batf) == "chr1"])
 gcfreqs <- list(BATF = gcfreqs[["BATF"]])
 
 saveCompressed(msites, file = "example_data.rda")
@@ -73,15 +74,37 @@ saveCompressed(msites_sub, file = "msites_sub.rda")
 saveCompressed(gcdist, file = "gcdist_BATF.rda")
 
 ############################################################################
-# Example deviations from Gunduz 2025 paper
+# Example deviations simulated from Gunduz 2025 summary statistics
 ############################################################################
+# The source data are under controlled access (dbGaP phs003204.v1.p1), so
+# samples are simulated from the per-motif mean and SD of each cell type.
 # Set MTFR_PSEUDOBULK_DIR to the folder with the *_deviations.RDS files
 pseudobulkDir <- Sys.getenv("MTFR_PSEUDOBULK_DIR")
 if (nzchar(pseudobulkDir)) {
-    tc_mem <- readRDS(file.path(pseudobulkDir, "Tc-Mem_deviations.RDS"))
-    tc_naive <- readRDS(file.path(pseudobulkDir, "Tc-Naive_deviations.RDS"))
-    tc_mem <- tc_mem[1:10, 1:5]
-    tc_naive <- tc_naive[1:10, 1:5]
+    simulateType <- function(ct, nMotifs = 10, nSamples = 5) {
+        src <- readRDS(file.path(pseudobulkDir, paste0(ct, "_deviations.RDS")))
+        dev <- as.matrix(deviations(src))[seq_len(nMotifs), , drop = FALSE]
+        stopifnot(ncol(dev) >= 10, all(is.finite(dev)))
+        ids <- sprintf("%s_%02d", ct, seq_len(nSamples))
+        sim <- matrix(
+            rnorm(nMotifs * nSamples,
+                mean = rowMeans(dev), sd = apply(dev, 1, sd)
+            ),
+            nrow = nMotifs, dimnames = list(rownames(dev), ids)
+        )
+        z <- (sim - rowMeans(sim)) / apply(sim, 1, sd)
+        se <- SummarizedExperiment::SummarizedExperiment(
+            assays = list(deviations = sim, z = z),
+            colData = S4Vectors::DataFrame(
+                cell_type = rep(ct, nSamples), row.names = ids
+            )
+        )
+        S4Vectors::metadata(se) <- list(simulated = TRUE)
+        methods::new("methylTFRdeviations", se)
+    }
+    set.seed(42)
+    tc_mem <- simulateType("Tc-Mem")
+    tc_naive <- simulateType("Tc-Naive")
     saveCompressed(tc_mem, file = "tc_mem.rda")
     saveCompressed(tc_naive, file = "tc_naive.rda")
 }

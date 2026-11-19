@@ -14,7 +14,8 @@ vignette: >
 library(BiocStyle)
 knitr::opts_chunk$set(
     collapse = TRUE,
-    comment = "#>"
+    comment = "#>",
+    fig.retina = 1
 )
 hasRnBeads <- requireNamespace("RnBeads", quietly = TRUE) &&
     requireNamespace("RnBeads.hg38", quietly = TRUE)
@@ -164,7 +165,7 @@ These annotations include:
 - **Motif GC frequency (`BATF_gcfreqs`)**: GC frequency profile specific to
     the BATF motif across TFBS, used to correct for sequence composition bias.
 - **TF binding sites (`BATF_tf_bindsites`)**: A `GRanges` object containing
-    the genomic coordinates of BATF binding sites.
+    the genomic coordinates of BATF binding sites on chromosome 1.
 - **Example methylation data (`example_data`)**: A small subset of methylation
     calls, read with `readMethylome()`, provided for demonstration purposes.
 

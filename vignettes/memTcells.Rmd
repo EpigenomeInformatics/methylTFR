@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
     fig.width = 6,
-    fig.height = 4
+    fig.height = 4,
+    fig.retina = 1
 )
 ```
 
@@ -73,17 +74,21 @@ cell_type_colors <- c(
 
 # The example dataset
 
-`immuneDeviations` contains bias-corrected deviation scores for
-pseudobulk methylomes of seven human immune cell types, with one column
-per donor sample and one row per JASPAR2020 motif. Four of the seven are
-T cell subsets, naive and memory in the cytotoxic and helper
-compartments; the remaining three provide a lineage contrast.
+`immuneDeviations` contains simulated deviation scores for seven human
+immune cell types, with one column per simulated sample and one row per
+JASPAR2020 motif. Four of the seven are T cell subsets, naive and memory
+in the cytotoxic and helper compartments; the remaining three provide a
+lineage contrast.
 
-The scores were computed with `methylTFR` from the single-cell immune
-methylome atlas of Gündüz *et al.* (2025,
-[doi:10.1101/2025.09.09.675101](https://doi.org/10.1101/2025.09.09.675101)),
-one pseudobulk per donor sample and cell type. The package ships only these
-per-motif scores, not the underlying methylation calls.
+The simulation is based on `methylTFR` scores of pseudobulk methylomes
+from the immune cell atlas of Gündüz *et al.* (2025,
+[doi:10.1101/2025.09.09.675101](https://doi.org/10.1101/2025.09.09.675101)).
+Those data are under controlled access, so only the mean and standard
+deviation of each motif in each cell type were taken from them, and 10
+samples per cell type were drawn from a normal distribution with these
+parameters. Differences between cell types are therefore kept, while
+correlations between motifs within a cell type are not. Sources and
+terms of all bundled data are listed in `?methylTFR`.
 
 ```{r load}
 load(system.file("extdata", "immuneDeviations.rda", package = "methylTFR"))
@@ -98,9 +103,7 @@ Provenance is stored in the object metadata.
 metadata(immuneDeviations)
 ```
 
-The source dataset has 38 donor samples per cell type. To keep the
-package small, we kept 15 samples per cell type and all motifs. The
-object is made by `inst/scripts/tcell_data.R`.
+The object is made by `inst/scripts/tcell_data.R`.
 
 ## Accessing the two assays
 
@@ -119,7 +122,7 @@ The two assays serve different purposes. Deviation scores are the
 quantitative estimate of motif activity and are the correct input to
 statistical tests. Row-wise Z-scores rescale every motif to a common
 spread, which makes rows comparable in a heatmap, but by construction
-the standard deviation of each row is 1.
+the standard deviation of each row is 1 (up to rounding).
 
 ```{r zscale}
 summary(as.vector(dev_mat))
