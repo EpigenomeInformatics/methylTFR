@@ -412,8 +412,9 @@ bisulfite sequencing (ENCSR663MXB, GRCh38). ENCODE data are released
 without restrictions. The script that creates them is
 `inst/scripts/vignette_data.R`.
 
-The bundled methylome is a single memory T helper sample, so the
-observed curve uses the `Th-Mem` colour and the expected curve is grey.
+The bundled methylome is a single adult T cell sample from ENCODE, not
+one of the subsets above, so it is labelled `T cell`. The observed curve
+uses a T cell colour and the expected curve is grey.
 
 ```{r fpdata}
 load(system.file("extdata", "BATF_tf_bindsites.rda", package = "methylTFR"))
@@ -421,8 +422,8 @@ load(system.file("extdata", "BATF_gcfreqs.rda", package = "methylTFR"))
 load(system.file("extdata", "gcdist_BATF.rda", package = "methylTFR"))
 load(system.file("extdata", "msites_sub.rda", package = "methylTFR"))
 
-batf_cell_type <- "Th-Mem"
-batf_colour <- cell_type_colors[[batf_cell_type]]
+batf_cell_type <- "T cell"
+batf_colour <- cell_type_colors[["Th-Mem"]]
 ```
 
 ## Observed and expected profiles
