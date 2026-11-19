@@ -1,3 +1,7 @@
+# methylTFR 0.99.11
+
+* T-cell example data are now simulated, bundled data sources and licenses are listed in `?methylTFR`, and the copyright holder is Saarland University.
+
 # methylTFR 0.99.10
 
 Changes from the Bioconductor review.
