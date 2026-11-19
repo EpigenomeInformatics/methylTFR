@@ -83,7 +83,7 @@ Sources and terms of all bundled data are listed in `?methylTFR`.
 
 If you use `methylTFR` in your work, please cite:
 
-> Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of DNA methylation signatures in TFBS. R package version 0.99.10. https://github.com/EpigenomeInformatics/methylTFR
+> Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of DNA methylation signatures in TFBS. R package version 0.99.11. https://github.com/EpigenomeInformatics/methylTFR
 
 The method is described in the preprint:
 
@@ -94,7 +94,7 @@ The method is described in the preprint:
   title = {methylTFR: Quantification of DNA methylation signatures in TFBS},
   author = {Irem B. Gunduz and Sarath Kumar Murugan and Fabian Mueller},
   year = {2026},
-  note = {R package version 0.99.10},
+  note = {R package version 0.99.11},
   url = {https://github.com/EpigenomeInformatics/methylTFR},
   doi = {10.18129/B9.bioc.methylTFR},
 }
