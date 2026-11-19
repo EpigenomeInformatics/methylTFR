@@ -10,8 +10,9 @@
 #   Gunduz IB et al. bioRxiv 2025.09.09.675101.
 #   doi:10.1101/2025.09.09.675101
 #
-# Samples are subset per cell type; all motifs are kept.
-# Differences are naive minus memory, as in 10_zdiff.R.
+# The source data are under controlled access, so the shipped samples
+# are simulated from per-cell-type motif means and SDs; all motifs are
+# kept. Differences are naive minus memory, as in 10_zdiff.R.
 #
 # Run from the package root:
 #     MTFR_PSEUDOBULK_DIR=/path/to/pseudobulks \
@@ -19,7 +20,7 @@
 #
 # Environment variables:
 #     MTFR_PSEUDOBULK_DIR  directory holding *_deviations.RDS (required)
-#     MTFR_N_PER_TYPE      samples kept per cell type (default 15)
+#     MTFR_N_PER_TYPE      simulated samples per cell type (default 10)
 #     MTFR_EXTDATA_DIR     output directory (default inst/extdata)
 #####################################################################
 
@@ -42,7 +43,7 @@ if (!nzchar(pseudobulk_dir) || !dir.exists(pseudobulk_dir)) {
         "*_deviations.RDS files."
     )
 }
-n_per_type <- as.integer(Sys.getenv("MTFR_N_PER_TYPE", "15"))
+n_per_type <- as.integer(Sys.getenv("MTFR_N_PER_TYPE", "10"))
 extdata_dir <- Sys.getenv("MTFR_EXTDATA_DIR", file.path("inst", "extdata"))
 
 # T cell subsets plus three other lineages
@@ -111,11 +112,11 @@ if (!identical(cell_type, from_coldata)) {
     )
 }
 
-sample_annot <- do.call(base::rbind, unname(lapply(objs, function(x) {
-    as.data.frame(colData(x))[, c("CommonMinID", "condition")]
-})))
-rownames(sample_annot) <- colnames(dev_mat)
-sample_annot$cell_type <- factor(cell_type, levels = keep_types)
+# Only the cell type is kept; donor IDs and conditions are not shipped
+sample_annot <- data.frame(
+    cell_type = factor(cell_type, levels = keep_types),
+    row.names = colnames(dev_mat)
+)
 
 message(sprintf(
     "Loaded %d motifs x %d samples across %d cell types",
@@ -137,30 +138,68 @@ if (any(!finite_motif)) {
 }
 
 ## ------------------------------------------------------------------
-## 3. Reduce the sample axis
+## 3. Simulate samples from per-cell-type summary statistics
 ## ------------------------------------------------------------------
+## The source data are under controlled access (dbGaP phs003204.v1.p1),
+## so no per-sample values are shipped. For each cell type, the mean and
+## SD of every motif are taken across all source samples, and
+## n_per_type samples are drawn from a normal distribution with those
+## parameters.
 
-selected <- unlist(lapply(keep_types, function(ct) {
-    idx <- which(sample_annot$cell_type == ct)
-    if (length(idx) <= n_per_type) idx else sort(sample(idx, n_per_type))
-}))
+min_source <- 10
+n_source <- table(sample_annot$cell_type)
+stopifnot(all(n_source >= min_source))
 
-dev_mat <- dev_mat[, selected, drop = FALSE]
-sample_annot <- sample_annot[selected, , drop = FALSE]
+type_mean <- vapply(keep_types, function(ct) {
+    rowMeans(dev_mat[, sample_annot$cell_type == ct, drop = FALSE])
+}, numeric(nrow(dev_mat)))
+type_sd <- vapply(keep_types, function(ct) {
+    apply(dev_mat[, sample_annot$cell_type == ct, drop = FALSE], 1, stats::sd)
+}, numeric(nrow(dev_mat)))
+rownames(type_mean) <- rownames(type_sd) <- rownames(dev_mat)
+
+sim <- lapply(keep_types, function(ct) {
+    matrix(
+        stats::rnorm(nrow(type_mean) * n_per_type,
+            mean = type_mean[, ct], sd = type_sd[, ct]
+        ),
+        nrow = nrow(type_mean),
+        dimnames = list(
+            rownames(type_mean),
+            sprintf("%s_%02d", ct, seq_len(n_per_type))
+        )
+    )
+})
+# Three significant digits keep the .rda file small
+sim_mat <- signif(do.call(base::cbind, sim), 3)
+
+sample_annot <- data.frame(
+    cell_type = factor(rep(keep_types, each = n_per_type), levels = keep_types),
+    row.names = colnames(sim_mat)
+)
+stopifnot(
+    identical(colnames(sample_annot), "cell_type"),
+    !any(colnames(sim_mat) %in% colnames(dev_mat))
+)
 
 message(sprintf(
-    "Keeping %d motifs x %d samples (%d per cell type)",
-    nrow(dev_mat), ncol(dev_mat), n_per_type
+    "Simulated %d motifs x %d samples (%d per cell type) from %d source samples",
+    nrow(sim_mat), ncol(sim_mat), n_per_type, sum(n_source)
 ))
+
+# The source matrix is not used past this point
+dev_mat <- sim_mat
+rm(sim_mat, sim, objs)
 
 ## ------------------------------------------------------------------
 ## 4. Row-wise Z-scores
 ## ------------------------------------------------------------------
-## Recomputed on the subset, as they depend on the samples present
+## Computed on the simulated samples
 
 row_sd <- apply(dev_mat, 1, stats::sd)
 z_mat <- (dev_mat - rowMeans(dev_mat)) / row_sd
 z_mat[!is.finite(z_mat)] <- 0
+z_mat <- round(z_mat, 3)
 
 ## ------------------------------------------------------------------
 ## 5. Sanity checks
@@ -216,9 +255,11 @@ metadata(immuneDeviations) <- list(
     motifSet = "jaspar2020_distal",
     genome = "hg38",
     source = paste(
-        "Pseudobulk single-cell methylomes of human immune cells;",
+        "Simulated from per-cell-type motif means and SDs of pseudobulk",
+        "single-cell methylomes of human immune cells;",
         "see inst/scripts/tcell_data.R"
     ),
+    simulated = TRUE,
     citation = paste(
         "Gunduz IB, Wei B, Chen DC, Wang W, Hariharan M, Norell T,",
         "et al. Dissecting epigenome dynamics in human immune cells",
