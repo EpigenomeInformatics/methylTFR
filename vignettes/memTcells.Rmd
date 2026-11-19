@@ -449,6 +449,12 @@ plotExpectedFootprint(
     ))
 ```
 
+The expected profile is nearly flat here. In this small example,
+methylation differs little between GC bins (about 0.76 to 0.78), so the
+GC content of the windows barely changes the expected level. With a
+genome-wide methylome the bins differ more and the expected profile
+follows the GC content of the motif.
+
 ## Bias-corrected footprint
 
 `plotMotifFootprint()` combines the two profiles into a single corrected
