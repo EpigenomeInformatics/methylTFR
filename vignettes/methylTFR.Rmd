@@ -1,6 +1,6 @@
 ---
 title: "methylTFR: DNA Methylation Signatures in TFBS"
-author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
+author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Mueller"
 date: "`r Sys.Date()`"
 package: methylTFR
 output: BiocStyle::html_document

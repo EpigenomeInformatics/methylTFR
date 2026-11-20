@@ -1,6 +1,6 @@
 ---
 title: "Case study: TF activity in memory vs. naive T cells"
-author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Muller"
+author: "Irem B. Gündüz, Sarath Kumar Murugan, Fabian Mueller"
 date: "`r Sys.Date()`"
 package: methylTFR
 output: BiocStyle::html_document

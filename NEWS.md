@@ -1,3 +1,7 @@
+# methylTFR 0.99.12
+
+* Removed unused Suggests (RefManageR, sessioninfo) and fixed the author name in the vignettes.
+
 # methylTFR 0.99.11
 
 * T-cell example data are now simulated, bundled data sources and licenses are listed in `?methylTFR`, and the copyright holder is Saarland University.

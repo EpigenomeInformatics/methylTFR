@@ -1,7 +1,7 @@
 Package: methylTFR
 Title: Quantification of DNA Methylation Signatures in TFBS
-Version: 0.99.11
-Date: 2026-11-19
+Version: 0.99.12
+Date: 2026-11-20
 Authors@R: c(
     person("Irem B.", "Gündüz", , "irembgunduz@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2641-0916")),
@@ -51,11 +51,9 @@ Suggests:
     ComplexHeatmap,
     grid,
     knitr,
-    RefManageR,
     RnBeads,
     RnBeads.hg38,
     rmarkdown,
-    sessioninfo,
     testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
