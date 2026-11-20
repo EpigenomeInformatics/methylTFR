@@ -1,0 +1,169 @@
+# *methylTFR* : Quantification of DNA Methylation Patterns in TFBS
+
+`methylTFR` is an R-package to analyze DNA methylation signatures in
+transcription factor binding sites in each individual cells or samples.
+
+## Installation instructions
+
+Get the latest release `methylTFR` from
+[Bioconductor](http://bioconductor.org/) using the following code:
+
+``` r
+
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+BiocManager::install("methylTFR")
+```
+
+And the development version from
+[GitHub](https://github.com/EpigenomeInformatics/methylTFR) with:
+
+``` r
+
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("EpigenomeInformatics/methylTFR")
+```
+
+## Documentation
+
+Full documentation and vignettes are hosted at
+[epigenomeinformatics.github.io/methylTFR](https://epigenomeinformatics.github.io/methylTFR/):
+
+- [Get
+  started](https://epigenomeinformatics.github.io/methylTFR/articles/methylTFR.html)
+  — reading data, computing deviations, and footprints.
+- [Case study: memory vs. naive T
+  cells](https://epigenomeinformatics.github.io/methylTFR/articles/memTcells.html)
+  — differential TF activity on bundled example data.
+
+## Quick Start
+
+This is a basic example which shows you how to run `methylTFR` :
+
+``` r
+
+library(methylTFRAnnotationHg38) # annotation package for hg38
+library(methylTFR)
+
+gcfreqs <- getGCfreq(motifSet = "jaspar2020")
+gc_dist <- getGenomeGC()
+tf_bindsites <- getTFbindsites(motifSet = "jaspar2020")
+
+# deviation score matrix
+devs <- runMethylTFR(
+  sample_ann = "samples.tsv", # sample annotation file in sample_dir
+  sample_dir = "samples_dir", # where the EPP files are
+  threads = 8, # number of threads
+  chunkSize = 10, # number of motifs per chunk
+  sampleColName = "bedFile", # column with the EPP file names
+  tf_bindsites = tf_bindsites, # TF binding sites
+  gcfreqs = gcfreqs, # GC frequency
+  gc_dist = gc_dist, # GC distribution
+  filetype = "EPP" # file type
+)
+```
+
+## Example data
+
+The example methylation data in `inst/extdata` are derived from ENCODE
+whole-genome bisulfite sequencing (ENCSR663MXB, GRCh38). ENCODE data are
+released without restrictions.
+
+`immuneDeviations`, `tc_mem` and `tc_naive` are simulated deviation
+scores. They were drawn from per-cell-type motif means and SDs of the
+immune cell atlas in Gündüz *et al.* (2025,
+[doi:10.1101/2025.09.09.675101](https://doi.org/10.1101/2025.09.09.675101)),
+whose data are under controlled access. They contain no individual-level
+values. Sources and terms of all bundled data are listed in
+[`?methylTFR`](https://epigenomeinformatics.github.io/methylTFR/reference/methylTFR-package.md).
+
+## Citation
+
+If you use `methylTFR` in your work, please cite:
+
+> Gunduz IB, Murugan SK, Mueller F (2026). methylTFR: Quantification of
+> DNA methylation signatures in TFBS. R package version 0.99.12.
+> <https://github.com/EpigenomeInformatics/methylTFR>
+
+The method is described in the preprint:
+
+> Gündüz IB, Nitsch R, Murugan SK, Müller F (2026). methylTFR:
+> Quantification of transcription factor activity from DNA methylation.
+> bioRxiv.
+> <https://www.biorxiv.org/content/10.64898/2026.09.29.755279v1>
+
+``` bibtex
+@Manual{methylTFR,
+  title = {methylTFR: Quantification of DNA methylation signatures in TFBS},
+  author = {Irem B. Gunduz and Sarath Kumar Murugan and Fabian Mueller},
+  year = {2026},
+  note = {R package version 0.99.12},
+  url = {https://github.com/EpigenomeInformatics/methylTFR},
+  doi = {10.18129/B9.bioc.methylTFR},
+}
+```
+
+Run `citation("methylTFR")` in R to get the entry for the version you
+have installed.
+
+# Package index
+
+## Import
+
+- [`readMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/readMethylome.md)
+  : readMethylome
+
+## Compute deviations
+
+- [`runMethylTFR()`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFR.md)
+  : runMethylTFR
+- [`runMethylTFRFromRnBeads()`](https://epigenomeinformatics.github.io/methylTFR/reference/runMethylTFRFromRnBeads.md)
+  : runMethylTFRFromRnBeads
+- [`computeDeviation()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeDeviation.md)
+  : computeDeviation
+- [`addGCBinToMethylome()`](https://epigenomeinformatics.github.io/methylTFR/reference/addGCBinToMethylome.md)
+  : addGCBinToMethylome
+
+## Downstream analysis
+
+- [`differentialDeviationTest()`](https://epigenomeinformatics.github.io/methylTFR/reference/differentialDeviationTest.md)
+  : differentialDeviationTest
+- [`computeZScoreVariability()`](https://epigenomeinformatics.github.io/methylTFR/reference/computeZScoreVariability.md)
+  : computeZScoreVariability
+
+## Footprints
+
+- [`plotExpectedFootprint()`](https://epigenomeinformatics.github.io/methylTFR/reference/plotExpectedFootprint.md)
+  : plotExpectedFootprint
+- [`plotMotifFootprint()`](https://epigenomeinformatics.github.io/methylTFR/reference/plotMotifFootprint.md)
+  : plotMotifFootprint
+
+## Result class
+
+- [`methylTFRdeviations-class`](https://epigenomeinformatics.github.io/methylTFR/reference/methylTFRdeviations-class.md)
+  : methylTFRdeviations
+- [`deviations()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviations.md)
+  : deviations
+- [`deviationZScores()`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores.md)
+  : deviationZScores
+- [`cbind(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/cbind-methylTFRdeviations-method.md)
+  : cbind
+- [`deviationZScores(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviationZScores-methylTFRdeviations-method.md)
+  : deviationZScores
+- [`deviations(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/deviations-methylTFRdeviations-method.md)
+  : deviations
+- [`rbind(`*`<methylTFRdeviations>`*`)`](https://epigenomeinformatics.github.io/methylTFR/reference/rbind-methylTFRdeviations-method.md)
+  : rbind
+
+# Articles
+
+### Vignettes
+
+- [methylTFR: DNA Methylation Signatures in
+  TFBS](https://epigenomeinformatics.github.io/methylTFR/articles/methylTFR.md):
+- [Case study: TF activity in memory vs. naive T
+  cells](https://epigenomeinformatics.github.io/methylTFR/articles/memTcells.md):
